@@ -1,0 +1,7 @@
+dist
+node_modules
+tmp
+pnpm-lock.yaml
+docs/NOIT_MASTER_PROMPT.md
+docs/validation/interviews
+docs/market-research/competitors
