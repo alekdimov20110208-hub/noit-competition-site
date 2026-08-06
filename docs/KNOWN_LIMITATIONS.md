@@ -40,7 +40,7 @@ This document describes the honest Phase 1 and Phase 2A boundary. It must be upd
 - The permanent logo is not present. The current prototype uses a replaceable text-only `BudoGraph` wordmark until the author supplies a hand-drawn original.
 - No external images, downloaded fonts, stock artwork, or visual logo assets are used.
 - Responsive and accessible behavior is an implementation goal, but formal accessibility certification and exhaustive assistive-technology, device, and browser testing are outside this documentation pass.
-- A Phase 2A in-app Chromium pass at 320, 390, 768, 1080, and 1440 pixels is recorded in `docs/TEST_EVIDENCE.md`; it is not exhaustive real-device, multi-browser, zoom, or assistive-technology coverage.
+- A Phase 2A.1 in-app Chromium pass at 320, 327, 360, 390, 768, 1080, and 1440 pixels is recorded in `docs/TEST_EVIDENCE.md`; every primary page was checked at 320 and 390 pixels, but this is not exhaustive real-device, multi-browser, zoom, or assistive-technology coverage.
 - Automated tests are intentionally focused and do not prove the absence of defects. Broader keyboard, screen-reader, contrast, empty/error-state, real-device, and cross-browser checks are still required.
 - This file records limitations; it does not claim that lint, type checking, tests, or the production build have passed. Verified command results belong in separate test evidence.
 - The third-party register covers the named top-level Phase 1 and Phase 2A dependencies and tooling. The full transitive lockfile still requires a final redistribution and notice audit.

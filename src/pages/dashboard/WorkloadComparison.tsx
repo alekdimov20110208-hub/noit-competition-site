@@ -52,23 +52,27 @@ export function WorkloadComparison({
         <div className="avatar avatar--small" aria-hidden="true">
           {getInitials(workload.member.name)}
         </div>
-        <div className="workload-row__body">
-          <div className="workload-row__heading">
-            <span className="workload-row__identity">
-              <strong>{workload.member.name}</strong>
-              <span>
-                {t("dashboard.workload.activeRisk", {
-                  active: formatNumber(workload.active),
-                  risk: formatNumber(workload.atRisk),
-                })}
-              </span>
-            </span>
-            <StatusBadge
-              compact
-              tone={workloadSignalTone(signal)}
-              label={signalLabel}
-            />
-          </div>
+        <span className="workload-row__identity">
+          <strong>{workload.member.name}</strong>
+          <span>
+            {t("dashboard.workload.activeRisk", {
+              active: formatNumber(workload.active),
+              risk: formatNumber(workload.atRisk),
+            })}
+          </span>
+        </span>
+        <StatusBadge
+          compact
+          tone={workloadSignalTone(signal)}
+          label={signalLabel}
+        />
+        <strong
+          className="workload-row__count"
+          aria-hidden={completion === null ? true : undefined}
+        >
+          {completion === null ? "—" : formatPercent(completion)}
+        </strong>
+        <div className="workload-row__details">
           <dl className="workload-row__stats">
             <div>
               <dt>{t("team.assigned")}</dt>
@@ -106,12 +110,6 @@ export function WorkloadComparison({
             </div>
           )}
         </div>
-        <strong
-          className="workload-row__count"
-          aria-hidden={completion === null ? true : undefined}
-        >
-          {completion === null ? "—" : formatPercent(completion)}
-        </strong>
       </article>
     );
   }

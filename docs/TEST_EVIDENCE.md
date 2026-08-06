@@ -195,3 +195,109 @@ response was simulated in an automated unit test rather than by changing the
 host operating-system setting. The historical NOIT regulation in this
 repository applies to the 2025–2026 competition year and must be reverified for
 any later year.
+
+## Phase 2A.1 responsive stabilization — 2026-08-06
+
+The final Phase 2A.1 application source was tested after its last component and
+CSS change and before documentation-only evidence edits. Its exact source
+identity is the Phase 2A parent commit
+`f9f1ffece3a529f188bb9b8f3f6fa744087e4217` plus the application patch whose
+Git object hash is `19b7e9d8b0c15d5e18659484889e50088b3122f4` (`index.html`,
+`package.json`, and `src/`). The final commit hash is retained in Git history
+and the completion report rather than embedded here, which would make this
+document self-referential.
+
+Verified locally on Windows with Node.js `v24.16.0`, pnpm `11.9.0`, Vite
+`6.4.3`, and the Codex in-app Chromium browser.
+
+### Root-cause and automated protection
+
+The browser screenshots were traced to layout rules rather than data or routing
+defects:
+
+- status badges inherited aggressive word-breaking and allowed normal wrapping;
+- mobile affected-task and deadline rows retained desktop horizontal
+  competition between long titles and status metadata;
+- the workload identity retained a `170px` flex basis after its parent switched
+  to a column, turning a desktop width basis into vertical empty space;
+- the five summary metrics used an undifferentiated two-column flow, leaving an
+  orphaned fifth item;
+- the document reserved a fixed bottom amount that did not share the fixed
+  navigation's safe-area calculation;
+- header controls had desktop gaps and sizing at the narrowest breakpoint; and
+- the full Changes & Plan B navigation label was too long for the desktop
+  sidebar measure.
+
+Three CSS-contract tests were added. They assert indivisible status labels,
+deliberate mobile summary/deadline/workload/affected-task compositions, and
+safe-area-aware navigation and page spacing. The complete suite now contains 34
+tests.
+
+### Final browser matrix
+
+The Dashboard was checked in the following explicit combinations:
+
+| Viewport | Language  | Theme preference | Workspace |
+| -------- | --------- | ---------------- | --------- |
+| 320 px   | Bulgarian | Dark             | Stress    |
+| 327 px   | English   | System           | Stress    |
+| 360 px   | English   | Light            | Standard  |
+| 390 px   | Bulgarian | Light            | Stress    |
+| 768 px   | English   | Dark             | Stress    |
+| 1080 px  | Bulgarian | System           | Standard  |
+| 1440 px  | English   | Light            | Standard  |
+
+The checked device resolved System to Dark. Live System preference changes are
+covered by the existing `matchMedia` listener test. In addition, Dashboard,
+Tasks, Team, Changes & Plan B, and Templates were each checked with the stress
+workspace at 320 px in Bulgarian/Dark and at 390 px in English/Light.
+
+Results from the final source:
+
+- No tested page produced application-content horizontal overflow or a clipped
+  interactive control. No visible status badge clipped or wrapped internally.
+- At 320 and 390 px, every page's final content item could be scrolled 39–41 px
+  clear of the fixed navigation. The page and navigation use the same
+  `safe-area-inset-bottom` basis.
+- The 320–390 px task summary used an intentional full-width total followed by
+  a balanced two-by-two status grid.
+- Affected tasks stacked title before status; deadlines stacked date, content,
+  and status; workload identities used natural heights of 31–63 px instead of a
+  170 px vertical basis. No large unexplained workload gap remained.
+- The 320 px header kept the wordmark plus all five language/theme buttons in
+  bounds with no overlap or clipped controls. Touch controls remained 32 px
+  square inside the compact grouped control.
+- The stress Tasks page rendered all 44 rows at 320 and 390 px. The stress
+  Dashboard rendered all 18 milestone nodes; its disclosure opened the 12-item
+  continuation in the existing 420 px capped scroll region.
+- A 143-character mixed English/Bulgarian task title opened in a full-width
+  320 px drawer. Its 273 px title area had equal client and scroll widths, its
+  badges remained intact, and the document had no horizontal overflow.
+- The drawer initially focused its close control, retained focus inside on
+  `Tab`, closed with `Escape`, and restored focus to the originating task link.
+- A Dashboard attention link opened exactly
+  `/tasks?task=task-guest-itinerary`; refresh reopened the same task, Back
+  returned to the Dashboard and restored its trigger focus, and Forward
+  reopened the drawer. An unknown task ID displayed the localized warning and
+  opened no dialog.
+- The Bulgarian desktop sidebar uses the concise `План Б` label in a single
+  44 px row while the full page heading remains unchanged.
+
+### Console audit
+
+The final interactive session accumulated zero application warnings and zero
+application errors. The screenshot's `/favicon.ico` 404 was application-owned;
+an explicit blank data favicon now prevents that implicit request without
+introducing a permanent logo. The screenshot's asynchronous message-channel
+entries were not reproduced in the controlled app console, and a source scan
+found no browser-extension/runtime messaging API use. They are therefore
+reported as browser-extension or DevTools-runtime noise, not silently counted
+as application success.
+
+### Verification boundary
+
+This is controlled Chromium emulation, not physical-device, Safari, Firefox,
+screen-reader, zoom, or formal performance/accessibility certification. The
+browser pass verifies the listed source identity and interactions only. The
+2025–2026 NOIT regulation remains historical and requires re-verification for a
+later competition year.
