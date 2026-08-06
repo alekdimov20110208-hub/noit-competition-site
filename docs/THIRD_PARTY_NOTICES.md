@@ -6,9 +6,11 @@ BudoGraph source code is distributed under the **GNU General Public License vers
 
 Third-party packages listed below remain under their respective licenses. Their inclusion does not change their copyright ownership or license terms.
 
-## Phase 1 direct dependency register
+## Phase 1 and Phase 2A direct dependency register
 
-Versions are the resolved versions recorded by `pnpm-lock.yaml` for the Phase 1 workspace on 2026-08-04.
+Versions are the resolved versions recorded by `pnpm-lock.yaml` for the Phase 1
+workspace on 2026-08-04 and rechecked after Phase 2A on 2026-08-06. Phase 2A
+added no dependency or external-asset packages.
 
 Runtime packages:
 
@@ -40,7 +42,7 @@ The installed package distributions contain their applicable license texts. `pnp
 
 ## Assets
 
-At the time of this Phase 1 register:
+At the time of this Phase 2A review:
 
 - no externally downloaded images are used;
 - no external or downloaded font files are used;
@@ -52,4 +54,7 @@ When the author's hand-drawn logo is added, record the original source, author/o
 
 ## Audit boundary
 
-This file is a Phase 1 register, not legal advice and not a claim that a final redistribution audit has been completed. The package manifest and lockfile must be reviewed again before submission, deployment, or distribution.
+This file is a Phase 1/Phase 2A direct-dependency register, not legal advice and
+not a claim that a final redistribution audit has been completed. The package
+manifest and lockfile must be reviewed again before submission, deployment, or
+distribution.

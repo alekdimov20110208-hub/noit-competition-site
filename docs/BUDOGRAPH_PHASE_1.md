@@ -4,7 +4,7 @@
 
 BudoGraph is a focused event-organization application for martial-arts seminars and events. Its primary job is to help the organizer maintain one current operational overview when responsibilities, changes, deadlines, and context would otherwise be spread across helpers, messages, calls, documents, and memory.
 
-BudoGraph supports direct communication; it does not replace it. A critical operational change may show `Direct contact recommended`, but the prototype does not call, message, or notify anyone.
+BudoGraph supports direct communication; it does not replace it. A critical operational change may show a scenario-specific escalation instruction, but the prototype does not call, message, or notify anyone.
 
 ## Decision and validation boundary
 
@@ -33,6 +33,44 @@ The approved Phase 1 product scope is:
 7. **Templates** - a reusable seminar-template preview with the common venue, instructor, travel, accommodation, schedule, team, registration, communication, equipment, and contingency preparation areas. Phase 1 may use it to restore the local demonstration state; it is not a full template editor.
 8. **Local persistence** - supported task and change interactions persist across refreshes in the same browser profile through `localStorage`.
 
+## Phase 2A - UX foundation
+
+Phase 2A preserves the Phase 1 product slice and its `budograph.workspace.v1` data shape. It improves how the existing information is presented and reached; it does not replace the application or change the approved core idea.
+
+### Localization architecture
+
+- Bulgarian (`bg`) and English (`en`) use central, typed message catalogs rather than component-level language checks.
+- On a first visit with no saved language, the first available device/browser locale beginning with `bg` selects Bulgarian; every other locale selects English.
+- A manual language choice is stored in the separate versioned `budograph.preferences.v1` record and takes precedence on later visits.
+- Dates, date ranges, relative dates, counts, percentages, and plural forms use the selected locale through `Intl` APIs.
+- The BudoGraph product name and fictional personal names are not translated. The supplied fictional demonstration workspace has localized operational copy without changing its stable IDs or stored schema.
+
+### Theme architecture
+
+- The available preferences are `System`, `Light`, and `Dark`.
+- With no explicit saved theme, the application uses `System` and resolves the current `prefers-color-scheme` value.
+- While `System` remains selected, a media-query listener updates the resolved theme when the device preference changes.
+- A small script in `index.html` reads the same validated preference shape before React renders and applies the initial `lang`, resolved theme, color scheme, and theme color to reduce an incorrect-theme flash.
+- React keeps the document language, metadata, theme attribute, and color scheme synchronized. Semantic CSS tokens provide designed light and dark palettes rather than a blanket color inversion.
+
+### Routing and task deep links
+
+The application still uses a small History API router and has no routing-library dependency. Exact top-level paths remain `/`, `/tasks`, `/team`, `/changes`, and `/templates`.
+
+A task detail link uses:
+
+```text
+/tasks?task=<encoded-task-id>
+```
+
+The query parameter is URL-decoded and resolved only against tasks in the current event. A known current-event task opens its detail. A missing, blank, duplicated, malformed, unknown, or wrong-event task value does not throw or substitute another task; the Tasks view remains available with an invalid-task state where applicable. URL parsing supports direct loading, refresh, and browser back/forward navigation. In-app task entries carry a small typed History state marker, so closing a detail returns to its originating page without adding a duplicate Tasks entry; directly loaded URLs use a safe Tasks-list fallback.
+
+### Dashboard and responsive behavior
+
+The Phase 2A Dashboard prioritizes what requires attention, what is late or blocked, what happens next, workload risk, readiness, and recent change impact. Readiness is explicitly the share of current-event tasks marked completed. Completed, active, blocked, overdue, and total counts are labelled so that overdue remains a risk flag rather than an extra task-status bucket. Attention and deadline entries link directly to their task details. Recent-first change summaries include response state and connect changes to affected work. Workload rows separate assigned and state-specific counts and expose blocked, overdue, or high-active-load flags using one shared threshold. Changes, team workload, and milestones use compact previews with bounded or collapsible continuations for longer datasets.
+
+The shell keeps language and theme controls available in a sticky application header. Layout rules account for narrow phones, longer Bulgarian text, long names and task titles, wrapping badges, and large milestone/task sets. The completed in-app Chromium checks are recorded separately in `docs/TEST_EVIDENCE.md`; formal assistive-technology and cross-browser coverage remains outside Phase 2A.
+
 ## Explicitly excluded
 
 Phase 1 does not contain:
@@ -46,6 +84,8 @@ Phase 1 does not contain:
 - production analytics, audit logs, backups, monitoring, or multi-user collaboration;
 - claims that the prototype is suitable for real personal data; or
 - a generated, stock, or permanent visual logo.
+
+Phase 2A also intentionally excludes budget management, Kanban, calendar, and Gantt views. It does not change any of the production-service exclusions above.
 
 Placeholders for excluded functions are not part of the required core screens and must not be presented as working features.
 
@@ -63,6 +103,23 @@ Workspace/domain state and calculations
           |
           v
 Browser localStorage persistence
+```
+
+Phase 2A adds independent preference and URL-state paths around that unchanged workspace flow:
+
+```text
+Device locale + prefers-color-scheme
+          |
+          v
+Typed preference state <----> budograph.preferences.v1
+          |
+          v
+Localized React shell and semantic theme tokens
+
+pathname + search <----> typed History API location
+                              |
+                              v
+                    current-event task resolution
 ```
 
 The domain model uses stable IDs and includes at least:
@@ -93,6 +150,8 @@ There is no server validation in Phase 1 because there is no server. This is a k
 4. The organizer reviews a disruption, sees affected tasks, acknowledges it, and advances the response while using direct communication outside BudoGraph when recommended.
 5. The organizer previews the seminar template and may reset the local demonstration state.
 6. The browser reloads the saved local state for the same browser profile.
+7. On first use, the shell follows the detected language and system theme; a manual language or theme choice persists independently of the event workspace.
+8. A Dashboard attention or deadline link opens the exact task at `/tasks?task=<encoded-task-id>`; Back returns to the previous page and a valid refreshed URL resolves the same task.
 
 ## Running and verification commands
 
@@ -105,6 +164,7 @@ pnpm build
 pnpm test
 pnpm lint
 pnpm typecheck
+pnpm format:check
 ```
 
 Passing results must be captured only after the commands are actually run. This scope document does not itself provide test evidence.

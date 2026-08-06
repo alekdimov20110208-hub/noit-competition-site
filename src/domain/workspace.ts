@@ -196,6 +196,10 @@ function isEventTemplate(value: unknown): value is EventTemplate {
   );
 }
 
+function hasUniqueIds(values: readonly { id: string }[]): boolean {
+  return new Set(values.map((value) => value.id)).size === values.length;
+}
+
 function isWorkspaceState(value: unknown): value is WorkspaceState {
   return (
     isRecord(value) &&
@@ -210,6 +214,7 @@ function isWorkspaceState(value: unknown): value is WorkspaceState {
     value.teamMembers.every(isTeamMember) &&
     Array.isArray(value.tasks) &&
     value.tasks.every(isTask) &&
+    hasUniqueIds(value.tasks) &&
     Array.isArray(value.changes) &&
     value.changes.every(isEventChange) &&
     Array.isArray(value.templates) &&
@@ -248,24 +253,43 @@ export function isTaskOverdue(task: Task, now = new Date()): boolean {
   );
 }
 
-export function getReadinessPercent(tasks: Task[]): number {
-  if (tasks.length === 0) return 0;
+export interface ReadinessSummary {
+  completed: number;
+  total: number;
+  percent: number;
+}
+
+export function getReadinessSummary(tasks: Task[]): ReadinessSummary {
+  const total = tasks.length;
   const completed = tasks.filter((task) => task.status === "completed").length;
-  return Math.round((completed / tasks.length) * 100);
+
+  return {
+    completed,
+    total,
+    percent: total === 0 ? 0 : Math.round((completed / total) * 100),
+  };
+}
+
+export function getReadinessPercent(tasks: Task[]): number {
+  return getReadinessSummary(tasks).percent;
 }
 
 export interface TaskCounts {
   completed: number;
-  inProgress: number;
+  active: number;
   blocked: number;
   overdue: number;
   total: number;
 }
 
+function isTaskActive(task: Task): boolean {
+  return task.status === "not-started" || task.status === "in-progress";
+}
+
 export function getTaskCounts(tasks: Task[], now = new Date()): TaskCounts {
   return {
     completed: tasks.filter((task) => task.status === "completed").length,
-    inProgress: tasks.filter((task) => task.status === "in-progress").length,
+    active: tasks.filter(isTaskActive).length,
     blocked: tasks.filter((task) => task.status === "blocked").length,
     overdue: tasks.filter((task) => isTaskOverdue(task, now)).length,
     total: tasks.length,
@@ -341,9 +365,13 @@ export interface TeamWorkload {
   member: TeamMember;
   assigned: number;
   completed: number;
-  atRisk: number;
   active: number;
+  blocked: number;
+  overdue: number;
+  atRisk: number;
 }
+
+export const HIGH_ACTIVE_LOAD_THRESHOLD = 4;
 
 export function getTeamWorkload(
   members: TeamMember[],
@@ -352,7 +380,7 @@ export function getTeamWorkload(
 ): TeamWorkload[] {
   return members.map((member) => {
     const assignedTasks = tasks.filter((task) => task.ownerId === member.id);
-    const activeTasks = assignedTasks.filter(
+    const openTasks = assignedTasks.filter(
       (task) => task.status !== "completed",
     );
 
@@ -361,10 +389,12 @@ export function getTeamWorkload(
       assigned: assignedTasks.length,
       completed: assignedTasks.filter((task) => task.status === "completed")
         .length,
-      atRisk: activeTasks.filter(
+      active: assignedTasks.filter(isTaskActive).length,
+      blocked: assignedTasks.filter((task) => task.status === "blocked").length,
+      overdue: openTasks.filter((task) => isTaskOverdue(task, now)).length,
+      atRisk: openTasks.filter(
         (task) => task.status === "blocked" || isTaskOverdue(task, now),
       ).length,
-      active: activeTasks.length,
     };
   });
 }

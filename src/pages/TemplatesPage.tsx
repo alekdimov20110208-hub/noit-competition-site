@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { PageHeader } from "../components/PageHeader.tsx";
 import type { WorkspaceState } from "../domain/types.ts";
+import { useI18n } from "../i18n/index.ts";
 
 interface TemplatesPageProps {
   state: WorkspaceState;
@@ -16,6 +17,7 @@ interface TemplatesPageProps {
 }
 
 export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
+  const { formatNumber, plural, t } = useI18n();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const template = state.templates[0];
@@ -30,9 +32,9 @@ export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
     return (
       <div className="page">
         <PageHeader
-          eyebrow="Reusable structure"
-          title="Templates"
-          description="No local event template is available."
+          eyebrow={t("templates.eyebrow")}
+          title={t("templates.title")}
+          description={t("templates.empty")}
         />
       </div>
     );
@@ -46,19 +48,19 @@ export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
   return (
     <div className="page">
       <PageHeader
-        eyebrow="Reusable structure"
-        title="Templates"
-        description="Preview a focused seminar baseline and restore the fictional event when you need a clean demonstration."
+        eyebrow={t("templates.eyebrow")}
+        title={t("templates.title")}
+        description={t("templates.description")}
       />
 
       {showSuccess && (
         <div className="notice notice--success" role="status">
           <Check size={18} aria-hidden="true" />
-          <span>The fictional demonstration event has been restored.</span>
+          <span>{t("templates.restored")}</span>
           <button
             type="button"
             className="icon-button icon-button--small"
-            aria-label="Dismiss confirmation"
+            aria-label={t("templates.dismissConfirmation")}
             onClick={() => setShowSuccess(false)}
           >
             <X size={15} aria-hidden="true" />
@@ -71,13 +73,28 @@ export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
           <ClipboardCopy size={28} />
         </div>
         <div className="template-hero__content">
-          <p className="eyebrow">Seminar baseline</p>
+          <p className="eyebrow">{t("templates.baseline")}</p>
           <h2 id="template-name">{template.name}</h2>
           <p>{template.description}</p>
           <div className="template-hero__meta">
-            <span>{template.durationDays}-day event</span>
-            <span>{template.areas.length} preparation areas</span>
-            <span>{itemCount} checklist prompts</span>
+            <span>
+              {plural(template.durationDays, {
+                one: "templates.duration.one",
+                other: "templates.duration.other",
+              })}
+            </span>
+            <span>
+              {plural(template.areas.length, {
+                one: "templates.areas.one",
+                other: "templates.areas.other",
+              })}
+            </span>
+            <span>
+              {plural(itemCount, {
+                one: "templates.prompts.one",
+                other: "templates.prompts.other",
+              })}
+            </span>
           </div>
         </div>
         <button
@@ -85,7 +102,7 @@ export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
           className="button button--secondary"
           onClick={() => setShowConfirmation(true)}
         >
-          <RotateCcw size={16} aria-hidden="true" /> Reset demo event
+          <RotateCcw size={16} aria-hidden="true" /> {t("templates.reset")}
         </button>
       </section>
 
@@ -95,11 +112,8 @@ export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
             <RefreshCcw size={22} />
           </span>
           <div>
-            <h2 id="reset-title">Restore the original demonstration data?</h2>
-            <p>
-              This replaces task and change updates stored in this browser with
-              the fictional seminar baseline.
-            </p>
+            <h2 id="reset-title">{t("templates.reset.title")}</h2>
+            <p>{t("templates.reset.description")}</p>
           </div>
           <div>
             <button
@@ -107,14 +121,14 @@ export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
               className="button button--quiet"
               onClick={() => setShowConfirmation(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="button"
               className="button button--danger"
               onClick={resetDemo}
             >
-              Reset local data
+              {t("templates.reset.confirm")}
             </button>
           </div>
         </section>
@@ -123,20 +137,22 @@ export function TemplatesPage({ state, onReset }: TemplatesPageProps) {
       <div className="template-note">
         <Info size={18} aria-hidden="true" />
         <p>
-          <strong>Preview only.</strong> Phase 1 keeps template editing
-          intentionally simple. These prompts create structure; they do not
-          replace organizer judgment, venue rules, or direct coordination.
+          <strong>{t("templates.preview.title")}</strong>{" "}
+          {t("templates.preview.description")}
         </p>
       </div>
 
       <section
         className="template-area-grid"
-        aria-label="Template preparation areas"
+        aria-label={t("templates.areaLabel")}
       >
         {template.areas.map((area, index) => (
           <article className="template-area" key={area.name}>
             <span className="template-area__number" aria-hidden="true">
-              {String(index + 1).padStart(2, "0")}
+              {formatNumber(index + 1, {
+                minimumIntegerDigits: 2,
+                useGrouping: false,
+              })}
             </span>
             <h2>{area.name}</h2>
             <ul>

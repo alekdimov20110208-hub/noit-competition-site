@@ -8,10 +8,14 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "../domain/labels.ts";
+import {
+  TASK_PRIORITY_MESSAGE_KEYS,
+  TASK_STATUS_MESSAGE_KEYS,
+} from "../domain/labels.ts";
 import { isTaskOverdue } from "../domain/workspace.ts";
 import type { Task, TaskStatus, TeamMember } from "../domain/types.ts";
-import { formatDate, formatDateTime } from "../utils/format.ts";
+import { useI18n } from "../i18n/index.ts";
+import { getTaskStatusTone } from "../utils/statusTone.ts";
 import { StatusBadge } from "./StatusBadge.tsx";
 
 interface TaskDrawerProps {
@@ -22,13 +26,6 @@ interface TaskDrawerProps {
   onToggleAcknowledgement: (taskId: string) => void;
 }
 
-function statusTone(status: TaskStatus) {
-  if (status === "completed") return "success" as const;
-  if (status === "blocked") return "blocked" as const;
-  if (status === "in-progress") return "progress" as const;
-  return "neutral" as const;
-}
-
 export function TaskDrawer({
   task,
   owner,
@@ -36,6 +33,7 @@ export function TaskDrawer({
   onStatusChange,
   onToggleAcknowledgement,
 }: TaskDrawerProps) {
+  const { formatDate, formatDateTime, t } = useI18n();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const taskId = task?.id;
@@ -117,12 +115,12 @@ export function TaskDrawer({
         aria-labelledby="task-drawer-title"
       >
         <div className="task-drawer__topbar">
-          <span>Task details</span>
+          <span>{t("taskDetails.title")}</span>
           <button
             ref={closeButtonRef}
             className="icon-button"
             type="button"
-            aria-label="Close task details"
+            aria-label={t("taskDetails.close")}
             onClick={onClose}
           >
             <X size={20} aria-hidden="true" />
@@ -133,12 +131,16 @@ export function TaskDrawer({
           <div className="task-drawer__heading">
             <div className="task-drawer__badges">
               <StatusBadge
-                tone={overdue ? "warning" : statusTone(task.status)}
-                label={overdue ? "Overdue" : TASK_STATUS_LABELS[task.status]}
+                tone={overdue ? "warning" : getTaskStatusTone(task.status)}
+                label={
+                  overdue
+                    ? t("taskDetails.overdue")
+                    : t(TASK_STATUS_MESSAGE_KEYS[task.status])
+                }
               />
               <StatusBadge
                 tone={task.priority === "critical" ? "critical" : "neutral"}
-                label={TASK_PRIORITY_LABELS[task.priority]}
+                label={t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
               />
             </div>
             <h2 id="task-drawer-title">{task.title}</h2>
@@ -148,30 +150,35 @@ export function TaskDrawer({
           <dl className="detail-grid">
             <div>
               <dt>
-                <UserRound size={15} aria-hidden="true" /> Owner
+                <UserRound size={15} aria-hidden="true" />{" "}
+                {t("taskDetails.owner")}
               </dt>
-              <dd>{owner?.name ?? "Unassigned"}</dd>
+              <dd>{owner?.name ?? t("common.unassigned")}</dd>
             </div>
             <div>
               <dt>
-                <CalendarDays size={15} aria-hidden="true" /> Deadline
+                <CalendarDays size={15} aria-hidden="true" />{" "}
+                {t("taskDetails.deadline")}
               </dt>
               <dd>{formatDate(task.deadline)}</dd>
             </div>
             <div>
               <dt>
-                <CircleDot size={15} aria-hidden="true" /> Category
+                <CircleDot size={15} aria-hidden="true" />{" "}
+                {t("taskDetails.category")}
               </dt>
               <dd>{task.category}</dd>
             </div>
             <div>
-              <dt>Last updated</dt>
+              <dt>{t("taskDetails.lastUpdated")}</dt>
               <dd>{formatDateTime(task.updatedAt)}</dd>
             </div>
           </dl>
 
           <div className="field-stack">
-            <label htmlFor={`drawer-status-${task.id}`}>Current status</label>
+            <label htmlFor={`drawer-status-${task.id}`}>
+              {t("taskDetails.currentStatus")}
+            </label>
             <select
               id={`drawer-status-${task.id}`}
               value={task.status}
@@ -179,9 +186,9 @@ export function TaskDrawer({
                 onStatusChange(task.id, event.target.value as TaskStatus)
               }
             >
-              {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
+              {Object.entries(TASK_STATUS_MESSAGE_KEYS).map(([value, key]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(key)}
                 </option>
               ))}
             </select>
@@ -190,21 +197,21 @@ export function TaskDrawer({
           {(task.blockedBy || task.blocks) && (
             <section
               className="relationship-card"
-              aria-label="Task relationships"
+              aria-label={t("taskDetails.relationships")}
             >
               <div className="relationship-card__title">
                 <Link2 size={17} aria-hidden="true" />
-                <strong>Operational context</strong>
+                <strong>{t("taskDetails.operationalContext")}</strong>
               </div>
               {task.blockedBy && (
                 <div>
-                  <span>Blocked by</span>
+                  <span>{t("taskDetails.blockedBy")}</span>
                   <p>{task.blockedBy}</p>
                 </div>
               )}
               {task.blocks && (
                 <div>
-                  <span>What this blocks</span>
+                  <span>{t("taskDetails.whatThisBlocks")}</span>
                   <p>{task.blocks}</p>
                 </div>
               )}
@@ -215,13 +222,13 @@ export function TaskDrawer({
             <div>
               <strong>
                 {task.acknowledged
-                  ? "Task acknowledged"
-                  : "Acknowledgement needed"}
+                  ? t("taskDetails.acknowledged")
+                  : t("taskDetails.acknowledgementNeeded")}
               </strong>
               <p>
                 {task.acknowledged
-                  ? "The owner has seen the current assignment and context."
-                  : "Ask the owner to confirm they have seen this assignment."}
+                  ? t("taskDetails.acknowledgedDescription")
+                  : t("taskDetails.acknowledgementNeededDescription")}
               </p>
             </div>
             <button
@@ -231,11 +238,13 @@ export function TaskDrawer({
             >
               {task.acknowledged ? (
                 <>
-                  <X size={16} aria-hidden="true" /> Mark unacknowledged
+                  <X size={16} aria-hidden="true" />{" "}
+                  {t("taskDetails.markUnacknowledged")}
                 </>
               ) : (
                 <>
-                  <Check size={16} aria-hidden="true" /> Acknowledge task
+                  <Check size={16} aria-hidden="true" />{" "}
+                  {t("taskDetails.acknowledge")}
                 </>
               )}
             </button>
@@ -244,10 +253,7 @@ export function TaskDrawer({
           {overdue && task.status !== "completed" && (
             <div className="notice notice--warning">
               <AlertTriangle size={18} aria-hidden="true" />
-              <span>
-                This deadline has passed. Update the status or agree a new plan
-                directly with the owner.
-              </span>
+              <span>{t("taskDetails.overdueNotice")}</span>
             </div>
           )}
         </div>

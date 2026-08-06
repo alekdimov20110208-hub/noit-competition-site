@@ -4,28 +4,33 @@ import type {
   TaskPriority,
   TaskStatus,
 } from "./types.ts";
+import type { MessageKey } from "../i18n/messages.ts";
 
-export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
-  "not-started": "Not started",
-  "in-progress": "In progress",
-  blocked: "Blocked",
-  completed: "Completed",
+export const TASK_STATUS_MESSAGE_KEYS: Record<TaskStatus, MessageKey> = {
+  "not-started": "status.task.notStarted",
+  "in-progress": "status.task.inProgress",
+  blocked: "status.task.blocked",
+  completed: "status.task.completed",
 };
 
-export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
-  normal: "Normal",
-  important: "Important",
-  critical: "Critical",
+export const TASK_PRIORITY_MESSAGE_KEYS: Record<TaskPriority, MessageKey> = {
+  normal: "priority.normal",
+  important: "priority.important",
+  critical: "priority.critical",
 };
 
-export const CHANGE_STATUS_LABELS: Record<ChangeResponseStatus, string> = {
-  reported: "Reported",
-  "in-progress": "Response in progress",
-  resolved: "Resolved",
+export const CHANGE_STATUS_MESSAGE_KEYS: Record<
+  ChangeResponseStatus,
+  MessageKey
+> = {
+  reported: "status.change.reported",
+  "in-progress": "status.change.inProgress",
+  resolved: "status.change.resolved",
 };
 
-export const CHANGE_SEVERITY_LABELS: Record<ChangeSeverity, string> = {
-  low: "Low",
-  medium: "Medium",
-  critical: "Critical",
-};
+export const CHANGE_SEVERITY_MESSAGE_KEYS: Record<ChangeSeverity, MessageKey> =
+  {
+    low: "severity.low",
+    medium: "severity.medium",
+    critical: "severity.critical",
+  };

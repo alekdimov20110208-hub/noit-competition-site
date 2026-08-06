@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createDemoWorkspace } from "../data/demo.ts";
-import { formatDate, formatDateTime } from "../utils/format.ts";
+import { createStressWorkspace } from "../data/stress.ts";
 import type { Task, TeamMember } from "./types.ts";
 import {
   deserializeWorkspace,
   getAffectedTasks,
   getAttentionTasks,
   getReadinessPercent,
+  getReadinessSummary,
   getTaskCounts,
   getTeamWorkload,
   getUpcomingTasks,
@@ -49,18 +50,31 @@ test("readiness and task counts reflect task status and injected time", () => {
     makeTask({
       id: "task-blocked",
       status: "blocked",
-      deadline: "2026-08-08",
+      deadline: "2026-08-02",
     }),
     makeTask({ id: "task-not-started", deadline: "2026-08-10" }),
   ];
 
-  assert.equal(getReadinessPercent(tasks), 25);
-  assert.deepEqual(getTaskCounts(tasks, NOW), {
+  assert.deepEqual(getReadinessSummary(tasks), {
     completed: 1,
-    inProgress: 1,
-    blocked: 1,
-    overdue: 1,
     total: 4,
+    percent: 25,
+  });
+  assert.equal(getReadinessPercent(tasks), 25);
+
+  const counts = getTaskCounts(tasks, NOW);
+  assert.deepEqual(counts, {
+    completed: 1,
+    active: 2,
+    blocked: 1,
+    overdue: 2,
+    total: 4,
+  });
+  assert.equal(counts.completed + counts.active + counts.blocked, counts.total);
+  assert.deepEqual(getReadinessSummary([]), {
+    completed: 0,
+    total: 0,
+    percent: 0,
   });
   assert.equal(getReadinessPercent([]), 0);
 });
@@ -138,6 +152,7 @@ test("team workload counts assigned, completed, active, and at-risk work", () =>
       id: "task-blocked",
       ownerId: "member-two",
       status: "blocked",
+      deadline: "2026-08-01",
     }),
   ];
 
@@ -153,18 +168,30 @@ test("team workload counts assigned, completed, active, and at-risk work", () =>
         memberId: "member-one",
         assigned: 3,
         completed: 1,
-        atRisk: 1,
         active: 2,
+        blocked: 0,
+        overdue: 1,
+        atRisk: 1,
       },
       {
         memberId: "member-two",
         assigned: 1,
         completed: 0,
+        active: 0,
+        blocked: 1,
+        overdue: 1,
         atRisk: 1,
-        active: 1,
       },
     ],
   );
+
+  for (const workload of workloads) {
+    assert.equal(
+      workload.completed + workload.active + workload.blocked,
+      workload.assigned,
+    );
+    assert.ok(workload.atRisk <= workload.blocked + workload.overdue);
+  }
 });
 
 test("workspace reducer applies task and change transitions without mutation", () => {
@@ -246,7 +273,7 @@ test("affected-task lookup follows the change order and ignores unknown IDs", ()
   );
 });
 
-test("workspace deserialization rejects malformed, invalid-date, and wrong-version data", () => {
+test("workspace deserialization rejects malformed, ambiguous, invalid-date, and wrong-version data", () => {
   const expected = createDemoWorkspace();
   const invalidDates = {
     ...expected,
@@ -289,6 +316,10 @@ test("workspace deserialization rejects malformed, invalid-date, and wrong-versi
         : event,
     ),
   };
+  const duplicateTaskIds = {
+    ...expected,
+    tasks: [...expected.tasks, { ...expected.tasks[0] }],
+  };
 
   assert.deepEqual(deserializeWorkspace("{malformed"), expected);
   assert.deepEqual(
@@ -306,14 +337,13 @@ test("workspace deserialization rejects malformed, invalid-date, and wrong-versi
     invalidReportedAt,
     invalidEventDate,
     invalidMilestoneDate,
+    duplicateTaskIds,
   ]) {
     assert.deepEqual(
       deserializeWorkspace(JSON.stringify(invalidState)),
       expected,
     );
   }
-  assert.equal(formatDate("not-a-date"), "Invalid date");
-  assert.equal(formatDateTime("not-a-date"), "Invalid date");
 });
 
 test("demo seed is explicitly synthetic and covers the vertical-slice scenarios", () => {
@@ -339,4 +369,28 @@ test("demo seed is explicitly synthetic and covers the vertical-slice scenarios"
         isTaskOverdue(task, NOW),
     ),
   );
+});
+
+test("stress fixture is fictional, dense, long, and storage-compatible", () => {
+  const state = createStressWorkspace();
+  const event = state.events.find((item) => item.id === state.currentEventId);
+
+  assert.ok(event);
+  assert.match(state.demoLabel, /SYNTHETIC STRESS FIXTURE.*FICTIONAL DATA/);
+  assert.ok(event.name.length > 100);
+  assert.ok(event.location.length > 70);
+  assert.ok(event.milestones.length >= 18);
+  assert.ok(event.milestones.some((milestone) => milestone.title.length > 70));
+  assert.ok(state.teamMembers.some((member) => member.name.length > 45));
+  assert.ok(state.tasks.length >= 40);
+  assert.ok(state.tasks.some((task) => task.title.length > 150));
+  assert.ok(state.tasks.some((task) => task.context.length > 220));
+  assert.deepEqual(
+    new Set(state.tasks.map((task) => task.status)),
+    new Set(["completed", "not-started", "in-progress", "blocked"]),
+  );
+
+  const counts = getTaskCounts(state.tasks, NOW);
+  assert.equal(counts.completed + counts.active + counts.blocked, counts.total);
+  assert.deepEqual(deserializeWorkspace(JSON.stringify(state)), state);
 });

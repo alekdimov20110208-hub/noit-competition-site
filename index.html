@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,8 +7,52 @@
       name="description"
       content="BudoGraph organizer workspace for martial-arts seminars and events."
     />
-    <meta name="theme-color" content="#142033" />
+    <meta name="theme-color" content="#f4f1eb" />
     <title>BudoGraph organizer workspace</title>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        let language = navigator.language?.toLowerCase().startsWith("bg")
+          ? "bg"
+          : "en";
+        let themePreference = "system";
+
+        try {
+          const saved = JSON.parse(
+            localStorage.getItem("budograph.preferences.v1") ?? "null",
+          );
+          if (saved?.version === 1) {
+            if (saved.language === "bg" || saved.language === "en") {
+              language = saved.language;
+            }
+            if (
+              saved.theme === "system" ||
+              saved.theme === "light" ||
+              saved.theme === "dark"
+            ) {
+              themePreference = saved.theme;
+            }
+          }
+        } catch {
+          // The React preference provider applies the same safe fallback.
+        }
+
+        const systemPrefersDark =
+          typeof matchMedia === "function" &&
+          matchMedia("(prefers-color-scheme: dark)").matches;
+        const dark =
+          themePreference === "dark" ||
+          (themePreference === "system" && systemPrefersDark);
+        const theme = dark ? "dark" : "light";
+
+        root.lang = language;
+        root.dataset.theme = theme;
+        root.style.colorScheme = theme;
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute("content", dark ? "#0b111a" : "#f4f1eb");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

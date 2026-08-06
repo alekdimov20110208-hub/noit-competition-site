@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { createDemoWorkspace } from "../data/demo.ts";
+import { createStressWorkspace } from "../data/stress.ts";
 import {
   deserializeWorkspace,
   WORKSPACE_STORAGE_KEY,
@@ -13,12 +14,14 @@ import type {
 
 interface InitialWorkspace {
   state: WorkspaceState;
-  persistenceError: string | null;
+  persistenceError: PersistenceError;
 }
+
+export type PersistenceError = "read" | "write" | null;
 
 export interface UseWorkspaceResult {
   state: WorkspaceState;
-  persistenceError: string | null;
+  persistenceError: PersistenceError;
   updateTaskStatus: (taskId: string, status: TaskStatus) => void;
   toggleTaskAcknowledgement: (taskId: string) => void;
   acknowledgeChange: (changeId: string) => void;
@@ -26,7 +29,19 @@ export interface UseWorkspaceResult {
   resetWorkspace: () => void;
 }
 
+function isDevelopmentStressFixture(): boolean {
+  return (
+    import.meta.env.DEV &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("fixture") === "stress"
+  );
+}
+
 function loadInitialWorkspace(): InitialWorkspace {
+  if (isDevelopmentStressFixture()) {
+    return { state: createStressWorkspace(), persistenceError: null };
+  }
+
   if (typeof window === "undefined") {
     return { state: createDemoWorkspace(), persistenceError: null };
   }
@@ -41,34 +56,32 @@ function loadInitialWorkspace(): InitialWorkspace {
   } catch {
     return {
       state: createDemoWorkspace(),
-      persistenceError:
-        "Browser storage could not be read. Changes will remain available only for this session.",
+      persistenceError: "read",
     };
   }
 }
 
 export function useWorkspace(): UseWorkspaceResult {
+  const [stressFixtureMode] = useState(isDevelopmentStressFixture);
   const [initialWorkspace] = useState(loadInitialWorkspace);
   const [state, dispatch] = useReducer(
     workspaceReducer,
     initialWorkspace.state,
   );
-  const [persistenceError, setPersistenceError] = useState<string | null>(
+  const [persistenceError, setPersistenceError] = useState<PersistenceError>(
     initialWorkspace.persistenceError,
   );
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || stressFixtureMode) return;
 
     try {
       window.localStorage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(state));
       setPersistenceError(null);
     } catch {
-      setPersistenceError(
-        "Browser storage could not save the latest workspace changes.",
-      );
+      setPersistenceError("write");
     }
-  }, [state]);
+  }, [state, stressFixtureMode]);
 
   const updateTaskStatus = useCallback((taskId: string, status: TaskStatus) => {
     dispatch({

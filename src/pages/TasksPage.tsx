@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   Check,
   ChevronDown,
   Filter,
@@ -6,25 +7,42 @@ import {
   RotateCcw,
   UserRound,
 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { AppLink } from "../components/AppLink.tsx";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { PageHeader } from "../components/PageHeader.tsx";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 import { TaskDrawer } from "../components/TaskDrawer.tsx";
-import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from "../domain/labels.ts";
-import { isTaskOverdue } from "../domain/workspace.ts";
+import {
+  TASK_PRIORITY_MESSAGE_KEYS,
+  TASK_STATUS_MESSAGE_KEYS,
+} from "../domain/labels.ts";
 import type {
   Task,
   TaskStatus,
   TeamMember,
   WorkspaceState,
 } from "../domain/types.ts";
-import { formatDate, formatDateTime, getInitials } from "../utils/format.ts";
+import { isTaskOverdue } from "../domain/workspace.ts";
+import { useI18n } from "../i18n/index.ts";
+import { createTaskHref } from "../routes.ts";
+import { getInitials } from "../utils/format.ts";
 
 type StatusFilter = TaskStatus | "all";
 
+const TASK_STATUSES: readonly TaskStatus[] = [
+  "not-started",
+  "in-progress",
+  "blocked",
+  "completed",
+];
+
 interface TasksPageProps {
   state: WorkspaceState;
+  selectedTaskId: string | null;
+  invalidTaskId: string | null;
+  onOpenTask: (taskId: string) => void;
+  onCloseTask: () => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onToggleAcknowledgement: (taskId: string) => void;
 }
@@ -51,54 +69,71 @@ function TaskList({
   onStatusChange,
   onToggleAcknowledgement,
 }: TaskListProps) {
+  const { formatDate, formatDateTime, t } = useI18n();
   const memberById = new Map(members.map((member) => [member.id, member]));
 
   return (
-    <div className="task-table" role="table" aria-label="Event tasks">
+    <div
+      className="task-table"
+      role="table"
+      aria-label={t("tasks.table.label")}
+    >
       <div className="task-table__header" role="row">
-        <span role="columnheader">Task</span>
-        <span role="columnheader">Owner</span>
-        <span role="columnheader">Deadline</span>
-        <span role="columnheader">Status</span>
-        <span role="columnheader">Acknowledged</span>
+        <span role="columnheader">{t("tasks.table.task")}</span>
+        <span role="columnheader">{t("tasks.table.owner")}</span>
+        <span role="columnheader">{t("tasks.table.deadline")}</span>
+        <span role="columnheader">{t("tasks.table.status")}</span>
+        <span role="columnheader">{t("tasks.table.acknowledged")}</span>
       </div>
+
       {tasks.map((task) => {
         const owner = memberById.get(task.ownerId);
         const overdue = isTaskOverdue(task);
+
         return (
           <div className="task-row" role="row" key={task.id}>
             <div className="task-row__primary" role="cell">
-              <button type="button" onClick={() => onOpen(task.id)}>
+              <AppLink
+                href={createTaskHref(task.id)}
+                onNavigate={() => onOpen(task.id)}
+                data-task-focus-key={`task-list:${task.id}`}
+                aria-label={t("common.openTaskNamed", { title: task.title })}
+              >
                 {task.title}
-              </button>
+              </AppLink>
               <div>
                 <span>{task.category}</span>
                 <StatusBadge
                   compact
                   tone={task.priority === "critical" ? "critical" : "neutral"}
-                  label={TASK_PRIORITY_LABELS[task.priority]}
+                  label={t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
                 />
               </div>
             </div>
+
             <div className="task-owner" role="cell">
               <span className="avatar avatar--tiny" aria-hidden="true">
                 {owner ? getInitials(owner.name) : "—"}
               </span>
-              <span>{owner?.name ?? "Unassigned"}</span>
+              <span>{owner?.name ?? t("common.unassigned")}</span>
             </div>
+
             <div className="task-deadline" role="cell">
               <span className={overdue ? "text-warning" : undefined}>
                 {formatDate(task.deadline)}
               </span>
               <small>
                 {overdue
-                  ? "Overdue"
-                  : `Updated ${formatDateTime(task.updatedAt)}`}
+                  ? t("taskDetails.overdue")
+                  : t("tasks.table.updated", {
+                      date: formatDateTime(task.updatedAt),
+                    })}
               </small>
             </div>
+
             <div role="cell">
               <label className="sr-only" htmlFor={`status-${task.id}`}>
-                Status for {task.title}
+                {t("tasks.table.statusFor", { title: task.title })}
               </label>
               <div className="select-wrap">
                 <select
@@ -108,15 +143,16 @@ function TaskList({
                     onStatusChange(task.id, event.target.value as TaskStatus)
                   }
                 >
-                  {Object.entries(TASK_STATUS_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
+                  {TASK_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {t(TASK_STATUS_MESSAGE_KEYS[status])}
                     </option>
                   ))}
                 </select>
                 <ChevronDown size={15} aria-hidden="true" />
               </div>
             </div>
+
             <div role="cell">
               <button
                 type="button"
@@ -127,7 +163,9 @@ function TaskList({
                 <span aria-hidden="true">
                   {task.acknowledged && <Check size={14} />}
                 </span>
-                {task.acknowledged ? "Acknowledged" : "Acknowledge"}
+                {task.acknowledged
+                  ? t("tasks.table.acknowledged")
+                  : t("tasks.table.acknowledge")}
               </button>
             </div>
           </div>
@@ -139,17 +177,20 @@ function TaskList({
 
 export function TasksPage({
   state,
+  selectedTaskId,
+  invalidTaskId,
+  onOpenTask,
+  onCloseTask,
   onStatusChange,
   onToggleAcknowledgement,
 }: TasksPageProps) {
+  const { formatNumber, plural, t } = useI18n();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [ownerFilter, setOwnerFilter] = useState("all");
   const [groupByOwner, setGroupByOwner] = useState(false);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const closeTaskDrawer = useCallback(() => setSelectedTaskId(null), []);
-
-  const eventTasks = state.tasks.filter(
-    (task) => task.eventId === state.currentEventId,
+  const eventTasks = useMemo(
+    () => state.tasks.filter((task) => task.eventId === state.currentEventId),
+    [state.currentEventId, state.tasks],
   );
   const filteredTasks = useMemo(
     () =>
@@ -162,11 +203,10 @@ export function TasksPage({
     [eventTasks, ownerFilter, statusFilter],
   );
   const selectedTask =
-    state.tasks.find((task) => task.id === selectedTaskId) ?? null;
+    eventTasks.find((task) => task.id === selectedTaskId) ?? null;
   const selectedOwner = state.teamMembers.find(
     (member) => member.id === selectedTask?.ownerId,
   );
-
   const groupedTasks = groupByOwner
     ? state.teamMembers
         .map((member) => ({
@@ -184,31 +224,43 @@ export function TasksPage({
   return (
     <div className="page">
       <PageHeader
-        eyebrow="Preparation work"
-        title="Tasks"
-        description="Keep ownership, deadlines, context, and consequences visible without replacing the conversations that move work forward."
+        eyebrow={t("tasks.eyebrow")}
+        title={t("tasks.title")}
+        description={t("tasks.description")}
         actions={
           <div className="result-count" aria-live="polite">
-            <strong>{filteredTasks.length}</strong> of {eventTasks.length} tasks
+            {t("tasks.resultCount", {
+              visible: formatNumber(filteredTasks.length),
+              total: formatNumber(eventTasks.length),
+            })}
           </div>
         }
       />
 
-      <section className="filter-bar" aria-label="Task filters">
+      {invalidTaskId && (
+        <div className="notice notice--warning" role="status">
+          <AlertTriangle size={18} aria-hidden="true" />
+          <span>
+            <strong>{t("taskDetails.invalid.title")}</strong>{" "}
+            {t("taskDetails.invalid.description")}
+          </span>
+          <button
+            type="button"
+            className="button button--quiet"
+            onClick={onCloseTask}
+          >
+            {t("taskDetails.invalid.back")}
+          </button>
+        </div>
+      )}
+
+      <section className="filter-bar" aria-label={t("tasks.filters.label")}>
         <div className="filter-bar__label">
           <Filter size={17} aria-hidden="true" />
-          <span>Filter</span>
+          <span>{t("tasks.filters.filter")}</span>
         </div>
-        <div className="filter-chips" aria-label="Filter by status">
-          {(
-            [
-              "all",
-              "not-started",
-              "in-progress",
-              "blocked",
-              "completed",
-            ] as const
-          ).map((status) => (
+        <div className="filter-chips" aria-label={t("tasks.filters.status")}>
+          {(["all", ...TASK_STATUSES] as const).map((status) => (
             <button
               type="button"
               key={status}
@@ -216,21 +268,23 @@ export function TasksPage({
               aria-pressed={statusFilter === status}
               onClick={() => setStatusFilter(status)}
             >
-              {status === "all" ? "All" : TASK_STATUS_LABELS[status]}
+              {status === "all"
+                ? t("tasks.filters.all")
+                : t(TASK_STATUS_MESSAGE_KEYS[status])}
             </button>
           ))}
         </div>
         <div className="filter-bar__select">
           <UserRound size={16} aria-hidden="true" />
           <label className="sr-only" htmlFor="owner-filter">
-            Filter by owner
+            {t("tasks.filters.owner")}
           </label>
           <select
             id="owner-filter"
             value={ownerFilter}
             onChange={(event) => setOwnerFilter(event.target.value)}
           >
-            <option value="all">All owners</option>
+            <option value="all">{t("tasks.filters.allOwners")}</option>
             {state.teamMembers.map((member) => (
               <option key={member.id} value={member.id}>
                 {member.name}
@@ -244,17 +298,19 @@ export function TasksPage({
           aria-pressed={groupByOwner}
           onClick={() => setGroupByOwner((current) => !current)}
         >
-          <Layers3 size={16} aria-hidden="true" /> Group by owner
+          <Layers3 size={16} aria-hidden="true" />{" "}
+          {t("tasks.filters.groupByOwner")}
         </button>
       </section>
 
       {filteredTasks.length === 0 ? (
         <EmptyState
-          title="No tasks match these filters"
-          description="Clear the filters to return to the full preparation plan."
+          title={t("tasks.empty.title")}
+          description={t("tasks.empty.description")}
           action={
             <button className="button button--secondary" onClick={clearFilters}>
-              <RotateCcw size={16} aria-hidden="true" /> Clear filters
+              <RotateCcw size={16} aria-hidden="true" />{" "}
+              {t("tasks.empty.clear")}
             </button>
           }
         />
@@ -269,14 +325,21 @@ export function TasksPage({
                 <div>
                   <h2>{member.name}</h2>
                   <p>
-                    {member.role} · {tasks.length} assigned
+                    {plural(
+                      tasks.length,
+                      {
+                        one: "tasks.group.assigned.one",
+                        other: "tasks.group.assigned.other",
+                      },
+                      { role: member.role },
+                    )}
                   </p>
                 </div>
               </header>
               <TaskList
                 tasks={tasks}
                 members={state.teamMembers}
-                onOpen={setSelectedTaskId}
+                onOpen={onOpenTask}
                 onStatusChange={onStatusChange}
                 onToggleAcknowledgement={onToggleAcknowledgement}
               />
@@ -287,7 +350,7 @@ export function TasksPage({
         <TaskList
           tasks={filteredTasks}
           members={state.teamMembers}
-          onOpen={setSelectedTaskId}
+          onOpen={onOpenTask}
           onStatusChange={onStatusChange}
           onToggleAcknowledgement={onToggleAcknowledgement}
         />
@@ -296,7 +359,7 @@ export function TasksPage({
       <TaskDrawer
         task={selectedTask}
         owner={selectedOwner}
-        onClose={closeTaskDrawer}
+        onClose={onCloseTask}
         onStatusChange={onStatusChange}
         onToggleAcknowledgement={onToggleAcknowledgement}
       />

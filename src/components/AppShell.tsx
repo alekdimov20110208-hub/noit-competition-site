@@ -1,64 +1,34 @@
 import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
-import type { MouseEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { Event } from "../domain/types.ts";
-import { APP_ROUTES } from "../routes.ts";
-import { formatShortDate } from "../utils/format.ts";
+import { useI18n, type MessageKey } from "../i18n/index.ts";
+import { usePreferences } from "../preferences/index.ts";
+import { APP_ROUTES, type AppPath } from "../routes.ts";
+import { AppLink } from "./AppLink.tsx";
 import { BrandWordmark } from "./BrandWordmark.tsx";
+import { PreferencesControls } from "./PreferencesControls.tsx";
+
+type PersistenceError = "read" | "write" | null;
+
+const WORKSPACE_ERROR_KEYS: Record<
+  Exclude<PersistenceError, null>,
+  MessageKey
+> = {
+  read: "shell.storage.read",
+  write: "shell.storage.write",
+};
+
+const PREFERENCE_ERROR_KEYS = {
+  read: "preferences.storage.read",
+  write: "preferences.storage.write",
+} as const satisfies Record<"read" | "write", MessageKey>;
 
 interface AppShellProps {
-  currentPath: string;
+  currentPath: AppPath;
   event: Event;
-  persistenceError: string | null;
+  persistenceError: PersistenceError;
   onNavigate: (path: string) => void;
   children: ReactNode;
-}
-
-interface NavLinkProps {
-  path: string;
-  currentPath: string;
-  onNavigate: (path: string) => void;
-  children: ReactNode;
-  className?: string;
-  label: string;
-}
-
-function NavLink({
-  path,
-  currentPath,
-  onNavigate,
-  children,
-  className = "",
-  label,
-}: NavLinkProps) {
-  const active = currentPath === path;
-
-  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    onNavigate(path);
-  }
-
-  return (
-    <a
-      href={path}
-      className={className}
-      aria-current={active ? "page" : undefined}
-      aria-label={label}
-      onClick={handleClick}
-    >
-      {children}
-    </a>
-  );
 }
 
 export function AppShell({
@@ -68,92 +38,103 @@ export function AppShell({
   onNavigate,
   children,
 }: AppShellProps) {
+  const { t, formatDateRange } = useI18n();
+  const { storageError: preferenceStorageError } = usePreferences();
+
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
-        Skip to main content
+        {t("shell.skipToContent")}
       </a>
 
-      <aside className="sidebar" aria-label="Primary navigation">
+      <aside className="sidebar" aria-label={t("nav.primary")}>
         <div className="sidebar__brand">
           <BrandWordmark />
         </div>
 
-        <div className="sidebar__event" aria-label="Current event">
-          <div className="sidebar__event-label">Current event</div>
+        <div className="sidebar__event" aria-label={t("shell.currentEvent")}>
+          <div className="sidebar__event-label">{t("shell.currentEvent")}</div>
           <strong>{event.name}</strong>
-          <span>
-            {formatShortDate(event.startDate)}–{formatShortDate(event.endDate)}
-          </span>
+          <span>{formatDateRange(event.startDate, event.endDate)}</span>
           <span>
             <MapPin size={13} aria-hidden="true" /> {event.location}
           </span>
         </div>
 
         <nav className="sidebar__nav">
-          <p>Organizer</p>
+          <p>{t("shell.organizer")}</p>
           {APP_ROUTES.map((route) => {
             const Icon = route.icon;
+            const label = t(route.labelKey);
             return (
-              <NavLink
+              <AppLink
                 key={route.path}
-                path={route.path}
-                currentPath={currentPath}
+                href={route.path}
                 onNavigate={onNavigate}
                 className="sidebar__link"
-                label={route.label}
+                aria-current={currentPath === route.path ? "page" : undefined}
+                aria-label={label}
               >
                 <Icon size={19} strokeWidth={1.9} aria-hidden="true" />
-                <span>{route.label}</span>
+                <span>{label}</span>
                 <ChevronRight
                   className="sidebar__link-arrow"
                   size={15}
                   aria-hidden="true"
                 />
-              </NavLink>
+              </AppLink>
             );
           })}
         </nav>
 
         <div className="sidebar__footer">
           <span className="demo-dot" aria-hidden="true" />
-          Local prototype · fictional data
+          {t("shell.demoNotice")}
         </div>
       </aside>
 
-      <div className="mobile-header">
-        <BrandWordmark compact />
-        <div className="mobile-header__event">
-          <CalendarDays size={15} aria-hidden="true" />
-          <span>{event.name}</span>
+      <header className="app-header">
+        <div className="app-header__mobile-context">
+          <BrandWordmark compact />
+          <div className="app-header__event">
+            <CalendarDays size={15} aria-hidden="true" />
+            <span>{event.name}</span>
+          </div>
         </div>
-      </div>
+        <PreferencesControls />
+      </header>
 
       <main className="app-main" id="main-content" tabIndex={-1}>
         {persistenceError && (
           <div className="notice notice--warning" role="status">
-            <strong>Local changes could not be saved.</strong>
-            <span>{persistenceError}</span>
+            <strong>{t("shell.storage.summary")}</strong>
+            <span>{t(WORKSPACE_ERROR_KEYS[persistenceError])}</span>
+          </div>
+        )}
+        {preferenceStorageError && (
+          <div className="notice notice--warning" role="status">
+            <strong>{t(PREFERENCE_ERROR_KEYS[preferenceStorageError])}</strong>
           </div>
         )}
         {children}
       </main>
 
-      <nav className="mobile-nav" aria-label="Primary navigation">
+      <nav className="mobile-nav" aria-label={t("nav.primary")}>
         {APP_ROUTES.map((route) => {
           const Icon = route.icon;
+          const label = t(route.labelKey);
           return (
-            <NavLink
+            <AppLink
               key={route.path}
-              path={route.path}
-              currentPath={currentPath}
+              href={route.path}
               onNavigate={onNavigate}
               className="mobile-nav__link"
-              label={route.label}
+              aria-current={currentPath === route.path ? "page" : undefined}
+              aria-label={label}
             >
               <Icon size={19} strokeWidth={2} aria-hidden="true" />
-              <span>{route.mobileLabel}</span>
-            </NavLink>
+              <span>{t(route.mobileLabelKey)}</span>
+            </AppLink>
           );
         })}
       </nav>

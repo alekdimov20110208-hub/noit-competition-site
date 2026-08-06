@@ -9,30 +9,23 @@ import { useState } from "react";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { PageHeader } from "../components/PageHeader.tsx";
 import { StatusBadge } from "../components/StatusBadge.tsx";
-import { TASK_STATUS_LABELS } from "../domain/labels.ts";
-import { getTeamWorkload, isTaskOverdue } from "../domain/workspace.ts";
-import type { TaskStatus, WorkspaceState } from "../domain/types.ts";
-import { formatDate, getInitials } from "../utils/format.ts";
+import { TASK_STATUS_MESSAGE_KEYS } from "../domain/labels.ts";
+import {
+  getTeamWorkload,
+  HIGH_ACTIVE_LOAD_THRESHOLD,
+  isTaskOverdue,
+} from "../domain/workspace.ts";
+import type { WorkspaceState } from "../domain/types.ts";
+import { useI18n } from "../i18n/index.ts";
+import { getInitials } from "../utils/format.ts";
+import { getTaskStatusTone } from "../utils/statusTone.ts";
 
 interface TeamPageProps {
   state: WorkspaceState;
 }
 
-function statusTone(status: TaskStatus) {
-  if (status === "completed") return "success" as const;
-  if (status === "blocked") return "blocked" as const;
-  if (status === "in-progress") return "progress" as const;
-  return "neutral" as const;
-}
-
-function workloadLabel(active: number, atRisk: number) {
-  if (atRisk > 0) return `${atRisk} item${atRisk === 1 ? "" : "s"} at risk`;
-  if (active >= 4) return "High active workload";
-  if (active >= 2) return "Steady workload";
-  return "Available capacity";
-}
-
 export function TeamPage({ state }: TeamPageProps) {
+  const { count, formatDate, formatNumber, t } = useI18n();
   const initialMember =
     state.teamMembers.find((member) => member.isOrganizer) ??
     state.teamMembers[0];
@@ -50,24 +43,35 @@ export function TeamPage({ state }: TeamPageProps) {
     .filter((task) => task.ownerId === selectedMemberId)
     .sort((first, second) => first.deadline.localeCompare(second.deadline));
 
+  function workloadLabel(active: number, atRisk: number) {
+    if (atRisk > 0) {
+      return count(atRisk, {
+        one: "team.load.atRisk.one",
+        other: "team.load.atRisk.other",
+      });
+    }
+    if (active >= HIGH_ACTIVE_LOAD_THRESHOLD) return t("team.load.high");
+    if (active >= 2) return t("team.load.steady");
+    return t("team.load.available");
+  }
+
   return (
     <div className="page">
       <PageHeader
-        eyebrow="People & ownership"
-        title="Team"
-        description="See who owns each part of preparation and where a quick check-in could prevent a bottleneck."
+        eyebrow={t("team.eyebrow")}
+        title={t("team.title")}
+        description={t("team.description")}
       />
 
-      <section className="team-grid" aria-label="Event team">
+      <section className="team-grid" aria-label={t("team.listLabel")}>
         {workloads.map((workload) => {
           const selected = workload.member.id === selectedMemberId;
+          const memberHeadingId = `team-member-${workload.member.id}`;
           return (
-            <button
-              type="button"
+            <article
               className={`team-card ${selected ? "team-card--selected" : ""}`}
-              aria-pressed={selected}
+              aria-labelledby={memberHeadingId}
               key={workload.member.id}
-              onClick={() => setSelectedMemberId(workload.member.id)}
             >
               <div className="team-card__top">
                 <span className="avatar avatar--large" aria-hidden="true">
@@ -75,25 +79,26 @@ export function TeamPage({ state }: TeamPageProps) {
                 </span>
                 {workload.member.isOrganizer && (
                   <span className="organizer-label">
-                    <ShieldCheck size={13} aria-hidden="true" /> Organizer
+                    <ShieldCheck size={13} aria-hidden="true" />
+                    {t("team.organizer")}
                   </span>
                 )}
               </div>
-              <h2>{workload.member.name}</h2>
+              <h2 id={memberHeadingId}>{workload.member.name}</h2>
               <p>{workload.member.role}</p>
               <dl className="team-card__metrics">
                 <div>
-                  <dt>Assigned</dt>
-                  <dd>{workload.assigned}</dd>
+                  <dt>{t("team.assigned")}</dt>
+                  <dd>{formatNumber(workload.assigned)}</dd>
                 </div>
                 <div>
-                  <dt>Completed</dt>
-                  <dd>{workload.completed}</dd>
+                  <dt>{t("team.completed")}</dt>
+                  <dd>{formatNumber(workload.completed)}</dd>
                 </div>
                 <div>
-                  <dt>At risk</dt>
+                  <dt>{t("team.atRisk")}</dt>
                   <dd className={workload.atRisk ? "text-warning" : undefined}>
-                    {workload.atRisk}
+                    {formatNumber(workload.atRisk)}
                   </dd>
                 </div>
               </dl>
@@ -105,12 +110,25 @@ export function TeamPage({ state }: TeamPageProps) {
                 )}
                 {workloadLabel(workload.active, workload.atRisk)}
               </span>
-            </button>
+              <button
+                type="button"
+                className="team-card__select"
+                aria-controls="member-tasks-panel"
+                aria-label={t("team.reviewTasksFor", {
+                  name: workload.member.name,
+                })}
+                aria-pressed={selected}
+                onClick={() => setSelectedMemberId(workload.member.id)}
+              >
+                {selected ? t("team.selected") : t("team.reviewTasks")}
+              </button>
+            </article>
           );
         })}
       </section>
 
       <section
+        id="member-tasks-panel"
         className="panel member-panel"
         aria-labelledby="member-tasks-title"
       >
@@ -119,9 +137,9 @@ export function TeamPage({ state }: TeamPageProps) {
             {selectedMember ? getInitials(selectedMember.name) : "—"}
           </div>
           <div>
-            <p className="eyebrow">Selected teammate</p>
+            <p className="eyebrow">{t("team.selected")}</p>
             <h2 id="member-tasks-title">
-              {selectedMember?.name ?? "No team member selected"}
+              {selectedMember?.name ?? t("team.noSelection")}
             </h2>
             <p>{selectedMember?.role}</p>
           </div>
@@ -129,8 +147,8 @@ export function TeamPage({ state }: TeamPageProps) {
 
         {selectedTasks.length === 0 ? (
           <EmptyState
-            title="No tasks assigned"
-            description="This team member has no preparation work in the current event."
+            title={t("team.empty.title")}
+            description={t("team.empty.description")}
           />
         ) : (
           <div className="member-task-list">
@@ -155,9 +173,13 @@ export function TeamPage({ state }: TeamPageProps) {
                     </span>
                     <StatusBadge
                       compact
-                      tone={overdue ? "warning" : statusTone(task.status)}
+                      tone={
+                        overdue ? "warning" : getTaskStatusTone(task.status)
+                      }
                       label={
-                        overdue ? "Overdue" : TASK_STATUS_LABELS[task.status]
+                        overdue
+                          ? t("taskDetails.overdue")
+                          : t(TASK_STATUS_MESSAGE_KEYS[task.status])
                       }
                     />
                   </div>
