@@ -97,7 +97,7 @@ const UI_EN_MESSAGES = {
   "dashboard.description":
     "Decisions, deadlines, workload, readiness, and recent changes.",
   "dashboard.reviewAllTasks": "Review all tasks",
-  "dashboard.fictionalEvent": "Fictional demonstration event",
+  "dashboard.fictionalEvent": "Fictional demo",
   "dashboard.withGuest": "with {guest}",
   "dashboard.teamCount.one": "{count} organizer or helper",
   "dashboard.teamCount.other": "{count} organizers and helpers",
@@ -403,7 +403,7 @@ const UI_BG_MESSAGES = {
   "dashboard.description":
     "Решения, срокове, натоварване, готовност и последни промени.",
   "dashboard.reviewAllTasks": "Преглед на всички задачи",
-  "dashboard.fictionalEvent": "Измислено демонстрационно събитие",
+  "dashboard.fictionalEvent": "Измислено демо",
   "dashboard.withGuest": "с {guest}",
   "dashboard.teamCount.one": "{count} организатор или помощник",
   "dashboard.teamCount.other": "{count} организатори и помощници",

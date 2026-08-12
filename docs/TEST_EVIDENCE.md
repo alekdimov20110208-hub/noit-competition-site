@@ -421,3 +421,153 @@ competition regulation in this repository applies to 2025–2026; its dates,
 category wording and limits, submission format, online-availability window,
 test duration, defence duration, and scoring split require re-verification for
 any later competition year.
+
+## Phase 2B.1.1 visual hierarchy polish — 2026-08-12
+
+Phase 2B.1.1 was a focused visual refinement of the existing Dashboard, not a
+redesign or a new product phase. The clean synchronized baseline was
+`546d5da2b3e17ce4c0c78c6fc88859741a561028`. Pre-edit browser inspection covered
+Light and Dark at desktop and mobile widths. The five existing Dashboard
+components, their order, calculations, storage versions, routes, deep links,
+localization, preference behavior, and task-drawer contracts were retained. No
+schema, dependency, or Phase 2B.2 feature was added.
+
+### Measured hierarchy changes
+
+The measurements below compare equivalent Phase 2B.1 and Phase 2B.1.1 browser
+states. Values are rounded to the nearest CSS pixel.
+
+| Measurement                                      | Phase 2B.1 | Phase 2B.1.1 | Change                   |
+| ------------------------------------------------ | ---------: | -----------: | ------------------------ |
+| 1440 px EN standard Event Overview height        |     411 px |       300 px | 111 px / 27.0% shorter   |
+| 320 px BG/Dark stress Event Overview height      |     500 px |       392 px | 108 px / 21.6% shorter   |
+| 320 px stress first Operational Focus row top    |     691 px |       581 px | 110 px earlier           |
+| 1440 px standard Change Impact section height    |     466 px |       388 px | 78 px / 16.7% shorter    |
+| 320 px stress Change Impact section height       |     956 px |       854 px | 102 px / 10.7% shorter   |
+| 320 px stress uppercase leaf-level text elements |         67 |            5 | 62 internal labels fewer |
+
+The visible task-count formula and the persistent overdue explanation were
+removed from the overview; their calculations were not changed and remain
+covered by the workspace tests. Task progress remains explicitly named as task
+progress, exposes completed/total detail in the progressbar accessible name,
+and is not presented as readiness, safety, or a go/no-go decision. The compact
+planning-state line retains an explicit fictional-demo label in both languages.
+
+Full critical fills were replaced with scoped low-intensity risk mixes plus
+risk edges and textual priority labels. Team-pressure rows use neutral
+operational surfaces with risk or time edges, and the critical change uses a
+quieter tint than the immediate decision queue. Internal action, priority,
+timeline-window, timeline-kind, change-detail, and checkpoint labels use normal
+casing; the five retained uppercase elements are high-level section eyebrows.
+
+At 320 px, event fact text increased from 10.24 px to 11.2 px, task-count labels
+from 8.8 px to 10.4 px, focus action text from 10.4 px to 11.2 px, focus
+reason/owner/deadline text to 11.52 px, and timeline date/owner/state text to
+11.52 px. The density reduction came primarily from removing redundant copy
+and tightening spacing rather than shrinking essential text. A scoped computed
+contrast spot-check across decision, risk, time, metadata, change, and workload
+text measured a lowest pair of 4.61:1 in both application themes. This was not a
+formal accessibility audit.
+
+### Automated checks
+
+| Command                 | Result                                                 |
+| ----------------------- | ------------------------------------------------------ |
+| `pnpm.cmd format`       | Passed; Prettier reported the scoped files unchanged.  |
+| `pnpm.cmd format:check` | Passed; every scoped file matched Prettier.            |
+| `pnpm.cmd lint`         | Passed; ESLint reported no errors or warnings.         |
+| `pnpm.cmd typecheck`    | Passed; strict TypeScript build reported no errors.    |
+| `pnpm.cmd test`         | Passed; 38 tests, 0 failures, skips, or cancellations. |
+| `pnpm.cmd build`        | Passed; Vite 6.4.3 transformed 1,620 modules.          |
+| `git diff --check`      | Passed; no whitespace errors.                          |
+
+The final build contained a 340.44 kB JavaScript bundle (96.19 kB gzip), a
+48.59 kB CSS bundle (9.53 kB gzip), and a 2.16 kB HTML document (0.93 kB gzip).
+No new CSS-string test was added because this phase introduced no behavior that
+benefited from brittle styling assertions.
+
+### Final Dashboard browser matrix
+
+The final application source was checked in these exact combinations:
+
+| Viewport | Language  | Theme | Workspace |
+| -------- | --------- | ----- | --------- |
+| 320 px   | Bulgarian | Dark  | Stress    |
+| 390 px   | Bulgarian | Light | Stress    |
+| 768 px   | English   | Dark  | Stress    |
+| 1440 px  | Bulgarian | Light | Standard  |
+| 1440 px  | English   | Dark  | Standard  |
+
+The respective Event Overview heights were 392, 345, 477, 350, and 300 px. In
+every case there was no document horizontal overflow, out-of-bounds checked
+control, clipped priority/timeline/workload status, duplicate task-focus key, or
+noncanonical task target. Stress data exposed 33 canonical task links and
+standard data exposed 16. Mobile main content retained 106 px bottom space for
+the fixed navigation; desktop retained 70 px. Visual inspection confirmed
+neutral breathing room between risk signals, no unexplained large blank region,
+and meaningful first-item action/title content in the initial 320 and 390 px
+viewports.
+
+### Other-page regression matrix
+
+Tasks, Team, Changes & Plan B, and Templates were each checked at:
+
+- 320 px in Bulgarian/Dark with stress data;
+- 390 px in English/Light with stress data; and
+- 1440 px in English/Light with stress data.
+
+All 12 combinations rendered their localized heading and meaningful content
+with no horizontal overflow, out-of-bounds checked control, or clipped checked
+interactive control. This was regression verification only; none of those page
+layouts was redesigned.
+
+### Interaction, console, and production checks
+
+A Dashboard focus item retained the exact canonical target
+`/tasks?task=task-guest-itinerary`. It opened the localized task drawer with the
+close control focused; reverse and forward `Tab` wrapped between the last and
+first drawer controls; `Escape` closed the drawer, cleared its URL state, and
+restored `focus:task-guest-itinerary`. Direct navigation to the same deep link
+reopened the drawer. The checked English/Light preferences survived that direct
+navigation. The unchanged routing/storage test suite additionally covers
+encoded links, invalid parameters, workspace matching, and versioned
+preferences.
+
+The final development browser session recorded zero application warnings and
+zero application errors. A built production preview at `127.0.0.1:4174`
+rendered the standard Dashboard at 320 px Bulgarian/Dark and 1440 px
+English/Light with all 16 canonical task links, no horizontal overflow or
+out-of-bounds checked control, and zero application warnings or errors. Its
+Tasks navigation reached `/tasks` and the localized Tasks heading. This was a
+local rendering and bundle sanity check, not a formal performance benchmark.
+
+### Independent review
+
+A separate read-only diff review found three concrete issues during the final
+polish: Light-theme `Important` priority text initially measured about 2.85:1;
+the interim 320 px composition could split `23%` and let the longest Bulgarian
+count label exceed its cell; and the evidence still contained measurements from
+before that interim correction. The final scoped fixes use the darker existing
+warning text on a neutral gold-edged row (measured at 5.09:1), keep the progress
+value on one line, and give all four Bulgarian count labels 60 px client and
+scroll widths without shrinking the text. The evidence now records the final
+392 px overview and 581 px first-row position.
+
+After those fixes, the reviewer reran formatting checks, lint, strict
+typechecking, all 38 tests, and whitespace checks; spot-checked 320 px
+Bulgarian/Dark stress and 1440 px English Light/Dark standard; and reported no
+remaining confirmed functional, information-loss, five-component,
+fictional-boundary, semantic-color, Phase 2B.2, or other-page-scope finding. The
+reviewer's spot-check was narrower than the primary matrix and does not expand
+the evidence boundary below.
+
+### Evidence boundary
+
+This evidence demonstrates the listed implementation checks and controlled
+Chromium viewport observations. It is not proof of usability, accessibility,
+organizer effectiveness, product-market fit, physical-device compatibility, or
+cross-browser behavior. `docs/NOIT_REGULATIONS_2025_2026.pdf` remains a
+historical, year-specific source; its dates, categories and limits, submission
+and documentation rules, online-availability and test-account requirements,
+GPLv3/licensing conditions, test and defence timing, scoring, and privacy forms
+must be reverified for the actual competition year.

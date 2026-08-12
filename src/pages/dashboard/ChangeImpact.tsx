@@ -124,10 +124,6 @@ export function ChangeImpact({
           <ArrowRight size={15} aria-hidden="true" />
         </button>
       </header>
-      <p className="dashboard-section-description">
-        {t("dashboard.changes.description")}
-      </p>
-
       {changes.length === 0 ? (
         <EmptyState
           title={t("dashboard.changes.empty.title")}

@@ -71,8 +71,16 @@ export function EventOverview({
 
         <div className="event-overview__progress">
           <div>
-            <strong>{t("dashboard.readiness.title")}</strong>
-            <span>{formatPercent(readiness.percent)}</span>
+            <strong>
+              {t("dashboard.readiness.title")}
+              <span className="event-overview__mobile-total">
+                {" · "}
+                {t("dashboard.summary.total")} {formatNumber(counts.total)}
+              </span>
+            </strong>
+            <span className="event-overview__progress-value">
+              {formatPercent(readiness.percent)}
+            </span>
           </div>
           <div
             className="event-overview__progress-track"
@@ -87,13 +95,6 @@ export function EventOverview({
           >
             <span style={{ width: `${readiness.percent}%` }} />
           </div>
-          <p>
-            {t("dashboard.readiness.detail", {
-              completed: formatNumber(readiness.completed),
-              total: formatNumber(readiness.total),
-            })}
-          </p>
-          <p>{t("dashboard.readiness.explanation")}</p>
         </div>
       </div>
 
@@ -120,16 +121,6 @@ export function EventOverview({
             <dd>{formatNumber(counts.overdue)}</dd>
           </div>
         </dl>
-        <p className="event-overview__formula">
-          <strong>
-            {t("dashboard.summary.completed")} + {t("dashboard.summary.active")}{" "}
-            + {t("dashboard.summary.blocked")} = {t("dashboard.summary.total")}
-          </strong>
-          <span>
-            {t("dashboard.summary.overdue")}:{" "}
-            {t("dashboard.summary.overdueHint")}
-          </span>
-        </p>
       </div>
     </section>
   );

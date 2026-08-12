@@ -57,8 +57,15 @@ export function OperationalFocus({
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="focus-item__body">
-                    <span className="focus-item__action">
-                      {t(getAttentionActionKey(task, overdue))}
+                    <span className="focus-item__topline">
+                      <span className="focus-item__action">
+                        {t(getAttentionActionKey(task, overdue))}
+                      </span>
+                      <span
+                        className={`focus-item__priority focus-item__priority--${task.priority}`}
+                      >
+                        {t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
+                      </span>
                     </span>
                     <strong>{task.title}</strong>
                     <span className="focus-item__reason">
@@ -78,11 +85,6 @@ export function OperationalFocus({
                         )}
                       </time>
                     </span>
-                  </span>
-                  <span
-                    className={`focus-item__priority focus-item__priority--${task.priority}`}
-                  >
-                    {t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
                   </span>
                 </AppLink>
               </li>
