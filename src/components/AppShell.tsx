@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
+import { CalendarDays, MapPin } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Event } from "../domain/types.ts";
 import { useI18n, type MessageKey } from "../i18n/index.ts";
@@ -77,11 +77,6 @@ export function AppShell({
               >
                 <Icon size={19} strokeWidth={1.9} aria-hidden="true" />
                 <span>{label}</span>
-                <ChevronRight
-                  className="sidebar__link-arrow"
-                  size={15}
-                  aria-hidden="true"
-                />
               </AppLink>
             );
           })}

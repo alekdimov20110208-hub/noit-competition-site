@@ -1,33 +1,10 @@
 import type { I18nApi, MessageKey } from "../../i18n/index.ts";
-import type {
-  ChangeResponseStatus,
-  ChangeSeverity,
-  Task,
-  TaskPriority,
-} from "../../domain/types.ts";
+import type { EventChange, EventMilestone, Task } from "../../domain/types.ts";
 import {
   HIGH_ACTIVE_LOAD_THRESHOLD,
   type TeamWorkload,
 } from "../../domain/workspace.ts";
 import { TASK_STATUS_MESSAGE_KEYS } from "../../domain/labels.ts";
-
-export function taskPriorityTone(priority: TaskPriority) {
-  if (priority === "critical") return "critical" as const;
-  if (priority === "important") return "warning" as const;
-  return "neutral" as const;
-}
-
-export function changeSeverityTone(severity: ChangeSeverity) {
-  if (severity === "critical") return "critical" as const;
-  if (severity === "medium") return "warning" as const;
-  return "neutral" as const;
-}
-
-export function changeResponseTone(status: ChangeResponseStatus) {
-  if (status === "resolved") return "success" as const;
-  if (status === "in-progress") return "progress" as const;
-  return "neutral" as const;
-}
 
 export function getAttentionActionKey(
   task: Task,
@@ -51,15 +28,11 @@ export function getAttentionReason(
   if (task.status === "blocked") {
     const blocker = task.blockedBy ?? i18n.t(TASK_STATUS_MESSAGE_KEYS.blocked);
     return overdue
-      ? `${blocker} · ${i18n.t("dashboard.attention.overdueDate", {
-          date: i18n.formatDate(task.deadline),
-        })}`
+      ? `${blocker} · ${i18n.t("dashboard.attention.deadlineMissed")}`
       : blocker;
   }
   if (overdue) {
-    return i18n.t("dashboard.attention.overdueDate", {
-      date: i18n.formatDate(task.deadline),
-    });
+    return i18n.t("dashboard.attention.deadlineMissed");
   }
   if (!task.acknowledged) {
     return i18n.t("dashboard.attention.awaitingAcknowledgement");
@@ -94,9 +67,127 @@ export function getWorkloadSignal(workload: TeamWorkload): WorkloadSignal {
   return "clear";
 }
 
-export function workloadSignalTone(signal: WorkloadSignal) {
-  if (signal === "blocked") return "blocked" as const;
-  if (signal === "overdue" || signal === "high") return "warning" as const;
-  if (signal === "clear") return "success" as const;
-  return "neutral" as const;
+export type PreparationWindow = "current" | "today" | "near" | "later";
+
+export type PreparationTimelineEntry =
+  | {
+      id: string;
+      kind: "task";
+      date: string;
+      task: Task;
+      window: PreparationWindow;
+    }
+  | {
+      id: string;
+      kind: "milestone";
+      date: string;
+      milestone: EventMilestone;
+      window: PreparationWindow;
+    };
+
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+
+function getLocalDayTimestamp(date: Date): number {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getDateOnlyTimestamp(value: string): number | null {
+  const timestamp = Date.parse(`${value}T00:00:00.000Z`);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function getPreparationWindow(
+  date: string,
+  now: Date,
+): PreparationWindow {
+  const timestamp = getDateOnlyTimestamp(date);
+  if (timestamp === null || !Number.isFinite(now.getTime())) return "later";
+
+  const dayDifference = Math.round(
+    (timestamp - getLocalDayTimestamp(now)) / DAY_IN_MILLISECONDS,
+  );
+  if (dayDifference < 0) return "current";
+  if (dayDifference === 0) return "today";
+  if (dayDifference <= 7) return "near";
+  return "later";
+}
+
+export function buildPreparationTimeline(
+  tasks: Task[],
+  milestones: EventMilestone[],
+  now: Date,
+): PreparationTimelineEntry[] {
+  if (!Number.isFinite(now.getTime())) return [];
+
+  const currentDay = getLocalDayTimestamp(now);
+  const taskEntries: PreparationTimelineEntry[] = tasks.flatMap((task) => {
+    const timestamp = getDateOnlyTimestamp(task.deadline);
+    if (
+      timestamp === null ||
+      timestamp < currentDay ||
+      task.status === "completed"
+    ) {
+      return [];
+    }
+    return [
+      {
+        id: `task:${task.id}`,
+        kind: "task" as const,
+        date: task.deadline,
+        task,
+        window: getPreparationWindow(task.deadline, now),
+      },
+    ];
+  });
+  const milestoneEntries: PreparationTimelineEntry[] = milestones.flatMap(
+    (milestone) => {
+      if (
+        milestone.status === "completed" ||
+        getDateOnlyTimestamp(milestone.date) === null
+      ) {
+        return [];
+      }
+      return [
+        {
+          id: `milestone:${milestone.id}`,
+          kind: "milestone" as const,
+          date: milestone.date,
+          milestone,
+          window: getPreparationWindow(milestone.date, now),
+        },
+      ];
+    },
+  );
+
+  return [...taskEntries, ...milestoneEntries].sort(
+    (first, second) =>
+      first.date.localeCompare(second.date) ||
+      first.id.localeCompare(second.id),
+  );
+}
+
+export function getActiveChanges(changes: EventChange[]): EventChange[] {
+  return changes.filter((change) => change.responseStatus !== "resolved");
+}
+
+export interface TeamPressurePartition {
+  pressure: TeamWorkload[];
+  quiet: TeamWorkload[];
+}
+
+export function partitionTeamPressure(
+  workloads: TeamWorkload[],
+): TeamPressurePartition {
+  return workloads.reduce<TeamPressurePartition>(
+    (partition, workload) => {
+      const signal = getWorkloadSignal(workload);
+      if (signal === "blocked" || signal === "overdue" || signal === "high") {
+        partition.pressure.push(workload);
+      } else {
+        partition.quiet.push(workload);
+      }
+      return partition;
+    },
+    { pressure: [], quiet: [] },
+  );
 }

@@ -1,8 +1,10 @@
 # Installation, Deployment, and Demonstration Plan
 
-Phase 2A extends the existing Phase 1 local prototype with Bulgarian/English
-localization, light/dark/system preferences, a revised operational Dashboard,
-and exact task URLs. It does not introduce a backend or production service.
+Phase 2A extended the existing Phase 1 local prototype with Bulgarian/English
+localization, light/dark/system preferences, responsive behavior, and exact task
+URLs. Phase 2B.1 refines the same local prototype's visual identity and
+information hierarchy. It does not introduce a backend, account system, new
+feature area, or production service.
 
 ## Local installation
 
@@ -15,7 +17,7 @@ pnpm dev
 ```
 
 Vite prints the local URL. BudoGraph has no database, server configuration,
-secret, account, or required environment file in Phase 2A.
+secret, account, or required environment file in Phase 2A or Phase 2B.1.
 
 ## Local quality and production commands
 
@@ -62,14 +64,16 @@ marker, allowing Close or `Escape` to return to the originating page. A direct
 task URL without that marker replaces the URL with the safe Tasks list instead.
 
 No public deployment, uptime promise, monitoring, server backup, or disaster
-recovery service is part of Phase 2A. Hosting and online-availability
+recovery service is part of Phase 2A or Phase 2B.1. Hosting and online-availability
 requirements must be selected and verified against the rules for the actual
 competition year.
 
 ## Browser-local data and preferences
 
 - `budograph.workspace.v1` remains the versioned Phase 1-compatible fictional
-  workspace record.
+  workspace record. Its task boolean remains `acknowledged`; the Phase 2B.1 task
+  UI interprets that value as Accepted/Not accepted so existing saved workspaces
+  do not need a migration.
 - `budograph.preferences.v1` separately stores a manually selected `bg` or `en`
   language and `system`, `light`, or `dark` theme.
 - Without a stored language, a primary locale beginning with `bg` selects
@@ -83,6 +87,10 @@ competition year.
 This persistence is local to one browser profile and origin. It is not a
 database, encrypted store, synchronization layer, audit trail, or backup.
 
+The task acceptance value is not a completion or approval record and is not
+authenticated. Acknowledging a change in Changes & Plan B remains a different
+interaction and should be demonstrated with its distinct wording.
+
 ## Demonstration data and accounts
 
 - There are no accounts, roles, credentials, passwords, permissions, or test
@@ -95,7 +103,7 @@ database, encrypted store, synchronization layer, audit trail, or backup.
 - Never enter private interview details or real personal, participant, payment,
   health, travel, or safeguarding information.
 
-## Phase 2A browser verification checklist
+## Phase 2B.1 browser verification checklist
 
 Perform and record this checklist; the checklist itself is not evidence that a
 result passed:
@@ -108,7 +116,7 @@ evidence, but it must not be presented as real user/event data or as a
 production feature.
 
 1. Verify the Dashboard, Tasks, Team, Changes & Plan B, and Templates at viewport
-   widths of 320, 390, 768, 1080, and 1440 pixels.
+   widths of 320, 327, 360, 390, 768, 1080, and 1440 pixels.
 2. At every width, inspect long event and task names, long Bulgarian content,
    multiple badges, many milestones, action controls, and task-detail content.
 3. Confirm there is no application-content horizontal scrolling and that
@@ -131,6 +139,20 @@ production feature.
 9. Check keyboard navigation, the skip link, visible focus, `Escape` task-detail
    closing, screen-reader labels, browser console output, and the fictional-data
    boundary.
+10. Confirm the Dashboard reads in the intended sequence: `EventOverview`,
+    `OperationalFocus`, `PreparationTimeline`, `ChangeImpact`, and
+    `TeamPressure`. Check that task progress is described as a completion ratio,
+    not as a safety or go/no-go assessment.
+11. Inspect both light and dark themes for the semantic roles: navy structure,
+    burgundy decisions/selected action, gold time/stages, red genuine risk,
+    green completion, and blue active/info. Confirm that state is also conveyed
+    by text, icons, and structure.
+12. Confirm operational, context, and critical surfaces remain visually
+    distinct; critical treatment must be rare and reserved for real blockers or
+    serious risk.
+13. Mark a task Accepted and Not accepted, refresh, and confirm the compatible
+    `acknowledged` value persists. Separately acknowledge a change and confirm
+    that neither interaction is presented as task completion or approval.
 
 ## Offline and backup presentation plan
 
@@ -166,9 +188,11 @@ year before registration, submission, deployment, or presentation, especially
 dates, categories, procedures, required documents and formats, media rules,
 online-availability windows, declarations, and test-account requirements.
 
-## Intentional Phase 2A exclusions
+## Intentional Phase 2A and Phase 2B.1 exclusions
 
 Phase 2A does not include a backend, database, authentication, real accounts,
 roles, permissions, AI, budget management, Kanban, calendar, Gantt, external
 integrations, participant registration, payments, production notifications,
-monitoring, or production hosting.
+monitoring, or production hosting. Phase 2B.1 is limited to visual and
+information-hierarchy refinement and does not remove any of those exclusions.
+The checklist above is not product-market validation or proof of usability.

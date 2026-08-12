@@ -301,3 +301,123 @@ screen-reader, zoom, or formal performance/accessibility certification. The
 browser pass verifies the listed source identity and interactions only. The
 2025–2026 NOIT regulation remains historical and requires re-verification for a
 later competition year.
+
+## Phase 2B.1 visual identity and Dashboard refinement — 2026-08-12
+
+Phase 2B.1 was verified in the local Windows workspace with Node.js
+`v24.16.0`, pnpm `11.9.0`, Vite `6.4.3`, and the Codex in-app Chromium
+browser. The final browser pass began after the last application-source change;
+the remaining evidence edits were documentation-only.
+
+### Baseline and automated checks
+
+Before editing, the synchronized clean `main` baseline at `ff5d2f5` passed
+format checking, lint, strict typechecking, all 34 tests, the production build,
+and `git diff --check`.
+
+After implementation, the repository checks passed as follows:
+
+| Command                 | Result                                                            |
+| ----------------------- | ----------------------------------------------------------------- |
+| `pnpm.cmd format`       | Passed; Prettier applied the repository formatting configuration. |
+| `pnpm.cmd format:check` | Passed; every scoped file matched Prettier.                       |
+| `pnpm.cmd lint`         | Passed; ESLint reported no errors or warnings.                    |
+| `pnpm.cmd typecheck`    | Passed; strict TypeScript build reported no errors.               |
+| `pnpm.cmd test`         | Passed; 38 tests, 0 failures, skips, or cancellations.            |
+| `pnpm.cmd build`        | Passed; Vite transformed 1,620 modules.                           |
+| `git diff --check`      | Passed; no whitespace errors.                                     |
+
+The production output contained a 340.86 kB JavaScript bundle (96.23 kB
+gzip), a 48.77 kB CSS bundle (9.57 kB gzip), and a 2.16 kB HTML document
+(0.93 kB gzip). New focused tests cover preparation-window boundaries,
+local-calendar behavior around midnight in a non-UTC timezone, the combined
+task/milestone sequence, resolved-change filtering, team-pressure partitioning,
+and the distinction between task acceptance and change acknowledgement.
+
+### Final Dashboard matrix
+
+The final application source was checked in these exact combinations:
+
+| Viewport | Language  | Theme preference       | Workspace |
+| -------- | --------- | ---------------------- | --------- |
+| 320 px   | Bulgarian | Dark                   | Stress    |
+| 327 px   | English   | System (resolved Dark) | Stress    |
+| 390 px   | Bulgarian | Light                  | Stress    |
+| 768 px   | English   | Dark                   | Stress    |
+| 1080 px  | Bulgarian | System (resolved Dark) | Standard  |
+| 1440 px  | English   | Light                  | Standard  |
+
+For every Dashboard case, the document had no application-content horizontal
+overflow, no out-of-bounds checked control, no clipped status badge, and no
+noncanonical task target. The first Operational Focus item was visible before
+the bottom navigation or viewport edge. At 320, 327, and 390 px, the compact
+event overview measured 500, 449, and 451 px respectively; it left the start of
+actionable work in the first viewport even with the long stress event. The
+stress Dashboard exposed 33 canonical task links across its different
+question-specific contexts without copying a task table into Change Impact.
+
+### Primary-page and interaction checks
+
+Dashboard, Tasks, Team, Changes & Plan B, and Templates were each checked at:
+
+- 320 px in Bulgarian/Dark with the stress workspace;
+- 390 px in English/Light with the stress workspace; and
+- 1440 px in English with the standard workspace in both Light and Dark.
+
+All 20 page/theme combinations rendered meaningful content without horizontal
+overflow, clipped checked status labels, out-of-bounds checked controls, or an
+unexplained section gap. The stress Tasks page still rendered all 44 canonical
+task rows at both mobile widths. The fixed mobile navigation retained a 66 px
+height while the main content retained 106 px bottom space on the checked
+emulation.
+
+Interaction checks verified:
+
+- explicit Bulgarian/English and Light/Dark choices survived reload;
+- System remained selected and resolved to the checked host's Dark preference;
+- a Dashboard focus item opened the canonical
+  `/tasks?task=task-guest-itinerary` target;
+- reload reopened that task; Back closed it and restored the exact
+  `focus:task-guest-itinerary` trigger; Forward reopened it;
+- an unknown task ID opened no dialog, showed the localized warning, and kept
+  all 16 standard task links available;
+- the 390 px task drawer was exactly viewport-width with no document overflow,
+  focused its close control, kept forward and reverse `Tab` inside the dialog,
+  closed with `Escape`, and restored the originating Dashboard link;
+- task acceptance displayed `Accepted` and the clarified description, survived
+  reload through the unchanged saved boolean, and returned to `Not accepted`
+  after the verified demo reset; and
+- the reset restored the fictional workspace and the template's updated
+  `Task acceptance` wording.
+
+### Console and production-preview check
+
+The final development session accumulated zero application warnings and zero
+application errors. A production preview at `127.0.0.1:4174` rendered the
+standard Dashboard at 1440 px and 320 px without overflow or out-of-bounds
+checked controls, exposed all 16 canonical standard task links, contained no
+legacy Dashboard section nodes, and produced zero application warnings or
+errors. This is a local rendering and bundle-size sanity check, not a formal
+performance benchmark.
+
+### Independent review
+
+A separate read-only review found and prompted correction of one local-calendar
+edge case: preparation grouping now derives the user's local calendar date and
+compares DST-safe day ordinals, so a Europe/Kyiv midnight cannot place dated
+work in the previous UTC bucket. It also caught stale evidence figures before
+commit. After those corrections, the independent reviewer reran formatting,
+lint, typechecking, all 38 tests, the production build, and whitespace checks;
+spot-checked the Dashboard at 320 px and 1440 px; and reported no remaining
+confirmed findings.
+
+### Evidence boundary
+
+This phase verifies a visual-system and information-hierarchy refinement. It is
+not product-market validation, proof of usability, a formal accessibility or
+contrast audit, physical-device testing, cross-browser certification,
+screen-reader testing, or production-hosting validation. The historical
+competition regulation in this repository applies to 2025–2026; its dates,
+category wording and limits, submission format, online-availability window,
+test duration, defence duration, and scoring split require re-verification for
+any later competition year.

@@ -78,14 +78,14 @@ const UI_EN_MESSAGES = {
   "taskDetails.operationalContext": "Operational context",
   "taskDetails.blockedBy": "Blocked by",
   "taskDetails.whatThisBlocks": "What this blocks",
-  "taskDetails.acknowledged": "Task acknowledged",
-  "taskDetails.acknowledgementNeeded": "Acknowledgement needed",
+  "taskDetails.acknowledged": "Accepted",
+  "taskDetails.acknowledgementNeeded": "Not accepted",
   "taskDetails.acknowledgedDescription":
-    "The owner has seen the current assignment and context.",
+    "The assigned person has seen and accepted the task.",
   "taskDetails.acknowledgementNeededDescription":
-    "Ask the owner to confirm they have seen this assignment.",
-  "taskDetails.markUnacknowledged": "Mark unacknowledged",
-  "taskDetails.acknowledge": "Acknowledge task",
+    "Ask the assigned person to review and accept this task.",
+  "taskDetails.markUnacknowledged": "Mark as not accepted",
+  "taskDetails.acknowledge": "Accept task",
   "taskDetails.overdueNotice":
     "This deadline has passed. Update the status or agree a new plan directly with the owner.",
   "taskDetails.invalid.title": "Task not found",
@@ -124,6 +124,8 @@ const UI_EN_MESSAGES = {
     "All scheduled preparation work is complete or has no valid future deadline.",
   "dashboard.changes.eyebrow": "What changed",
   "dashboard.changes.title": "Operational changes",
+  "dashboard.changes.description":
+    "The active change, its operational effect, and the next decision point.",
   "dashboard.changes.open": "Open Plan B",
   "dashboard.changes.empty.title": "No changes recorded",
   "dashboard.changes.empty.description":
@@ -136,17 +138,39 @@ const UI_EN_MESSAGES = {
   "dashboard.changes.collapse": "Show fewer changes",
   "dashboard.attention.eyebrow": "Decision queue",
   "dashboard.attention.title": "Requires your attention",
+  "dashboard.attention.description":
+    "Resolve the few decisions that can block preparation.",
   "dashboard.attention.empty.title": "Nothing needs immediate attention",
   "dashboard.attention.empty.description":
-    "No open task is critical, blocked, overdue, or awaiting acknowledgement.",
+    "No open task is critical, blocked, overdue, or not accepted.",
   "dashboard.attention.overdueDate": "Overdue · {date}",
-  "dashboard.attention.awaitingAcknowledgement": "Awaiting acknowledgement",
+  "dashboard.attention.deadlineMissed": "Deadline missed",
+  "dashboard.attention.due": "Due {date}",
+  "dashboard.attention.wasDue": "Was due {date}",
+  "dashboard.attention.awaitingAcknowledgement": "Not accepted",
   "dashboard.attention.action.resolveBlocker": "Resolve blocker",
   "dashboard.attention.action.reviewOverdue": "Review overdue plan",
-  "dashboard.attention.action.acknowledge": "Confirm acknowledgement",
+  "dashboard.attention.action.acknowledge": "Accept task",
   "dashboard.attention.action.reviewCritical": "Review critical task",
+  "dashboard.timeline.label": "Preparation time",
+  "dashboard.timeline.title": "Tasks and milestones",
+  "dashboard.timeline.description":
+    "One sequence for immediate work, near-term deadlines, and later preparation.",
+  "dashboard.timeline.window.current": "Current or missed",
+  "dashboard.timeline.window.today": "Today",
+  "dashboard.timeline.window.near": "Next 7 days",
+  "dashboard.timeline.window.later": "Later",
+  "dashboard.timeline.task": "Task",
+  "dashboard.timeline.milestone": "Milestone",
+  "dashboard.timeline.more.one": "Show {count} more item",
+  "dashboard.timeline.more.other": "Show {count} more items",
+  "dashboard.timeline.empty.title": "No preparation dates ahead",
+  "dashboard.timeline.empty.description":
+    "There are no open dated tasks or active milestones to show.",
   "dashboard.workload.eyebrow": "Team view",
-  "dashboard.workload.title": "Workload",
+  "dashboard.workload.title": "Team pressure",
+  "dashboard.workload.description":
+    "Only blocked, overdue, or unusually heavy active workloads are surfaced.",
   "dashboard.workload.view": "View team",
   "dashboard.workload.empty.title": "No team workload yet",
   "dashboard.workload.empty.description":
@@ -158,6 +182,15 @@ const UI_EN_MESSAGES = {
   "dashboard.workload.signal.high": "High load · {threshold}+ active",
   "dashboard.workload.signal.unassigned": "No assigned work",
   "dashboard.workload.signal.clear": "No immediate load flag",
+  "dashboard.workload.pressureSummary":
+    "{blocked} blocked · {overdue} overdue · {active} active",
+  "dashboard.workload.noPressure.title": "No immediate team pressure",
+  "dashboard.workload.noPressure.description":
+    "No teammate currently has blocked, overdue, or high-volume active work.",
+  "dashboard.workload.quiet.one":
+    "Show {count} teammate without a pressure flag",
+  "dashboard.workload.quiet.other":
+    "Show {count} teammates without a pressure flag",
   "dashboard.workload.expand.one": "Show {count} more person",
   "dashboard.workload.expand.other": "Show {count} more people",
   "dashboard.workload.collapse": "Show fewer people",
@@ -185,10 +218,10 @@ const UI_EN_MESSAGES = {
   "tasks.table.owner": "Owner",
   "tasks.table.deadline": "Deadline",
   "tasks.table.status": "Status",
-  "tasks.table.acknowledged": "Acknowledged",
+  "tasks.table.acknowledged": "Accepted",
   "tasks.table.statusFor": "Status for {title}",
   "tasks.table.updated": "Updated {date}",
-  "tasks.table.acknowledge": "Acknowledge",
+  "tasks.table.acknowledge": "Accept task",
   "tasks.empty.title": "No tasks match these filters",
   "tasks.empty.description":
     "Clear the filters to return to the full preparation plan.",
@@ -351,14 +384,14 @@ const UI_BG_MESSAGES = {
   "taskDetails.operationalContext": "Оперативен контекст",
   "taskDetails.blockedBy": "Блокирана от",
   "taskDetails.whatThisBlocks": "Какво блокира тази задача",
-  "taskDetails.acknowledged": "Задачата е потвърдена",
-  "taskDetails.acknowledgementNeeded": "Нужно е потвърждение",
+  "taskDetails.acknowledged": "Приета",
+  "taskDetails.acknowledgementNeeded": "Неприета",
   "taskDetails.acknowledgedDescription":
-    "Отговорникът е видял текущото възлагане и контекста.",
+    "Определеният отговорник е видял и приел задачата.",
   "taskDetails.acknowledgementNeededDescription":
-    "Поискайте от отговорника да потвърди, че е видял задачата.",
-  "taskDetails.markUnacknowledged": "Отбелязване като непотвърдена",
-  "taskDetails.acknowledge": "Потвърждаване на задачата",
+    "Поискайте от определения отговорник да прегледа и приеме задачата.",
+  "taskDetails.markUnacknowledged": "Отбелязване като неприета",
+  "taskDetails.acknowledge": "Приемане на задачата",
   "taskDetails.overdueNotice":
     "Крайният срок е изтекъл. Обновете статуса или уговорете нов план директно с отговорника.",
   "taskDetails.invalid.title": "Задачата не е намерена",
@@ -397,6 +430,8 @@ const UI_BG_MESSAGES = {
     "Всички планирани подготвителни задачи са завършени или нямат валиден бъдещ срок.",
   "dashboard.changes.eyebrow": "Какво се промени",
   "dashboard.changes.title": "Оперативни промени",
+  "dashboard.changes.description":
+    "Активната промяна, оперативното ѝ отражение и следващата точка за решение.",
   "dashboard.changes.open": "Отваряне на план Б",
   "dashboard.changes.empty.title": "Няма записани промени",
   "dashboard.changes.empty.description":
@@ -409,17 +444,39 @@ const UI_BG_MESSAGES = {
   "dashboard.changes.collapse": "Показване на по-малко промени",
   "dashboard.attention.eyebrow": "Опашка за решения",
   "dashboard.attention.title": "Изисква внимание",
+  "dashboard.attention.description":
+    "Решете малкото въпроси, които могат да блокират подготовката.",
   "dashboard.attention.empty.title": "Нищо не изисква незабавно внимание",
   "dashboard.attention.empty.description":
-    "Няма отворена критична, блокирана, просрочена или непотвърдена задача.",
+    "Няма отворена критична, блокирана, просрочена или неприета задача.",
   "dashboard.attention.overdueDate": "Просрочена · {date}",
-  "dashboard.attention.awaitingAcknowledgement": "Очаква потвърждение",
+  "dashboard.attention.deadlineMissed": "Крайният срок е пропуснат",
+  "dashboard.attention.due": "Срок {date}",
+  "dashboard.attention.wasDue": "Срокът беше {date}",
+  "dashboard.attention.awaitingAcknowledgement": "Неприета",
   "dashboard.attention.action.resolveBlocker": "Премахване на пречката",
   "dashboard.attention.action.reviewOverdue": "Преглед на просрочения план",
-  "dashboard.attention.action.acknowledge": "Потвърждаване на възлагането",
+  "dashboard.attention.action.acknowledge": "Приемане на задачата",
   "dashboard.attention.action.reviewCritical": "Преглед на критичната задача",
+  "dashboard.timeline.label": "Време за подготовка",
+  "dashboard.timeline.title": "Задачи и ключови етапи",
+  "dashboard.timeline.description":
+    "Една последователност за незабавната работа, близките срокове и по-късната подготовка.",
+  "dashboard.timeline.window.current": "Текущи или пропуснати",
+  "dashboard.timeline.window.today": "Днес",
+  "dashboard.timeline.window.near": "Следващите 7 дни",
+  "dashboard.timeline.window.later": "По-късно",
+  "dashboard.timeline.task": "Задача",
+  "dashboard.timeline.milestone": "Ключов етап",
+  "dashboard.timeline.more.one": "Показване на още {count} елемент",
+  "dashboard.timeline.more.other": "Показване на още {count} елемента",
+  "dashboard.timeline.empty.title": "Няма предстоящи дати за подготовка",
+  "dashboard.timeline.empty.description":
+    "Няма отворени задачи с дата или активни ключови етапи за показване.",
   "dashboard.workload.eyebrow": "Изглед на екипа",
-  "dashboard.workload.title": "Натоварване",
+  "dashboard.workload.title": "Натиск върху екипа",
+  "dashboard.workload.description":
+    "Показват се само блокирани, просрочени или необичайно тежки активни натоварвания.",
   "dashboard.workload.view": "Преглед на екипа",
   "dashboard.workload.empty.title": "Все още няма натоварване на екипа",
   "dashboard.workload.empty.description":
@@ -431,6 +488,16 @@ const UI_BG_MESSAGES = {
   "dashboard.workload.signal.high": "Високо натоварване · {threshold}+ активни",
   "dashboard.workload.signal.unassigned": "Няма възложена работа",
   "dashboard.workload.signal.clear": "Без непосредствен риск",
+  "dashboard.workload.pressureSummary":
+    "{blocked} блокирани · {overdue} просрочени · {active} активни",
+  "dashboard.workload.noPressure.title":
+    "Няма непосредствен натиск върху екипа",
+  "dashboard.workload.noPressure.description":
+    "Никой в екипа няма блокирана, просрочена или прекалено много активна работа.",
+  "dashboard.workload.quiet.one":
+    "Показване на {count} човек без сигнал за натиск",
+  "dashboard.workload.quiet.other":
+    "Показване на {count} души без сигнал за натиск",
   "dashboard.workload.expand.one": "Показване на още {count} човек",
   "dashboard.workload.expand.other": "Показване на още {count} души",
   "dashboard.workload.collapse": "Показване на по-малко хора",
@@ -458,10 +525,10 @@ const UI_BG_MESSAGES = {
   "tasks.table.owner": "Отговорник",
   "tasks.table.deadline": "Краен срок",
   "tasks.table.status": "Статус",
-  "tasks.table.acknowledged": "Потвърдена",
+  "tasks.table.acknowledged": "Приета",
   "tasks.table.statusFor": "Статус на „{title}“",
   "tasks.table.updated": "Обновена на {date}",
-  "tasks.table.acknowledge": "Потвърждаване",
+  "tasks.table.acknowledge": "Приемане на задачата",
   "tasks.empty.title": "Няма задачи, отговарящи на филтрите",
   "tasks.empty.description":
     "Изчистете филтрите, за да се върнете към пълния подготвителен план.",

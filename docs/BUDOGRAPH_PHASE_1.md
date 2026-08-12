@@ -27,7 +27,7 @@ The approved Phase 1 product scope is:
 1. **Application shell** - a text-only BudoGraph wordmark, current-event context, desktop sidebar, compact mobile navigation, and routes for Dashboard, Tasks, Team, Changes & Plan B, and Templates.
 2. **Fictional demonstration event** - one realistic seminar with fictional people, preparation work, travel and accommodation details, venue work, participant communication, and a contingency. It contains no real interview or dojo details.
 3. **Dashboard** - event status, calculated readiness, completed/in-progress/blocked/overdue task summaries, upcoming deadlines, risks and changes, team workload, organizer-attention items, and milestones.
-4. **Tasks** - typed task records with category, owner, deadline, status, priority, context, dependency, consequence, acknowledgement, and last-updated information. The user can filter, update status, acknowledge, see overdue state, and inspect task details.
+4. **Tasks** - typed task records with category, owner, deadline, status, priority, context, dependency, consequence, acknowledgement, and last-updated information. The user can filter, update status, accept or unaccept a task through the current UI, see overdue state, and inspect task details. The compatible stored boolean remains `acknowledged`.
 5. **Team** - organizer and helper roles, task counts, completion, overdue/blocked load, workload summaries, and a selected member's assigned tasks.
 6. **Changes & Plan B** - severity, report time, affected work, owner, response, acknowledgement, escalation guidance, and response-state updates for a fictional disruption.
 7. **Templates** - a reusable seminar-template preview with the common venue, instructor, travel, accommodation, schedule, team, registration, communication, equipment, and contingency preparation areas. Phase 1 may use it to restore the local demonstration state; it is not a full template editor.
@@ -71,6 +71,53 @@ The Phase 2A Dashboard prioritizes what requires attention, what is late or bloc
 
 The shell keeps language and theme controls available in a sticky application header. Layout rules account for narrow phones, longer Bulgarian text, long names and task titles, wrapping badges, and large milestone/task sets. The completed in-app Chromium checks are recorded separately in `docs/TEST_EVIDENCE.md`; formal assistive-technology and cross-browser coverage remains outside Phase 2A.
 
+## Phase 2B.1 - visual identity and information hierarchy
+
+Phase 2B.1 is a refinement of the approved local prototype, not a new product slice. It preserves the Phase 1 domain model, routes, interactions, fictional demonstration data, and the `budograph.workspace.v1` storage shape. It adds no backend, database, authentication, authorization, real accounts, external integration, or other new feature.
+
+### Semantic visual roles
+
+The light and dark themes use the same semantic roles:
+
+- **navy / structure** - navigation, stable framing, and the primary structural surface;
+- **burgundy / decision** - human decisions, the selected action or state, and the primary action;
+- **gold / time** - time, event stages, milestones, and organizational structure;
+- **red / risk** - genuine blockers and serious operational risk only;
+- **green / completion** - confirmed completion and safe positive state; and
+- **blue / process** - active process and neutral information.
+
+Color is supportive rather than the only carrier of meaning; labels, icons, layout, and accessible names continue to identify state. Red is intentionally not used as general decoration or for every decision.
+
+### Surface concepts
+
+Three surface concepts reduce repeated-card noise and express purpose:
+
+1. **Operational surfaces** contain dense, actionable work with minimal framing.
+2. **Context surfaces** provide event, team, or explanatory context with quieter treatment.
+3. **Critical surfaces** are rare and reserved for blockers or serious risk that genuinely require escalation.
+
+### Dashboard sequence
+
+The Dashboard is read in this order:
+
+1. `EventOverview` - current event identity, task progress, and the task-state formula;
+2. `OperationalFocus` - decisions and work requiring organizer attention;
+3. `PreparationTimeline` - time-ordered upcoming tasks and milestones;
+4. `ChangeImpact` - active operational changes and the work they affect; and
+5. `TeamPressure` - members with blocked, overdue, or high active load before quieter members.
+
+This order moves from orientation to immediate action, time, changed conditions, and capacity. Event progress is still completed tasks divided by total event tasks. It is not a safety assessment, readiness certification, or go/no-go decision.
+
+### Task acceptance compatibility
+
+Task-facing labels now describe **Accepted** and **Not accepted**. Accepted means that the assigned person has seen and accepted the task; it does not mean that the work is complete or approved. The implementation deliberately retains the existing `Task.acknowledged` boolean, reducer action, and `budograph.workspace.v1` record so saved Phase 1/2A workspaces remain compatible. This is a UI-language clarification, not a schema migration or new workflow.
+
+Acknowledging an operational change in Changes & Plan B remains distinct. It records that the change itself has been seen and must not be described as accepting the assigned task. Task completion is also a separate status, and any future approval concept would require its own model and evidence.
+
+### Evidence boundary
+
+Phase 2B.1 is a visual and information-hierarchy refinement. It is not product-market validation and does not prove usability, accessibility, organizer effectiveness, reduced risk, adoption, or other product impact. Final implementation and browser evidence belongs in `docs/TEST_EVIDENCE.md` only after the relevant checks have actually run and been recorded.
+
 ## Explicitly excluded
 
 Phase 1 does not contain:
@@ -85,7 +132,7 @@ Phase 1 does not contain:
 - claims that the prototype is suitable for real personal data; or
 - a generated, stock, or permanent visual logo.
 
-Phase 2A also intentionally excludes budget management, Kanban, calendar, and Gantt views. It does not change any of the production-service exclusions above.
+Phase 2A also intentionally excludes budget management, Kanban, calendar, and Gantt views. Phase 2B.1 adds no feature area and does not change any of the production-service exclusions above.
 
 Placeholders for excluded functions are not part of the required core screens and must not be presented as working features.
 
@@ -130,9 +177,9 @@ The domain model uses stable IDs and includes at least:
 - `EventChange`
 - `EventTemplate`
 
-Views consume typed workspace data and actions. Readiness, task summaries, overdue state, workload, affected-task relationships, and attention items are derived locally. Persistence is a browser adapter, not a production data layer. This separation is intended to let a later backend implement loading and saving without moving network logic into presentation components.
+Views consume typed workspace data and actions. Readiness, task summaries, overdue state, workload, affected-task relationships, and attention items are derived locally. Persistence is a browser adapter, not a production data layer. Phase 2B.1 reorganizes those existing derived values without changing the storage schema. This separation is intended to let a later backend implement loading and saving without moving network logic into presentation components.
 
-There is no server validation in Phase 1 because there is no server. This is a known architecture boundary, not a security claim.
+There is no server validation in Phase 1, Phase 2A, or Phase 2B.1 because there is no server. This is a known architecture boundary, not a security claim.
 
 ## Demonstration data rules
 
@@ -145,7 +192,7 @@ There is no server validation in Phase 1 because there is no server. This is a k
 ## Main local flows
 
 1. The organizer opens the fictional current event and checks readiness and attention items.
-2. The organizer filters tasks, opens task details, changes a status, or acknowledges a task.
+2. The organizer filters tasks, opens task details, changes a status, or marks the task accepted/not accepted. That task action still persists through the compatible `acknowledged` boolean.
 3. The organizer checks workload and selects a team member to review assigned work.
 4. The organizer reviews a disruption, sees affected tasks, acknowledges it, and advances the response while using direct communication outside BudoGraph when recommended.
 5. The organizer previews the seminar template and may reset the local demonstration state.

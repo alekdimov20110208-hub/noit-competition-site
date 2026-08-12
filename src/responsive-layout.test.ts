@@ -11,25 +11,6 @@ test("status badges keep labels intact", () => {
   );
 });
 
-test("mobile dashboard sections use deliberate stacked compositions", () => {
-  assert.match(
-    styles,
-    /@media \(max-width: 520px\)[\s\S]*\.operational-metric:first-child\s*\{[^}]*grid-column:\s*1 \/ -1;/,
-  );
-  assert.match(
-    styles,
-    /@media \(max-width: 520px\)[\s\S]*\.deadline-item\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\);/,
-  );
-  assert.match(
-    styles,
-    /@media \(max-width: 520px\)[\s\S]*\.workload-row__details\s*\{[^}]*grid-row:\s*3;/,
-  );
-  assert.match(
-    styles,
-    /\.change-summary \.affected-task-list > a,[\s\S]*\.affected-task-list > div\s*\{[^}]*flex-direction:\s*column;/,
-  );
-});
-
 test("mobile navigation reserves safe-area-aware page space", () => {
   assert.match(
     styles,

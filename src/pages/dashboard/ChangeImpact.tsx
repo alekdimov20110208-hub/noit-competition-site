@@ -1,27 +1,20 @@
-import { ArrowRight, ShieldAlert } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { AppLink } from "../../components/AppLink.tsx";
 import { EmptyState } from "../../components/EmptyState.tsx";
-import { StatusBadge } from "../../components/StatusBadge.tsx";
 import {
   CHANGE_SEVERITY_MESSAGE_KEYS,
   CHANGE_STATUS_MESSAGE_KEYS,
-  TASK_STATUS_MESSAGE_KEYS,
 } from "../../domain/labels.ts";
 import type { EventChange, Task, TeamMember } from "../../domain/types.ts";
 import { getAffectedTasks } from "../../domain/workspace.ts";
 import { useI18n } from "../../i18n/index.ts";
 import { createTaskHref } from "../../routes.ts";
-import { getTaskStatusTone } from "../../utils/statusTone.ts";
-import {
-  changeResponseTone,
-  changeSeverityTone,
-  getNextCheckpoint,
-} from "./helpers.ts";
+import { getNextCheckpoint } from "./helpers.ts";
 
-const CHANGE_PREVIEW_LIMIT = 2;
+const CHANGE_PREVIEW_LIMIT = 1;
 
-interface ChangesImpactProps {
+interface ChangeImpactProps {
   changes: EventChange[];
   eventTasks: Task[];
   members: Map<string, TeamMember>;
@@ -30,14 +23,14 @@ interface ChangesImpactProps {
   onOpenTask: (taskId: string) => void;
 }
 
-export function ChangesImpact({
+export function ChangeImpact({
   changes,
   eventTasks,
   members,
   now,
   onNavigate,
   onOpenTask,
-}: ChangesImpactProps) {
+}: ChangeImpactProps) {
   const { t, plural, formatDate, formatDateTime, formatRelativeDate } =
     useI18n();
   const [expanded, setExpanded] = useState(false);
@@ -50,28 +43,18 @@ export function ChangesImpact({
     const checkpoint = getNextCheckpoint(affectedTasks, now);
 
     return (
-      <article className="change-summary" key={change.id}>
-        <span className="change-summary__icon" aria-hidden="true">
-          <ShieldAlert size={21} />
-        </span>
-        <div>
-          <div className="change-summary__heading">
-            <h3>{change.title}</h3>
-            <span className="change-summary__badges">
-              <StatusBadge
-                compact
-                tone={changeSeverityTone(change.severity)}
-                label={t(CHANGE_SEVERITY_MESSAGE_KEYS[change.severity])}
-              />
-              <StatusBadge
-                compact
-                tone={changeResponseTone(change.responseStatus)}
-                label={t(CHANGE_STATUS_MESSAGE_KEYS[change.responseStatus])}
-              />
-            </span>
+      <article
+        className={`change-impact__entry change-impact__entry--${change.severity}`}
+        key={change.id}
+      >
+        <header>
+          <div className="change-impact__signals">
+            <span>{t(CHANGE_SEVERITY_MESSAGE_KEYS[change.severity])}</span>
+            <span>{t(CHANGE_STATUS_MESSAGE_KEYS[change.responseStatus])}</span>
           </div>
+          <h3>{change.title}</h3>
           <p>{change.description}</p>
-          <div className="change-summary__meta">
+          <div className="change-impact__meta">
             <span>
               {t("changes.responseOwner", {
                 owner: owner?.name ?? t("common.unassigned"),
@@ -83,8 +66,10 @@ export function ChangesImpact({
               })}
             </span>
           </div>
+        </header>
 
-          <div className="change-summary__impact">
+        <div className="change-impact__details">
+          <section>
             <strong>{t("changes.affectedWork")}</strong>
             <span>
               {plural(affectedTasks.length, {
@@ -92,65 +77,43 @@ export function ChangesImpact({
                 other: "dashboard.changes.affectedTasks.other",
               })}
             </span>
-            <div className="affected-areas">
+            <ul>
               {change.affectedAreas.map((area) => (
-                <span key={area}>{area}</span>
+                <li key={area}>{area}</li>
               ))}
-            </div>
-            <div className="affected-task-list">
-              {affectedTasks.slice(0, 3).map((task) => (
-                <AppLink
-                  href={createTaskHref(task.id)}
-                  onNavigate={() => onOpenTask(task.id)}
-                  data-task-focus-key={`change:${change.id}:affected:${task.id}`}
-                  key={task.id}
-                >
-                  <span className="sr-only">{t("common.openTask")}. </span>
-                  <span className="affected-task-list__title">
-                    {task.title}
-                  </span>
-                  <StatusBadge
-                    compact
-                    tone={getTaskStatusTone(task.status)}
-                    label={t(TASK_STATUS_MESSAGE_KEYS[task.status])}
-                  />
-                </AppLink>
-              ))}
-            </div>
-          </div>
-
-          <div className="change-summary__response">
+            </ul>
+          </section>
+          <section>
             <strong>{t("changes.currentResponse")}</strong>
             <p>{change.response}</p>
-          </div>
-
-          {checkpoint && (
-            <AppLink
-              href={createTaskHref(checkpoint.id)}
-              onNavigate={() => onOpenTask(checkpoint.id)}
-              className="change-summary__checkpoint"
-              data-task-focus-key={`change:${change.id}:checkpoint:${checkpoint.id}`}
-            >
-              <span className="sr-only">{t("common.openTask")}. </span>
-              <span>{t("dashboard.changes.nextCheckpoint")}</span>
-              <strong>{checkpoint.title}</strong>
-              <time dateTime={checkpoint.deadline}>
-                {formatRelativeDate(checkpoint.deadline, now)} ·{" "}
-                {formatDate(checkpoint.deadline)}
-              </time>
-            </AppLink>
-          )}
+          </section>
         </div>
+
+        {checkpoint && (
+          <AppLink
+            href={createTaskHref(checkpoint.id)}
+            onNavigate={() => onOpenTask(checkpoint.id)}
+            className="change-impact__checkpoint"
+            data-task-focus-key={`change:${change.id}:checkpoint:${checkpoint.id}`}
+          >
+            <span>{t("dashboard.changes.nextCheckpoint")}</span>
+            <strong>{checkpoint.title}</strong>
+            <time dateTime={checkpoint.deadline}>
+              {formatRelativeDate(checkpoint.deadline, now)} ·{" "}
+              {formatDate(checkpoint.deadline)}
+            </time>
+          </AppLink>
+        )}
       </article>
     );
   }
 
   return (
-    <section className="panel panel--changes" aria-labelledby="changes-title">
-      <div className="panel__header">
+    <section className="change-impact" aria-labelledby="change-impact-title">
+      <header className="dashboard-section-heading dashboard-section-heading--action">
         <div>
-          <p className="eyebrow">{t("dashboard.changes.eyebrow")}</p>
-          <h2 id="changes-title">{t("dashboard.changes.title")}</h2>
+          <p>{t("dashboard.changes.eyebrow")}</p>
+          <h2 id="change-impact-title">{t("dashboard.changes.title")}</h2>
         </div>
         <button
           className="text-button"
@@ -160,14 +123,18 @@ export function ChangesImpact({
           {t("dashboard.changes.open")}
           <ArrowRight size={15} aria-hidden="true" />
         </button>
-      </div>
+      </header>
+      <p className="dashboard-section-description">
+        {t("dashboard.changes.description")}
+      </p>
+
       {changes.length === 0 ? (
         <EmptyState
           title={t("dashboard.changes.empty.title")}
           description={t("dashboard.changes.empty.description")}
         />
       ) : (
-        <div className="change-summary-list">
+        <div className="change-impact__list">
           {preview.map(renderChange)}
           {overflow.length > 0 && (
             <details

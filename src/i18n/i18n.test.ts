@@ -76,3 +76,15 @@ test("invalid dates have a localized safe fallback", () => {
     "Невалидна дата",
   );
 });
+
+test("task acceptance wording stays distinct from change acknowledgement", () => {
+  assert.equal(translate("en", "taskDetails.acknowledged"), "Accepted");
+  assert.equal(translate("en", "taskDetails.acknowledge"), "Accept task");
+  assert.equal(translate("bg", "taskDetails.acknowledged"), "Приета");
+  assert.equal(
+    translate("bg", "taskDetails.acknowledge"),
+    "Приемане на задачата",
+  );
+  assert.equal(translate("en", "changes.acknowledged"), "Acknowledged");
+  assert.equal(translate("bg", "changes.acknowledged"), "Потвърдена");
+});

@@ -1,8 +1,10 @@
-# BudoGraph Phase 2A User Guide
+# BudoGraph Phase 2B.1 User Guide
 
-Phase 2A refines the existing Phase 1 competition MVP; it does not replace its
-workspace model or fictional demonstration scenario. BudoGraph remains a local
-organizer prototype, not a service for real participant or operational data.
+Phase 2A established the localization, theme, responsive, and navigation
+foundation for the existing Phase 1 competition MVP. Phase 2B.1 refines its
+visual identity and information hierarchy without replacing the workspace model
+or fictional demonstration scenario. BudoGraph remains a local organizer
+prototype, not a service for real participant or operational data.
 
 ## Start the workspace
 
@@ -51,33 +53,41 @@ same browser profile and origin. The page applies the saved or system-resolved
 theme before the React interface loads where the browser permits it, reducing
 an incorrect-theme flash.
 
+The two palettes share semantic roles: navy gives the application structure;
+burgundy identifies decisions, selected action, and the primary action; gold
+marks time and event stages; red is reserved for genuine blockers or serious
+risk; green marks confirmed completion; and blue marks an active process or
+neutral information. Labels and icons remain authoritative, so do not interpret
+color alone.
+
+BudoGraph also distinguishes three kinds of surface. An **operational surface**
+is dense and actionable, a **context surface** quietly explains event or team
+context, and a **critical surface** is reserved for a blocker or serious risk.
+
 ## Dashboard
 
-The Dashboard is organized for a quick operational scan:
+The Dashboard is organized in one vertical decision sequence:
 
-- **Event readiness** is the number of completed event tasks divided by the
-  total number of event tasks. It is not a subjective event-quality score.
-- **Operational summary** separates completed, active, and blocked tasks.
-  Active means not started or in progress. Overdue is a risk flag that can
-  overlap active or blocked work, so it is not added to those status totals.
-- **Attention** states the next required action for blocked, overdue, critical,
-  or unacknowledged work.
-- **Upcoming deadlines** show relative timing, calendar date, owner, and task
-  status.
-- **Changes** connect an operational change to affected areas and tasks, the
-  response status, current response, and the next task checkpoint supported by
-  the data. Changes are ordered by report time, including resolved history.
-- **Workload** distinguishes all assigned work from completed, active, blocked,
-  overdue, and at-risk work for each fictional team member. A concise flag
-  identifies blocked, overdue, or high active load; the high-load comparison
-  begins at four active tasks and is not a capacity guarantee.
-- **Long secondary sections** show a compact preview. Additional changes and
-  team members can be expanded into bounded scrolling continuations.
-- **Milestones** follow chronological order. When there are more than six,
-  expand or collapse the remaining milestones with the section control.
+1. **EventOverview** establishes the current event, task progress, and the task
+   state formula. Progress is completed event tasks divided by total event
+   tasks. It is not a safety, quality, readiness-certification, or go/no-go
+   score. Completed, active, and blocked make up the total; overdue is an
+   overlapping timing-risk flag.
+2. **OperationalFocus** puts blocked, overdue, critical, or not-accepted work
+   that needs a decision near the top of the page.
+3. **PreparationTimeline** combines upcoming tasks and milestones into a
+   chronological preparation view. Its task entries show timing, owner, and
+   status.
+4. **ChangeImpact** shows active operational changes and connects each change to
+   its affected areas, affected-task count, response state, current response,
+   and supported checkpoint. Resolved history is not treated as active impact.
+5. **TeamPressure** prioritizes members with blocked, overdue, or high active
+   load, while quieter team members remain secondary. The high-load comparison
+   begins at four active tasks and is not a capacity guarantee.
 
-Selecting a task in Attention, Upcoming deadlines, or an affected-work or
-checkpoint entry opens that exact task rather than the general task list.
+Selecting a task in OperationalFocus or PreparationTimeline, or selecting the
+next checkpoint in ChangeImpact, opens that exact task rather than the general
+task list.
 
 ## Task links and navigation
 
@@ -107,8 +117,10 @@ one from a different event and expect it to resolve.
 - **Dashboard** summarizes readiness, task state, attention, deadlines,
   operational changes, workload, and milestones.
 - **Tasks** filters work by status or owner. Use **Group by owner** for an
-  ownership view. Update a status, acknowledge work, or select a task title to
-  inspect its context and dependencies.
+  ownership view. Update a status, mark the task **Accepted** or **Not
+  accepted**, or select a task title to inspect its context and dependencies.
+  Accepted means that the assigned person has seen and accepted the task. It
+  does not mean completed or approved.
 - **Team** shows roles, comparable workload counts, and assigned-task details
   for fictional team members.
 - **Changes & Plan B** connects a change to affected work. Update its response
@@ -124,13 +136,19 @@ Workspace interactions and interface preferences are stored separately in
 browser `localStorage`:
 
 - `budograph.workspace.v1` preserves the Phase 1 workspace format and stores
-  supported task and change interactions.
+  supported task and change interactions. Its task boolean is still named
+  `acknowledged` for compatibility, although the task UI presents it as
+  Accepted/Not accepted.
 - `budograph.preferences.v1` stores an optional language and theme preference.
 
 Both are limited to the current browser profile and local origin. Clearing site
 data, changing browser or origin, or using private browsing can remove them.
 Resetting the demo event replaces workspace data but does not reset the
 language or theme; clearing all site storage resets both.
+
+The task `acknowledged` value and the acknowledgement of an operational change
+are separate interactions. Neither is authenticated or an approval record, and
+neither replaces task completion.
 
 Do not enter real names, contact details, private event information, payment or
 health information, interview content, passwords, or other sensitive data.
@@ -148,12 +166,16 @@ the language and theme controls remain in the header. Long titles, descriptions,
 names, dates, and badges are intended to wrap; task content takes priority over
 secondary metadata.
 
-## Intentional Phase 2A boundary
+## Intentional Phase 2A and Phase 2B.1 boundary
 
-Phase 2A does not add a backend, database, authentication, real user accounts,
+Phase 2A and Phase 2B.1 do not add a backend, database, authentication, real user accounts,
 roles or permissions, AI, budget management, Kanban, calendar, or Gantt views.
 It also does not add synchronization, production notifications, participant
 registration, payments, or document storage.
+
+Phase 2B.1 is a visual and information-hierarchy refinement, not a new feature
+set. It is not product-market validation and is not proof of usability,
+accessibility, organizer effectiveness, or reduced operational risk.
 
 All included events, people, venue details, tasks, and changes are fictional.
 The source code is licensed under GNU GPL version 3 only (`GPL-3.0-only`);

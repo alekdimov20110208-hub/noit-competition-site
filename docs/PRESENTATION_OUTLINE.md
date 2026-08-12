@@ -1,9 +1,11 @@
-# BudoGraph Phase 2A Presentation Outline
+# BudoGraph Phase 2B.1 Presentation Outline
 
-Phase 2A builds on, and does not rewrite, the Phase 1 competition MVP. This
-outline is year-neutral. Presentation length, required sections, submission
-format, online availability, and demonstration rules must be aligned with the
-official regulation for the actual competition year.
+Phase 2A built on, and did not rewrite, the Phase 1 competition MVP. Phase 2B.1
+refines the same prototype's visual identity and information hierarchy without
+adding product features. This outline is year-neutral. Presentation length,
+required sections, submission format, online availability, and demonstration
+rules must be aligned with the official regulation for the actual competition
+year.
 
 ## 1. Problem, evidence, and boundary
 
@@ -11,32 +13,40 @@ official regulation for the actual competition year.
   across helpers, calls, messages, documents, and memory.
 - BudoGraph provides one current operational view and explicitly preserves
   direct human communication.
-- Phase 1 established the fictional, local vertical slice. Phase 2A strengthens
-  its usability, localization, visual hierarchy, responsive behavior, and task
-  navigation while preserving the workspace data model.
+- Phase 1 established the fictional, local vertical slice. Phase 2A added the
+  localization, theme, responsive, and task-navigation foundation while
+  preserving the workspace data model. Phase 2B.1 clarifies visual roles,
+  surface purpose, Dashboard order, and task-facing terminology.
 - This remains a competition prototype, not proof of product-market fit,
-  commercial demand, adoption, production security, or operational readiness.
+  commercial demand, adoption, production security, usability, or operational
+  readiness.
 
-## 2. Phase 2A design foundation
+## 2. Phase 2B.1 visual identity foundation
 
-- Show the denser operational hierarchy: a small number of meaningful surfaces,
-  time-oriented deadlines, actionable attention items, comparative workload,
-  operational change impact, and a chronological milestone pattern.
-- Explain that BudoGraph keeps its text-only wordmark and restrained navy,
-  burgundy, and warm-gold identity without a generated permanent logo or
-  decorative martial-arts imagery.
-- Point out that information types use different patterns instead of repeating
-  one generic card design.
+- Explain the semantic roles shared by both themes: navy for structure;
+  burgundy for human decisions, selected action, and primary action; gold for
+  time and event stages; red only for genuine blockers or serious risk; green
+  for confirmed completion; and blue for active process or neutral information.
+- Show the three surface concepts: operational surfaces are dense and
+  actionable, context surfaces are quiet and explanatory, and critical surfaces
+  are rare and reserved for serious risk.
+- Point out that these roles use labels, icons, and structure as well as color,
+  and that different information types no longer repeat one generic card
+  treatment.
+- Explain that BudoGraph keeps its text-only wordmark without a generated
+  permanent logo or decorative martial-arts imagery.
 - Use long fictional content and narrow viewports to explain how primary task
   content is prioritized over metadata.
 
 ## 3. Demonstration story
 
-1. Open the Dashboard and identify readiness, status totals, late or blocked
-   work, the next deadline, workload risk, current change impact, and milestones.
-2. Explain that readiness means completed tasks divided by total event tasks.
-   Overdue is an overlapping risk flag, not another status added to the total.
-3. Select an attention or deadline entry. Show that
+1. Open the Dashboard and follow its order: `EventOverview`,
+   `OperationalFocus`, `PreparationTimeline`, `ChangeImpact`, and
+   `TeamPressure`.
+2. In EventOverview, explain that progress means completed tasks divided by
+   total event tasks. It is not a safety or go/no-go assessment. Overdue is an
+   overlapping risk flag, not another status added to the total.
+3. In OperationalFocus or PreparationTimeline, select a task entry. Show that
    `/tasks?task=<task-id>` opens that exact detail, then demonstrate browser
    Back, Forward, and refresh.
 4. Enter an unknown task ID and show the localized warning and safe return to the
@@ -45,13 +55,18 @@ official regulation for the actual competition year.
    preference persists while fictional names and BudoGraph remain unchanged.
 6. Switch among System, Light, and Dark. In System, change the device appearance
    if the presentation environment allows it and show the live response.
-7. Open Changes & Plan B and connect the fictional change to affected tasks,
+7. On Tasks, mark a task Accepted. Explain that this means the assigned person
+   has seen and accepted it, not that it is complete or approved. Refresh to show
+   compatible browser-local persistence, then mark it Not accepted if useful.
+8. Open Changes & Plan B and connect the fictional change to affected tasks,
    areas, the current response, the next checkpoint, and the scenario-specific
-   escalation instruction. Explain that communication still happens outside BudoGraph.
-8. Review a fictional team member's workload, expand a longer milestone set,
-   preview the seminar template, and restore the fictional baseline.
-9. Refresh once before reset to demonstrate browser-local workspace persistence;
-   explain that resetting workspace data does not reset language or theme.
+   escalation instruction. Acknowledging the change is distinct from accepting
+   a task. Explain that communication still happens outside BudoGraph.
+9. Review TeamPressure and a fictional team member's assigned work, preview the
+   seminar template, and restore the fictional baseline.
+10. Refresh once before reset to demonstrate browser-local workspace
+    persistence; explain that resetting workspace data does not reset language
+    or theme.
 
 ## 4. Technical explanation
 
@@ -73,7 +88,10 @@ official regulation for the actual competition year.
   `/tasks?task=<task-id>` links support initial load, Back/Forward, refresh, and
   explicit invalid-ID handling without adding a routing library.
 - Validated `budograph.workspace.v1` loading preserves the Phase 1 localStorage
-  shape and falls back to the fictional seed when saved data is unusable.
+  shape and falls back to the fictional seed when saved data is unusable. The
+  task boolean remains `acknowledged` for compatibility while task-facing copy
+  interprets it as Accepted/Not accepted; change acknowledgement remains a
+  separate interaction.
 - There is no backend, authentication, account system, authorization layer,
   external API, AI service, secret, or real personal data.
 
@@ -92,6 +110,11 @@ Show only results that were actually run and recorded. The Phase 2A evidence in
   System-theme checks;
 - exact-task, invalid-task, Back/Forward, refresh, and persistence checks;
 - long Bulgarian/content stress checks and the scoped privacy scan.
+
+Do not present those historical Phase 2A results as Phase 2B.1 verification.
+The final Phase 2B.1 command, browser-matrix, theme, terminology, focus,
+deep-link, persistence, and console evidence may be presented only after it has
+actually run and been added to `docs/TEST_EVIDENCE.md`.
 
 Before the actual presentation, separately complete and record the remaining
 screen-reader/assistive-technology pass, a clean-console inspection after the
@@ -113,16 +136,18 @@ or an unperformed checklist into a passing claim.
 - The offline and backup plan is a plan until it has been executed and recorded
   on the actual presentation setup.
 
-## 7. Limitations and Phase 2B decisions
+## 7. Limitations and Phase 2B.1 boundary
 
-- Phase 2A intentionally excludes a backend, database, authentication, real
+- Phase 2A and Phase 2B.1 intentionally exclude a backend, database, authentication, real
   accounts, roles, permissions, AI, budget management, Kanban, calendar, Gantt,
   synchronization, audit trail, production notifications, integrations, and
   hosting.
 - Template editing, multi-event workflows, a permanent logo, and production
   deployment remain future decisions; none should be implied by the prototype.
-- Phase 2B should be selected only after reviewing the real Phase 2A evidence
-  and demonstration feedback without changing the approved core idea silently.
+- Phase 2B.1 is visual and information-hierarchy refinement, not a new feature
+  set, product-market validation, or proof of usability. Any later scope should
+  be selected only from real evidence without changing the approved core idea
+  silently.
 - The available NOIT rules are for **2025–2026** and are historical. Reverify
   the official regulation for the actual competition year, including dates,
   category wording, procedures, deliverables, formats, declarations,

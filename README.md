@@ -4,9 +4,9 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 ## Project status and evidence boundary
 
-This repository contains the **Phase 1 NOIT competition MVP and the Phase 2A UX foundation**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthens localization, theming, operational dashboard hierarchy, responsive behavior, and task navigation without changing the approved product idea or adding production services.
+This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, and the Phase 2B.1 visual and information-hierarchy refinement**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarifies BudoGraph's visual identity, surface hierarchy, Dashboard reading order, and task-acceptance wording without changing the approved product idea or adding production services.
 
-The application remains a technical prototype. Neither phase proves product-market fit, commercial demand, adoption, or willingness to pay.
+The application remains a technical prototype. These phases do not prove product-market fit, commercial demand, adoption, willingness to pay, or usability.
 
 The historical research and validation record remains under `docs/validation/` and `docs/market-research/`. Those files are preserved as evidence and are not rewritten to make the Phase 1 decision appear stronger than the evidence supports. The decision to build this prototype is a competition-project decision, not a commercial-validation conclusion.
 
@@ -16,7 +16,7 @@ The approved Phase 1 slice covers:
 
 - a responsive organizer application shell with desktop and mobile navigation;
 - a dashboard for readiness, task state, deadlines, risks, workload, attention items, and milestones;
-- an interactive task workspace with status and owner filtering, status updates, acknowledgement, overdue calculation, dependencies, consequences, and task details;
+- an interactive task workspace with status and owner filtering, status updates, task acceptance, overdue calculation, dependencies, consequences, and task details;
 - a team overview with workload and assigned-task drill-down;
 - a Changes & Plan B area for acknowledging and responding to operational changes, including scenario-specific escalation instructions;
 - a reusable seminar-template preview and local demonstration-data reset flow;
@@ -39,9 +39,28 @@ Phase 2A extends the existing application rather than rebuilding it. It adds:
 
 Phase 2A intentionally does **not** add a backend, authentication, real accounts, roles or permissions, AI, budget management, Kanban, calendar, or Gantt views.
 
+## Phase 2B.1 visual and information hierarchy
+
+Phase 2B.1 refines the existing experience rather than adding a product feature. Its semantic color roles are:
+
+- **navy** for structure, navigation, and stable primary surfaces;
+- **burgundy** for decisions, the selected action or state, and primary actions;
+- **gold** for time, event stages, milestones, and organizational structure;
+- **red** only for genuine blockers or serious risk;
+- **green** for confirmed completion and safe positive state; and
+- **blue** for active process and neutral information.
+
+Three surface concepts keep the hierarchy legible: **operational surfaces** are dense and actionable, **context surfaces** explain event or team context quietly, and **critical surfaces** are reserved for blockers and serious risk.
+
+The Dashboard now follows one deliberate reading sequence: `EventOverview`, `OperationalFocus`, `PreparationTimeline`, `ChangeImpact`, then `TeamPressure`. Event progress remains a task-completion calculation, not a safety or go/no-go assessment. The new structure reorganizes existing local data; it does not add a backend, authentication, accounts, permissions, integrations, or another feature area.
+
+Task-facing wording now uses **Accepted** and **Not accepted** to mean that the assigned person has seen and accepted the task. For storage compatibility, the underlying boolean remains `Task.acknowledged` in `budograph.workspace.v1`. It is not an approval workflow and is separate from task completion. Acknowledging an operational change in Changes & Plan B remains a distinct action with distinct wording.
+
+This refinement is not product-market validation and does not prove usability, accessibility, adoption, or measurable product impact. Those claims require separate evidence.
+
 ## Architecture
 
-The application uses React, TypeScript, and Vite. Typed local domain data represents `Event`, `TeamMember`, `Task`, `EventChange`, and `EventTemplate` records with stable IDs. Domain calculations and workspace state are kept separate from page components where practical. Interactive demo state remains compatible with the versioned `budograph.workspace.v1` browser-storage record; the fictional seed state is used when no usable saved state exists or when the demonstration is reset.
+The application uses React, TypeScript, and Vite. Typed local domain data represents `Event`, `TeamMember`, `Task`, `EventChange`, and `EventTemplate` records with stable IDs. Domain calculations and workspace state are kept separate from page components where practical. Interactive demo state remains compatible with the versioned `budograph.workspace.v1` browser-storage record; the fictional seed state is used when no usable saved state exists or when the demonstration is reset. Phase 2B.1 preserves that schema, including the task `acknowledged` boolean whose current UI meaning is accepted/not accepted.
 
 Phase 2A adds three focused client-side layers:
 
@@ -51,7 +70,7 @@ Phase 2A adds three focused client-side layers:
 
 Workspace state, UI preferences, and URL state are deliberately separate. Selecting a language or theme does not rewrite the saved event workspace, and opening a task link does not change the task record.
 
-This boundary is deliberately replaceable: a later data service can load and save the same domain records through a backend without making visual components responsible for networking. No backend, account system, secret key, API request, or AI model is part of Phase 2A.
+This boundary is deliberately replaceable: a later data service can load and save the same domain records through a backend without making visual components responsible for networking. No backend, account system, secret key, API request, or AI model is part of Phase 2A or Phase 2B.1.
 
 ## Data and privacy
 
@@ -113,15 +132,15 @@ These are the project commands, not claims that a particular run passed. Record 
 
 ## Replaceable wordmark
 
-The current Phase 1 and Phase 2A prototype uses a text-only `BudoGraph` wordmark. The isolated component is `src/components/BrandWordmark.tsx`. When the project author finishes the hand-drawn logo, replace the visual content of that component while preserving its compact layout behavior and accessible name. Add the original asset to the repository, document its authorship and license status, and keep a readable text fallback. No generated, stock, or permanent placeholder logo is used in the current prototype.
+The current Phase 1, Phase 2A, and Phase 2B.1 prototype uses a text-only `BudoGraph` wordmark. The isolated component is `src/components/BrandWordmark.tsx`. When the project author finishes the hand-drawn logo, replace the visual content of that component while preserving its compact layout behavior and accessible name. Add the original asset to the repository, document its authorship and license status, and keep a readable text fallback. No generated, stock, or permanent placeholder logo is used in the current prototype.
 
 ## Documentation
 
-- [Phase 1 record and Phase 2A architecture boundary](docs/BUDOGRAPH_PHASE_1.md)
-- [Phase 2A user guide](docs/USER_GUIDE.md)
+- [Phase 1 record and Phase 2A/2B.1 architecture boundary](docs/BUDOGRAPH_PHASE_1.md)
+- [Phase 2B.1 user guide](docs/USER_GUIDE.md)
 - [Installation, deployment, and demonstration plan](docs/DEPLOYMENT_AND_DEMO_PLAN.md)
 - [Presentation outline](docs/PRESENTATION_OUTLINE.md)
-- [Phase 1 and Phase 2A test evidence](docs/TEST_EVIDENCE.md)
+- [Phase 1, Phase 2A, and Phase 2B.1 test evidence](docs/TEST_EVIDENCE.md)
 - [Known limitations](docs/KNOWN_LIMITATIONS.md)
 - [Third-party notices and license register](docs/THIRD_PARTY_NOTICES.md)
 - [AI assistance log](docs/AI_ASSISTANCE_LOG.md)

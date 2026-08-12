@@ -385,7 +385,7 @@ export function createDemoWorkspace(): WorkspaceState {
           },
           {
             name: "Team",
-            items: ["Role owners", "Shift rota", "Acknowledgements"],
+            items: ["Role owners", "Shift rota", "Task acceptance"],
           },
           {
             name: "Registration",

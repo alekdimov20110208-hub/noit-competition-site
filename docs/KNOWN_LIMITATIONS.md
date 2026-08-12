@@ -1,6 +1,6 @@
 # Known Limitations
 
-This document describes the honest Phase 1 and Phase 2A boundary. It must be updated when a limitation is removed or a new one is discovered.
+This document describes the honest Phase 1, Phase 2A, and Phase 2B.1 boundary. It must be updated when a limitation is removed or a new one is discovered.
 
 ## Product and evidence
 
@@ -8,11 +8,14 @@ This document describes the honest Phase 1 and Phase 2A boundary. It must be upd
 - The decision to build Phase 1 is not proof of product-market fit, commercial demand, adoption, retention, willingness to pay, or market prevalence.
 - Historical interviews are qualitative and bounded. Their original files are preserved under `docs/validation/`; they must not be generalized into statistics.
 - No measured claim is made that BudoGraph reduces omissions, organizer workload, response time, or event risk.
+- Phase 2B.1 is a visual and information-hierarchy refinement. It is not product-market validation and does not prove usability, accessibility, adoption, organizer effectiveness, or preference for the visual direction.
 
 ## Data and persistence
 
 - State is stored only in browser `localStorage` for the current browser profile and origin.
 - Workspace data and UI preferences use separate versioned records: `budograph.workspace.v1` and `budograph.preferences.v1`. This separation preserves the existing workspace schema, but neither record is a production database.
+- The task acceptance UI still stores its value in the Phase 1-compatible `Task.acknowledged` boolean. Accepted means that the assigned person has seen and accepted the task; it is not authenticated, does not prove that the person actually reviewed it, and is neither completion nor approval.
+- Task acceptance and acknowledgement of an operational change are separate interactions even though the compatible internal naming uses acknowledgement language. They must not be interpreted as one shared workflow.
 - There is no cloud sync, multi-device continuity, concurrent editing, conflict resolution, server backup, recovery service, or audit history.
 - Clearing site data, using a different origin/profile/browser, or resetting the demo can remove or replace local changes.
 - A blocked or unavailable browser-storage API causes a safe in-memory/default fallback and a notice; manual language, theme, or workspace changes may not survive the next visit in that case.
@@ -22,14 +25,14 @@ This document describes the honest Phase 1 and Phase 2A boundary. It must be upd
 
 ## Functional boundary
 
-- Phase 1 has no backend, production database, authentication, authorization, accounts, or real role permissions.
+- Phase 1, Phase 2A, and Phase 2B.1 have no backend, production database, authentication, authorization, accounts, or real role permissions.
 - There is no external API, AI feature, email, SMS, chat, telephone, calendar, payment, file-storage, or push-notification integration.
 - Phase 2A does not include budget management, Kanban, calendar, or Gantt views.
 - Scenario-specific escalation instructions are guidance only. BudoGraph cannot contact anyone or confirm that communication occurred.
 - The template capability is intentionally simple; it is not a complete template editor or a general event-generation system.
 - The prototype is centered on one fictional current event and a limited local template/reset flow rather than production multi-event management.
 - Overdue and date-sensitive behavior depends on the device clock and local browser environment; there is no trusted server clock.
-- The local-data boundary is designed for later replacement, but no backend migration, import/export, or synchronization path is implemented in Phase 1 or Phase 2A.
+- The local-data boundary is designed for later replacement, but no backend migration, import/export, or synchronization path is implemented in Phase 1, Phase 2A, or Phase 2B.1.
 - Task deep links cover task details only and use `/tasks?task=<encoded-task-id>`. Other entities do not yet have dedicated deep links.
 - An unknown or wrong-event task ID is treated as invalid and does not open a detail drawer. IDs remain local synthetic identifiers rather than public, authorized server resources.
 - Only Bulgarian and English are supported. Language detection uses the first available browser/device language tag and otherwise falls back to English; it is not regional content negotiation.
@@ -39,15 +42,18 @@ This document describes the honest Phase 1 and Phase 2A boundary. It must be upd
 
 - The permanent logo is not present. The current prototype uses a replaceable text-only `BudoGraph` wordmark until the author supplies a hand-drawn original.
 - No external images, downloaded fonts, stock artwork, or visual logo assets are used.
+- The Phase 2B.1 semantic roles are navy structure, burgundy decisions/selected action, gold time/stages, red genuine risk, green completion, and blue active/info. Their implementation in light and dark themes is a design system, not evidence that every user will interpret the colors correctly; labels, icons, focus states, contrast, and assistive-technology checks remain necessary.
+- Operational, context, and critical surfaces clarify purpose, but they do not themselves prove information findability or task success. Critical styling is intentionally scarce and depends on correct domain classification.
+- The detailed Phase 2B.1 redesign is concentrated on the Dashboard and shared shell. Tasks, Team, Changes & Plan B, and Templates retain compatible styling and behavior; a detailed redesign of those views remains future work.
 - Responsive and accessible behavior is an implementation goal, but formal accessibility certification and exhaustive assistive-technology, device, and browser testing are outside this documentation pass.
 - A Phase 2A.1 in-app Chromium pass at 320, 327, 360, 390, 768, 1080, and 1440 pixels is recorded in `docs/TEST_EVIDENCE.md`; every primary page was checked at 320 and 390 pixels, but this is not exhaustive real-device, multi-browser, zoom, or assistive-technology coverage.
 - Automated tests are intentionally focused and do not prove the absence of defects. Broader keyboard, screen-reader, contrast, empty/error-state, real-device, and cross-browser checks are still required.
 - This file records limitations; it does not claim that lint, type checking, tests, or the production build have passed. Verified command results belong in separate test evidence.
-- The third-party register covers the named top-level Phase 1 and Phase 2A dependencies and tooling. The full transitive lockfile still requires a final redistribution and notice audit.
+- The third-party register covers the named top-level Phase 1, Phase 2A, and Phase 2B.1 dependencies and tooling. The full transitive lockfile still requires a final redistribution and notice audit.
 
 ## Deployment and operations
 
-- A local development/build workflow is documented, but Phase 2A does not by itself provide production hosting, uptime monitoring, error reporting, analytics, backup deployment, or disaster recovery.
+- A local development/build workflow is documented, but Phase 2A and Phase 2B.1 do not by themselves provide production hosting, uptime monitoring, error reporting, analytics, backup deployment, or disaster recovery.
 - Production hosting must preserve all top-level History API paths and the `/tasks?task=...` query when serving or refreshing the application.
 - No offline-first service worker or installable PWA behavior is promised. Previously loaded browser resources should not be treated as a reliable offline demonstration plan.
 - A production deployment, online availability period, test accounts, and an offline/backup demonstration package must be planned and verified separately if the applicable competition rules require them.

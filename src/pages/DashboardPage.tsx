@@ -1,21 +1,20 @@
-import { ArrowRight } from "lucide-react";
-import { PageHeader } from "../components/PageHeader.tsx";
 import type { WorkspaceState } from "../domain/types.ts";
 import {
   getAttentionTasks,
   getReadinessSummary,
   getTaskCounts,
   getTeamWorkload,
-  getUpcomingTasks,
 } from "../domain/workspace.ts";
 import { useI18n } from "../i18n/index.ts";
-import { AttentionQueue } from "./dashboard/AttentionQueue.tsx";
-import { ChangesImpact } from "./dashboard/ChangesImpact.tsx";
-import { DeadlineList } from "./dashboard/DeadlineList.tsx";
-import { EventHero } from "./dashboard/EventHero.tsx";
-import { MilestoneTimeline } from "./dashboard/MilestoneTimeline.tsx";
-import { OperationalSummary } from "./dashboard/OperationalSummary.tsx";
-import { WorkloadComparison } from "./dashboard/WorkloadComparison.tsx";
+import { ChangeImpact } from "./dashboard/ChangeImpact.tsx";
+import { EventOverview } from "./dashboard/EventOverview.tsx";
+import {
+  buildPreparationTimeline,
+  getActiveChanges,
+} from "./dashboard/helpers.ts";
+import { OperationalFocus } from "./dashboard/OperationalFocus.tsx";
+import { PreparationTimeline } from "./dashboard/PreparationTimeline.tsx";
+import { TeamPressure } from "./dashboard/TeamPressure.tsx";
 
 interface DashboardPageProps {
   state: WorkspaceState;
@@ -28,7 +27,7 @@ export function DashboardPage({
   onNavigate,
   onOpenTask,
 }: DashboardPageProps) {
-  const { t, locale } = useI18n();
+  const { locale } = useI18n();
   const event =
     state.events.find((item) => item.id === state.currentEventId) ??
     state.events[0];
@@ -47,7 +46,6 @@ export function DashboardPage({
   const readiness = getReadinessSummary(eventTasks);
   const counts = getTaskCounts(eventTasks, now);
   const attention = getAttentionTasks(eventTasks, now, 5);
-  const upcoming = getUpcomingTasks(eventTasks, now, 5);
   const workloads = getTeamWorkload(state.teamMembers, eventTasks, now).sort(
     (first, second) => {
       if (first.atRisk !== second.atRisk) return second.atRisk - first.atRisk;
@@ -66,58 +64,44 @@ export function DashboardPage({
       first.date.localeCompare(second.date) ||
       first.id.localeCompare(second.id),
   );
+  const timeline = buildPreparationTimeline(eventTasks, milestones, now);
+  const activeChanges = getActiveChanges(eventChanges);
 
   return (
     <div className="page page--dashboard">
-      <PageHeader
-        eyebrow={t("dashboard.eyebrow")}
-        title={t("dashboard.title")}
-        description={t("dashboard.description")}
-        actions={
-          <button
-            className="button button--primary"
-            type="button"
-            onClick={() => onNavigate("/tasks")}
-          >
-            {t("dashboard.reviewAllTasks")}
-            <ArrowRight size={17} aria-hidden="true" />
-          </button>
-        }
-      />
-
-      <EventHero
+      <EventOverview
         event={event}
         readiness={readiness}
+        counts={counts}
         teamCount={state.teamMembers.length}
+        onNavigate={onNavigate}
       />
-      <OperationalSummary counts={counts} />
 
-      <div className="dashboard-grid dashboard-grid--operational">
-        <AttentionQueue
+      <div className="dashboard-command-grid">
+        <OperationalFocus
           tasks={attention}
           members={members}
           now={now}
           onOpenTask={onOpenTask}
         />
-        <DeadlineList
-          tasks={upcoming}
+        <PreparationTimeline
+          entries={timeline}
           members={members}
-          now={now}
           onNavigate={onNavigate}
           onOpenTask={onOpenTask}
         />
-        <ChangesImpact
-          changes={eventChanges}
-          eventTasks={eventTasks}
-          members={members}
-          now={now}
-          onNavigate={onNavigate}
-          onOpenTask={onOpenTask}
-        />
-        <WorkloadComparison workloads={workloads} onNavigate={onNavigate} />
       </div>
 
-      <MilestoneTimeline milestones={milestones} />
+      <ChangeImpact
+        changes={activeChanges}
+        eventTasks={eventTasks}
+        members={members}
+        now={now}
+        onNavigate={onNavigate}
+        onOpenTask={onOpenTask}
+      />
+
+      <TeamPressure workloads={workloads} onNavigate={onNavigate} />
     </div>
   );
 }
