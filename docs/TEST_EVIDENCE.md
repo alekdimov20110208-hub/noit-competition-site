@@ -571,3 +571,174 @@ historical, year-specific source; its dates, categories and limits, submission
 and documentation rules, online-availability and test-account requirements,
 GPLv3/licensing conditions, test and defence timing, scoring, and privacy forms
 must be reverified for the actual competition year.
+
+## Phase 2B.2 Tasks workspace redesign — 2026-08-15
+
+Phase 2B.2 was implemented from the clean synchronized baseline
+`3b274bad3efb995b3087e0307ef3d3410c7d937c`. The approved Phase 2B.1 Dashboard
+remained locked. The scope changed only the existing Tasks workspace and its
+drawer, localized copy, focused pure helpers and tests, responsive contracts,
+and supporting documentation. It did not add a dependency, asset, route,
+backend, account, database, schema version, or product module. Stable task IDs,
+canonical `/tasks?task=<task-id>` URLs, and `budograph.workspace.v1` were
+retained.
+
+### Implemented Tasks contract
+
+- The page header now exposes a compact total/active/blocked/overdue summary.
+  Overdue remains an overlapping timing flag rather than a status.
+- Search covers localized title, category, context, and owner. Status, owner,
+  and category filters combine, provide a zero-result/clear path, and can be
+  grouped by owner without dropping tasks whose owner is unknown.
+- Desktop rows form a flat operational register with Task, Responsibility,
+  Deadline, and Status columns. Accepted/Not accepted is a quieter
+  responsibility signal and never replaces task status.
+- A real canonical title link provides the full-row hit target. Inline status
+  and acceptance editors were removed; the grouped drawer is the primary
+  editing surface for those two independent values.
+- Tablet and mobile rows use a purpose-built summary rather than stacking the
+  desktop cells. The drawer separates identity, responsibility and acceptance,
+  progress and timing, operational relationships, and metadata.
+
+### Automated checks
+
+| Command                 | Result                                                 |
+| ----------------------- | ------------------------------------------------------ |
+| `pnpm.cmd format`       | Passed; Prettier formatted the scoped source and docs. |
+| `pnpm.cmd format:check` | Passed; every configured file matched Prettier.        |
+| `pnpm.cmd lint`         | Passed; ESLint reported no errors or warnings.         |
+| `pnpm.cmd typecheck`    | Passed; strict TypeScript build reported no errors.    |
+| `pnpm.cmd test`         | Passed; 47 tests, 0 failures, skips, or cancellations. |
+| `pnpm.cmd build`        | Passed; Vite 6.4.3 transformed 1,621 modules.          |
+| `git diff --check`      | Passed; no whitespace errors.                          |
+
+The final build contained a 348.66 kB JavaScript bundle (97.73 kB gzip), a
+54.31 kB CSS bundle (10.56 kB gzip), and a 2.16 kB HTML document (0.93 kB
+gzip). The suite added pure filtering/ordering coverage, explicit
+status-versus-Accepted reducer invariants, localized Tasks copy assertions, and
+mobile-summary, drawer, and filter-focus CSS contracts. No DOM test framework
+was added solely for this phase.
+
+### Search, filter, register, and drawer interactions
+
+The standard workspace rendered 16 rows and the development stress fixture
+rendered 44. English search for `driver` returned 1 of 16 tasks. Bulgarian
+case-insensitive search for `ШОФЬОР` returned the localized airport/backup-driver
+task. A combined status, Anton Ravin owner, and Travel category filter returned
+1 of 16; all three filter controls exposed their active treatment. An unmatched
+query returned 0 of 16 with the empty state, and both clear paths restored all
+16 rows. Owner grouping produced five groups, five registers, and all 16 rows.
+
+Selecting whitespace in the final status area of the first row opened the exact
+canonical target `/tasks?task=task-guest-itinerary`, proving that the stretched
+real link covers the row. The row contains no inline status or Accepted control
+that can conflict with that target; editing is confined to the drawer. Direct
+load and refresh of `/tasks?task=task-hotel-rooming` both reopened the same
+drawer, and closing a direct-load drawer returned safely to `/tasks`. A separate
+Back/Forward check opened `task-airport-transfer`, returned to the list, and
+reopened the exact detail. An encoded unknown ID displayed the localized notice
+while retaining the usable task list and did not open a substitute drawer.
+
+The drawer initially focused its close button. Reverse `Tab` wrapped to the
+last status control, forward `Tab` wrapped back to close, and `Escape` closed
+the drawer, removed the task query, and restored focus to
+`task-list:task-guest-itinerary`. The close button and the backdrop also closed
+to the list. Browser testing caught and corrected an interim mouse-down
+click-through: the final backdrop closes on its completed click, after which the
+URL is `/tasks`, no drawer remains, and focus returns to the originating row.
+
+In the production preview, changing the guest-itinerary status from Blocked to
+In progress left its separate state label at Not accepted. Accepting it then left
+the In progress status unchanged. Refreshing the canonical detail preserved
+both values on that preview origin. The reducer tests separately assert the two
+state-preservation invariants and serialization of both fields under the exact
+`budograph.workspace.v1` key.
+
+### Final Tasks browser matrix
+
+The latest development source was checked in controlled in-app Chromium
+emulation at all seven requested widths. `clientWidth` reflects the viewport
+after the browser scrollbar. `Tail space` is the document space below the final
+row; the mobile navigation measured 66 px high in each mobile/tablet case.
+
+| Viewport | Language  | Theme | Workspace | Rows | Filter height | First row | Tail space |
+| -------: | --------- | ----- | --------- | ---: | ------------: | --------: | ---------: |
+|   320 px | Bulgarian | Dark  | Stress    |   44 |        257 px |    274 px |     107 px |
+|   327 px | English   | Light | Standard  |   16 |        257 px |    193 px |     106 px |
+|   360 px | Bulgarian | Light | Stress    |   44 |        257 px |    252 px |     107 px |
+|   390 px | English   | Dark  | Stress    |   44 |        148 px |    237 px |     107 px |
+|   768 px | Bulgarian | Dark  | Stress    |   44 |        105 px |    157 px |     107 px |
+|  1080 px | English   | Light | Standard  |   16 |        105 px |     76 px |      71 px |
+|  1440 px | Bulgarian | Light | Standard  |   16 |         60 px |     94 px |      71 px |
+
+Every case had equal document client and scroll widths, zero out-of-bounds
+visible controls, zero measured overflow in the summary, filters, rows, badges,
+and register, and a reachable final row above the fixed mobile navigation. The
+long stress title explains the taller narrow rows; the title, owner, deadline,
+status, priority, and acceptance remained available rather than being silently
+discarded. At widths up to 600 px, rendered priority, acceptance, deadline-meta,
+and status text measured 11.2 px after final review; this was raised from the
+smaller interim treatment without introducing overflow.
+
+At 320 px Bulgarian/Dark with stress data, the open drawer measured 305 px
+client and scroll widths, 900 px client height, and 1,755 px scroll height. Its
+three controls had no measured overflow; the current Blocked status and separate
+overdue warning were both present. Scrolling reached the exact 855 px maximum,
+placed the final metadata section at 872 px within the 900 px viewport, and
+retained 28 px bottom padding. The drawer intentionally covered the bottom
+navigation while open so the two interaction layers did not compete.
+
+A scoped computed-color spot-check sampled 192 visible Tasks and drawer text
+pairs in Light and 168 in Dark. The lowest sampled pair was Important text at
+4.62:1 in both themes. This is a focused rendered-color check, not a formal
+accessibility or contrast audit.
+
+### Locked-page, console, and production checks
+
+Dashboard, Team, Changes & Plan B, and Templates were each checked at 320 px
+Bulgarian/Dark with stress data and at 1440 px English/Light with standard data.
+All eight combinations rendered their localized heading and meaningful content
+with equal document client/scroll widths and zero out-of-bounds visible
+controls. This was regression inspection only; none of those page layouts was
+redesigned.
+
+The final development browser session recorded zero application warnings and
+zero application errors. The rebuilt production preview at
+`127.0.0.1:4173` rendered all 16 standard task rows and repeated the search,
+combined-filter, empty-state, grouping, full-row, drawer, direct-load, refresh,
+invalid-ID, focus, independent-edit, persistence, and corrected-backdrop checks
+with zero application warnings or errors. This was a local rendering and bundle
+sanity check, not hosting or performance validation.
+
+### Independent review
+
+Three read-only reviewers separately audited source behavior, visual hierarchy,
+tests, and documentation. The source review found that the three filter selects
+temporarily suppressed the global keyboard outline without supplying a wrapper
+focus treatment, and that the drawer acceptance action combined a changing
+action name with toggle-button state. The final code adds a visible
+`:focus-within` ring with a focused contract test and presents acceptance as a
+normal action button while its state remains labelled above it. A production
+browser recheck computed the focused wrapper's border and 2 px ring and found
+no `aria-pressed` on that action.
+
+The visual review independently verified the corrected backdrop, canonical URL,
+desktop register, and drawer, then identified mobile row metadata at roughly
+10.2–10.6 px. The final mobile override raises essential priority, acceptance,
+deadline-meta, and status text to 11.2 px. The 320, 327, 360, and 390 px rows
+were remeasured afterward with zero horizontal overflow and zero application
+warnings or errors. The documentation/test reviewer found no unsupported claim
+or missing requested document. These independent checks were narrower than the
+primary matrix and do not expand the evidence boundary below.
+
+### Evidence boundary
+
+These results are controlled in-app Chromium observations, not proof of
+usability, accessibility, organizer effectiveness, physical-device behavior,
+cross-browser compatibility, screen-reader support, production security,
+product-market fit, or completed offline rehearsal. The workspace remains an
+unauthenticated local prototype with fictional data. The available regulation
+is the historical 2025–2026 document; its dates, exact category/group wording,
+online-availability window, documentation format, test and defence timing and
+weighting, declarations, and registration procedure must be reverified for the
+actual competition year.

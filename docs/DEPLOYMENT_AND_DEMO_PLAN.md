@@ -3,7 +3,9 @@
 Phase 2A extended the existing Phase 1 local prototype with Bulgarian/English
 localization, light/dark/system preferences, responsive behavior, and exact task
 URLs. Phase 2B.1 refines the same local prototype's visual identity and
-information hierarchy. It does not introduce a backend, account system, new
+information hierarchy. Phase 2B.2 redesigns the Tasks workspace as a dense
+responsibility register with compact filters and a primary editing drawer. It
+does not alter the locked Dashboard or introduce a backend, account system, new
 feature area, or production service.
 
 ## Local installation
@@ -17,7 +19,8 @@ pnpm dev
 ```
 
 Vite prints the local URL. BudoGraph has no database, server configuration,
-secret, account, or required environment file in Phase 2A or Phase 2B.1.
+secret, account, or required environment file in Phase 2A, Phase 2B.1, or Phase
+2B.2.
 
 ## Local quality and production commands
 
@@ -64,16 +67,16 @@ marker, allowing Close or `Escape` to return to the originating page. A direct
 task URL without that marker replaces the URL with the safe Tasks list instead.
 
 No public deployment, uptime promise, monitoring, server backup, or disaster
-recovery service is part of Phase 2A or Phase 2B.1. Hosting and online-availability
-requirements must be selected and verified against the rules for the actual
-competition year.
+recovery service is part of Phase 2A, Phase 2B.1, or Phase 2B.2. Hosting and
+online-availability requirements must be selected and verified against the
+rules for the actual competition year.
 
 ## Browser-local data and preferences
 
 - `budograph.workspace.v1` remains the versioned Phase 1-compatible fictional
-  workspace record. Its task boolean remains `acknowledged`; the Phase 2B.1 task
-  UI interprets that value as Accepted/Not accepted so existing saved workspaces
-  do not need a migration.
+  workspace record. Its task boolean remains `acknowledged`; the Phase 2B task
+  UI interprets that value as Accepted/Not accepted so existing saved
+  workspaces do not need a migration.
 - `budograph.preferences.v1` separately stores a manually selected `bg` or `en`
   language and `system`, `light`, or `dark` theme.
 - Without a stored language, a primary locale beginning with `bg` selects
@@ -103,7 +106,7 @@ interaction and should be demonstrated with its distinct wording.
 - Never enter private interview details or real personal, participant, payment,
   health, travel, or safeguarding information.
 
-## Phase 2B.1 browser verification checklist
+## Phase 2B browser verification checklist
 
 Perform and record this checklist; the checklist itself is not evidence that a
 result passed:
@@ -154,6 +157,39 @@ production feature.
     `acknowledged` value persists. Separately acknowledge a change and confirm
     that neither interaction is presented as task completion or approval.
 
+### Phase 2B.2 Tasks checklist
+
+Record actual results rather than checking these items by assumption:
+
+1. Confirm the standard event renders 16 tasks and the development stress
+   fixture renders 44 without horizontal overflow or hidden final rows.
+2. Search localized title, context, category, and owner text. Exercise status,
+   owner, and category individually and in combination; verify live counts,
+   zero-result recovery, Clear, and owner grouping.
+3. Select task-row whitespace and the title link. Confirm both open the canonical
+   `/tasks?task=<encoded-id>` URL while preserving a real link target and visible
+   focus.
+4. Verify direct load, refresh, Back, Forward, invalid/wrong-event IDs, Close,
+   `Escape`, and backdrop close. Confirm focus enters the drawer, remains trapped
+   while tabbing, and returns to the originating task link when it is still in
+   the filtered result.
+5. In the drawer, verify identity/context, owner plus Accepted, progress status
+   plus deadline/overdue, relationships, and metadata remain distinct. Change
+   status and Accepted independently, refresh on a disposable local origin, and
+   confirm one does not change the other.
+6. Inspect 320, 327, 360, 390, 768, 1080, and 1440 pixels with both Bulgarian and
+   English represented, Light and Dark represented, and stress data where it
+   pressures long titles or owner names. Measure `scrollWidth` as well as visible
+   scrollbars because the shell intentionally suppresses page-level horizontal
+   overflow.
+7. At narrow widths, verify title, status, owner, deadline/overdue, and Accepted
+   remain in the purpose-built summary; the final row has more trailing space
+   than the fixed bottom navigation; and every drawer control and final metadata
+   section can be reached with safe-area padding.
+8. Inspect the locked Dashboard and compatible Team, Changes & Plan B, and
+   Templates pages for visible regression, then record application console
+   warnings/errors from the final development and production-preview sources.
+
 ## Offline and backup presentation plan
 
 This is a preparation plan, not a claim that an offline package has been tested
@@ -188,11 +224,12 @@ year before registration, submission, deployment, or presentation, especially
 dates, categories, procedures, required documents and formats, media rules,
 online-availability windows, declarations, and test-account requirements.
 
-## Intentional Phase 2A and Phase 2B.1 exclusions
+## Intentional Phase 2A and Phase 2B exclusions
 
 Phase 2A does not include a backend, database, authentication, real accounts,
 roles, permissions, AI, budget management, Kanban, calendar, Gantt, external
 integrations, participant registration, payments, production notifications,
 monitoring, or production hosting. Phase 2B.1 is limited to visual and
-information-hierarchy refinement and does not remove any of those exclusions.
-The checklist above is not product-market validation or proof of usability.
+information-hierarchy refinement; Phase 2B.2 is limited to the existing Tasks
+experience. Neither removes any exclusion above. The checklist is not
+product-market validation or proof of usability.

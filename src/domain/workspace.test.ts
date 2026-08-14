@@ -13,6 +13,7 @@ import {
   getTeamWorkload,
   getUpcomingTasks,
   isTaskOverdue,
+  WORKSPACE_STORAGE_KEY,
   workspaceReducer,
 } from "./workspace.ts";
 
@@ -219,6 +220,10 @@ test("workspace reducer applies task and change transitions without mutation", (
       updatedAt,
     },
   );
+  assert.equal(
+    withTaskStatus.tasks.find((task) => task.id === taskId)?.acknowledged,
+    initial.tasks.find((task) => task.id === taskId)?.acknowledged,
+  );
 
   const withTaskAcknowledged = workspaceReducer(withTaskStatus, {
     type: "task/toggle-acknowledgement",
@@ -228,6 +233,10 @@ test("workspace reducer applies task and change transitions without mutation", (
   assert.equal(
     withTaskAcknowledged.tasks.find((task) => task.id === taskId)?.acknowledged,
     true,
+  );
+  assert.equal(
+    withTaskAcknowledged.tasks.find((task) => task.id === taskId)?.status,
+    "in-progress",
   );
 
   const withChangeAcknowledged = workspaceReducer(withTaskAcknowledged, {
@@ -393,4 +402,20 @@ test("stress fixture is fictional, dense, long, and storage-compatible", () => {
   const counts = getTaskCounts(state.tasks, NOW);
   assert.equal(counts.completed + counts.active + counts.blocked, counts.total);
   assert.deepEqual(deserializeWorkspace(JSON.stringify(state)), state);
+});
+
+test("workspace persistence key and task responsibility fields stay stable", () => {
+  const state = createDemoWorkspace();
+  const restored = deserializeWorkspace(JSON.stringify(state));
+  const taskId = "task-guest-itinerary";
+
+  assert.equal(WORKSPACE_STORAGE_KEY, "budograph.workspace.v1");
+  assert.equal(
+    restored.tasks.find((task) => task.id === taskId)?.status,
+    state.tasks.find((task) => task.id === taskId)?.status,
+  );
+  assert.equal(
+    restored.tasks.find((task) => task.id === taskId)?.acknowledged,
+    state.tasks.find((task) => task.id === taskId)?.acknowledged,
+  );
 });

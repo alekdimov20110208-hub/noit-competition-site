@@ -118,6 +118,34 @@ Acknowledging an operational change in Changes & Plan B remains distinct. It rec
 
 Phase 2B.1 is a visual and information-hierarchy refinement. It is not product-market validation and does not prove usability, accessibility, organizer effectiveness, reduced risk, adoption, or other product impact. Final implementation and browser evidence belongs in `docs/TEST_EVIDENCE.md` only after the relevant checks have actually run and been recorded.
 
+## Phase 2B.2 - Tasks workspace redesign
+
+Phase 2B.2 applies the approved Phase 2B.1 identity to the Tasks experience only. The Dashboard sequence and every other primary page remain unchanged. No domain field, reducer action, local-storage key, route shape, dependency, or production-service boundary changes.
+
+### Operational register and filtering
+
+Desktop Tasks uses a flat four-column responsibility register: task, responsibility, deadline, and primary status. A title is the dominant row element; category and important/critical priority are quieter supporting context. Owner and Accepted/Not accepted share the responsibility column, but acceptance remains visually secondary to the task's progress status. Overdue is a separate timing flag and never replaces status.
+
+The toolbar supports localized search across title, context, category, and owner plus status, owner, and category filters. Filters combine, expose a live visible/total count, and can be cleared together. The existing owner grouping remains optional. Pure selectors in `src/pages/tasks/helpers.ts` keep search, filtering, category derivation, and overdue/blocker/deadline ordering outside the visual row component.
+
+### Canonical row interaction and drawer
+
+The existing title anchor is stretched across non-control row space, preserving a real `/tasks?task=<encoded-task-id>` link, modifier-click semantics, keyboard focus, History API state, refresh parsing, and focus restoration. The drawer is the primary task editing surface. It separates:
+
+1. identity and existing task context;
+2. owner plus the independent Accepted/Not accepted responsibility state;
+3. editable progress status, deadline, priority, and separate overdue guidance;
+4. existing dependency/consequence relationships; and
+5. category and last-updated metadata.
+
+Only the existing status and acceptance mutations are editable. Owner, deadline, priority, context, relationships, and timestamps remain read-only because the local prototype has no corresponding persistence actions.
+
+### Responsive contract and evidence boundary
+
+At tablet and phone widths, the desktop columns become purpose-built summaries that retain title, status, owner, deadline/overdue, and acceptance. Filter controls reflow without horizontal scrolling, the drawer uses dynamic viewport height and safe-area-aware bottom padding, and the existing fixed mobile navigation remains reachable without covering the final row.
+
+Phase 2B.2 remains a focused visual/product implementation. It does not prove usability, accessibility, organizer efficiency, error reduction, or product-market fit. Controlled browser and automated evidence is recorded separately in `docs/TEST_EVIDENCE.md`; physical-device, assistive-technology, and multi-browser validation remain required.
+
 ## Explicitly excluded
 
 Phase 1 does not contain:
@@ -132,7 +160,7 @@ Phase 1 does not contain:
 - claims that the prototype is suitable for real personal data; or
 - a generated, stock, or permanent visual logo.
 
-Phase 2A also intentionally excludes budget management, Kanban, calendar, and Gantt views. Phase 2B.1 adds no feature area and does not change any of the production-service exclusions above.
+Phase 2A also intentionally excludes budget management, Kanban, calendar, and Gantt views. Phases 2B.1 and 2B.2 add no new product area and do not change any of the production-service exclusions above.
 
 Placeholders for excluded functions are not part of the required core screens and must not be presented as working features.
 
@@ -177,9 +205,9 @@ The domain model uses stable IDs and includes at least:
 - `EventChange`
 - `EventTemplate`
 
-Views consume typed workspace data and actions. Readiness, task summaries, overdue state, workload, affected-task relationships, and attention items are derived locally. Persistence is a browser adapter, not a production data layer. Phase 2B.1 reorganizes those existing derived values without changing the storage schema. This separation is intended to let a later backend implement loading and saving without moving network logic into presentation components.
+Views consume typed workspace data and actions. Readiness, task summaries, overdue state, workload, affected-task relationships, and attention items are derived locally. Persistence is a browser adapter, not a production data layer. Phase 2B.1 reorganizes existing Dashboard values, and Phase 2B.2 adds pure Tasks search/filter/order selectors without changing the storage schema. This separation is intended to let a later backend implement loading and saving without moving network logic into presentation components.
 
-There is no server validation in Phase 1, Phase 2A, or Phase 2B.1 because there is no server. This is a known architecture boundary, not a security claim.
+There is no server validation in Phase 1, Phase 2A, Phase 2B.1, or Phase 2B.2 because there is no server. This is a known architecture boundary, not a security claim.
 
 ## Demonstration data rules
 
@@ -192,7 +220,7 @@ There is no server validation in Phase 1, Phase 2A, or Phase 2B.1 because there 
 ## Main local flows
 
 1. The organizer opens the fictional current event and checks readiness and attention items.
-2. The organizer filters tasks, opens task details, changes a status, or marks the task accepted/not accepted. That task action still persists through the compatible `acknowledged` boolean.
+2. The organizer searches or combines task status, owner, and category filters, opens any task row, then changes status or Accepted/Not accepted in the sectioned drawer. Acceptance still persists through the compatible `acknowledged` boolean and remains separate from progress.
 3. The organizer checks workload and selects a team member to review assigned work.
 4. The organizer reviews a disruption, sees affected tasks, acknowledges it, and advances the response while using direct communication outside BudoGraph when recommended.
 5. The organizer previews the seminar template and may reset the local demonstration state.

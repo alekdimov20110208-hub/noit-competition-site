@@ -88,3 +88,18 @@ test("task acceptance wording stays distinct from change acknowledgement", () =>
   assert.equal(translate("en", "changes.acknowledged"), "Acknowledged");
   assert.equal(translate("bg", "changes.acknowledged"), "Потвърдена");
 });
+
+test("Tasks workspace labels stay concise and localized", () => {
+  assert.equal(translate("en", "tasks.filters.search"), "Search tasks");
+  assert.equal(translate("bg", "tasks.filters.search"), "Търсене в задачите");
+  assert.equal(
+    translate("en", "tasks.filters.allCategories"),
+    "All categories",
+  );
+  assert.equal(
+    translate("bg", "tasks.filters.allCategories"),
+    "Всички категории",
+  );
+  assert.equal(translate("en", "tasks.table.responsibility"), "Responsibility");
+  assert.equal(translate("bg", "tasks.table.responsibility"), "Отговорност");
+});

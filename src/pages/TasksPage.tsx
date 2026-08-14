@@ -2,12 +2,16 @@ import {
   AlertTriangle,
   Check,
   ChevronDown,
-  Filter,
+  ChevronRight,
+  Circle,
   Layers3,
+  ListFilter,
   RotateCcw,
+  Search,
+  Tag,
   UserRound,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppLink } from "../components/AppLink.tsx";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { PageHeader } from "../components/PageHeader.tsx";
@@ -23,12 +27,17 @@ import type {
   TeamMember,
   WorkspaceState,
 } from "../domain/types.ts";
-import { isTaskOverdue } from "../domain/workspace.ts";
+import { getTaskCounts, isTaskOverdue } from "../domain/workspace.ts";
 import { useI18n } from "../i18n/index.ts";
 import { createTaskHref } from "../routes.ts";
 import { getInitials } from "../utils/format.ts";
-
-type StatusFilter = TaskStatus | "all";
+import { getTaskStatusTone } from "../utils/statusTone.ts";
+import {
+  filterTasks,
+  getTaskCategories,
+  hasActiveTaskFilters,
+  type TaskFilters,
+} from "./tasks/helpers.ts";
 
 const TASK_STATUSES: readonly TaskStatus[] = [
   "not-started",
@@ -47,82 +56,96 @@ interface TasksPageProps {
   onToggleAcknowledgement: (taskId: string) => void;
 }
 
-function compareTasks(first: Task, second: Task) {
-  const firstOverdue = isTaskOverdue(first) ? 0 : 1;
-  const secondOverdue = isTaskOverdue(second) ? 0 : 1;
-  if (firstOverdue !== secondOverdue) return firstOverdue - secondOverdue;
-  return first.deadline.localeCompare(second.deadline);
-}
-
 interface TaskListProps {
   tasks: Task[];
   members: TeamMember[];
+  selectedTaskId: string | null;
   onOpen: (taskId: string) => void;
-  onStatusChange: (taskId: string, status: TaskStatus) => void;
-  onToggleAcknowledgement: (taskId: string) => void;
 }
 
-function TaskList({
-  tasks,
-  members,
-  onOpen,
-  onStatusChange,
-  onToggleAcknowledgement,
-}: TaskListProps) {
+function TaskList({ tasks, members, selectedTaskId, onOpen }: TaskListProps) {
   const { formatDate, formatDateTime, t } = useI18n();
   const memberById = new Map(members.map((member) => [member.id, member]));
 
   return (
     <div
-      className="task-table"
+      className="task-register"
       role="table"
       aria-label={t("tasks.table.label")}
     >
-      <div className="task-table__header" role="row">
+      <div className="task-register__header" role="row">
         <span role="columnheader">{t("tasks.table.task")}</span>
-        <span role="columnheader">{t("tasks.table.owner")}</span>
+        <span role="columnheader">{t("tasks.table.responsibility")}</span>
         <span role="columnheader">{t("tasks.table.deadline")}</span>
         <span role="columnheader">{t("tasks.table.status")}</span>
-        <span role="columnheader">{t("tasks.table.acknowledged")}</span>
       </div>
 
       {tasks.map((task) => {
         const owner = memberById.get(task.ownerId);
         const overdue = isTaskOverdue(task);
+        const selected = selectedTaskId === task.id;
+        const priorityTone =
+          task.priority === "critical"
+            ? "critical"
+            : task.priority === "important"
+              ? "warning"
+              : "neutral";
 
         return (
-          <div className="task-row" role="row" key={task.id}>
+          <div
+            className={`task-row ${overdue ? "task-row--overdue" : ""}`}
+            data-status={task.status}
+            data-selected={selected || undefined}
+            role="row"
+            key={task.id}
+          >
             <div className="task-row__primary" role="cell">
               <AppLink
+                className="task-row__link"
                 href={createTaskHref(task.id)}
                 onNavigate={() => onOpen(task.id)}
                 data-task-focus-key={`task-list:${task.id}`}
+                aria-current={selected ? "location" : undefined}
                 aria-label={t("common.openTaskNamed", { title: task.title })}
               >
                 {task.title}
               </AppLink>
-              <div>
+              <div className="task-row__context">
                 <span>{task.category}</span>
-                <StatusBadge
-                  compact
-                  tone={task.priority === "critical" ? "critical" : "neutral"}
-                  label={t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
-                />
+                {task.priority !== "normal" && (
+                  <StatusBadge
+                    compact
+                    tone={priorityTone}
+                    label={t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
+                  />
+                )}
               </div>
             </div>
 
-            <div className="task-owner" role="cell">
-              <span className="avatar avatar--tiny" aria-hidden="true">
-                {owner ? getInitials(owner.name) : "—"}
+            <div className="task-responsibility" role="cell">
+              <div className="task-owner">
+                <span className="avatar avatar--tiny" aria-hidden="true">
+                  {owner ? getInitials(owner.name) : "—"}
+                </span>
+                <span>{owner?.name ?? t("common.unassigned")}</span>
+              </div>
+              <span
+                className={`task-acceptance ${task.acknowledged ? "task-acceptance--accepted" : ""}`}
+              >
+                {task.acknowledged ? (
+                  <Check size={13} aria-hidden="true" />
+                ) : (
+                  <Circle size={12} aria-hidden="true" />
+                )}
+                {task.acknowledged
+                  ? t("taskDetails.acknowledged")
+                  : t("taskDetails.acknowledgementNeeded")}
               </span>
-              <span>{owner?.name ?? t("common.unassigned")}</span>
             </div>
 
             <div className="task-deadline" role="cell">
-              <span className={overdue ? "text-warning" : undefined}>
-                {formatDate(task.deadline)}
-              </span>
-              <small>
+              <time dateTime={task.deadline}>{formatDate(task.deadline)}</time>
+              <small className={overdue ? "task-deadline__overdue" : undefined}>
                 {overdue
                   ? t("taskDetails.overdue")
                   : t("tasks.table.updated", {
@@ -131,43 +154,19 @@ function TaskList({
               </small>
             </div>
 
-            <div role="cell">
-              <label className="sr-only" htmlFor={`status-${task.id}`}>
-                {t("tasks.table.statusFor", { title: task.title })}
-              </label>
-              <div className="select-wrap">
-                <select
-                  id={`status-${task.id}`}
-                  value={task.status}
-                  onChange={(event) =>
-                    onStatusChange(task.id, event.target.value as TaskStatus)
-                  }
-                >
-                  {TASK_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {t(TASK_STATUS_MESSAGE_KEYS[status])}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={15} aria-hidden="true" />
-              </div>
+            <div className="task-row__status" role="cell">
+              <StatusBadge
+                compact
+                tone={getTaskStatusTone(task.status)}
+                label={t(TASK_STATUS_MESSAGE_KEYS[task.status])}
+              />
             </div>
 
-            <div role="cell">
-              <button
-                type="button"
-                className={`ack-button ${task.acknowledged ? "ack-button--done" : ""}`}
-                aria-pressed={task.acknowledged}
-                onClick={() => onToggleAcknowledgement(task.id)}
-              >
-                <span aria-hidden="true">
-                  {task.acknowledged && <Check size={14} />}
-                </span>
-                {task.acknowledged
-                  ? t("tasks.table.acknowledged")
-                  : t("tasks.table.acknowledge")}
-              </button>
-            </div>
+            <ChevronRight
+              className="task-row__chevron"
+              size={17}
+              aria-hidden="true"
+            />
           </div>
         );
       })}
@@ -185,55 +184,99 @@ export function TasksPage({
   onToggleAcknowledgement,
 }: TasksPageProps) {
   const { formatNumber, plural, t } = useI18n();
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [ownerFilter, setOwnerFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [groupByOwner, setGroupByOwner] = useState(false);
   const eventTasks = useMemo(
     () => state.tasks.filter((task) => task.eventId === state.currentEventId),
     [state.currentEventId, state.tasks],
   );
-  const filteredTasks = useMemo(
-    () =>
-      eventTasks
-        .filter(
-          (task) => statusFilter === "all" || task.status === statusFilter,
-        )
-        .filter((task) => ownerFilter === "all" || task.ownerId === ownerFilter)
-        .sort(compareTasks),
-    [eventTasks, ownerFilter, statusFilter],
+  const categories = useMemo(() => getTaskCategories(eventTasks), [eventTasks]);
+  const filters = useMemo<TaskFilters>(
+    () => ({
+      search: searchQuery,
+      status: statusFilter,
+      ownerId: ownerFilter,
+      category: categoryFilter,
+    }),
+    [categoryFilter, ownerFilter, searchQuery, statusFilter],
   );
+  const filteredTasks = useMemo(
+    () => filterTasks(eventTasks, state.teamMembers, filters),
+    [eventTasks, filters, state.teamMembers],
+  );
+  const counts = useMemo(() => getTaskCounts(eventTasks), [eventTasks]);
   const selectedTask =
     eventTasks.find((task) => task.id === selectedTaskId) ?? null;
   const selectedOwner = state.teamMembers.find(
     (member) => member.id === selectedTask?.ownerId,
   );
+  const knownMemberIds = new Set(state.teamMembers.map((member) => member.id));
   const groupedTasks = groupByOwner
-    ? state.teamMembers
-        .map((member) => ({
+    ? [
+        ...state.teamMembers.map((member) => ({
           member,
           tasks: filteredTasks.filter((task) => task.ownerId === member.id),
-        }))
-        .filter((group) => group.tasks.length > 0)
+        })),
+        {
+          member: null,
+          tasks: filteredTasks.filter(
+            (task) => !knownMemberIds.has(task.ownerId),
+          ),
+        },
+      ].filter((group) => group.tasks.length > 0)
     : [];
+  const filtersActive = hasActiveTaskFilters(filters);
+
+  useEffect(() => {
+    if (categoryFilter !== "all" && !categories.includes(categoryFilter)) {
+      setCategoryFilter("all");
+    }
+  }, [categories, categoryFilter]);
 
   function clearFilters() {
+    setSearchQuery("");
     setStatusFilter("all");
     setOwnerFilter("all");
+    setCategoryFilter("all");
   }
 
+  const taskList = (
+    <TaskList
+      tasks={filteredTasks}
+      members={state.teamMembers}
+      selectedTaskId={selectedTaskId}
+      onOpen={onOpenTask}
+    />
+  );
+
   return (
-    <div className="page">
+    <div className="page page--tasks">
       <PageHeader
         eyebrow={t("tasks.eyebrow")}
         title={t("tasks.title")}
         description={t("tasks.description")}
         actions={
-          <div className="result-count" aria-live="polite">
-            {t("tasks.resultCount", {
-              visible: formatNumber(filteredTasks.length),
-              total: formatNumber(eventTasks.length),
-            })}
-          </div>
+          <dl className="tasks-overview" aria-label={t("tasks.summary.label")}>
+            <div>
+              <dt>{t("tasks.summary.total")}</dt>
+              <dd>{formatNumber(counts.total)}</dd>
+            </div>
+            <div>
+              <dt>{t("tasks.summary.active")}</dt>
+              <dd>{formatNumber(counts.active)}</dd>
+            </div>
+            <div>
+              <dt>{t("tasks.summary.blocked")}</dt>
+              <dd>{formatNumber(counts.blocked)}</dd>
+            </div>
+            <div className="tasks-overview__risk">
+              <dt>{t("tasks.summary.overdue")}</dt>
+              <dd>{formatNumber(counts.overdue)}</dd>
+            </div>
+          </dl>
         }
       />
 
@@ -254,107 +297,171 @@ export function TasksPage({
         </div>
       )}
 
-      <section className="filter-bar" aria-label={t("tasks.filters.label")}>
-        <div className="filter-bar__label">
-          <Filter size={17} aria-hidden="true" />
-          <span>{t("tasks.filters.filter")}</span>
+      <section className="task-filters" aria-label={t("tasks.filters.label")}>
+        <div className="task-search">
+          <Search size={17} aria-hidden="true" />
+          <label className="sr-only" htmlFor="task-search">
+            {t("tasks.filters.search")}
+          </label>
+          <input
+            id="task-search"
+            type="search"
+            value={searchQuery}
+            placeholder={t("tasks.filters.searchPlaceholder")}
+            autoComplete="off"
+            onChange={(event) => setSearchQuery(event.target.value)}
+          />
         </div>
-        <div className="filter-chips" aria-label={t("tasks.filters.status")}>
-          {(["all", ...TASK_STATUSES] as const).map((status) => (
+
+        <div className="task-filter-controls">
+          <div
+            className={`task-filter-select ${statusFilter !== "all" ? "is-filtered" : ""}`}
+          >
+            <ListFilter size={15} aria-hidden="true" />
+            <label className="sr-only" htmlFor="status-filter">
+              {t("tasks.filters.status")}
+            </label>
+            <select
+              id="status-filter"
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(event.target.value as TaskStatus | "all")
+              }
+            >
+              <option value="all">{t("tasks.filters.allStatuses")}</option>
+              {TASK_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {t(TASK_STATUS_MESSAGE_KEYS[status])}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={14} aria-hidden="true" />
+          </div>
+
+          <div
+            className={`task-filter-select task-filter-select--owner ${ownerFilter !== "all" ? "is-filtered" : ""}`}
+          >
+            <UserRound size={15} aria-hidden="true" />
+            <label className="sr-only" htmlFor="owner-filter">
+              {t("tasks.filters.owner")}
+            </label>
+            <select
+              id="owner-filter"
+              value={ownerFilter}
+              onChange={(event) => setOwnerFilter(event.target.value)}
+            >
+              <option value="all">{t("tasks.filters.allOwners")}</option>
+              {state.teamMembers.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={14} aria-hidden="true" />
+          </div>
+
+          <div
+            className={`task-filter-select task-filter-select--category ${categoryFilter !== "all" ? "is-filtered" : ""}`}
+          >
+            <Tag size={15} aria-hidden="true" />
+            <label className="sr-only" htmlFor="category-filter">
+              {t("tasks.filters.category")}
+            </label>
+            <select
+              id="category-filter"
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+            >
+              <option value="all">{t("tasks.filters.allCategories")}</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={14} aria-hidden="true" />
+          </div>
+
+          <button
+            type="button"
+            className={`group-toggle ${groupByOwner ? "is-active" : ""}`}
+            aria-pressed={groupByOwner}
+            onClick={() => setGroupByOwner((current) => !current)}
+          >
+            <Layers3 size={15} aria-hidden="true" />{" "}
+            {t("tasks.filters.groupByOwner")}
+          </button>
+
+          {filtersActive && (
             <button
               type="button"
-              key={status}
-              className={statusFilter === status ? "is-active" : undefined}
-              aria-pressed={statusFilter === status}
-              onClick={() => setStatusFilter(status)}
+              className="task-filters__clear"
+              onClick={clearFilters}
             >
-              {status === "all"
-                ? t("tasks.filters.all")
-                : t(TASK_STATUS_MESSAGE_KEYS[status])}
+              <RotateCcw size={14} aria-hidden="true" />{" "}
+              {t("tasks.filters.clear")}
             </button>
-          ))}
+          )}
         </div>
-        <div className="filter-bar__select">
-          <UserRound size={16} aria-hidden="true" />
-          <label className="sr-only" htmlFor="owner-filter">
-            {t("tasks.filters.owner")}
-          </label>
-          <select
-            id="owner-filter"
-            value={ownerFilter}
-            onChange={(event) => setOwnerFilter(event.target.value)}
-          >
-            <option value="all">{t("tasks.filters.allOwners")}</option>
-            {state.teamMembers.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.name}
-              </option>
-            ))}
-          </select>
+
+        <div className="task-filters__result" aria-live="polite">
+          {t("tasks.resultCount", {
+            visible: formatNumber(filteredTasks.length),
+            total: formatNumber(eventTasks.length),
+          })}
         </div>
-        <button
-          type="button"
-          className={`group-toggle ${groupByOwner ? "is-active" : ""}`}
-          aria-pressed={groupByOwner}
-          onClick={() => setGroupByOwner((current) => !current)}
-        >
-          <Layers3 size={16} aria-hidden="true" />{" "}
-          {t("tasks.filters.groupByOwner")}
-        </button>
       </section>
 
-      {filteredTasks.length === 0 ? (
-        <EmptyState
-          title={t("tasks.empty.title")}
-          description={t("tasks.empty.description")}
-          action={
-            <button className="button button--secondary" onClick={clearFilters}>
-              <RotateCcw size={16} aria-hidden="true" />{" "}
-              {t("tasks.empty.clear")}
-            </button>
-          }
-        />
-      ) : groupByOwner ? (
-        <div className="task-groups">
-          {groupedTasks.map(({ member, tasks }) => (
-            <section className="task-group" key={member.id}>
-              <header>
-                <span className="avatar" aria-hidden="true">
-                  {getInitials(member.name)}
-                </span>
-                <div>
-                  <h2>{member.name}</h2>
-                  <p>
-                    {plural(
-                      tasks.length,
-                      {
-                        one: "tasks.group.assigned.one",
-                        other: "tasks.group.assigned.other",
-                      },
-                      { role: member.role },
-                    )}
-                  </p>
-                </div>
-              </header>
-              <TaskList
-                tasks={tasks}
-                members={state.teamMembers}
-                onOpen={onOpenTask}
-                onStatusChange={onStatusChange}
-                onToggleAcknowledgement={onToggleAcknowledgement}
-              />
-            </section>
-          ))}
-        </div>
-      ) : (
-        <TaskList
-          tasks={filteredTasks}
-          members={state.teamMembers}
-          onOpen={onOpenTask}
-          onStatusChange={onStatusChange}
-          onToggleAcknowledgement={onToggleAcknowledgement}
-        />
-      )}
+      <div id="task-results">
+        {filteredTasks.length === 0 ? (
+          <EmptyState
+            title={t("tasks.empty.title")}
+            description={t("tasks.empty.description")}
+            action={
+              <button
+                className="button button--secondary"
+                onClick={clearFilters}
+              >
+                <RotateCcw size={16} aria-hidden="true" />{" "}
+                {t("tasks.empty.clear")}
+              </button>
+            }
+          />
+        ) : groupByOwner ? (
+          <div className="task-groups">
+            {groupedTasks.map(({ member, tasks }) => (
+              <section className="task-group" key={member?.id ?? "unassigned"}>
+                <header>
+                  <span className="avatar" aria-hidden="true">
+                    {member ? getInitials(member.name) : "—"}
+                  </span>
+                  <div>
+                    <h2>{member?.name ?? t("common.unassigned")}</h2>
+                    <p>
+                      {plural(
+                        tasks.length,
+                        {
+                          one: "tasks.group.assigned.one",
+                          other: "tasks.group.assigned.other",
+                        },
+                        { role: member?.role ?? t("common.unassigned") },
+                      )}
+                    </p>
+                  </div>
+                </header>
+                <TaskList
+                  tasks={tasks}
+                  members={state.teamMembers}
+                  selectedTaskId={selectedTaskId}
+                  onOpen={onOpenTask}
+                />
+              </section>
+            ))}
+          </div>
+        ) : (
+          taskList
+        )}
+      </div>
 
       <TaskDrawer
         task={selectedTask}

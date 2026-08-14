@@ -4,7 +4,7 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 ## Project status and evidence boundary
 
-This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, and the Phase 2B.1 visual and information-hierarchy refinement**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarifies BudoGraph's visual identity, surface hierarchy, Dashboard reading order, and task-acceptance wording without changing the approved product idea or adding production services.
+This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, the locked Phase 2B.1 Dashboard direction, and the Phase 2B.2 Tasks workspace redesign**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarified BudoGraph's visual identity and Dashboard reading order. Phase 2B.2 applies that identity to a dense operational task register, compact search and filtering, and a primary task detail/editing drawer without changing the approved product idea or adding production services.
 
 The application remains a technical prototype. These phases do not prove product-market fit, commercial demand, adoption, willingness to pay, or usability.
 
@@ -58,9 +58,15 @@ Task-facing wording now uses **Accepted** and **Not accepted** to mean that the 
 
 This refinement is not product-market validation and does not prove usability, accessibility, adoption, or measurable product impact. Those claims require separate evidence.
 
+## Phase 2B.2 Tasks workspace
+
+Phase 2B.2 redesigns only the Tasks experience. Desktop uses one flat, separator-based operational register with four priorities: task identity, responsibility, deadline, and true task status. Category and urgency remain secondary; Accepted/Not accepted is shown quietly under the owner and never replaces progress status. Each row retains a canonical `/tasks?task=<encoded-task-id>` link and opens the detail drawer across its full hit area.
+
+The compact toolbar searches localized task title, context, category, and owner, and combines status, owner, and category filters with the existing optional owner grouping. The drawer is the primary editing surface: identity/context, responsibility and acceptance, progress and timing, existing task relationships, and record metadata are separated into deliberate sections. At narrow widths the register becomes a purpose-built task summary instead of shrinking desktop columns. No schema, storage key, dependency, backend boundary, or non-Tasks information architecture changes in this phase; the approved Dashboard remains locked.
+
 ## Architecture
 
-The application uses React, TypeScript, and Vite. Typed local domain data represents `Event`, `TeamMember`, `Task`, `EventChange`, and `EventTemplate` records with stable IDs. Domain calculations and workspace state are kept separate from page components where practical. Interactive demo state remains compatible with the versioned `budograph.workspace.v1` browser-storage record; the fictional seed state is used when no usable saved state exists or when the demonstration is reset. Phase 2B.1 preserves that schema, including the task `acknowledged` boolean whose current UI meaning is accepted/not accepted.
+The application uses React, TypeScript, and Vite. Typed local domain data represents `Event`, `TeamMember`, `Task`, `EventChange`, and `EventTemplate` records with stable IDs. Domain calculations and workspace state are kept separate from page components where practical. Interactive demo state remains compatible with the versioned `budograph.workspace.v1` browser-storage record; the fictional seed state is used when no usable saved state exists or when the demonstration is reset. Phases 2B.1 and 2B.2 preserve that schema, including the task `acknowledged` boolean whose current UI meaning is accepted/not accepted. Phase 2B.2 adds a pure Tasks selector module for localized search, combined filtering, category derivation, and operational ordering without moving those decisions into the visual row component.
 
 Phase 2A adds three focused client-side layers:
 
@@ -70,7 +76,7 @@ Phase 2A adds three focused client-side layers:
 
 Workspace state, UI preferences, and URL state are deliberately separate. Selecting a language or theme does not rewrite the saved event workspace, and opening a task link does not change the task record.
 
-This boundary is deliberately replaceable: a later data service can load and save the same domain records through a backend without making visual components responsible for networking. No backend, account system, secret key, API request, or AI model is part of Phase 2A or Phase 2B.1.
+This boundary is deliberately replaceable: a later data service can load and save the same domain records through a backend without making visual components responsible for networking. No backend, account system, secret key, API request, or AI model is part of Phase 2A, Phase 2B.1, or Phase 2B.2.
 
 ## Data and privacy
 
@@ -132,15 +138,15 @@ These are the project commands, not claims that a particular run passed. Record 
 
 ## Replaceable wordmark
 
-The current Phase 1, Phase 2A, and Phase 2B.1 prototype uses a text-only `BudoGraph` wordmark. The isolated component is `src/components/BrandWordmark.tsx`. When the project author finishes the hand-drawn logo, replace the visual content of that component while preserving its compact layout behavior and accessible name. Add the original asset to the repository, document its authorship and license status, and keep a readable text fallback. No generated, stock, or permanent placeholder logo is used in the current prototype.
+The current Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2 prototype uses a text-only `BudoGraph` wordmark. The isolated component is `src/components/BrandWordmark.tsx`. When the project author finishes the hand-drawn logo, replace the visual content of that component while preserving its compact layout behavior and accessible name. Add the original asset to the repository, document its authorship and license status, and keep a readable text fallback. No generated, stock, or permanent placeholder logo is used in the current prototype.
 
 ## Documentation
 
-- [Phase 1 record and Phase 2A/2B.1 architecture boundary](docs/BUDOGRAPH_PHASE_1.md)
-- [Phase 2B.1 user guide](docs/USER_GUIDE.md)
+- [Phase 1 record and Phase 2A/2B architecture boundary](docs/BUDOGRAPH_PHASE_1.md)
+- [Phase 2B.2 user guide](docs/USER_GUIDE.md)
 - [Installation, deployment, and demonstration plan](docs/DEPLOYMENT_AND_DEMO_PLAN.md)
 - [Presentation outline](docs/PRESENTATION_OUTLINE.md)
-- [Phase 1, Phase 2A, and Phase 2B.1 test evidence](docs/TEST_EVIDENCE.md)
+- [Phase 1, Phase 2A, and Phase 2B test evidence](docs/TEST_EVIDENCE.md)
 - [Known limitations](docs/KNOWN_LIMITATIONS.md)
 - [Third-party notices and license register](docs/THIRD_PARTY_NOTICES.md)
 - [AI assistance log](docs/AI_ASSISTANCE_LOG.md)

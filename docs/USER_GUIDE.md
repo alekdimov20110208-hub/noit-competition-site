@@ -1,9 +1,10 @@
-# BudoGraph Phase 2B.1 User Guide
+# BudoGraph Phase 2B.2 User Guide
 
 Phase 2A established the localization, theme, responsive, and navigation
 foundation for the existing Phase 1 competition MVP. Phase 2B.1 refines its
 visual identity and information hierarchy without replacing the workspace model
-or fictional demonstration scenario. BudoGraph remains a local organizer
+or fictional demonstration scenario. Phase 2B.2 redesigns the Tasks workspace
+within that approved visual direction. BudoGraph remains a local organizer
 prototype, not a service for real participant or operational data.
 
 ## Start the workspace
@@ -89,6 +90,47 @@ Selecting a task in OperationalFocus or PreparationTimeline, or selecting the
 next checkpoint in ChangeImpact, opens that exact task rather than the general
 task list.
 
+## Tasks operational workspace
+
+The Tasks page is a responsibility register rather than a set of isolated task
+cards. The compact header shows total, active, blocked, and overdue counts.
+Overdue is a timing flag that may overlap an active or blocked task; it is not a
+fifth progress status.
+
+Use the toolbar to narrow the current event's work:
+
+- **Search tasks** matches the localized task title, context, category, or
+  owner name.
+- **All statuses**, **All owners**, and **All categories** open their respective
+  filters. Any combination may be active at the same time.
+- **Group by owner** reorganizes the current result without changing or hiding
+  its tasks.
+- The live count reports visible tasks against the event total. **Clear** resets
+  search, status, owner, and category filters; the owner grouping is a separate
+  view choice.
+
+Each desktop row emphasizes the title and true progress status, followed by
+owner, deadline, category, important/critical priority, and overdue timing.
+Accepted/Not accepted appears quietly under the owner because it describes
+responsibility acknowledgement, not progress. Select anywhere in the row's
+non-control area or activate its task link to open the exact drawer URL.
+
+The drawer is the primary task detail and editing surface:
+
+1. **Identity** shows category, title, current status, timing/priority signals,
+   and the existing task context.
+2. **Responsibility & acceptance** shows the read-only owner and role, explains
+   Accepted/Not accepted, and provides the supported acceptance toggle.
+3. **Progress & timing** provides the supported status selector while keeping
+   deadline, priority, and overdue guidance distinct.
+4. **Operational context** shows existing blocked-by and consequence data when
+   present.
+5. **Task metadata** shows the read-only category and last-updated time.
+
+Owner, deadline, priority, context, relationships, and timestamps are read-only
+because the local prototype does not implement persistence actions for those
+fields. Do not interpret their display as a complete editing workflow.
+
 ## Task links and navigation
 
 An exact task uses this URL form:
@@ -97,7 +139,8 @@ An exact task uses this URL form:
 /tasks?task=<task-id>
 ```
 
-- Dashboard task actions update the URL and open the matching task detail.
+- Dashboard actions and Tasks rows update the URL and open the matching task
+  detail.
 - Browser Back and Forward restore the corresponding application location.
 - Refreshing a valid task URL reopens that task from saved or fictional
   workspace data.
@@ -116,11 +159,9 @@ one from a different event and expect it to resolve.
 
 - **Dashboard** summarizes readiness, task state, attention, deadlines,
   operational changes, workload, and milestones.
-- **Tasks** filters work by status or owner. Use **Group by owner** for an
-  ownership view. Update a status, mark the task **Accepted** or **Not
-  accepted**, or select a task title to inspect its context and dependencies.
-  Accepted means that the assigned person has seen and accepted the task. It
-  does not mean completed or approved.
+- **Tasks** provides localized search, combined status/owner/category filters,
+  optional owner grouping, dense responsibility rows, and the primary task
+  detail/editing drawer described above.
 - **Team** shows roles, comparable workload counts, and assigned-task details
   for fictional team members.
 - **Changes & Plan B** connects a change to affected work. Update its response
@@ -156,26 +197,34 @@ Local storage is not an encrypted database.
 
 ## Keyboard and small-screen use
 
-Use `Tab` and `Shift+Tab` to move through links, buttons, filters, and status
-controls; use `Enter` or `Space` to activate buttons; and use `Escape` to close
-task details. A skip link appears when focused at the start of the page. Visible
-focus indicators and accessible labels support keyboard and screen-reader use.
+Use `Tab` and `Shift+Tab` to move through links, buttons, filters, and drawer
+controls; use `Enter` to follow a task row's real link, `Enter` or `Space` to
+activate buttons, and `Escape` to close task details. Focus moves to the drawer
+close button when it opens, stays within the modal while tabbing, and returns to
+the originating task link when that link remains available. A skip link appears
+when focused at the start of the page. Visible focus indicators and accessible
+labels support keyboard use, but this is not a screen-reader certification.
 
 On small screens, primary navigation moves to the bottom of the viewport while
-the language and theme controls remain in the header. Long titles, descriptions,
-names, dates, and badges are intended to wrap; task content takes priority over
-secondary metadata.
+the language and theme controls remain in the header. Tasks becomes a custom
+summary with title, status, owner, deadline/overdue, and acceptance rather than
+shrinking the desktop columns. Search stays visible, filters reflow, and the
+final row retains safe space above the fixed navigation. The drawer becomes a
+full-width sheet with scrollable sections, touch-sized controls, dynamic
+viewport height, and safe-area-aware bottom padding.
 
-## Intentional Phase 2A and Phase 2B.1 boundary
+## Intentional Phase 2A and Phase 2B boundary
 
-Phase 2A and Phase 2B.1 do not add a backend, database, authentication, real user accounts,
-roles or permissions, AI, budget management, Kanban, calendar, or Gantt views.
-It also does not add synchronization, production notifications, participant
-registration, payments, or document storage.
+Phase 2A, Phase 2B.1, and Phase 2B.2 do not add a backend, database,
+authentication, real user accounts, roles or permissions, AI, budget management,
+Kanban, calendar, or Gantt views. They also do not add synchronization,
+production notifications, participant registration, payments, or document
+storage.
 
-Phase 2B.1 is a visual and information-hierarchy refinement, not a new feature
-set. It is not product-market validation and is not proof of usability,
-accessibility, organizer effectiveness, or reduced operational risk.
+Phase 2B.1 is a visual and information-hierarchy refinement and Phase 2B.2 is a
+focused Tasks implementation within that boundary, not a new product area.
+Neither is product-market validation or proof of usability, accessibility,
+organizer effectiveness, or reduced operational risk.
 
 All included events, people, venue details, tasks, and changes are fictional.
 The source code is licensed under GNU GPL version 3 only (`GPL-3.0-only`);
