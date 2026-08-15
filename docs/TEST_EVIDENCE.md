@@ -742,3 +742,164 @@ is the historical 2025–2026 document; its dates, exact category/group wording,
 online-availability window, documentation format, test and defence timing and
 weighting, declarations, and registration procedure must be reverified for the
 actual competition year.
+
+## Phase 2B.2.1 BudoGraph dropdown system and final Tasks polish — 2026-08-15
+
+Phase 2B.2.1 started from the synchronized baseline
+`dc17285340850f84e6e52d8e5ad88798a4882fb8`. It replaced only the Phase 2B.2
+Tasks Status, Owner, and Category filter selects and the drawer Current status
+select. The approved task register, drawer information architecture, Dashboard,
+Team, Changes & Plan B, Templates, routes, task schema, 16-task seed, 44-task
+development stress fixture, `budograph.workspace.v1`, and
+`budograph.preferences.v1` remained in place. No dependency, asset, backend, or
+product module was added.
+
+### Implemented selection-control contract
+
+`BudoSelect` is a controlled, dependency-free generic component. Its real
+`button` trigger exposes `aria-haspopup="listbox"`, `aria-expanded`, stable
+`aria-controls`, and a label/value relationship. The popup is a
+`role="listbox"` containing uniquely identified `role="option"` elements with
+`aria-selected`; roving DOM focus leaves exactly one option at `tabIndex=0`.
+There is no invented `aria-activedescendant` state because focus is placed on
+the active option itself.
+
+Pure helpers resolve selection by value rather than array index, bound Arrow
+and Home/End movement, reject invalid commits, preserve the old value on
+cancel, and calculate collision-aware popup geometry. Placement prefers a side
+that fits the ideal height and otherwise uses the roomier side. Width is
+clamped to 12 px viewport gutters, height never exceeds the available side,
+and tall lists scroll internally.
+
+### Automated checks
+
+| Command                 | Result                                                 |
+| ----------------------- | ------------------------------------------------------ |
+| `pnpm.cmd format`       | Passed; Prettier formatted the scoped source and docs. |
+| `pnpm.cmd format:check` | Passed; every configured file matched Prettier.        |
+| `pnpm.cmd lint`         | Passed; ESLint reported no errors or warnings.         |
+| `pnpm.cmd typecheck`    | Passed; strict TypeScript build reported no errors.    |
+| `pnpm.cmd test`         | Passed; 54 tests, 0 failures, skips, or cancellations. |
+| `pnpm.cmd build`        | Passed; Vite 6.4.3 transformed 1,623 modules.          |
+| `git diff --check`      | Passed; no whitespace errors.                          |
+
+The final build contained a 353.49 kB JavaScript bundle (99.65 kB gzip), a
+56.81 kB CSS bundle (11.04 kB gzip), and a 2.16 kB HTML document (0.93 kB
+gzip). The added pure tests cover reordered and unknown selected values,
+bounded Arrow/Home/End navigation, valid commit versus cancellation, horizontal
+clamping, above/below collision, roomier-side selection, and a tiny-space height
+bound. Existing tests continue to cover combined filters, localized labels,
+Status-versus-Accepted independence, storage keys, routes, and responsive
+contracts. No DOM test framework was introduced.
+
+### Controlled development-browser matrix
+
+The final development source was inspected in controlled in-app Chromium. Page
+`clientWidth` is 15 px below the requested emulation width when the vertical
+scrollbar is present; drawer-open measurements use the full requested width.
+
+| Requested state                                    | Rendered result                                                                                                                                                                 |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1440 px, English, Light, closed                    | 16 rows; document 1,425/1,425 px client/scroll width; compact controls and count retained.                                                                                      |
+| 1440 px, English, Light, three open states         | Status 190 x 199.6 px, Owner 220 x 237.6 px, and Category 260 x 260 px; all below the trigger and inside the viewport. Category client/scroll height was 258/464 px.            |
+| 1440 px, English, Dark, three open states          | Same bounded geometry; selected/focused text used light ink on the dark authored surface, with burgundy selection and blue focus rather than system blue.                       |
+| 390 px, Bulgarian, Light, three open states        | 375/375 px document width, two-column controls, result count on its own quiet line below Search, and no out-of-bounds trigger or option.                                        |
+| 320 px, Bulgarian, Dark, stress, three open states | 44 rows, 305/305 px document width, one-column 276.8 px controls, and no popup/mobile-navigation overlap. The 14-option Category list measured 258/540 px client/scroll height. |
+| 1440 px, English, Light/Dark drawer                | Current status measured 225.2 x 161.6 px, stayed inside the drawer, and retained one selected/focused option.                                                                   |
+| 390 px, Bulgarian, Light drawer                    | The 343.2 x 161.6 px popup fit below in normal use. With the trigger deliberately placed at y=721.6–765.6, it opened above at y=554.0–715.6.                                    |
+| 320 px, Bulgarian, Dark drawer                     | Drawer and document widths were both 320 px; the 272.8 x 161.6 px popup stayed usable with no horizontal overflow or blocked bottom-navigation interaction.                     |
+
+Every recorded popup had one selected option, one active option, one tabbable
+option, zero clipped option text, and equal document client/scroll widths. At
+320 px stress, `End` reached the last fictional Category option with the active
+row fully inside the listbox and above the mobile navigation. Mobile owner,
+deadline, status, priority, category, deadline metadata, and acceptance text
+all computed to the approved 11.2 px floor. The 390 px and 320 px result counts
+sat between Search and the filter controls without adding a card.
+
+The focused/selected text samples were `rgb(23, 33, 45)` on
+`rgb(248, 233, 237)` in Light and `rgb(237, 242, 247)` on
+`rgb(58, 32, 42)` in Dark. These scoped rendered-color observations confirmed
+the intended warm/dark surfaces and readable state treatment; they are not a
+formal contrast or accessibility audit.
+
+### Interaction, focus, and persistence observations
+
+- ArrowDown on a closed trigger opened the listbox at the selected value.
+  ArrowDown and ArrowUp moved option focus while selection remained unchanged;
+  Home, End, and a bounded ArrowUp reached the expected first/last positions.
+- Escape cancelled and returned focus to the trigger. Space committed Not
+  started and reduced the visible standard rows to 9; Enter restored All
+  statuses and all 16 rows. Mouse selection of Mira Velin returned 3 rows and
+  trigger focus; clicking Search outside an open Owner list closed it without
+  changing the value.
+- A second pointer click on the already-open Status trigger collapsed it to
+  `aria-expanded="false"`, removed the listbox, and kept trigger focus. Moving
+  directly from an open Status control to Owner still closed Status and opened
+  Owner at its selected option.
+- Four rendered controls (the three filters and drawer status) were real
+  buttons with unique trigger IDs. The open drawer listbox had stable IDs
+  across reopen, four unique option IDs, one `aria-selected="true"`, one
+  `tabIndex=0`, and focus on that same option.
+- In the drawer, the first Escape closed only the listbox and focused its
+  trigger. The second Escape closed the drawer, restored the prior canonical
+  URL including its development fixture state, and restored focus to the
+  originating real task link. Forward Tab from the final focused option invoked
+  the existing drawer trap, closed the popup through blur, and focused the
+  drawer close button.
+- The controlled browser's synthetic Tab transport did not perform Chromium's
+  native page-level focus traversal even on the ordinary Search input. No
+  physical Tab/Shift+Tab claim is made from that transport. DOM inspection
+  showed the expected Search → Status trigger → active option → Owner
+  trigger → Category trigger order, and moving focus to the next trigger
+  closed the prior popup without trapping it. Physical-keyboard and
+  assistive-technology repetition remains required.
+- Changing the first task from Blocked to In progress preserved Not accepted
+  through refresh. Accepting it preserved In progress through another refresh.
+  Both values were then restored to Blocked and Not accepted and verified after
+  refresh.
+
+### Locked pages, console, production preview, and independent review
+
+Dashboard, Team, Changes & Plan B, and Templates were spot-checked at 1440 px
+English/Dark. Each retained its expected heading and meaningful content with
+equal 1,425 px document client/scroll widths and no horizontal overflow. The
+development browser session recorded zero application warnings and zero
+application errors.
+
+The final bundle was served locally from `127.0.0.1:4173`. Its 1440 px
+English/Light standard Tasks page rendered 16 rows and the bounded 258/464 px
+Category list. Its 320 px Bulgarian/Dark standard Tasks page and drawer had
+equal document client/scroll widths, 11.2 px mobile metadata, internally
+scrollable Category options, and a bounded Current status popup. The production
+origin's pre-existing first-task state was restored to Blocked/Not accepted and
+verified after refresh. The production session recorded zero application
+warnings and errors. The stress fixture remains a development-only diagnostic;
+the production build correctly retained the 16-task fictional demonstration.
+
+Separate read-only reviews found and drove six confirmed corrections: the
+initial Dark filtered-trigger accent text measured about 4.43:1 and now uses
+the existing light ink while burgundy remains on the icon/border; the Light
+popup now uses the established warm neutral surface; placement now chooses a
+fully fitting or roomier side instead of a fixed 160 px threshold; and the
+initial zero-delay Tab close could leave focus on `body`, so popup lifetime now
+follows focus leaving the popup or returning to the trigger. Later live checks found that
+synthetic Enter/Space did not invoke the native button click in the controlled
+browser and that clicking an already-open trigger could close on blur and then
+reopen on click. The trigger now handles Enter/Space explicitly and uses a
+short-lived pointer-origin marker so a pointer click closes exactly once while
+Shift+Tab-to-trigger still closes through blur. Final read-only source/test
+review found no remaining confirmed ARIA, state, routing, schema, style-scope,
+or unnecessary-dependency defect.
+
+### Evidence boundary
+
+These are controlled in-app Chromium checks, not physical-device, Safari,
+Firefox, screen-reader, or formal accessibility certification. In particular,
+the automation limitation above leaves physical page-level Tab/Shift+Tab for
+human repetition. Visual polish is not proof of usability or organizer
+effectiveness. The workspace remains an unauthenticated local prototype with
+fictional data. The available regulation is the historical 2025–2026 source;
+its dates, exact category/group wording, online-availability window,
+documentation format, test and defence timing and weighting, declarations, and
+registration procedure must be reverified for the actual competition year.

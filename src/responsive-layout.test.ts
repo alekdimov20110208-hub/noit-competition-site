@@ -31,6 +31,10 @@ test("Tasks use a purpose-built mobile summary instead of stacked desktop column
     styles,
     /@media \(max-width: 600px\) \{[\s\S]*\.task-row__context \.status-badge,[\s\S]*\.task-row__status \.status-badge\s*\{[^}]*font-size:\s*0\.7rem;/,
   );
+  assert.match(
+    styles,
+    /@media \(max-width: 600px\) \{[\s\S]*\.task-row__context > span:first-child\s*\{[^}]*font-size:\s*0\.7rem;/,
+  );
   assert.match(styles, /\.task-deadline time\s*\{[^}]*white-space:\s*nowrap;/s);
 });
 
@@ -42,9 +46,20 @@ test("task drawer uses dynamic viewport height and safe-area-aware content", () 
   );
 });
 
-test("Tasks filter selects retain a visible keyboard focus treatment", () => {
+test("Tasks custom selection controls expose visible focus and bounded scrolling", () => {
   assert.match(
     styles,
-    /\.task-filter-select:focus-within\s*\{[^}]*border-color:\s*var\(--focus-ring\);[^}]*box-shadow:/s,
+    /\.budo-select__trigger:focus-visible,[\s\S]*\.budo-select\[data-open="true"\] \.budo-select__trigger\s*\{[^}]*border-color:\s*var\(--focus-ring\);[^}]*box-shadow:/,
+  );
+  assert.match(
+    styles,
+    /\.budo-select__listbox\s*\{[^}]*max-height:\s*var\(--budo-select-popup-height, 260px\);[^}]*overflow-y:\s*auto;/s,
+  );
+});
+
+test("narrow Tasks controls move the result count below search", () => {
+  assert.match(
+    styles,
+    /@media \(max-width: 420px\) \{[\s\S]*\.task-filters__result\s*\{[^}]*grid-row:\s*2;[^}]*grid-column:\s*1;[^}]*text-align:\s*left;/,
   );
 });

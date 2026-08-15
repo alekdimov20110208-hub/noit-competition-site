@@ -19,7 +19,10 @@ import type { Task, TaskStatus, TeamMember } from "../domain/types.ts";
 import { useI18n } from "../i18n/index.ts";
 import { getInitials } from "../utils/format.ts";
 import { getTaskStatusTone } from "../utils/statusTone.ts";
+import { BudoSelect, type BudoSelectOption } from "./BudoSelect.tsx";
 import { StatusBadge } from "./StatusBadge.tsx";
+
+const TASK_STATUSES = Object.keys(TASK_STATUS_MESSAGE_KEYS) as TaskStatus[];
 
 interface TaskDrawerProps {
   task: Task | null;
@@ -47,6 +50,8 @@ export function TaskDrawer({
     closeButtonRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented) return;
+
       if (event.key === "Escape") {
         onClose();
         return;
@@ -109,6 +114,11 @@ export function TaskDrawer({
         ? "warning"
         : "neutral";
   const contextId = `task-drawer-context-${task.id}`;
+  const statusOptions: readonly BudoSelectOption<TaskStatus>[] =
+    TASK_STATUSES.map((status) => ({
+      value: status,
+      label: t(TASK_STATUS_MESSAGE_KEYS[status]),
+    }));
 
   return (
     <div
@@ -242,26 +252,15 @@ export function TaskDrawer({
             </div>
 
             <div className="task-progress-panel">
-              <div className="field-stack">
-                <label htmlFor={`drawer-status-${task.id}`}>
-                  {t("taskDetails.currentStatus")}
-                </label>
-                <select
-                  id={`drawer-status-${task.id}`}
-                  value={task.status}
-                  onChange={(event) =>
-                    onStatusChange(task.id, event.target.value as TaskStatus)
-                  }
-                >
-                  {Object.entries(TASK_STATUS_MESSAGE_KEYS).map(
-                    ([value, key]) => (
-                      <option key={value} value={value}>
-                        {t(key)}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
+              <BudoSelect<TaskStatus>
+                id={`drawer-status-${task.id}`}
+                className="field-stack task-status-select"
+                label={t("taskDetails.currentStatus")}
+                value={task.status}
+                options={statusOptions}
+                onChange={(status) => onStatusChange(task.id, status)}
+                popupMinWidth={220}
+              />
 
               <dl className="task-progress-meta">
                 <div>

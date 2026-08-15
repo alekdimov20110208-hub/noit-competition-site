@@ -1,7 +1,6 @@
 import {
   AlertTriangle,
   Check,
-  ChevronDown,
   ChevronRight,
   Circle,
   Layers3,
@@ -13,6 +12,10 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppLink } from "../components/AppLink.tsx";
+import {
+  BudoSelect,
+  type BudoSelectOption,
+} from "../components/BudoSelect.tsx";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { PageHeader } from "../components/PageHeader.tsx";
 import { StatusBadge } from "../components/StatusBadge.tsx";
@@ -229,6 +232,38 @@ export function TasksPage({
       ].filter((group) => group.tasks.length > 0)
     : [];
   const filtersActive = hasActiveTaskFilters(filters);
+  const statusOptions = useMemo<
+    readonly BudoSelectOption<TaskStatus | "all">[]
+  >(
+    () => [
+      { value: "all", label: t("tasks.filters.allStatuses") },
+      ...TASK_STATUSES.map((status) => ({
+        value: status,
+        label: t(TASK_STATUS_MESSAGE_KEYS[status]),
+      })),
+    ],
+    [t],
+  );
+  const ownerOptions = useMemo<readonly BudoSelectOption<string>[]>(
+    () => [
+      { value: "all", label: t("tasks.filters.allOwners") },
+      ...state.teamMembers.map((member) => ({
+        value: member.id,
+        label: member.name,
+      })),
+    ],
+    [state.teamMembers, t],
+  );
+  const categoryOptions = useMemo<readonly BudoSelectOption<string>[]>(
+    () => [
+      { value: "all", label: t("tasks.filters.allCategories") },
+      ...categories.map((category) => ({
+        value: category,
+        label: category,
+      })),
+    ],
+    [categories, t],
+  );
 
   useEffect(() => {
     if (categoryFilter !== "all" && !categories.includes(categoryFilter)) {
@@ -314,73 +349,41 @@ export function TasksPage({
         </div>
 
         <div className="task-filter-controls">
-          <div
+          <BudoSelect<TaskStatus | "all">
+            id="status-filter"
             className={`task-filter-select ${statusFilter !== "all" ? "is-filtered" : ""}`}
-          >
-            <ListFilter size={15} aria-hidden="true" />
-            <label className="sr-only" htmlFor="status-filter">
-              {t("tasks.filters.status")}
-            </label>
-            <select
-              id="status-filter"
-              value={statusFilter}
-              onChange={(event) =>
-                setStatusFilter(event.target.value as TaskStatus | "all")
-              }
-            >
-              <option value="all">{t("tasks.filters.allStatuses")}</option>
-              {TASK_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {t(TASK_STATUS_MESSAGE_KEYS[status])}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} aria-hidden="true" />
-          </div>
+            label={t("tasks.filters.status")}
+            labelMode="sr-only"
+            value={statusFilter}
+            options={statusOptions}
+            onChange={setStatusFilter}
+            icon={<ListFilter size={15} aria-hidden="true" />}
+            popupMinWidth={190}
+          />
 
-          <div
+          <BudoSelect
+            id="owner-filter"
             className={`task-filter-select task-filter-select--owner ${ownerFilter !== "all" ? "is-filtered" : ""}`}
-          >
-            <UserRound size={15} aria-hidden="true" />
-            <label className="sr-only" htmlFor="owner-filter">
-              {t("tasks.filters.owner")}
-            </label>
-            <select
-              id="owner-filter"
-              value={ownerFilter}
-              onChange={(event) => setOwnerFilter(event.target.value)}
-            >
-              <option value="all">{t("tasks.filters.allOwners")}</option>
-              {state.teamMembers.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} aria-hidden="true" />
-          </div>
+            label={t("tasks.filters.owner")}
+            labelMode="sr-only"
+            value={ownerFilter}
+            options={ownerOptions}
+            onChange={setOwnerFilter}
+            icon={<UserRound size={15} aria-hidden="true" />}
+            popupMinWidth={220}
+          />
 
-          <div
+          <BudoSelect
+            id="category-filter"
             className={`task-filter-select task-filter-select--category ${categoryFilter !== "all" ? "is-filtered" : ""}`}
-          >
-            <Tag size={15} aria-hidden="true" />
-            <label className="sr-only" htmlFor="category-filter">
-              {t("tasks.filters.category")}
-            </label>
-            <select
-              id="category-filter"
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-            >
-              <option value="all">{t("tasks.filters.allCategories")}</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} aria-hidden="true" />
-          </div>
+            label={t("tasks.filters.category")}
+            labelMode="sr-only"
+            value={categoryFilter}
+            options={categoryOptions}
+            onChange={setCategoryFilter}
+            icon={<Tag size={15} aria-hidden="true" />}
+            popupMinWidth={260}
+          />
 
           <button
             type="button"
