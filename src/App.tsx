@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "./components/AppShell.tsx";
+import {
+  readDashboardContext,
+  withDashboardContext,
+} from "./dashboardNavigation.ts";
 import { getDemoReferenceNow } from "./data/demoTime.ts";
 import { useWorkspace } from "./hooks/useWorkspace.ts";
 import { localizeWorkspace, useI18n } from "./i18n/index.ts";
@@ -9,6 +13,7 @@ import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
 import { TemplatesPage } from "./pages/TemplatesPage.tsx";
 import { usePreferences } from "./preferences/index.ts";
+import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
 import {
   createTaskDetailHistoryState,
   createTaskHref,
@@ -27,6 +32,7 @@ interface PendingTaskFocus {
   focusKey: string | null;
   taskId: string | null;
   trigger: HTMLElement | null;
+  scrollY?: number;
 }
 
 export default function App() {
@@ -36,7 +42,14 @@ export default function App() {
   const [currentLocation, setCurrentLocation] = useState(() =>
     parseAppLocation(window.location.pathname, window.location.search),
   );
-  const pendingTaskFocusRef = useRef<PendingTaskFocus | null>(null);
+  const [dashboardContext, setDashboardContext] = useState(() =>
+    readDashboardContext(window.history.state),
+  );
+  const pendingTaskFocusRef = useRef<PendingTaskFocus | null>(
+    currentLocation.path === "/" && dashboardContext.origin
+      ? { ...dashboardContext.origin, trigger: null }
+      : null,
+  );
   const {
     state,
     persistenceError,
@@ -58,6 +71,13 @@ export default function App() {
         window.location.search,
       );
       const historyState = window.history.state;
+      const dashboard = readDashboardContext(historyState);
+      setDashboardContext(dashboard);
+      if (nextLocation.path === "/") {
+        pendingTaskFocusRef.current = dashboard.origin
+          ? { ...dashboard.origin, trigger: null }
+          : null;
+      }
       if (
         nextLocation.path === "/tasks" &&
         nextLocation.taskId !== null &&
@@ -86,16 +106,16 @@ export default function App() {
       const normalizedHref = `${nextLocation.path}${targetUrl.search}`;
       const currentHref = `${window.location.pathname}${window.location.search}`;
 
-      if (currentHref !== normalizedHref) {
-        if (options.replace) {
-          window.history.replaceState(options.state ?? {}, "", normalizedHref);
-        } else {
-          window.history.pushState(options.state ?? {}, "", normalizedHref);
-        }
+      if (options.replace || currentHref === normalizedHref) {
+        window.history.replaceState(options.state ?? {}, "", normalizedHref);
+      } else {
+        window.history.pushState(options.state ?? {}, "", normalizedHref);
       }
 
+      setDashboardContext(readDashboardContext(options.state));
       setCurrentLocation(nextLocation);
       if (options.scroll !== false) {
+        pendingTaskFocusRef.current = null;
         window.scrollTo({ top: 0, behavior: "auto" });
       }
     },
@@ -108,6 +128,15 @@ export default function App() {
           ? document.activeElement
           : null;
       const focusKey = trigger?.dataset.taskFocusKey ?? null;
+      if (window.location.pathname === "/") {
+        window.history.replaceState(
+          withDashboardContext(window.history.state, {
+            ...readDashboardContext(window.history.state),
+            origin: { focusKey, taskId, scrollY: window.scrollY },
+          }),
+          "",
+        );
+      }
       pendingTaskFocusRef.current = {
         focusKey,
         taskId,
@@ -164,16 +193,31 @@ export default function App() {
         : undefined;
       const remountedTaskLink = taskHref
         ? [...document.querySelectorAll<HTMLAnchorElement>("a[href]")].find(
-            (link) => link.getAttribute("href") === taskHref,
+            (link) =>
+              link.getAttribute("href") === taskHref &&
+              isVisibleFocusTarget(link),
           )
         : undefined;
       const focusTarget =
-        pendingFocus.trigger?.isConnected === true
+        pendingFocus.trigger && isVisibleFocusTarget(pendingFocus.trigger)
           ? pendingFocus.trigger
-          : (remountedExactTrigger ??
+          : ((remountedExactTrigger &&
+            isVisibleFocusTarget(remountedExactTrigger)
+              ? remountedExactTrigger
+              : null) ??
+            remountedExactTrigger
+              ?.closest("details:not([open])")
+              ?.querySelector<HTMLElement>(":scope > summary") ??
             remountedTaskLink ??
+            document.querySelector<HTMLElement>(
+              ".operational-focus button[aria-expanded]",
+            ) ??
             document.getElementById("main-content"));
-      focusTarget?.focus();
+      if (pendingFocus.scrollY !== undefined) {
+        window.scrollTo({ top: pendingFocus.scrollY, behavior: "instant" });
+      }
+      focusTarget?.focus({ preventScroll: true });
+      if (focusTarget) revealFocusTarget(focusTarget);
     });
 
     return () => window.cancelAnimationFrame(animationFrame);
@@ -208,6 +252,15 @@ export default function App() {
 
   let page = (
     <DashboardPage
+      focusExpanded={dashboardContext.focusExpanded}
+      onFocusExpandedChange={(focusExpanded) => {
+        const context = { focusExpanded };
+        window.history.replaceState(
+          withDashboardContext(window.history.state, context),
+          "",
+        );
+        setDashboardContext(context);
+      }}
       now={now}
       state={localizedState}
       onNavigate={navigate}

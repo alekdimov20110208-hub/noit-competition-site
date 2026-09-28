@@ -1406,3 +1406,150 @@ Dashboard/Tasks design remain unchanged outside the specified responsive fix.
 Timeline/Team Pressure disclosure wording, Operational Focus return-context
 and Team layout critique remain deferred. Team 2B.3 and backend/authentication
 were not started. Historical evidence above is retained.
+
+## 2026-09-29 — Phase 2B.2.3D Dashboard disclosure and return context
+
+Accepted baseline: `729ab3e2a8dd92870fa19a235b84e7e959319ad6`, clean `main`.
+Work began on 28 September and verification finished after local midnight.
+This authorized interaction correction preserves the approved Dashboard/Tasks
+appearance, CSS, Phase 2B.2.3C layout/surfaces, task semantics and demo reference.
+Mandatory master/regulation sources were previously read completely in this
+project session and remain unchanged. The NOIT **2025–2026** regulation remains
+historical and must be checked for the actual later competition year.
+
+### Final interaction contract
+
+- Operational Focus initially shows five tasks. Its controlled expansion state
+  belongs to the current Dashboard browser-history entry, represented in App
+  through `dashboardNavigation.ts`. Toggling replaces that entry; it does not
+  push another entry or write browser-local workspace/preferences storage.
+- Opening a task records its task/focus key and current scroll offset in that
+  Dashboard entry, then pushes the existing canonical task route. Back restores
+  expansion before focus restoration. Forward reopens the task; Back again
+  returns to the same origin. Drawer close/Escape uses the existing history-back
+  behavior for app-opened details. Direct task deep links still close by replacing
+  the route with `/tasks`, without navigating outside the app.
+- Reload retains context for that same history entry. A new Dashboard navigation
+  starts collapsed, including explicit navigation to the current Dashboard URL.
+  No URL parameters, persistence schema or global state library were added.
+- Return focus prefers the connected/visible original link, then its remounted
+  exact counterpart. A closed Timeline/Change Impact disclosure uses its visible
+  originating summary rather than attempting to focus a hidden descendant.
+  A visible same-task link or Focus disclosure provides a fallback when editing
+  removes the original row from the current attention list.
+- Saved page scroll is restored without animation. Additional movement happens
+  only when the focus target needs clearing of the fixed header or bottom nav.
+  Focus Show more/less retains focus on its semantic button, keeps it visible,
+  preserves `aria-expanded`/`aria-controls`, and allows Shift+Tab to reach the
+  last newly revealed task. Expansion is not permanently forced.
+- All four Timeline window disclosures and both Team Pressure disclosures now
+  use the actual native `details.open` state for their visible labels through
+  `DashboardDisclosure`. Native summary keyboard/expanded semantics are retained;
+  redundant ARIA was not added. Change Impact source/behavior is unchanged.
+- EN uses “Show less” for Timeline and “Show fewer people” for Team Pressure;
+  BG uses “Покажи по-малко” and “Показване на по-малко хора”. Existing localized
+  count/people wording remains in collapsed controls. Quiet people continue to
+  mean people without pressure flags, not available capacity.
+
+Read-only priority spot-check: the current demo shows **Lina first** (one overdue,
+one at risk) and **Anton second** (one blocked, one at risk). Both appear in the
+pressure preview. No weak tie-breaker hides Anton and no ranking change was made.
+
+### Automated and browser evidence
+
+Windows, Node 24.16.0, pnpm 11.9.0, Vite 6.4.3; installed Edge/Chromium
+154.0.4258.37 via headless Playwright, production preview on port 4173,
+900 px viewport height, isolated storage and Europe/Sofia browser timezone.
+
+Required checks passed: `pnpm.cmd format`, `pnpm.cmd format:check`,
+`pnpm.cmd lint`, `pnpm.cmd typecheck`, `pnpm.cmd test` (**78 passed, zero failed,
+skipped or todo**), `pnpm.cmd build`, and `git diff --check`.
+Five unit tests were added: four route-history context tests covering initial
+state, serialization, collapse/reset and malformed context; one bilingual
+disclosure-label test. Existing tests were retained. The browser regression
+script is committed as `tests/dashboard-disclosure.browser.mjs` and formatted
+with Prettier; it complements the pure unit suite with actual UI behavior.
+
+| Dashboard configuration | Result |
+| ----------------------- | ------ |
+| 1440 EN Light           | Passed |
+| 1440 EN Dark            | Passed |
+| 1024 EN Light           | Passed |
+| 390 BG Light            | Passed |
+| 360 EN Dark             | Passed |
+| 320 BG Dark             | Passed |
+
+Every matrix case checked the initial five rows, Show more/less with Enter/Space,
+button focus/visibility and control relationship, access to revealed rows,
+task six, canonical route, Back/Forward/Back, close/Escape, Dashboard reload,
+fresh Dashboard navigation and history length. Task six returned with a visible
+solid focus outline and **zero difference from its saved scroll offset** in all
+six cases. Centered disclosure expand/collapse also required zero scroll change;
+the separate lower-viewport-edge case verifies the reveal fallback.
+
+Every matrix case also checked Timeline and quiet-team expand/collapse labels,
+native expanded accessibility properties through the Chromium accessibility
+tree, keyboard focus after collapse, hidden Timeline origin fallback, unchanged
+snapshot disclosure, no page horizontal overflow, and Lina/Anton visibility.
+Mobile nav retained its opaque theme surface and all five targets of at least
+44 by 44 px. Returned rows and fallback controls cleared the header/nav.
+Screenshots of the restored row were visually inspected in all six configurations.
+
+Seven additional browser cases passed:
+
+1. EN synthetic overflow: all four Timeline windows, Team Pressure overflow and
+   unchanged Change Impact expanded/collapsed labels, keyboard and native state.
+2. The same synthetic disclosure coverage in BG at 320 px.
+3. Direct valid task load/reload and Escape replacement without an extra entry.
+4. Direct invalid task load/reload: localized warning, no drawer and 16 task rows.
+5. Task seven, detail-page reload, Escape return and reduced motion at 320 BG Dark.
+6. Completing task six removes it from attention; return focuses the visible
+   Focus section control rather than removed content.
+7. Focus disclosure aligned near mobile bottom navigation; expand/collapse keeps
+   the focused control visible at 320 BG Light.
+
+**13 implementing-agent browser cases passed** (six matrix + seven additional).
+Application console warnings/errors and uncaught page errors: **0**.
+The new synthetic fixture exists only in the browser regression script; product
+demo data/time are unchanged. Encoded canonical links remain covered by route
+unit tests. These checks are controlled emulation, not real-user results,
+physical-device, screen-reader or Firefox/Safari certification.
+
+Re-run after `pnpm.cmd build` with a production preview running. The script uses
+an existing external Playwright installation: optionally set
+`PLAYWRIGHT_MODULE_PATH` to its absolute `index.mjs` path and
+`BROWSER_EXECUTABLE_PATH` to an installed Chromium/Edge executable, then run
+`node tests/dashboard-disclosure.browser.mjs`. Without those overrides it uses
+resolvable `playwright` and its default Chromium. `BUDOGRAPH_BASE_URL` optionally
+overrides `http://127.0.0.1:4173`. No dependency was installed or added to the app.
+Raw report/screenshots are in ignored `tmp/phase-2b-2-3d-evidence/`.
+
+### Findings corrected and independent review
+
+The first browser run exposed a focused disclosure button outside the viewport
+after a toggle; the scoped reveal helper fixes this. A build initially rejected
+a new test's access to an unknown preserved history property; explicit type
+narrowing corrected the assertion. A browser-harness locator initially matched
+two summaries; it was corrected to select the intended first summary. Verification
+also waits for native smooth focus scrolling to settle before measuring geometry.
+These intermediate failures are not described as passes.
+
+A separate read-only agent confirmed that closed native `details` descendants
+can retain client rectangles but reject focus, leaving BODY active after a
+Timeline task return. The visibility guard and originating-summary fallback
+were added. The reviewer independently re-tested this path at **1440, 390 and
+320 px**, found the summary visible and focused with zero console/page warnings
+or errors, and passed **31 route/i18n/Dashboard-helper/demo tests**. It reported
+no remaining confirmed defects. No independent human review is claimed.
+
+Files changed: `src/App.tsx`, `src/dashboardNavigation.ts`,
+`src/navigationFocus.ts`, `src/pages/DashboardPage.tsx`,
+`src/pages/dashboard/OperationalFocus.tsx`,
+`src/pages/dashboard/PreparationTimeline.tsx`,
+`src/pages/dashboard/TeamPressure.tsx`,
+`src/pages/dashboard/DashboardDisclosure.tsx`, `src/routes.test.ts`,
+`src/i18n/messages.ts`, `src/i18n/i18n.test.ts`,
+`tests/dashboard-disclosure.browser.mjs` and the two evidence logs.
+CSS/typography, sidebar, Tasks layouts, deterministic data/time, attention and
+workload ranking were not changed. Team 2B.3, backend/authentication, Plan B
+redesign and Templates redesign remain deferred. Historical entries are intact.

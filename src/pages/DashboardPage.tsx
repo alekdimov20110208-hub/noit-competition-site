@@ -21,6 +21,8 @@ interface DashboardPageProps {
   state: WorkspaceState;
   onNavigate: (path: string) => void;
   onOpenTask: (taskId: string) => void;
+  focusExpanded: boolean;
+  onFocusExpandedChange: (expanded: boolean) => void;
 }
 
 export function DashboardPage({
@@ -28,6 +30,8 @@ export function DashboardPage({
   state,
   onNavigate,
   onOpenTask,
+  focusExpanded,
+  onFocusExpandedChange,
 }: DashboardPageProps) {
   const { locale } = useI18n();
   const event =
@@ -80,6 +84,8 @@ export function DashboardPage({
 
       <div className="dashboard-command-grid">
         <OperationalFocus
+          expanded={focusExpanded}
+          onExpandedChange={onFocusExpandedChange}
           tasks={attention}
           members={members}
           now={now}

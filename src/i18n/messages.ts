@@ -179,6 +179,7 @@ const UI_EN_MESSAGES = {
   "dashboard.timeline.milestone": "Milestone",
   "dashboard.timeline.more.one": "Show {count} more item",
   "dashboard.timeline.more.other": "Show {count} more items",
+  "dashboard.timeline.less": "Show less",
   "dashboard.timeline.empty.title": "No preparation dates ahead",
   "dashboard.timeline.empty.description":
     "There are no open dated tasks or active milestones to show.",
@@ -511,6 +512,7 @@ const UI_BG_MESSAGES = {
   "dashboard.timeline.milestone": "Ключов етап",
   "dashboard.timeline.more.one": "Показване на още {count} елемент",
   "dashboard.timeline.more.other": "Показване на още {count} елемента",
+  "dashboard.timeline.less": "Покажи по-малко",
   "dashboard.timeline.empty.title": "Няма предстоящи дати за подготовка",
   "dashboard.timeline.empty.description":
     "Няма отворени задачи с дата или активни ключови етапи за показване.",

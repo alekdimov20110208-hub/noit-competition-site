@@ -24,6 +24,25 @@ test("English and Bulgarian catalogs expose exactly the same typed keys", () => 
   assert.ok(englishKeys.length > 200);
 });
 
+test("Dashboard disclosures have distinct localized expanded and collapsed labels", () => {
+  for (const language of ["bg", "en"] as const) {
+    const i18n = createI18n(language);
+    for (const [collapsed, expanded] of [
+      ["dashboard.attention.showMore", "dashboard.attention.showLess"],
+      ["dashboard.timeline.more.other", "dashboard.timeline.less"],
+      ["dashboard.workload.expand.other", "dashboard.workload.collapse"],
+      ["dashboard.workload.quiet.other", "dashboard.workload.collapse"],
+      ["dashboard.changes.expand.other", "dashboard.changes.collapse"],
+    ] as const) {
+      const more = i18n.t(collapsed, { count: 2 });
+      const less = i18n.t(expanded);
+      assert.notEqual(more, less);
+      assert.doesNotMatch(more + less, /dashboard\.|\{count\}/);
+      if (language === "bg") assert.match(less, /по-малко/);
+    }
+  }
+});
+
 test("translation switches languages and interpolates named values", () => {
   assert.equal(translate("en", "nav.dashboard"), "Dashboard");
   assert.equal(translate("bg", "nav.dashboard"), "Табло");

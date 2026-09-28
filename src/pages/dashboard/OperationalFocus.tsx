@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useLayoutEffect, useRef } from "react";
 import { AppLink } from "../../components/AppLink.tsx";
 import { EmptyState } from "../../components/EmptyState.tsx";
 import { TASK_PRIORITY_MESSAGE_KEYS } from "../../domain/labels.ts";
@@ -6,6 +6,7 @@ import type { Task, TeamMember } from "../../domain/types.ts";
 import { isTaskOverdue } from "../../domain/workspace.ts";
 import { useI18n } from "../../i18n/index.ts";
 import { createTaskHref } from "../../routes.ts";
+import { revealFocusTarget } from "../../navigationFocus.ts";
 import { getAttentionActionKey, getAttentionReason } from "./helpers.ts";
 
 interface OperationalFocusProps {
@@ -13,6 +14,8 @@ interface OperationalFocusProps {
   members: Map<string, TeamMember>;
   now: Date;
   onOpenTask: (taskId: string) => void;
+  expanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
 }
 
 export function OperationalFocus({
@@ -20,11 +23,17 @@ export function OperationalFocus({
   members,
   now,
   onOpenTask,
+  expanded,
+  onExpandedChange,
 }: OperationalFocusProps) {
   const i18n = useI18n();
   const { t, formatDate } = i18n;
-  const [expanded, setExpanded] = useState(false);
   const listId = useId();
+  const disclosureRef = useRef<HTMLButtonElement>(null);
+  useLayoutEffect(() => {
+    const button = disclosureRef.current;
+    if (button && document.activeElement === button) revealFocusTarget(button);
+  }, [expanded]);
   const visibleTasks = expanded ? tasks : tasks.slice(0, 5);
 
   return (
@@ -100,11 +109,15 @@ export function OperationalFocus({
       )}
       {tasks.length > 5 && (
         <button
+          ref={disclosureRef}
           type="button"
           className="text-button"
           aria-expanded={expanded}
           aria-controls={listId}
-          onClick={() => setExpanded((value) => !value)}
+          onClick={(event) => {
+            event.currentTarget.focus({ preventScroll: true });
+            onExpandedChange(!expanded);
+          }}
         >
           {t(
             expanded

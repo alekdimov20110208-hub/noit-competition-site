@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  readDashboardContext,
+  withDashboardContext,
+} from "./dashboardNavigation.ts";
+import {
   createTaskDetailHistoryState,
   createTaskHref,
   isTaskDetailHistoryState,
@@ -138,4 +142,79 @@ test("recognizes only task-detail entries created by the application", () => {
   );
   assert.equal(isTaskDetailHistoryState({}), false);
   assert.equal(isTaskDetailHistoryState(null), false);
+});
+
+test("a direct Dashboard entry starts collapsed without an unrelated origin", () => {
+  for (const state of [
+    null,
+    undefined,
+    {},
+    createTaskDetailHistoryState("focus:task-six"),
+  ]) {
+    assert.deepEqual(readDashboardContext(state), { focusExpanded: false });
+  }
+});
+
+test("Dashboard disclosure and task return origin survive history serialization", () => {
+  const context = {
+    focusExpanded: true,
+    origin: { taskId: "task-six", focusKey: "focus:task-six", scrollY: 1240 },
+  };
+  const dashboardEntry = withDashboardContext(
+    { unrelated: "retained" },
+    context,
+  );
+  const taskEntry = createTaskDetailHistoryState("focus:task-six");
+  assert.ok("unrelated" in dashboardEntry);
+  assert.equal(dashboardEntry.unrelated, "retained");
+  // Back reads the original entry; Forward reads only the task entry. Neither mutates the other.
+  assert.deepEqual(
+    readDashboardContext(JSON.parse(JSON.stringify(dashboardEntry))),
+    context,
+  );
+  assert.deepEqual(readDashboardContext(taskEntry), { focusExpanded: false });
+  assert.deepEqual(readDashboardContext(dashboardEntry), context);
+});
+
+test("collapsing or changing a disclosure clears obsolete task return context", () => {
+  const old = withDashboardContext(
+    {},
+    {
+      focusExpanded: true,
+      origin: { taskId: "six", focusKey: "focus:six", scrollY: 900 },
+    },
+  );
+  assert.deepEqual(
+    readDashboardContext(withDashboardContext(old, { focusExpanded: false })),
+    { focusExpanded: false },
+  );
+  assert.equal(readDashboardContext(old).focusExpanded, true);
+});
+
+test("malformed Dashboard history cannot introduce invalid scroll or focus context", () => {
+  for (const context of [null, true, { focusExpanded: "true" }]) {
+    assert.deepEqual(readDashboardContext({ budographDashboard: context }), {
+      focusExpanded: false,
+    });
+  }
+  for (const scrollY of [-1, NaN, Infinity, "400"]) {
+    assert.deepEqual(
+      readDashboardContext({
+        budographDashboard: {
+          focusExpanded: true,
+          origin: { taskId: "six", focusKey: "focus:six", scrollY },
+        },
+      }),
+      { focusExpanded: true },
+    );
+  }
+  assert.deepEqual(
+    readDashboardContext({
+      budographDashboard: {
+        focusExpanded: true,
+        origin: { taskId: "six", focusKey: 12, scrollY: 0 },
+      },
+    }),
+    { focusExpanded: true },
+  );
 });

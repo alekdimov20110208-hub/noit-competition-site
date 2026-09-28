@@ -6,6 +6,7 @@ import type { EventMilestoneStatus, TeamMember } from "../../domain/types.ts";
 import { useI18n, type MessageKey } from "../../i18n/index.ts";
 import { createTaskHref } from "../../routes.ts";
 import type { PreparationTimelineEntry, PreparationWindow } from "./helpers.ts";
+import { DashboardDisclosure } from "./DashboardDisclosure.tsx";
 
 const WINDOW_ORDER: readonly PreparationWindow[] = [
   "current",
@@ -145,15 +146,16 @@ export function PreparationTimeline({
                 <h3>{t(WINDOW_LABEL_KEYS[window])}</h3>
                 <ol>{preview.map(renderEntry)}</ol>
                 {overflow.length > 0 && (
-                  <details className="timeline-window__overflow">
-                    <summary>
-                      {plural(overflow.length, {
-                        one: "dashboard.timeline.more.one",
-                        other: "dashboard.timeline.more.other",
-                      })}
-                    </summary>
+                  <DashboardDisclosure
+                    className="timeline-window__overflow"
+                    expandedLabel={t("dashboard.timeline.less")}
+                    collapsedLabel={plural(overflow.length, {
+                      one: "dashboard.timeline.more.one",
+                      other: "dashboard.timeline.more.other",
+                    })}
+                  >
                     <ol>{overflow.map(renderEntry)}</ol>
-                  </details>
+                  </DashboardDisclosure>
                 )}
               </section>
             );

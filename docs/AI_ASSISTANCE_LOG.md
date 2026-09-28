@@ -145,3 +145,40 @@ Disclosure/context corrections, Team 2B.3 and backend/authentication remain
 outside this completed phase. Only two source/test files and these two evidence
 logs changed. Historical entries remain intact. The mandatory NOIT source is
 still the **2025–2026** regulation and requires later-year verification.
+
+## 2026-09-29 — Phase 2B.2.3D Dashboard disclosure and return context
+
+OpenAI Codex assisted with the explicitly authorized correction from baseline
+`729ab3e2a8dd92870fa19a235b84e7e959319ad6`. Work began on 28 September and finished
+after local midnight. Operational Focus expansion and task-origin scroll/focus
+context now belong to a Dashboard history entry. Back/Forward, close/Escape and
+reload preserve that entry's context; direct new navigation starts collapsed.
+No browser-local persistence schema or global state library was introduced.
+Timeline and Team Pressure native disclosures now show state-correct BG/EN
+labels. CSS, Tasks, demo data/time, attention semantics and ranking were preserved.
+
+Five unit tests and a rerunnable browser regression script were added. Formatter,
+format check, lint, typecheck, all 78 unit tests, build and whitespace checks
+passed. Thirteen production-browser cases covered the six requested viewport,
+language and theme configurations, history/route continuity, keyboard/native
+accessibility state, focus visibility, removed origins, mobile scroll boundaries,
+all disclosure variants and unchanged Change Impact. Console warnings/errors
+and page errors were zero. Restored-task screenshots were visually inspected
+across the matrix. Synthetic overflow data remained isolated to tests.
+
+A separate read-only agent reproduced a hidden Timeline link receiving an
+ineffective focus attempt after Back. Codex corrected the visibility guard and
+used the originating summary as fallback. The reviewer confirmed the fix at
+1440, 390 and 320 px and independently passed 31 focused tests, with no remaining
+confirmed defects. The first implementation browser run also prompted a minimal
+visibility correction for the Focus disclosure button. A test type-narrowing
+build failure and an ambiguous browser-test locator were corrected before final
+verification; details and reproduction commands are in `TEST_EVIDENCE.md`.
+
+The current demo shows Lina's overdue pressure and Anton's blocked pressure in
+the preview, so no ranking change was justified. No human usability feedback,
+independent human review, screen-reader or physical-device certification is
+claimed. The human author should understand history-entry ownership, native
+disclosure semantics and focus/scroll fallback decisions. Team 2B.3, backend,
+Plan B and Templates redesign remain outside this phase. Historical logs remain
+intact; the NOIT **2025–2026** regulation needs later-year verification.

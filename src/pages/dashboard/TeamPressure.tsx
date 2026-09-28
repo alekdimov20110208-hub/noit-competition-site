@@ -6,6 +6,7 @@ import {
 } from "../../domain/workspace.ts";
 import { useI18n, type MessageKey } from "../../i18n/index.ts";
 import { getInitials } from "../../utils/format.ts";
+import { DashboardDisclosure } from "./DashboardDisclosure.tsx";
 import {
   getWorkloadSignal,
   partitionTeamPressure,
@@ -97,33 +98,35 @@ export function TeamPressure({ workloads, onNavigate }: TeamPressureProps) {
         <div className="pressure-list">
           {preview.map(renderPressure)}
           {overflow.length > 0 && (
-            <details className="team-pressure__overflow">
-              <summary>
-                {plural(overflow.length, {
-                  one: "dashboard.workload.expand.one",
-                  other: "dashboard.workload.expand.other",
-                })}
-              </summary>
+            <DashboardDisclosure
+              className="team-pressure__overflow"
+              expandedLabel={t("dashboard.workload.collapse")}
+              collapsedLabel={plural(overflow.length, {
+                one: "dashboard.workload.expand.one",
+                other: "dashboard.workload.expand.other",
+              })}
+            >
               <div>{overflow.map(renderPressure)}</div>
-            </details>
+            </DashboardDisclosure>
           )}
         </div>
       )}
 
       {quiet.length > 0 && (
-        <details className="team-pressure__quiet">
-          <summary>
-            {plural(quiet.length, {
-              one: "dashboard.workload.quiet.one",
-              other: "dashboard.workload.quiet.other",
-            })}
-          </summary>
+        <DashboardDisclosure
+          className="team-pressure__quiet"
+          expandedLabel={t("dashboard.workload.collapse")}
+          collapsedLabel={plural(quiet.length, {
+            one: "dashboard.workload.quiet.one",
+            other: "dashboard.workload.quiet.other",
+          })}
+        >
           <ul>
             {quiet.map((workload) => (
               <li key={workload.member.id}>{workload.member.name}</li>
             ))}
           </ul>
-        </details>
+        </DashboardDisclosure>
       )}
     </section>
   );
