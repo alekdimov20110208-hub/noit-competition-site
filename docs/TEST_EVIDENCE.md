@@ -1246,3 +1246,163 @@ transparency, Timeline/Team Pressure disclosure wording, Focus return-context
 behavior and Team layout were deliberately not changed. Team 2B.3 was not
 started. Historical NOIT **2025–2026** requirements still need verification for
 any later competition year.
+
+## 2026-09-28 — Phase 2B.2.3C narrow desktop and sticky surfaces
+
+Baseline: `5c6dfc8609c8afc90fb528f0d5813ab73c1691e8`, clean `main`, equal to
+`origin/main`, ahead/behind 0/0 before implementation. This explicitly authorized
+phase changes only responsive task-result layout and the two confirmed sticky
+surfaces. Mandatory project sources were already read completely during this
+project session and were unchanged; the NOIT regulation is the historical
+**2025–2026** source and needs verification for a later competition year.
+
+### Reproduced cause and implemented contract
+
+At 961 px BG, the old four-column row had only 651 px client width. Its minimum
+tracks (230 + 140 + 108 + 112 px), three 11 px gaps and 60 px horizontal padding
+required 683 px. The status text crossed the arrow by **9.4375 px** for Not started
+and **1.109375 px** for Completed in the browser. The compact row previously
+waited until the viewport was 800 px, ignoring the 252 px sidebar above 960 px.
+
+`#task-results` now provides a named inline-size container. At **50rem or less**
+of available results width, the existing two-level compact row is reused
+unchanged: task/title/context above responsibility, deadline and status. The
+query encloses grouped results too; filters and the drawer remain outside it.
+The existing four-column register remains the default and the existing mobile
+summary rules at 600 px and below remain unchanged. No font reduction,
+operational-text truncation, new cards or information-hiding workaround was
+introduced. Sidebar collapse was deliberately **not implemented**; the fix is
+responsive content behavior.
+
+Measured transitions with the default 16 px root font:
+
+| Viewport width    | Results layout                      | Reason                                                    |
+| ----------------- | ----------------------------------- | --------------------------------------------------------- |
+| 1109 px and wider | Four-column register                | Results exceed 800 px                                     |
+| 961–1108 px       | Two-level compact row               | Sidebar remains; results are at most 800 px               |
+| 841–960 px        | Four-column register                | Sidebar disappears and the recovered width exceeds 800 px |
+| 601–840 px        | Two-level compact row               | Results are at most 800 px                                |
+| 600 px and below  | Existing three-level mobile summary | Existing mobile override                                  |
+
+The browser checked BG and EN immediately around 1108/1109, 960/961, 840/841 and
+600/601 px, plus the existing padding change at 800 px. No uncovered width band
+or collision was observed. These viewport values describe the current shell;
+the actual task adaptation is based on content width and a rem threshold.
+
+Only `.task-drawer__topbar` and `.mobile-nav` changed from
+`var(--surface-translucent)` to the existing opaque `var(--surface)`:
+white in Light and `#111a25` in Dark. Normal application header, global tokens,
+borders, shadows, navigation destinations and drawer structure were preserved.
+
+### Automated evidence
+
+Windows, Node 24.16.0, pnpm 11.9.0, Vite 6.4.3. The following commands passed:
+
+| Command                 | Result                               |
+| ----------------------- | ------------------------------------ |
+| `pnpm.cmd format`       | Passed                               |
+| `pnpm.cmd format:check` | Passed                               |
+| `pnpm.cmd lint`         | Passed                               |
+| `pnpm.cmd typecheck`    | Passed                               |
+| `pnpm.cmd test`         | 73 passed; 0 failed, skipped or todo |
+| `pnpm.cmd build`        | Passed; production bundle            |
+| `git diff --check`      | Passed                               |
+
+Three focused CSS-contract tests were added in `src/responsive-layout.test.ts`:
+available-width compact layout with all operational cells retained; four-column
+wide default; and solid sticky header/navigation surfaces. The six existing
+responsive tests, including mobile summary, safe-area, focus and bounded
+selection rules, were retained unchanged. These source-contract tests are
+supplemented by actual browser geometry and interactions below; they do not
+alone establish rendered correctness.
+
+### Production-browser evidence
+
+Installed Edge/Chromium 154.0.4258.37, headless Playwright, production preview
+on port 4173, 900 px viewport height, Europe/Sofia and isolated local storage.
+No dependency was installed. The normal fixture and its fixed demo reference
+were unchanged. Separate synthetic long-BG fixtures were injected only into
+isolated browser storage.
+
+**47 normal Tasks configurations passed**:
+
+- 1440 EN Light and Dark.
+- BG and EN at 1100, 1024, 1000, 980, 970, 961, 960, 900 and 768 px.
+  BG used Dark at 1024, 970 and 960; the other cases used Light.
+- 390 BG Light, 360 EN Dark and 320 BG Dark.
+- BG and EN Light at 1109, 1108, 1107, 841, 840, 839, 801, 800, 799, 601,
+  600 and 599 px.
+
+All requested width/language/theme combinations are included. Measurements
+checked page scroll width, computed row mode, operational cell intersections,
+actual text-range bounds and visible arrow intersections across all rows.
+No column collision, badge/arrow overlap or horizontal page overflow was found.
+Screenshots were visually inspected across the required matrix and representative
+transition pairs, stress cases and regression pages.
+
+**11 synthetic stress configurations passed**, each checked both ungrouped and
+grouped: 1109, 1108, 1024, 980, 961, 960, 841, 840, 768, 390 and 320 px BG Dark.
+All 44 fictional tasks remained present, including long Bulgarian titles and
+owner names, status, priority, Accepted and deadline text. Wrapping preserved
+meaning without collision or clipping of those operational fields.
+
+**Four interaction/reflow configurations passed**:
+
+- 1109 EN Light, 961 BG Dark and 390 BG Light: search; status filtering; owner
+  grouping; bounded owner/category BudoSelect popups with Home/End/Escape and
+  restored trigger focus; visible task-link focus; Enter and full-row pointer
+  activation of canonical task links; initial drawer close focus; Tab/Shift+Tab
+  trap; four status choices; first Escape closing the popup, second closing the
+  drawer; close-button action and task-link focus restoration.
+- 720 CSS px BG Dark with reduced-motion preference: row reflow passed and
+  drawer animation duration was 0.00001 s. This is a layout-width equivalent
+  of a 1440 px viewport at 200% zoom, **not a native browser-zoom or text-only
+  zoom certification**.
+
+**Six scrolling-surface configurations passed**:
+
+- Drawer header at 961 BG Light and Dark, before and after 210 px drawer scroll.
+- Bottom navigation at 390 and 320 BG, both Light and Dark, compared at page
+  scroll offsets 160 and 620 px.
+
+Decoded pixels of each header/navigation region were identical before and
+after underlying content scrolled: no bleed-through. Screenshots were also
+visually inspected. Computed opaque backgrounds were `rgb(255, 255, 255)` and
+`rgb(17, 26, 37)`. Muted foreground contrast against these surfaces measured
+**6.03:1 Light / 8.43:1 Dark**. All five navigation routes and their selected
+states worked; each target was at least 44 by 44 px. At page end, content cleared
+the navigation on every route. Existing safe-area CSS was retained; a physical
+device with nonzero safe-area insets was not tested.
+
+**Six locked-page regression spot checks passed**: Dashboard 1440 EN Light and
+390 BG Dark; Team 1440 EN Light and 390 BG Light; Changes 390 BG Dark;
+Templates 320 BG Light. Screenshots showed the existing design and no horizontal
+page overflow. No polish was applied to these pages.
+
+Application console warnings/errors: **0**. Uncaught page errors: **0**.
+Local reproducibility artifacts are ignored product-external evidence:
+`tmp/phase-2b-2-3c-browser.mjs` and `tmp/phase-2b-2-3c-evidence/` (JSON report,
+full-page/fold screenshots and scrolled-surface captures). This controlled
+browser evidence does not claim physical-device, Firefox/Safari, screen-reader,
+formal accessibility certification or human usability results.
+
+### Independent review and scope
+
+A separate read-only agent reviewed the CSS/test diff against the accepted
+baseline for width gaps, BG fit, clipped information, overflow, sticky opacity,
+contrast, safe areas, keyboard/focus risks and locked-design scope. It
+independently ran **9 responsive tests, 9 passed**, and found **no confirmed
+defects**. It verified that the compact block was moved unchanged, all rules
+from the 600 px breakpoint onward were unchanged, and the named container
+excluded filters and the drawer. No review-driven source fix was necessary.
+Production-browser verification was performed by the implementing agent;
+no independent human review is claimed.
+
+Only four tracked files changed: `src/styles.css`,
+`src/responsive-layout.test.ts`, `docs/TEST_EVIDENCE.md` and
+`docs/AI_ASSISTANCE_LOG.md`. Demo timing/data, task semantics, typography,
+252 px desktop sidebar, Lucide, the top application header and locked
+Dashboard/Tasks design remain unchanged outside the specified responsive fix.
+Timeline/Team Pressure disclosure wording, Operational Focus return-context
+and Team layout critique remain deferred. Team 2B.3 and backend/authentication
+were not started. Historical evidence above is retained.

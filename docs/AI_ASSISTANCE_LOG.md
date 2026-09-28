@@ -108,3 +108,40 @@ The remaining narrow-desktop, sticky-transparency, disclosure-context and Team
 layout critique items remain deferred. The mandatory NOIT source is still the
 historical **2025–2026** regulation and must be reverified for the actual later
 competition year. Historical assistance and test entries remain intact.
+
+## 2026-09-28 — Phase 2B.2.3C narrow desktop and sticky surfaces
+
+OpenAI Codex assisted with the explicitly authorized focused correction from
+baseline `5c6dfc8609c8afc90fb528f0d5813ab73c1691e8`. It reproduced BG status/arrow
+overlap at 961 px, moved the existing compact task-row rules into a 50rem
+available-results-width container query, and changed only the drawer sticky
+header and mobile bottom navigation to the existing opaque theme surface.
+Sidebar collapse was deliberately not implemented: responsive content behavior
+solves the width issue. Typography, mobile summaries, task semantics, demo data,
+global tokens and the normal application header were preserved.
+
+Three CSS-contract regression tests were added; existing tests were retained.
+Formatter/check, lint, typecheck, all 73 tests, production build and whitespace
+checks passed. The implementing agent ran 47 normal Tasks browser configurations,
+11 synthetic BG stress configurations (each grouped and ungrouped), four
+interaction/reflow configurations, six scrolling-surface checks and six locked
+page regression checks. Screenshots were visually inspected across the required
+matrix and representative transitions/stress cases. No measured operational
+collision or page horizontal overflow was found. Pixel comparisons proved the
+two corrected surfaces stayed visually solid during underlying scroll in Light
+and Dark. Application warnings/errors and uncaught page errors were zero.
+Detailed widths, interaction coverage, contrast and limitations are appended
+to `TEST_EVIDENCE.md`; local raw evidence is retained under ignored `tmp/`.
+
+A separate read-only agent found no confirmed defects and independently passed
+all nine responsive tests. Browser verification was performed by the implementing
+agent, not an independent human. Synthetic data and emulated widths are not
+real-user feedback, physical-device, screen-reader or cross-browser certification.
+The 720 CSS px reflow check is not a claim of native or text-only 200% zoom testing.
+The human author should understand and defend the content-width layout contract
+and the limited use of opaque surfaces.
+
+Disclosure/context corrections, Team 2B.3 and backend/authentication remain
+outside this completed phase. Only two source/test files and these two evidence
+logs changed. Historical entries remain intact. The mandatory NOIT source is
+still the **2025–2026** regulation and requires later-year verification.

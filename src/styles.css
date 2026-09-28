@@ -1888,6 +1888,10 @@ h3 {
   white-space: nowrap;
 }
 
+#task-results {
+  container: task-results / inline-size;
+}
+
 .task-register {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -2174,7 +2178,7 @@ h3 {
   justify-content: space-between;
   padding: 12px 24px;
   border-bottom: 1px solid var(--line);
-  background: var(--surface-translucent);
+  background: var(--surface);
 }
 
 .task-drawer__topbar > span {
@@ -3181,7 +3185,7 @@ h3 {
       calc(6px + env(safe-area-inset-bottom, 0px))
       max(6px, env(safe-area-inset-right, 0px));
     border-top: 1px solid var(--line);
-    background: var(--surface-translucent);
+    background: var(--surface);
     box-shadow: var(--bottom-nav-shadow);
   }
 
@@ -3265,48 +3269,6 @@ h3 {
     min-width: 0;
   }
 
-  .task-register__header {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    min-height: 0;
-    overflow: hidden;
-    padding: 0;
-    border: 0;
-    margin: -1px;
-    clip: rect(0, 0, 0, 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  .task-row {
-    grid-template-areas:
-      "task task task"
-      "responsibility deadline status";
-    grid-template-columns: minmax(0, 1.45fr) minmax(108px, 0.8fr) minmax(
-        112px,
-        0.75fr
-      );
-    gap: 10px 16px;
-    padding: 14px 38px 14px 16px;
-  }
-
-  .task-row__primary {
-    grid-area: task;
-  }
-
-  .task-responsibility {
-    grid-area: responsibility;
-  }
-
-  .task-deadline {
-    grid-area: deadline;
-  }
-
-  .task-row__status {
-    grid-area: status;
-  }
-
   .team-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3368,6 +3330,53 @@ h3 {
   .reset-confirmation > div:last-child {
     grid-column: 1 / -1;
     justify-content: flex-end;
+  }
+}
+
+/* Use the available result width, including grouped lists, rather than the
+   viewport: the 252px sidebar disappears independently at 960px. Keep the
+   existing two-level row until four columns have comfortable reading space. */
+@container task-results (max-width: 50rem) {
+  .task-register__header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .task-row {
+    grid-template-areas:
+      "task task task"
+      "responsibility deadline status";
+    grid-template-columns: minmax(0, 1.45fr) minmax(108px, 0.8fr) minmax(
+        112px,
+        0.75fr
+      );
+    gap: 10px 16px;
+    padding: 14px 38px 14px 16px;
+  }
+
+  .task-row__primary {
+    grid-area: task;
+  }
+
+  .task-responsibility {
+    grid-area: responsibility;
+  }
+
+  .task-deadline {
+    grid-area: deadline;
+  }
+
+  .task-row__status {
+    grid-area: status;
   }
 }
 
