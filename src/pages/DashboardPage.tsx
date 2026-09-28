@@ -1,4 +1,3 @@
-import { useLocalCalendarNow } from "../hooks/useLocalCalendarNow.ts";
 import type { WorkspaceState } from "../domain/types.ts";
 import {
   getAttentionTasks,
@@ -18,18 +17,19 @@ import { PreparationTimeline } from "./dashboard/PreparationTimeline.tsx";
 import { TeamPressure } from "./dashboard/TeamPressure.tsx";
 
 interface DashboardPageProps {
+  now: Date;
   state: WorkspaceState;
   onNavigate: (path: string) => void;
   onOpenTask: (taskId: string) => void;
 }
 
 export function DashboardPage({
+  now,
   state,
   onNavigate,
   onOpenTask,
 }: DashboardPageProps) {
   const { locale } = useI18n();
-  const now = useLocalCalendarNow();
   const event =
     state.events.find((item) => item.id === state.currentEventId) ??
     state.events[0];

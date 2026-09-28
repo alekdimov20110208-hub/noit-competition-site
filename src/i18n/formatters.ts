@@ -46,12 +46,17 @@ export function formatShortDate(language: Language, value: DateInput): string {
   });
 }
 
-export function formatDateTime(language: Language, value: DateInput): string {
+export function formatDateTime(
+  language: Language,
+  value: DateInput,
+  timeZone?: string,
+): string {
   return formatDateValue(language, value, {
     day: "numeric",
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone,
   });
 }
 

@@ -30,13 +30,13 @@ export function createDemoWorkspace(): WorkspaceState {
           {
             id: "milestone-travel-lock",
             title: "Guest travel and arrival plan locked",
-            date: "2026-08-08",
+            date: "2026-09-09",
             status: "current",
           },
           {
             id: "milestone-registration-brief",
             title: "Participant briefing published",
-            date: "2026-09-04",
+            date: "2026-09-14",
             status: "upcoming",
           },
           {
@@ -116,7 +116,7 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Reconfirm guest instructor arrival itinerary",
         category: "Travel",
         ownerId: "member-anton-ravin",
-        deadline: "2026-08-02",
+        deadline: "2026-09-07",
         status: "blocked",
         priority: "critical",
         context:
@@ -124,7 +124,7 @@ export function createDemoWorkspace(): WorkspaceState {
         blockedBy: "Final flight arrival confirmation",
         blocks: "Airport pickup, hotel arrival, and Friday welcome plan",
         acknowledged: false,
-        updatedAt: "2026-08-03T16:40:00.000Z",
+        updatedAt: "2026-09-07T08:10:00.000Z",
       },
       {
         id: "task-airport-transfer",
@@ -132,7 +132,7 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Revise airport pickup and backup driver plan",
         category: "Travel",
         ownerId: "member-daria-kamen",
-        deadline: "2026-08-06",
+        deadline: "2026-09-08",
         status: "in-progress",
         priority: "critical",
         context:
@@ -140,7 +140,7 @@ export function createDemoWorkspace(): WorkspaceState {
         blockedBy: "Confirmed guest itinerary",
         blocks: "Reliable guest arrival and hotel check-in",
         acknowledged: true,
-        updatedAt: "2026-08-03T17:05:00.000Z",
+        updatedAt: "2026-09-07T08:30:00.000Z",
       },
       {
         id: "task-hotel-rooming",
@@ -148,13 +148,13 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Confirm accommodation rooming note",
         category: "Accommodation",
         ownerId: "member-anton-ravin",
-        deadline: "2026-08-10",
+        deadline: "2026-09-09",
         status: "in-progress",
         priority: "important",
         context:
           "The fictional hotel booking must reflect the revised arrival window and late check-in procedure.",
         acknowledged: true,
-        updatedAt: "2026-08-01T11:20:00.000Z",
+        updatedAt: "2026-09-07T08:35:00.000Z",
       },
       {
         id: "task-registration-form",
@@ -176,14 +176,14 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Audit accessible entrance and changing route",
         category: "Venue",
         ownerId: "member-lina-moreva",
-        deadline: "2026-08-14",
+        deadline: "2026-09-05",
         status: "not-started",
         priority: "important",
         context:
           "The participant brief should describe a step-free route and any limits accurately.",
         blocks: "Final participant accessibility note",
         acknowledged: false,
-        updatedAt: "2026-07-30T08:45:00.000Z",
+        updatedAt: "2026-09-03T08:45:00.000Z",
       },
       {
         id: "task-first-aid-cover",
@@ -191,14 +191,14 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Confirm first-aid coverage and incident procedure",
         category: "Safety",
         ownerId: "member-daria-kamen",
-        deadline: "2026-08-20",
+        deadline: "2026-09-10",
         status: "not-started",
         priority: "critical",
         context:
           "A named on-site role and a clearly shared procedure are required before the team briefing.",
         blocks: "Volunteer safety briefing",
         acknowledged: true,
-        updatedAt: "2026-08-02T10:10:00.000Z",
+        updatedAt: "2026-09-04T10:10:00.000Z",
       },
       {
         id: "task-program-draft",
@@ -206,7 +206,7 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Revise the three-day training schedule",
         category: "Schedule",
         ownerId: "member-mira-velin",
-        deadline: "2026-08-15",
+        deadline: "2026-09-09",
         status: "in-progress",
         priority: "important",
         context:
@@ -214,7 +214,7 @@ export function createDemoWorkspace(): WorkspaceState {
         blockedBy: "Stable Friday arrival window",
         blocks: "Participant briefing and volunteer rota",
         acknowledged: true,
-        updatedAt: "2026-08-03T18:00:00.000Z",
+        updatedAt: "2026-09-07T08:45:00.000Z",
       },
       {
         id: "task-catering-breaks",
@@ -222,13 +222,13 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Confirm water and refreshment stations",
         category: "Hospitality",
         ownerId: "member-lina-moreva",
-        deadline: "2026-08-24",
+        deadline: "2026-09-12",
         status: "not-started",
         priority: "normal",
         context:
           "Break locations and replenishment ownership should match the final hall layout.",
         acknowledged: true,
-        updatedAt: "2026-07-29T14:35:00.000Z",
+        updatedAt: "2026-09-02T14:35:00.000Z",
       },
       {
         id: "task-volunteer-rota",
@@ -236,14 +236,14 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Build volunteer shift rota",
         category: "Team",
         ownerId: "member-daria-kamen",
-        deadline: "2026-08-28",
+        deadline: "2026-09-11",
         status: "not-started",
         priority: "important",
         context:
           "Each opening, registration, mat, hospitality, and closing shift needs one acknowledged owner.",
         blockedBy: "Final training schedule",
         acknowledged: false,
-        updatedAt: "2026-08-01T07:50:00.000Z",
+        updatedAt: "2026-09-04T07:50:00.000Z",
       },
       {
         id: "task-participant-brief",
@@ -251,7 +251,7 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Publish participant arrival briefing",
         category: "Communication",
         ownerId: "member-petar-zoren",
-        deadline: "2026-09-04",
+        deadline: "2026-09-14",
         status: "not-started",
         priority: "important",
         context:
@@ -259,7 +259,7 @@ export function createDemoWorkspace(): WorkspaceState {
         blockedBy: "Final schedule and accessibility route",
         blocks: "Clear participant arrival",
         acknowledged: true,
-        updatedAt: "2026-08-02T12:25:00.000Z",
+        updatedAt: "2026-09-04T12:25:00.000Z",
       },
       {
         id: "task-checkin-kit",
@@ -267,13 +267,13 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Assemble check-in desk kit",
         category: "Registration",
         ownerId: "member-petar-zoren",
-        deadline: "2026-09-05",
+        deadline: "2026-09-15",
         status: "not-started",
         priority: "normal",
         context:
           "Prepare the printed lists, blank badges, stationery, and offline check-in fallback.",
         acknowledged: false,
-        updatedAt: "2026-07-31T10:00:00.000Z",
+        updatedAt: "2026-09-04T10:00:00.000Z",
       },
       {
         id: "task-signage",
@@ -281,13 +281,13 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Prepare venue direction and room signage",
         category: "Communication",
         ownerId: "member-petar-zoren",
-        deadline: "2026-09-08",
+        deadline: "2026-09-16",
         status: "not-started",
         priority: "normal",
         context:
           "Signs should make check-in, changing areas, training space, and exits easy to find.",
         acknowledged: true,
-        updatedAt: "2026-08-01T09:30:00.000Z",
+        updatedAt: "2026-09-04T09:30:00.000Z",
       },
       {
         id: "task-sound-check",
@@ -295,13 +295,13 @@ export function createDemoWorkspace(): WorkspaceState {
         title: "Test announcements and room acoustics",
         category: "Venue",
         ownerId: "member-lina-moreva",
-        deadline: "2026-09-10",
+        deadline: "2026-09-16",
         status: "not-started",
         priority: "important",
         context:
           "The team needs a reliable way to make safety and schedule announcements in the hall.",
         acknowledged: false,
-        updatedAt: "2026-08-02T08:20:00.000Z",
+        updatedAt: "2026-09-04T08:20:00.000Z",
       },
       {
         id: "task-final-walkthrough",
@@ -317,18 +317,19 @@ export function createDemoWorkspace(): WorkspaceState {
         blockedBy: "All critical preparation tasks",
         blocks: "Organizer go/no-go review",
         acknowledged: true,
-        updatedAt: "2026-08-03T08:00:00.000Z",
+        updatedAt: "2026-09-04T08:00:00.000Z",
       },
     ],
     changes: [
       {
+        // Keep the opaque ID for saved workspace and localization compatibility.
         id: "change-flight-arrival-2026-08-03",
         eventId,
         title: "Guest instructor flight arrival moved",
         description:
-          "A fictional airline schedule update moved the expected Friday arrival later, putting pickup, hotel arrival, and the opening plan at risk.",
+          "A fictional airline update moves the instructor's arrival on Friday 18 September from 14:00 to 18:30, putting airport pickup, hotel check-in, and the opening session at risk.",
         severity: "critical",
-        reportedAt: "2026-08-03T16:30:00.000Z",
+        reportedAt: "2026-09-07T07:30:00.000Z",
         affectedTaskIds: [
           "task-guest-itinerary",
           "task-airport-transfer",
@@ -343,7 +344,7 @@ export function createDemoWorkspace(): WorkspaceState {
         ],
         ownerId: "member-mira-velin",
         response:
-          "Confirm the new arrival directly, hold the backup driver, and prepare a Friday schedule that can start without the guest.",
+          "Confirm the new arrival directly today, hold the backup driver, and prepare a Friday schedule that can start without the guest.",
         responseStatus: "in-progress",
         acknowledged: false,
         directContactRecommended: true,

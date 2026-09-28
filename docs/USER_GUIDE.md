@@ -19,6 +19,27 @@ pnpm dev
 
 Open the local URL printed by Vite. No account is required.
 
+## Demonstration date
+
+The notice **Demo snapshot · 7 Sept 2026** / **Демо състояние · 7.09.2026 г.**
+identifies fictional preparation for the seminar on **18–20 September 2026**.
+This is an editable local demonstration, not the real current day. Today,
+relative dates, overdue, attention and team risk are evaluated as of 7 September
+regardless of when the application is opened. Reported/updated times use Varna
+time (`Europe/Sofia`). Task edits are simulated at noon on the snapshot date;
+the displayed update time is not a real-world audit trail.
+
+After an explicit reset, the arrival confirmation is blocked and due Today;
+the accessibility check is overdue; transfer, hotel and safety preparation are
+Near (1–7 days); the check-in kit, signage, sound check and final walk-through
+are Later (more than 7 days). Completed work is not overdue. Milestone statuses
+are separately persisted planning decisions, not derived task statuses.
+
+Existing saved workspaces are preserved, including older fictional dates and
+your task/change edits. To load this refreshed scenario, explicitly use
+**Templates → Reset demo event → Reset local data**. Simply opening the app,
+changing the real clock or switching language never replaces valid saved data.
+
 ## Language
 
 Use the compact Bulgarian/English control in the upper-right application
@@ -74,8 +95,10 @@ The Dashboard is organized in one vertical decision sequence:
    tasks. It is not a safety, quality, readiness-certification, or go/no-go
    score. Completed, active, and blocked make up the total; overdue is an
    overlapping timing-risk flag.
-2. **OperationalFocus** puts blocked, overdue, critical, or not-accepted work
-   that needs a decision near the top of the page.
+2. **OperationalFocus** shows open work that is blocked, overdue, not accepted,
+   or Critical with a Today/Near deadline. Critical Later work does not qualify
+   on priority alone. Multiple reasons remain visible. Five tasks are initially
+   shown; Show more reveals the remainder.
 3. **PreparationTimeline** combines upcoming tasks and milestones into a
    chronological preparation view. Its task entries show timing, owner, and
    status.
@@ -85,6 +108,13 @@ The Dashboard is organized in one vertical decision sequence:
 5. **TeamPressure** prioritizes members with blocked, overdue, or high active
    load, while quieter team members remain secondary. The high-load comparison
    begins at four active tasks and is not a capacity guarantee.
+
+The reset snapshot has 7 attention tasks and 12 Today/Near/Later task entries
+in the Timeline, with bounded previews. Team Pressure identifies Lina's overdue
+accessibility check and Anton's blocked arrival confirmation. The other three
+people have work but no pressure flag; this does not mean spare capacity.
+In Dashboard ChangeImpact, **Next checkpoint** is the arrival confirmation due
+Today. Changes & Plan B contains the full change/response and affected-task view.
 
 Selecting a task in OperationalFocus or PreparationTimeline, or selecting the
 next checkpoint in ChangeImpact, opens that exact task rather than the general

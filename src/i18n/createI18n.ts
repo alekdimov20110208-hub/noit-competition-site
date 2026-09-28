@@ -53,7 +53,10 @@ export interface I18nApi {
   formatRelativeDate: (value: DateInput, now?: Date) => string;
 }
 
-export function createI18n(language: Language): I18nApi {
+export function createI18n(
+  language: Language,
+  options: { timeZone?: string } = {},
+): I18nApi {
   const numberFormatter = (value: number, options?: Intl.NumberFormatOptions) =>
     formatNumber(language, value, options);
 
@@ -75,7 +78,8 @@ export function createI18n(language: Language): I18nApi {
     count: plural,
     formatDate: (value) => formatDate(language, value),
     formatShortDate: (value) => formatShortDate(language, value),
-    formatDateTime: (value) => formatDateTime(language, value),
+    formatDateTime: (value) =>
+      formatDateTime(language, value, options.timeZone),
     formatDateRange: (start, end) => formatDateRange(language, start, end),
     formatNumber: numberFormatter,
     formatPercent: (value) => formatPercent(language, value),

@@ -36,6 +36,9 @@ const UI_EN_MESSAGES = {
   "shell.currentEvent": "Current event",
   "shell.organizer": "Organizer",
   "shell.demoNotice": "Local prototype · fictional data",
+  "shell.demoSnapshot": "Demo snapshot · {date} · local prototype",
+  "shell.demoSnapshotExplanation":
+    "Fictional preparation viewed on this fixed date, not the real current day. Reported and updated times use Varna time (Europe/Sofia).",
   "shell.storage.summary": "Local changes could not be saved.",
   "shell.storage.read":
     "Browser storage could not be read. Changes will remain available only for this session.",
@@ -313,7 +316,7 @@ const UI_EN_MESSAGES = {
   "templates.reset": "Reset demo event",
   "templates.reset.title": "Restore the original demonstration data?",
   "templates.reset.description":
-    "This replaces task and change updates stored in this browser with the fictional seminar baseline.",
+    "This replaces task and change updates stored in this browser with the fictional snapshot for 7 September 2026. Saved data stays unchanged until you confirm this reset. Language and theme are kept.",
   "templates.reset.confirm": "Reset local data",
   "templates.preview.title": "Preview only.",
   "templates.preview.description":
@@ -366,6 +369,9 @@ const UI_BG_MESSAGES = {
   "shell.currentEvent": "Текущо събитие",
   "shell.organizer": "Организатор",
   "shell.demoNotice": "Локален прототип · измислени данни",
+  "shell.demoSnapshot": "Демо състояние · {date} · локален прототип",
+  "shell.demoSnapshotExplanation":
+    "Измислена подготовка към тази фиксирана дата, а не към реалния днешен ден. Часовете на съобщаване и обновяване са по времето във Варна (Europe/Sofia).",
   "shell.storage.summary": "Локалните промени не можаха да бъдат запазени.",
   "shell.storage.read":
     "Данните от браузъра не можаха да бъдат прочетени. Промените ще останат достъпни само в тази сесия.",
@@ -645,7 +651,7 @@ const UI_BG_MESSAGES = {
   "templates.reset.title":
     "Да се възстановят ли първоначалните демонстрационни данни?",
   "templates.reset.description":
-    "Това ще замени промените по задачите и събитията, съхранени в браузъра, с измислената основа за семинар.",
+    "Това ще замени промените по задачите и събитията в този браузър с измисленото състояние към 7 септември 2026 г. Запазените данни остават непроменени до потвърждаване на нулирането. Езикът и темата се запазват.",
   "templates.reset.confirm": "Нулиране на локалните данни",
   "templates.preview.title": "Само преглед.",
   "templates.preview.description":

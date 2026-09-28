@@ -1065,3 +1065,184 @@ The product remains a fictional, unauthenticated browser-local prototype.
 The mandatory regulation read for this project is the historical **2025–2026**
 NOIT source; dates, category/group details, submission requirements and defence
 rules must be reverified for the actual later competition year.
+
+## 2026-09-28 — Phase 2B.2.3B deterministic demo scenario
+
+Implemented from accepted baseline `c87fb9a90ac75494b1d00df09497950ebd1a0639`
+under the explicit Phase 2B.2.3B request. Earlier evidence above describes its
+historical source and clocks; it has not been rewritten.
+
+### Demo-time boundary and unchanged real-calendar semantics
+
+`src/data/demoTime.ts` defines the reference date **2026-09-07**, a fictional
+edit timestamp **2026-09-07T09:00:00.000Z** (noon in Varna), and timestamp display
+zone **Europe/Sofia**. App samples a fresh local-noon Date once and passes it to
+Dashboard, Tasks (including drawer), and Team. Date-only calculations therefore
+read 7 September in every host timezone. Reported and updated timestamp labels
+use the same explicit Varna zone through the existing typed i18n adapter.
+Every page includes a quiet, localized demo-snapshot paragraph; it is 18 px
+high in the checked configurations and adds 12 px bottom space. The BG date
+renders as `7.09.2026 г.` in the checked Edge runtime. Screen-reader text explains
+the fictional reference and Varna timestamp convention.
+
+The pure timing and attention functions have no demo special case. They still
+accept arbitrary reference dates; their existing real local-calendar, midnight,
+DST, invalid-date and multi-reason tests pass unchanged. The live-clock hook
+and scheduler are retained unchanged but are not subscribed by this fixed demo.
+No `Date.now()` date shifting, schema change, storage migration, dependency,
+backend or authentication was introduced. Task edits deliberately use the
+fictional snapshot timestamp, not a real-world audit timestamp.
+
+### Verified fixture and operational results
+
+The event remains **18–20 September 2026**, eleven days after the snapshot.
+People, ownership, task statuses, priorities, acceptance flags and stable IDs
+are preserved. Open-task deadlines and their update timestamps were refreshed
+around plausible preparation order; completed July work remains historical.
+
+| Measure                                         | Result                                                                                                     |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| All tasks                                       | 16                                                                                                         |
+| Completed / in progress / not started / blocked | 3 / 3 / 9 / 1                                                                                              |
+| Active (in progress + not started)              | 12                                                                                                         |
+| Completed progress                              | 19% (3/16), not event-day readiness                                                                        |
+| Open timing: overdue / Today / Near / Later     | 1 / 1 / 7 / 4                                                                                              |
+| Accepted / not accepted, all tasks              | 11 / 5                                                                                                     |
+| Critical / Important / Normal                   | 5 / 8 / 3                                                                                                  |
+| Operational Focus                               | 7 eligible; 5 initially displayed                                                                          |
+| Preparation Timeline                            | 12 Today/Near/Later task entries + 3 active milestones, with existing bounded previews                     |
+| Team Pressure                                   | Lina: 1 overdue, 0 blocked; Anton: 1 blocked, 0 overdue; other 3 have no pressure flag but still have work |
+
+The overdue accessibility check (5 September) demonstrates overdue plus not
+accepted. Arrival confirmation (7 September) demonstrates blocked plus not
+accepted plus Critical Today. Airport transfer (8 September) and first-aid
+coverage (10 September) demonstrate Critical Near. The rota, check-in kit and
+sound check also require acceptance. The accepted Critical final walk-through
+on 17 September does not qualify on priority alone because it is Later.
+Ranking, attention eligibility, five-item behavior and Team at-risk semantics
+are unchanged.
+
+Milestones remain separately persisted/manual: venue confirmed on 10 July is
+Completed; travel plan on 9 September is Current/In focus; participant brief
+on 14 September and final walk-through on 17 September are Upcoming. No past
+milestone is presented as Upcoming, and no automatic milestone lifecycle was
+invented.
+
+The change is reported on 7 September at 10:30 Varna time. The fictional flight
+moves the instructor's Friday 18 September arrival from 14:00 to 18:30. Mira
+owns the in-progress response affecting itinerary, pickup, hotel and programme.
+All four tasks' updated timestamps follow the report and precede snapshot noon.
+Dashboard ChangeImpact's Next checkpoint is the arrival confirmation due Today.
+The historical date-like suffix in the change ID stays an opaque stable ID,
+maintaining existing localization/storage compatibility; no ID-based clock
+behavior was added. BG and EN describe the same new arrival scenario.
+
+### Persistence and reset
+
+Production-browser checks loaded the actual old fixture from accepted commit
+`c87fb9a`, with an additional saved acceptance edit. Initial load and reload
+preserved every serialized workspace value, including old dates. Opening and
+cancelling reset preserved it too. Explicit confirmation restored exactly the
+new seed, kept `budograph.preferences.v1`, and survived reload. Accepting the
+arrival task afterwards changed acceptance independently of its blocked status,
+used the fixed snapshot update timestamp, and persisted on reload.
+`budograph.workspace.v1` and its shape are unchanged. Existing old workspaces
+are intentionally shown against the disclosed reference until explicitly reset;
+opening the app or changing the real clock never replaces their data.
+
+### Automated evidence
+
+Environment: Windows, Node **24.16.0**, pnpm **11.9.0**, Vite **6.4.3**.
+All required commands were executed successfully:
+
+| Command                 | Result                               |
+| ----------------------- | ------------------------------------ |
+| `pnpm.cmd format`       | Passed                               |
+| `pnpm.cmd format:check` | Passed                               |
+| `pnpm.cmd lint`         | Passed                               |
+| `pnpm.cmd typecheck`    | Passed                               |
+| `pnpm.cmd test`         | 70 passed; 0 failed, skipped or todo |
+| `pnpm.cmd build`        | Passed, production bundle            |
+| `git diff --check`      | Passed                               |
+
+Seven new tests in `src/data/demo.test.ts` cover stable reference under mocked
+real dates, timezone-equivalent output, meaningful status/timing/acceptance and
+attention coverage, future preparation and milestone order, owned change and
+checkpoint chronology, risk versus responsibility, and preservation/reset of
+saved v1 state. Timestamp and calendar comparisons cover Europe/Sofia, UTC,
+America/Los_Angeles, Pacific/Kiritimati and Pacific/Pago_Pago. Existing independent
+Phase 2B.2.2 calendar/attention/clock tests remain unchanged.
+
+The first run had 69 passes and one failure: an old seed test specifically
+required the blocked task to be overdue at an August reference. The updated
+scenario intentionally makes it due Today. That fixture-coupled assertion was
+corrected to verify a critical blocker and separate overdue coverage against
+the explicit demo reference; generic domain-test dates were not replaced.
+The subsequent complete suite passed all 70 tests.
+
+### Production browser and visual verification
+
+Installed Edge/Chromium **154.0.4258.37**, headless Playwright, production preview
+on local port 4173; 900 px viewport height. No dependencies were installed.
+Fresh-state matrix used a simulated real date in **2035** to prove the reference
+does not accidentally follow today's clock. Storage was isolated per case.
+
+| Page             | Required configurations                                | Result                                                                                                                                   |
+| ---------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Dashboard        | 1440 EN Light; 1440 EN Dark; 390 BG Light; 320 BG Dark | Passed: disclosure, event dates, five/seven Focus behavior, multiple reasons, future timeline, differentiated pressure, Today checkpoint |
+| Tasks            | 1440 EN Dark; 390 BG Light                             | Passed: one overdue row/count, independent blocked status, new deadlines and snapshot update metadata                                    |
+| Team             | 1440 EN Light; 390 BG Light                            | Passed: two distinct at-risk people, three without pressure flags, existing layout retained                                              |
+| Changes / Plan B | 1440 EN Light; 390 BG Light                            | Passed: localized travel narrative, 10:30 Varna report time, four affected tasks and Mira's response                                     |
+| Templates        | 1440 EN Light                                          | Passed: template and explicit reset entry retained                                                                                       |
+
+Additional browser cases compared complete rendered Dashboard, Tasks, Team,
+Changes and arrival drawer text in UTC/2024, Los Angeles/2035 and
+Kiritimati/2040: identical in all three. Advancing the real clock to 2050,
+raising focus and reloading preserved both text and workspace values. A fourth
+case checked old-fixture preservation, reset cancellation/confirmation,
+preferences, task acceptance, fixed edit timestamp and reload.
+
+All **15 browser cases passed** (11 layout cases + 3 clock/timezone cases +
+1 persistence/reset case). Application console warnings/errors and uncaught
+page errors: **0**. No horizontal page overflow or snapshot-text overflow was
+observed. Screenshots were visually inspected across the required matrix,
+including lower Dashboard content, BG reset confirmation and the settled drawer.
+The first drawer capture caught its entrance animation; the evidence harness
+was corrected to await animation completion and the matrix rerun successfully.
+That intermediate capture was not an application defect.
+
+Reproducibility artifacts are retained locally in ignored
+`tmp/phase-2b-2-3b-browser.mjs` and `tmp/phase-2b-2-3b-evidence/` (JSON report and
+screenshots). They are not committed product files. Browser emulation does not
+constitute physical-device, Firefox/Safari, screen-reader or formal accessibility
+certification, and no real-user outcomes are claimed.
+
+### Independent review, file scope and deferred work
+
+A separate read-only agent reviewed the implementation against `c87fb9a` for
+clock dependence, clock consistency, timezone behavior, persistence mutation,
+fictional chronology/milestones, localization overlay compatibility, current
+documentation and locked layout scope. It independently ran **18 focused tests,
+18 passed**, and reported **no confirmed defects**. Production-browser evidence
+was produced and visually inspected by the implementing agent; no human review
+is claimed.
+
+Changed areas:
+
+- Demo boundary/fixture/tests: `src/data/demoTime.ts`, `src/data/demo.ts`,
+  `src/data/demo.test.ts`, `src/domain/workspace.test.ts`, `package.json`.
+- Shared reference and snapshot edits: `src/App.tsx`, `src/hooks/useWorkspace.ts`,
+  `src/pages/DashboardPage.tsx`, `src/pages/TasksPage.tsx`, `src/pages/TeamPage.tsx`.
+- Disclosure and timestamp/localized copy: `src/components/AppShell.tsx`,
+  `src/styles.css`, `src/i18n/createI18n.ts`, `src/i18n/formatters.ts`,
+  `src/i18n/useI18n.ts`, `src/i18n/messages.ts`, `src/i18n/demoMessages.ts`.
+- Current documentation/evidence: `README.md`, `docs/USER_GUIDE.md`,
+  `docs/PRESENTATION_OUTLINE.md`, `docs/DEPLOYMENT_AND_DEMO_PLAN.md`,
+  `docs/KNOWN_LIMITATIONS.md`, `docs/TEST_EVIDENCE.md`, `docs/AI_ASSISTANCE_LOG.md`.
+
+The only visual addition is the quiet global disclosure paragraph. Dashboard
+and Tasks design, sidebar, 961–980 px Tasks compression, drawer/mobile-nav
+transparency, Timeline/Team Pressure disclosure wording, Focus return-context
+behavior and Team layout were deliberately not changed. Team 2B.3 was not
+started. Historical NOIT **2025–2026** requirements still need verification for
+any later competition year.

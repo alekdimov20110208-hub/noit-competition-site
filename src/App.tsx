@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "./components/AppShell.tsx";
+import { getDemoReferenceNow } from "./data/demoTime.ts";
 import { useWorkspace } from "./hooks/useWorkspace.ts";
 import { localizeWorkspace, useI18n } from "./i18n/index.ts";
 import { ChangesPage } from "./pages/ChangesPage.tsx";
@@ -29,6 +30,7 @@ interface PendingTaskFocus {
 }
 
 export default function App() {
+  const [now] = useState(getDemoReferenceNow);
   const { language } = usePreferences();
   const { t } = useI18n();
   const [currentLocation, setCurrentLocation] = useState(() =>
@@ -206,6 +208,7 @@ export default function App() {
 
   let page = (
     <DashboardPage
+      now={now}
       state={localizedState}
       onNavigate={navigate}
       onOpenTask={openTask}
@@ -215,6 +218,7 @@ export default function App() {
   if (currentLocation.path === "/tasks") {
     page = (
       <TasksPage
+        now={now}
         state={localizedState}
         selectedTaskId={selectedTaskId}
         invalidTaskId={invalidTaskId}
@@ -225,7 +229,7 @@ export default function App() {
       />
     );
   } else if (currentLocation.path === "/team") {
-    page = <TeamPage state={localizedState} />;
+    page = <TeamPage state={localizedState} now={now} />;
   } else if (currentLocation.path === "/changes") {
     page = (
       <ChangesPage

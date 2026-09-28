@@ -96,13 +96,13 @@ export const DEMO_EN_MESSAGES = {
   "demo.task.finalWalkthrough.blocks": "Organizer go/no-go review",
   "demo.change.flightArrival.title": "Guest instructor flight arrival moved",
   "demo.change.flightArrival.description":
-    "A fictional airline schedule update moved the expected Friday arrival later, putting pickup, hotel arrival, and the opening plan at risk.",
+    "A fictional airline update moves the instructor's arrival on Friday 18 September from 14:00 to 18:30, putting airport pickup, hotel check-in, and the opening session at risk.",
   "demo.change.flightArrival.area.guestTravel": "Guest travel",
   "demo.change.flightArrival.area.airportPickup": "Airport pickup",
   "demo.change.flightArrival.area.accommodation": "Accommodation",
   "demo.change.flightArrival.area.fridaySchedule": "Friday schedule",
   "demo.change.flightArrival.response":
-    "Confirm the new arrival directly, hold the backup driver, and prepare a Friday schedule that can start without the guest.",
+    "Confirm the new arrival directly today, hold the backup driver, and prepare a Friday schedule that can start without the guest.",
   "demo.change.flightArrival.escalation":
     "The lead organizer should make direct contact now; do not rely on the workspace alone for this critical change.",
   "demo.template.name": "Three-day visiting-instructor seminar",
@@ -271,13 +271,13 @@ export const DEMO_BG_MESSAGES = {
   "demo.change.flightArrival.title":
     "Часът на полета на гост-инструктора е променен",
   "demo.change.flightArrival.description":
-    "Измислена промяна в разписанието на авиокомпанията измества петъчното пристигане и застрашава посрещането, настаняването и началния план.",
+    "Измислена промяна на полета измества пристигането на инструктора в петък, 18 септември, от 14:00 на 18:30 ч. Това засяга посрещането на летището, настаняването и първата тренировка.",
   "demo.change.flightArrival.area.guestTravel": "Пътуване на госта",
   "demo.change.flightArrival.area.airportPickup": "Посрещане на летището",
   "demo.change.flightArrival.area.accommodation": "Настаняване",
   "demo.change.flightArrival.area.fridaySchedule": "Петъчна програма",
   "demo.change.flightArrival.response":
-    "Потвърдете директно новото пристигане, задръжте резервния шофьор и подгответе петъчна програма, която може да започне без госта.",
+    "Потвърдете директно новото пристигане днес, задръжте резервния шофьор и подгответе петъчна програма, която може да започне без госта.",
   "demo.change.flightArrival.escalation":
     "Водещият организатор трябва да се свърже директно сега; за тази критична промяна не разчитайте само на работното пространство.",
   "demo.template.name": "Тридневен семинар с гост-инструктор",

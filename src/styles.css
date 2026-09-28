@@ -506,6 +506,13 @@ h3 {
   box-shadow: var(--shadow-sm);
 }
 
+.demo-snapshot {
+  margin: 0 0 12px;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
 .app-main {
   min-height: 100vh;
   margin-left: var(--sidebar-width);

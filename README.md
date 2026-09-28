@@ -66,6 +66,36 @@ The compact toolbar searches localized task title, context, category, and owner,
 
 ## Architecture
 
+### Deterministic demo snapshot — Phase 2B.2.3B
+
+The editable local prototype shows fictional preparation **as of 7 September
+2026**, eleven days before the unchanged **18–20 September 2026** seminar.
+Every page displays a localized, quiet demo-snapshot notice. Today, Near,
+Later, overdue, attention, team risk and the Dashboard next checkpoint use this
+reference, not the date on the presentation computer.
+
+`src/data/demoTime.ts` is the explicit demo-time boundary. App supplies one local
+calendar reference to Dashboard, Tasks and Team; domain functions still accept
+arbitrary injected `now` values. Local noon preserves the reference calendar day
+across timezones. Reported/updated timestamps are displayed in `Europe/Sofia`
+(Varna); demo task edits use the fixed snapshot timestamp, not a real audit clock.
+The real-clock midnight/resume helper and its independent calendar/DST tests
+remain available and unchanged; the demo does not subscribe to that clock.
+
+Fresh storage or **Templates → Reset demo event → Reset local data** loads the
+new scenario. Valid existing `budograph.workspace.v1` data is not migrated or
+re-dated, even if it contains the old August deadlines. It is displayed against
+the same explicit demo reference until the user chooses reset. Reset replaces
+workspace edits and preserves `budograph.preferences.v1` language/theme choices.
+There is no automatic date shifting, storage-version change or new dependency.
+
+The baseline includes one overdue accessibility check, today's blocked arrival
+confirmation, near-term travel/safety preparation and later opening tasks.
+Milestone status remains manual/persisted and separate from Task status; fixture
+dates are coherent with the reference rather than automatically advancing status.
+
+### Application layers
+
 The application uses React, TypeScript, and Vite. Typed local domain data represents `Event`, `TeamMember`, `Task`, `EventChange`, and `EventTemplate` records with stable IDs. Domain calculations and workspace state are kept separate from page components where practical. Interactive demo state remains compatible with the versioned `budograph.workspace.v1` browser-storage record; the fictional seed state is used when no usable saved state exists or when the demonstration is reset. Phases 2B.1 and 2B.2 preserve that schema, including the task `acknowledged` boolean whose current UI meaning is accepted/not accepted. Phase 2B.2 adds a pure Tasks selector module for localized search, combined filtering, category derivation, and operational ordering without moving those decisions into the visual row component.
 
 Phase 2A adds three focused client-side layers:

@@ -1,5 +1,6 @@
 import { CalendarDays, MapPin } from "lucide-react";
 import type { ReactNode } from "react";
+import { DEMO_REFERENCE_DATE } from "../data/demoTime.ts";
 import type { Event } from "../domain/types.ts";
 import { useI18n, type MessageKey } from "../i18n/index.ts";
 import { usePreferences } from "../preferences/index.ts";
@@ -38,7 +39,7 @@ export function AppShell({
   onNavigate,
   children,
 }: AppShellProps) {
-  const { t, formatDateRange } = useI18n();
+  const { t, formatDate, formatDateRange } = useI18n();
   const { storageError: preferenceStorageError } = usePreferences();
 
   return (
@@ -100,6 +101,10 @@ export function AppShell({
       </header>
 
       <main className="app-main" id="main-content" tabIndex={-1}>
+        <p className="demo-snapshot">
+          {t("shell.demoSnapshot", { date: formatDate(DEMO_REFERENCE_DATE) })}
+          <span className="sr-only"> {t("shell.demoSnapshotExplanation")}</span>
+        </p>
         {persistenceError && (
           <div className="notice notice--warning" role="status">
             <strong>{t("shell.storage.summary")}</strong>

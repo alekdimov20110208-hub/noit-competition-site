@@ -96,6 +96,20 @@ interaction and should be demonstrated with its distinct wording.
 
 ## Demonstration data and accounts
 
+Phase 2B.2.3B uses a deterministic snapshot: **7 September 2026**, preparing for
+**18–20 September 2026**. A BG/EN notice appears on every page. All relative/task
+timing calculations use that reference, not the presentation machine's current
+date. Date-only calculations preserve the local calendar day; timestamp display
+uses `Europe/Sofia`, and task edits use a fixed fictional noon timestamp.
+Real-calendar helper behavior remains independently tested and is not replaced
+by demo-specific arithmetic. Manual milestone lifecycle is unchanged.
+
+Valid old `budograph.workspace.v1` records remain untouched on startup; old
+deadlines can therefore remain visible until an explicit reset. There is no
+storage migration or silent rewrite when the actual date changes. Do not erase
+someone's local work just to prepare a demo: use an intended demo browser/profile
+and the existing reset confirmation. Preferences remain in their separate v1 key.
+
 - There are no accounts, roles, credentials, passwords, permissions, or test
   account flows.
 - The prototype opens directly into one clearly labelled fictional event.
@@ -103,6 +117,14 @@ interaction and should be demonstrated with its distinct wording.
 - Use **Templates → Reset demo event → Reset local data** before a
   presentation when a clean workspace scenario is needed. This does not reset
   the saved language or theme.
+- After reset, verify 16 tasks, 3 completed (19%), 1 blocked, 1 overdue,
+  7 attention items and useful Today/Near/Later Timeline content. The blocked
+  arrival task is due Today; Lina and Anton have distinct risk signals while
+  three teammates have no pressure flag. Quiet is not spare capacity.
+- Demonstrate **Next checkpoint in Dashboard ChangeImpact**, followed by the
+  full response in Changes & Plan B. The airline change is reported on the
+  snapshot morning and affects the Friday 18 September arrival, not an August
+  incident presented as current.
 - Never enter private interview details or real personal, participant, payment,
   health, travel, or safeguarding information.
 

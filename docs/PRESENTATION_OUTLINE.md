@@ -59,13 +59,22 @@ year.
 
 ## 4. Demonstration story
 
+Before this sequence, explicitly reset from Templates if an older saved
+workspace is present. Say: “We are viewing fictional preparation as it stood on
+7 September 2026, for the seminar on 18–20 September.” Point to the demo-snapshot
+notice. The reference stays fixed on another presentation day; reported times
+use Varna time. These are synthetic data, not a recording of a real event.
+
 1. Open the Dashboard and follow its order: `EventOverview`,
    `OperationalFocus`, `PreparationTimeline`, `ChangeImpact`, and
    `TeamPressure`.
 2. In EventOverview, explain that progress means completed tasks divided by
    total event tasks. It is not a safety or go/no-go assessment. Overdue is an
    overlapping risk flag, not another status added to the total.
-3. In OperationalFocus or PreparationTimeline, select a task entry. Show that
+3. In OperationalFocus, contrast the overdue accessibility check with today's
+   blocked, unaccepted arrival confirmation and Critical Near work. Critical
+   Later work does not qualify on priority alone. In PreparationTimeline, show
+   Today, Near and Later preparation, then select the arrival confirmation. Show that
    `/tasks?task=<task-id>` opens that exact detail, then demonstrate browser
    Back, Forward, and refresh.
 4. Enter an unknown task ID and show the localized warning and safe return to the
@@ -80,10 +89,13 @@ year.
    explain that Accepted means the assigned person has seen and accepted the
    task, not that it is complete or approved. Refresh to show compatible
    browser-local persistence.
-8. Open Changes & Plan B and connect the fictional change to affected tasks,
-   areas, the current response, the next checkpoint, and the scenario-specific
-   escalation instruction. Acknowledging the change is distinct from accepting
-   a task. Explain that communication still happens outside BudoGraph.
+8. In Dashboard ChangeImpact, open **Next checkpoint**: arrival confirmation
+   due Today, 7 September. Then open Changes & Plan B: the fictional airline
+   notice received that morning moves the Friday 18 September arrival from
+   14:00 to 18:30, affecting itinerary, pickup, hotel and the opening programme.
+   Show Mira's owned response and direct-contact instruction. Acknowledging
+   the change is distinct from accepting a task. Communication happens outside
+   BudoGraph; there is no dependency engine or real notification.
 9. Review TeamPressure and a fictional team member's assigned work, preview the
    seminar template, and restore the fictional baseline.
 10. Refresh once before reset to demonstrate browser-local workspace
@@ -91,6 +103,17 @@ year.
     or theme.
 
 ## 5. Technical explanation
+
+- **Deterministic demo snapshot:** `src/data/demoTime.ts` supplies an explicit
+  7 September local-calendar reference, a fixed edit timestamp and Varna display
+  timezone. App passes that date to every timing consumer. It does not rewrite
+  saved dates or shift seed data with the real clock. Reset is explicit and
+  preserves language/theme. Stable IDs, including the change ID's historical
+  date-like suffix, remain opaque identifiers rather than timing inputs.
+- **Real clock semantics:** pure calendar helpers still accept any `now` and
+  retain independent midnight, timezone and DST tests. The existing live-clock
+  hook is not used by this fixed demo. Milestone lifecycle remains persisted;
+  `upcoming` is still valid in that model, independently of task timing.
 
 - React 19, strict TypeScript, Vite, pnpm, plain CSS, and Lucide icons.
 - Typed `Event`, `TeamMember`, `Task`, `EventChange`, and `EventTemplate` records

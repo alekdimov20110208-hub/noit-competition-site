@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { createDemoWorkspace } from "../data/demo.ts";
+import { DEMO_REFERENCE_TIMESTAMP } from "../data/demoTime.ts";
 import { createStressWorkspace } from "../data/stress.ts";
 import {
   deserializeWorkspace,
@@ -88,7 +89,7 @@ export function useWorkspace(): UseWorkspaceResult {
       type: "task/status",
       taskId,
       status,
-      updatedAt: new Date().toISOString(),
+      updatedAt: DEMO_REFERENCE_TIMESTAMP,
     });
   }, []);
 
@@ -96,7 +97,7 @@ export function useWorkspace(): UseWorkspaceResult {
     dispatch({
       type: "task/toggle-acknowledgement",
       taskId,
-      updatedAt: new Date().toISOString(),
+      updatedAt: DEMO_REFERENCE_TIMESTAMP,
     });
   }, []);
 

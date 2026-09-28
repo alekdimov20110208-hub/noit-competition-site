@@ -1,4 +1,3 @@
-import { useLocalCalendarNow } from "../hooks/useLocalCalendarNow.ts";
 import {
   AlertTriangle,
   Check,
@@ -51,6 +50,7 @@ const TASK_STATUSES: readonly TaskStatus[] = [
 ];
 
 interface TasksPageProps {
+  now: Date;
   state: WorkspaceState;
   selectedTaskId: string | null;
   invalidTaskId: string | null;
@@ -186,6 +186,7 @@ function TaskList({
 }
 
 export function TasksPage({
+  now,
   state,
   selectedTaskId,
   invalidTaskId,
@@ -195,7 +196,6 @@ export function TasksPage({
   onToggleAcknowledgement,
 }: TasksPageProps) {
   const { formatNumber, plural, t } = useI18n();
-  const now = useLocalCalendarNow();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [ownerFilter, setOwnerFilter] = useState("all");

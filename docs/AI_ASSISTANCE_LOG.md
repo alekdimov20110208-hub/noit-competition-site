@@ -73,3 +73,38 @@ reference date, producing overdue work and outdated milestone narrative. Its
 source dates and milestone statuses were deliberately preserved for the next
 separately scoped task. The mandatory NOIT regulation remains the historical
 **2025–2026** source; later-year competition requirements need verification.
+
+## 2026-09-28 — Phase 2B.2.3B deterministic demo snapshot
+
+OpenAI Codex assisted with the explicitly authorized demo-only implementation
+from baseline `c87fb9a90ac75494b1d00df09497950ebd1a0639`: one explicit demo-time
+boundary for 7 September 2026, shared injected calendar reference, Varna
+(Europe/Sofia) timestamp display, fixed fictional edit timestamps, coherent
+preparation deadlines/milestones/travel-change story, a quiet BG/EN disclosure,
+reset copy, focused tests and current documentation. Stable IDs, storage keys
+and schema, accepted task semantics and locked page designs were preserved.
+No dependency, backend/authentication or Team 2B.3 work was introduced.
+
+The implementing agent ran formatter/check, lint, typecheck, all 70 tests,
+production build and whitespace checks successfully. It executed and visually
+inspected the production-browser matrix and reset/persistence evidence recorded
+in `TEST_EVIDENCE.md`: 15 cases passed, with zero application console
+warnings/errors or uncaught page errors. A fixture-dependent old August test was
+updated after its first-run failure; a screenshot harness was corrected to wait
+for drawer entrance animation. Neither was hidden or described as successful
+before correction.
+
+A separate read-only agent independently reviewed the implementation and current
+documentation and ran 18 focused tests, all passing. It found no confirmed
+defects. Controlled clock/timezone checks, fictional test data and emulated
+viewports are not human usability feedback, a screen-reader review or physical
+device/cross-browser certification. The human author must understand and defend
+the difference between real local-calendar domain semantics and this explicitly
+fixed, editable demonstration snapshot, including simulated edit timestamps.
+
+Existing valid saved workspaces are not silently re-dated: users explicitly
+reset to adopt the refreshed seed, while language/theme preferences remain.
+The remaining narrow-desktop, sticky-transparency, disclosure-context and Team
+layout critique items remain deferred. The mandatory NOIT source is still the
+historical **2025–2026** regulation and must be reverified for the actual later
+competition year. Historical assistance and test entries remain intact.

@@ -31,7 +31,7 @@ This document describes the honest Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2
 - Scenario-specific escalation instructions are guidance only. BudoGraph cannot contact anyone or confirm that communication occurred.
 - The template capability is intentionally simple; it is not a complete template editor or a general event-generation system.
 - The prototype is centered on one fictional current event and a limited local template/reset flow rather than production multi-event management.
-- Overdue and date-sensitive behavior depends on the device clock and local browser environment; there is no trusted server clock.
+- The local prototype uses an explicitly disclosed fictional snapshot date, 7 September 2026. It is not a live operational clock or a real audit trail: task edits receive the snapshot timestamp and reported/updated times display in Varna time. Domain helpers still support arbitrary local-calendar references independently. There is no trusted server clock. Valid older saved workspaces retain their dates until an explicit reset.
 - The local-data boundary is designed for later replacement, but no backend migration, import/export, or synchronization path is implemented in Phase 1, Phase 2A, Phase 2B.1, or Phase 2B.2.
 - The Phase 2B.2 drawer edits only the two interactions already supported by the local model: task status and Accepted/Not accepted. Owner, deadline, priority, context, relationships, and timestamps remain read-only; this is not a complete task-authoring workflow.
 - Task deep links cover task details only and use `/tasks?task=<encoded-task-id>`. Other entities do not yet have dedicated deep links.

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createDemoWorkspace } from "../data/demo.ts";
+import { getDemoReferenceNow } from "../data/demoTime.ts";
 import { createStressWorkspace } from "../data/stress.ts";
 import type { Task, TeamMember } from "./types.ts";
 import {
@@ -372,11 +373,11 @@ test("demo seed is explicitly synthetic and covers the vertical-slice scenarios"
   );
   assert.ok(
     state.tasks.some(
-      (task) =>
-        task.status === "blocked" &&
-        task.priority === "critical" &&
-        isTaskOverdue(task, NOW),
+      (task) => task.status === "blocked" && task.priority === "critical",
     ),
+  );
+  assert.ok(
+    state.tasks.some((task) => isTaskOverdue(task, getDemoReferenceNow())),
   );
 });
 

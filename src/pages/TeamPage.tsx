@@ -1,4 +1,3 @@
-import { useLocalCalendarNow } from "../hooks/useLocalCalendarNow.ts";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -22,12 +21,12 @@ import { getInitials } from "../utils/format.ts";
 import { getTaskStatusTone } from "../utils/statusTone.ts";
 
 interface TeamPageProps {
+  now: Date;
   state: WorkspaceState;
 }
 
-export function TeamPage({ state }: TeamPageProps) {
+export function TeamPage({ state, now }: TeamPageProps) {
   const { count, formatDate, formatNumber, t } = useI18n();
-  const now = useLocalCalendarNow();
   const initialMember =
     state.teamMembers.find((member) => member.isOrganizer) ??
     state.teamMembers[0];
