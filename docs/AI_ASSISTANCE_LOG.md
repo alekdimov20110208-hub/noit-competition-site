@@ -29,3 +29,47 @@ available 2025–2026 NOIT regulation is historical and must be reverified again
 the official regulation for the actual participation year.
 
 Do not write `reviewed`, `tested`, or `passed` unless those actions actually occurred and supporting evidence is retained. Do not include prompts, transcripts, credentials, private links, contact details, or personal author information in this log.
+
+## 2026-09-28 — Phase 2B.2.2 task attention and deadline semantics
+
+OpenAI Codex assisted with the explicitly authorized semantic correction from
+baseline `24795ec6c5551f2091a6bbdb9224279de0693a9f`. Work covered the pure local
+calendar timing model, explicit multi-reason task attention and deterministic
+ordering, a small midnight/resume refresh hook, Operational Focus disclosure
+and localized wording, timing alignment in Tasks, the minimal Team
+status/overdue presentation correction, focused automated tests and evidence.
+The complete changed-file list and reproduction boundaries are appended in
+`TEST_EVIDENCE.md`; historical entries were retained.
+
+The implemented contract is: Status = lifecycle; Priority = impact; Timing =
+derived local calendar relationship; Needs attention = derived operational
+signal; Accepted = separate responsibility acknowledgement. `completed`,
+`acknowledged`, the v1 Task shape and `budograph.workspace.v1` remain stable.
+Upcoming is derived task timing only; milestone Upcoming remains unchanged.
+No dependency, backend, authentication, Team 2B.3, broad visual redesign or
+seed-date refresh was introduced.
+
+The implementing agent ran formatter/check, lint, TypeScript, all 63 automated
+tests, production build and diff-whitespace checks successfully. It ran and
+visually inspected controlled Edge/Chromium production-browser evidence for
+the required Dashboard, Tasks and Team configurations, disclosures, canonical
+links, filters, four-status drawer, persistence and midnight rollover. All 15
+browser cases passed with zero application console warnings/errors or uncaught
+page errors and no observed horizontal page overflow. Synthetic test fixtures
+and explicit clocks were used; these checks are not real-user feedback.
+
+A separate read-only agent reviewed the implementation and found a clock-startup
+race when rendering and subscription straddled midnight. The implementing agent
+fixed it by publishing subscription-time now immediately and added a regression
+test. The reviewer independently reran all nine focused tests and confirmed the
+fix with no further confirmed findings. No independent human review,
+physical-device, Firefox/Safari, screen-reader or formal accessibility validation
+is claimed. The human project author still needs to understand and defend the
+calendar, attention, persistence and accessibility decisions.
+
+Confirmed unresolved follow-up: **Demo Freshness / Critique Verification**.
+The fictional 18–20 September 2026 seminar remains stale at the 28 September
+reference date, producing overdue work and outdated milestone narrative. Its
+source dates and milestone statuses were deliberately preserved for the next
+separately scoped task. The mandatory NOIT regulation remains the historical
+**2025–2026** source; later-year competition requirements need verification.

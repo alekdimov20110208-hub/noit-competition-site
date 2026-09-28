@@ -126,7 +126,7 @@ test("upcoming and attention selectors return bounded operational queues", () =>
   );
   assert.deepEqual(
     getAttentionTasks(tasks, NOW, 2).map((task) => task.id),
-    ["task-critical", "task-overdue"],
+    ["task-overdue", "task-critical"],
   );
 });
 

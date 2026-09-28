@@ -1,3 +1,4 @@
+import { useId, useState } from "react";
 import { AppLink } from "../../components/AppLink.tsx";
 import { EmptyState } from "../../components/EmptyState.tsx";
 import { TASK_PRIORITY_MESSAGE_KEYS } from "../../domain/labels.ts";
@@ -22,6 +23,9 @@ export function OperationalFocus({
 }: OperationalFocusProps) {
   const i18n = useI18n();
   const { t, formatDate } = i18n;
+  const [expanded, setExpanded] = useState(false);
+  const listId = useId();
+  const visibleTasks = expanded ? tasks : tasks.slice(0, 5);
 
   return (
     <section className="operational-focus" aria-labelledby="focus-title">
@@ -39,11 +43,12 @@ export function OperationalFocus({
           description={t("dashboard.attention.empty.description")}
         />
       ) : (
-        <ol className="focus-list">
-          {tasks.map((task, index) => {
+        <ol className="focus-list" id={listId}>
+          {visibleTasks.map((task, index) => {
             const overdue = isTaskOverdue(task, now);
             const owner = members.get(task.ownerId);
-            const risk = task.status === "blocked" ? "critical" : task.priority;
+            const risk =
+              task.status === "blocked" || overdue ? "critical" : "normal";
 
             return (
               <li key={task.id}>
@@ -64,12 +69,13 @@ export function OperationalFocus({
                       <span
                         className={`focus-item__priority focus-item__priority--${task.priority}`}
                       >
+                        {t("taskDetails.priority")}:{" "}
                         {t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
                       </span>
                     </span>
                     <strong>{task.title}</strong>
                     <span className="focus-item__reason">
-                      {getAttentionReason(task, overdue, i18n)}
+                      {getAttentionReason(task, now, i18n)}
                     </span>
                     <span className="focus-item__meta">
                       <span>
@@ -91,6 +97,21 @@ export function OperationalFocus({
             );
           })}
         </ol>
+      )}
+      {tasks.length > 5 && (
+        <button
+          type="button"
+          className="text-button"
+          aria-expanded={expanded}
+          aria-controls={listId}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {t(
+            expanded
+              ? "dashboard.attention.showLess"
+              : "dashboard.attention.showMore",
+          )}
+        </button>
       )}
     </section>
   );

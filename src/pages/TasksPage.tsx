@@ -1,3 +1,4 @@
+import { useLocalCalendarNow } from "../hooks/useLocalCalendarNow.ts";
 import {
   AlertTriangle,
   Check,
@@ -60,13 +61,20 @@ interface TasksPageProps {
 }
 
 interface TaskListProps {
+  now: Date;
   tasks: Task[];
   members: TeamMember[];
   selectedTaskId: string | null;
   onOpen: (taskId: string) => void;
 }
 
-function TaskList({ tasks, members, selectedTaskId, onOpen }: TaskListProps) {
+function TaskList({
+  tasks,
+  members,
+  selectedTaskId,
+  onOpen,
+  now,
+}: TaskListProps) {
   const { formatDate, formatDateTime, t } = useI18n();
   const memberById = new Map(members.map((member) => [member.id, member]));
 
@@ -85,7 +93,7 @@ function TaskList({ tasks, members, selectedTaskId, onOpen }: TaskListProps) {
 
       {tasks.map((task) => {
         const owner = memberById.get(task.ownerId);
-        const overdue = isTaskOverdue(task);
+        const overdue = isTaskOverdue(task, now);
         const selected = selectedTaskId === task.id;
         const priorityTone =
           task.priority === "critical"
@@ -187,6 +195,7 @@ export function TasksPage({
   onToggleAcknowledgement,
 }: TasksPageProps) {
   const { formatNumber, plural, t } = useI18n();
+  const now = useLocalCalendarNow();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [ownerFilter, setOwnerFilter] = useState("all");
@@ -207,10 +216,13 @@ export function TasksPage({
     [categoryFilter, ownerFilter, searchQuery, statusFilter],
   );
   const filteredTasks = useMemo(
-    () => filterTasks(eventTasks, state.teamMembers, filters),
-    [eventTasks, filters, state.teamMembers],
+    () => filterTasks(eventTasks, state.teamMembers, filters, now),
+    [eventTasks, filters, state.teamMembers, now],
   );
-  const counts = useMemo(() => getTaskCounts(eventTasks), [eventTasks]);
+  const counts = useMemo(
+    () => getTaskCounts(eventTasks, now),
+    [eventTasks, now],
+  );
   const selectedTask =
     eventTasks.find((task) => task.id === selectedTaskId) ?? null;
   const selectedOwner = state.teamMembers.find(
@@ -280,6 +292,7 @@ export function TasksPage({
 
   const taskList = (
     <TaskList
+      now={now}
       tasks={filteredTasks}
       members={state.teamMembers}
       selectedTaskId={selectedTaskId}
@@ -453,6 +466,7 @@ export function TasksPage({
                   </div>
                 </header>
                 <TaskList
+                  now={now}
                   tasks={tasks}
                   members={state.teamMembers}
                   selectedTaskId={selectedTaskId}
@@ -467,6 +481,7 @@ export function TasksPage({
       </div>
 
       <TaskDrawer
+        now={now}
         task={selectedTask}
         owner={selectedOwner}
         onClose={onCloseTask}

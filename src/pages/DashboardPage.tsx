@@ -1,3 +1,4 @@
+import { useLocalCalendarNow } from "../hooks/useLocalCalendarNow.ts";
 import type { WorkspaceState } from "../domain/types.ts";
 import {
   getAttentionTasks,
@@ -28,13 +29,13 @@ export function DashboardPage({
   onOpenTask,
 }: DashboardPageProps) {
   const { locale } = useI18n();
+  const now = useLocalCalendarNow();
   const event =
     state.events.find((item) => item.id === state.currentEventId) ??
     state.events[0];
 
   if (!event) return null;
 
-  const now = new Date();
   const eventTasks = state.tasks.filter((task) => task.eventId === event.id);
   const eventChanges = state.changes
     .filter((change) => change.eventId === event.id)
@@ -45,7 +46,7 @@ export function DashboardPage({
     );
   const readiness = getReadinessSummary(eventTasks);
   const counts = getTaskCounts(eventTasks, now);
-  const attention = getAttentionTasks(eventTasks, now, 5);
+  const attention = getAttentionTasks(eventTasks, now, eventTasks.length);
   const workloads = getTeamWorkload(state.teamMembers, eventTasks, now).sort(
     (first, second) => {
       if (first.atRisk !== second.atRisk) return second.atRisk - first.atRisk;

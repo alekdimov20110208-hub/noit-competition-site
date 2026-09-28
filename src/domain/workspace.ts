@@ -16,7 +16,15 @@ import type {
   WorkspaceState,
 } from "./types.ts";
 
-export { createDemoWorkspace };
+import { compareAttentionTasks, getAttentionReasons } from "./taskAttention.ts";
+import {
+  compareDeadlineDates,
+  getCalendarDayNumber,
+  isTaskOverdue,
+  isUpcomingTask,
+} from "./taskTiming.ts";
+
+export { createDemoWorkspace, isTaskOverdue };
 
 export const WORKSPACE_STORAGE_KEY = "budograph.workspace.v1";
 
@@ -61,15 +69,7 @@ function isString(value: unknown): value is string {
 }
 
 function isDateOnly(value: unknown): value is string {
-  if (!isString(value) || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-
-  const [year, month, day] = value.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year ?? 0, (month ?? 0) - 1, day));
-  return (
-    parsed.getUTCFullYear() === year &&
-    parsed.getUTCMonth() === (month ?? 0) - 1 &&
-    parsed.getUTCDate() === day
-  );
+  return isString(value) && getCalendarDayNumber(value) !== null;
 }
 
 function isDateTime(value: unknown): value is string {
@@ -235,24 +235,6 @@ export function deserializeWorkspace(
   }
 }
 
-function getDeadlineTimestamp(deadline: string): number | null {
-  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(deadline)
-    ? `${deadline}T23:59:59.999Z`
-    : deadline;
-  const timestamp = Date.parse(normalized);
-  return Number.isFinite(timestamp) ? timestamp : null;
-}
-
-export function isTaskOverdue(task: Task, now = new Date()): boolean {
-  if (task.status === "completed") return false;
-
-  const deadline = getDeadlineTimestamp(task.deadline);
-  const currentTime = now.getTime();
-  return (
-    deadline !== null && Number.isFinite(currentTime) && deadline < currentTime
-  );
-}
-
 export interface ReadinessSummary {
   completed: number;
   total: number;
@@ -301,11 +283,10 @@ function normalizeLimit(limit: number): number {
 }
 
 function compareTaskDeadlines(first: Task, second: Task): number {
-  const firstDeadline =
-    getDeadlineTimestamp(first.deadline) ?? Number.POSITIVE_INFINITY;
-  const secondDeadline =
-    getDeadlineTimestamp(second.deadline) ?? Number.POSITIVE_INFINITY;
-  return firstDeadline - secondDeadline || first.id.localeCompare(second.id);
+  return (
+    compareDeadlineDates(first.deadline, second.deadline) ||
+    first.id.localeCompare(second.id)
+  );
 }
 
 export function getUpcomingTasks(
@@ -313,30 +294,10 @@ export function getUpcomingTasks(
   now = new Date(),
   limit = 5,
 ): Task[] {
-  const currentTime = now.getTime();
-  if (!Number.isFinite(currentTime)) return [];
-
   return tasks
-    .filter((task) => {
-      const deadline = getDeadlineTimestamp(task.deadline);
-      return (
-        task.status !== "completed" &&
-        deadline !== null &&
-        deadline >= currentTime
-      );
-    })
+    .filter((task) => isUpcomingTask(task, now))
     .sort(compareTaskDeadlines)
     .slice(0, normalizeLimit(limit));
-}
-
-function getAttentionScore(task: Task, now: Date): number {
-  let score = 0;
-  if (task.priority === "critical") score += 16;
-  if (isTaskOverdue(task, now)) score += 8;
-  if (task.status === "blocked") score += 4;
-  if (!task.acknowledged) score += 2;
-  if (task.priority === "important") score += 1;
-  return score;
 }
 
 export function getAttentionTasks(
@@ -345,19 +306,8 @@ export function getAttentionTasks(
   limit = 5,
 ): Task[] {
   return tasks
-    .filter(
-      (task) =>
-        task.status !== "completed" &&
-        (task.priority === "critical" ||
-          task.status === "blocked" ||
-          isTaskOverdue(task, now) ||
-          !task.acknowledged),
-    )
-    .sort((first, second) => {
-      const scoreDifference =
-        getAttentionScore(second, now) - getAttentionScore(first, now);
-      return scoreDifference || compareTaskDeadlines(first, second);
-    })
+    .filter((task) => getAttentionReasons(task, now).length > 0)
+    .sort((first, second) => compareAttentionTasks(first, second, now))
     .slice(0, normalizeLimit(limit));
 }
 

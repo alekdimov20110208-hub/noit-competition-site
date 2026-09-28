@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
-    "test": "node --test src/domain/workspace.test.ts src/routes.test.ts src/i18n/i18n.test.ts src/i18n/localizeWorkspace.test.ts src/preferences/preferences.test.ts src/pages/dashboard/helpers.test.ts src/pages/tasks/helpers.test.ts src/components/budoSelectState.test.ts src/responsive-layout.test.ts",
+    "test": "node --test src/domain/taskSemantics.test.ts src/hooks/localCalendarClock.test.ts src/domain/workspace.test.ts src/routes.test.ts src/i18n/i18n.test.ts src/i18n/localizeWorkspace.test.ts src/preferences/preferences.test.ts src/pages/dashboard/helpers.test.ts src/pages/tasks/helpers.test.ts src/components/budoSelectState.test.ts src/responsive-layout.test.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"docs/{AI_ASSISTANCE_LOG,BUDOGRAPH_PHASE_1,DEPLOYMENT_AND_DEMO_PLAN,KNOWN_LIMITATIONS,PRESENTATION_OUTLINE,TEST_EVIDENCE,THIRD_PARTY_NOTICES,USER_GUIDE}.md\" index.html package.json tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts eslint.config.js pnpm-workspace.yaml README.md",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"docs/{AI_ASSISTANCE_LOG,BUDOGRAPH_PHASE_1,DEPLOYMENT_AND_DEMO_PLAN,KNOWN_LIMITATIONS,PRESENTATION_OUTLINE,TEST_EVIDENCE,THIRD_PARTY_NOTICES,USER_GUIDE}.md\" index.html package.json tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts eslint.config.js pnpm-workspace.yaml README.md",
     "preview": "vite preview"

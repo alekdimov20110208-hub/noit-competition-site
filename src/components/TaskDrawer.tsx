@@ -25,6 +25,7 @@ import { StatusBadge } from "./StatusBadge.tsx";
 const TASK_STATUSES = Object.keys(TASK_STATUS_MESSAGE_KEYS) as TaskStatus[];
 
 interface TaskDrawerProps {
+  now: Date;
   task: Task | null;
   owner: TeamMember | undefined;
   onClose: () => void;
@@ -33,6 +34,7 @@ interface TaskDrawerProps {
 }
 
 export function TaskDrawer({
+  now,
   task,
   owner,
   onClose,
@@ -106,7 +108,7 @@ export function TaskDrawer({
 
   if (!task) return null;
 
-  const overdue = isTaskOverdue(task);
+  const overdue = isTaskOverdue(task, now);
   const priorityTone =
     task.priority === "critical"
       ? "critical"

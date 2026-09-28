@@ -4,6 +4,13 @@ import {
   HIGH_ACTIVE_LOAD_THRESHOLD,
   type TeamWorkload,
 } from "../../domain/workspace.ts";
+import { getAttentionReasons } from "../../domain/taskAttention.ts";
+import {
+  compareDeadlineDates,
+  getCalendarDayNumber,
+  getDeadlineTiming,
+  isUpcomingTask,
+} from "../../domain/taskTiming.ts";
 import { TASK_STATUS_MESSAGE_KEYS } from "../../domain/labels.ts";
 
 export function getAttentionActionKey(
@@ -22,38 +29,42 @@ export function getAttentionActionKey(
 
 export function getAttentionReason(
   task: Task,
-  overdue: boolean,
+  now: Date,
   i18n: I18nApi,
 ): string {
-  if (task.status === "blocked") {
-    const blocker = task.blockedBy ?? i18n.t(TASK_STATUS_MESSAGE_KEYS.blocked);
-    return overdue
-      ? `${blocker} · ${i18n.t("dashboard.attention.deadlineMissed")}`
-      : blocker;
-  }
-  if (overdue) {
-    return i18n.t("dashboard.attention.deadlineMissed");
-  }
-  if (!task.acknowledged) {
-    return i18n.t("dashboard.attention.awaitingAcknowledgement");
-  }
-  return i18n.t(TASK_STATUS_MESSAGE_KEYS[task.status]);
+  return getAttentionReasons(task, now)
+    .map((reason) => {
+      switch (reason) {
+        case "blocked":
+          return `${i18n.t(TASK_STATUS_MESSAGE_KEYS.blocked)}${task.blockedBy ? `: ${task.blockedBy}` : ""}`;
+        case "overdue":
+          return i18n.t("taskDetails.overdue");
+        case "not-accepted":
+          return i18n.t("dashboard.attention.awaitingAcknowledgement");
+        case "critical-deadline":
+          return i18n.t(
+            getDeadlineTiming(task.deadline, now) === "today"
+              ? "dashboard.attention.criticalToday"
+              : "dashboard.attention.criticalNear",
+          );
+      }
+    })
+    .join(" · ");
 }
 
 export function getNextCheckpoint(tasks: Task[], now: Date): Task | undefined {
   const sorted = tasks
-    .filter((task) => task.status !== "completed")
+    .filter(
+      (task) =>
+        task.status !== "completed" &&
+        getCalendarDayNumber(task.deadline) !== null,
+    )
     .sort(
       (first, second) =>
-        first.deadline.localeCompare(second.deadline) ||
+        compareDeadlineDates(first.deadline, second.deadline) ||
         first.id.localeCompare(second.id),
     );
-  const currentTime = now.getTime();
-  return (
-    sorted.find(
-      (task) => Date.parse(`${task.deadline}T23:59:59.999Z`) >= currentTime,
-    ) ?? sorted[0]
-  );
+  return sorted.find((task) => isUpcomingTask(task, now)) ?? sorted[0];
 }
 
 export type WorkloadSignal =
@@ -85,31 +96,13 @@ export type PreparationTimelineEntry =
       window: PreparationWindow;
     };
 
-const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-
-function getLocalDayTimestamp(date: Date): number {
-  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function getDateOnlyTimestamp(value: string): number | null {
-  const timestamp = Date.parse(`${value}T00:00:00.000Z`);
-  return Number.isFinite(timestamp) ? timestamp : null;
-}
-
 export function getPreparationWindow(
   date: string,
   now: Date,
 ): PreparationWindow {
-  const timestamp = getDateOnlyTimestamp(date);
-  if (timestamp === null || !Number.isFinite(now.getTime())) return "later";
-
-  const dayDifference = Math.round(
-    (timestamp - getLocalDayTimestamp(now)) / DAY_IN_MILLISECONDS,
-  );
-  if (dayDifference < 0) return "current";
-  if (dayDifference === 0) return "today";
-  if (dayDifference <= 7) return "near";
-  return "later";
+  const timing = getDeadlineTiming(date, now);
+  if (timing === "overdue") return "current";
+  return timing === "invalid" ? "later" : timing;
 }
 
 export function buildPreparationTimeline(
@@ -119,16 +112,8 @@ export function buildPreparationTimeline(
 ): PreparationTimelineEntry[] {
   if (!Number.isFinite(now.getTime())) return [];
 
-  const currentDay = getLocalDayTimestamp(now);
   const taskEntries: PreparationTimelineEntry[] = tasks.flatMap((task) => {
-    const timestamp = getDateOnlyTimestamp(task.deadline);
-    if (
-      timestamp === null ||
-      timestamp < currentDay ||
-      task.status === "completed"
-    ) {
-      return [];
-    }
+    if (!isUpcomingTask(task, now)) return [];
     return [
       {
         id: `task:${task.id}`,
@@ -143,7 +128,7 @@ export function buildPreparationTimeline(
     (milestone) => {
       if (
         milestone.status === "completed" ||
-        getDateOnlyTimestamp(milestone.date) === null
+        getCalendarDayNumber(milestone.date) === null
       ) {
         return [];
       }

@@ -1,3 +1,4 @@
+import { useLocalCalendarNow } from "../hooks/useLocalCalendarNow.ts";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -26,6 +27,7 @@ interface TeamPageProps {
 
 export function TeamPage({ state }: TeamPageProps) {
   const { count, formatDate, formatNumber, t } = useI18n();
+  const now = useLocalCalendarNow();
   const initialMember =
     state.teamMembers.find((member) => member.isOrganizer) ??
     state.teamMembers[0];
@@ -35,7 +37,7 @@ export function TeamPage({ state }: TeamPageProps) {
   const eventTasks = state.tasks.filter(
     (task) => task.eventId === state.currentEventId,
   );
-  const workloads = getTeamWorkload(state.teamMembers, eventTasks);
+  const workloads = getTeamWorkload(state.teamMembers, eventTasks, now);
   const selectedMember = state.teamMembers.find(
     (member) => member.id === selectedMemberId,
   );
@@ -153,7 +155,7 @@ export function TeamPage({ state }: TeamPageProps) {
         ) : (
           <div className="member-task-list">
             {selectedTasks.map((task) => {
-              const overdue = isTaskOverdue(task);
+              const overdue = isTaskOverdue(task, now);
               return (
                 <article className="member-task" key={task.id}>
                   <span className="member-task__icon" aria-hidden="true">
@@ -170,17 +172,12 @@ export function TeamPage({ state }: TeamPageProps) {
                   <div className="member-task__meta">
                     <span className={overdue ? "text-warning" : undefined}>
                       {formatDate(task.deadline)}
+                      {overdue && ` · ${t("taskDetails.overdue")}`}
                     </span>
                     <StatusBadge
                       compact
-                      tone={
-                        overdue ? "warning" : getTaskStatusTone(task.status)
-                      }
-                      label={
-                        overdue
-                          ? t("taskDetails.overdue")
-                          : t(TASK_STATUS_MESSAGE_KEYS[task.status])
-                      }
+                      tone={getTaskStatusTone(task.status)}
+                      label={t(TASK_STATUS_MESSAGE_KEYS[task.status])}
                     />
                   </div>
                 </article>

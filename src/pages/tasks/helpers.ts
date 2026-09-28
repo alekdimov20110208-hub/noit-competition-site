@@ -1,4 +1,5 @@
 import type { Task, TaskStatus, TeamMember } from "../../domain/types.ts";
+import { compareDeadlineDates } from "../../domain/taskTiming.ts";
 import { isTaskOverdue } from "../../domain/workspace.ts";
 
 export type TaskStatusFilter = TaskStatus | "all";
@@ -26,7 +27,10 @@ export function compareOperationalTasks(
   if (first.status === "blocked" && second.status !== "blocked") return -1;
   if (second.status === "blocked" && first.status !== "blocked") return 1;
 
-  const deadlineDifference = first.deadline.localeCompare(second.deadline);
+  const deadlineDifference = compareDeadlineDates(
+    first.deadline,
+    second.deadline,
+  );
   return deadlineDifference || first.id.localeCompare(second.id);
 }
 

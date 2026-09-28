@@ -903,3 +903,165 @@ fictional data. The available regulation is the historical 2025–2026 source;
 its dates, exact category/group wording, online-availability window,
 documentation format, test and defence timing and weighting, declarations, and
 registration procedure must be reverified for the actual competition year.
+
+## Phase 2B.2.2 — task attention and deadline semantics (2026-09-28)
+
+This entry records the focused correction from baseline
+`24795ec6c5551f2091a6bbdb9224279de0693a9f`. Historical entries above describe
+previous behavior and checks; this entry supersedes their task-attention score
+and UTC deadline semantics. It does not start Team 2B.3.
+
+### Final semantic contract
+
+- **Status = lifecycle:** `not-started`, `in-progress`, `blocked`, `completed`.
+- **Priority = impact:** Normal, Important, Critical. It is not an urgency score.
+- **Timing = derived local calendar relationship:** yesterday or earlier is
+  overdue for open tasks; Today is local today; Near is days 1–7 inclusive;
+  Later is day 8 onward. Upcoming deadlines include Today/Near/Later for open
+  tasks and never become a persisted or editable task status.
+- **Needs attention = derived operational signal:** an open task qualifies for
+  any of blocked, overdue, not accepted, or Critical with a Today/Near deadline.
+  Important alone and far-future Critical alone do not qualify. Completed tasks
+  are excluded even when unaccepted or Critical.
+- **Accepted = separate responsibility acknowledgement:** the stored field
+  remains `Task.acknowledged`; changing status never accepts responsibility.
+- **At risk remains narrower:** blocked and/or overdue, counted once per task.
+  Unaccepted and near Critical work alone do not increase Team at-risk counts.
+- **Dependency prose remains independent:** `blockedBy` does not imply blocked
+  lifecycle status. Milestone `upcoming` remains unchanged.
+
+`taskTiming.ts` validates date-only values and compares calendar ordinals to the
+reference clock's local year/month/day. UTC arithmetic is used only for day
+ordinals, avoiding DST day-length errors; no deadline becomes a UTC end-of-day
+instant. The shared calculations feed overdue/upcoming, attention, Dashboard
+preparation windows and next checkpoints, Tasks ordering and counts, and Team
+workload/timing. Core calculations accept explicit reference times.
+
+Attention uses a documented lexicographic order, with no additive score:
+
+1. Blocked **or** overdue share the strongest operational-failure class;
+   remaining eligible tasks form the second class. Neither condition receives
+   a blanket preference over the other.
+2. Within each class, the earliest deadline comes first; invalid dates sort last.
+3. Equal deadlines use more simultaneous reasons, then unaccepted responsibility,
+   then impact (Critical/Important/Normal), then stable ID.
+
+For example, an Aug 1 overdue task comes before an Aug 2 blocked/overdue task,
+which comes before an Aug 3 overdue task. A later Critical task cannot leapfrog
+these failures because of its priority. Tasks retains its distinct established
+ordering: overdue, then blocked, then deadline and stable ID.
+
+The domain exposes every applicable attention reason. Operational Focus joins
+localized reasons in one text line/flow, labels priority explicitly, retains
+canonical task links, shows five items initially, and reveals all remaining
+items inline using a real localized Show more/Show less button. The button
+exposes `aria-expanded` and `aria-controls` and retains keyboard focus. No CSS,
+BudoSelect implementation, route, navigation, other disclosure pattern, Task
+schema, storage key, demo date or milestone lifecycle was changed. Team now
+keeps the actual lifecycle badge and appends Overdue separately to deadline text.
+
+### Midnight refresh and independent review
+
+A small local-calendar hook publishes the current date on subscription and
+uses one timeout for the next local midnight. Each callback samples the real
+clock again and rearms the timeout. Window focus and visible-tab events refresh
+and rearm after suspension; unmount removes listeners and cancels the timer.
+Dashboard, Tasks (including memoized counts/filter ordering and the drawer) and
+Team receive the same reference date within their page. This does not write any
+new persisted state.
+
+The independent read-only review found one confirmed startup race: if initial
+render preceded midnight but effect subscription followed it, the initial
+implementation scheduled tomorrow's update while retaining yesterday's sample.
+Initialization now uses the same immediate refresh path as subsequent updates.
+A deterministic render-before/effect-after regression test was added. The
+reviewer independently reran all nine focused tests, confirmed the fix, and
+reported no further confirmed findings. Browser/layout verification below was
+performed separately by the implementing agent; no human review is claimed.
+
+### Automated evidence
+
+All required commands passed on the final implementation:
+
+| Command                 | Result                               |
+| ----------------------- | ------------------------------------ |
+| `pnpm.cmd format`       | Passed                               |
+| `pnpm.cmd format:check` | Passed                               |
+| `pnpm.cmd lint`         | Passed                               |
+| `pnpm.cmd typecheck`    | Passed                               |
+| `pnpm.cmd test`         | 63 passed; 0 failed, skipped or todo |
+| `pnpm.cmd build`        | Passed; Vite production build        |
+| `git diff --check`      | Passed                               |
+
+Nine new tests in `taskSemantics.test.ts` and `localCalendarClock.test.ts`
+cover the eligibility matrix, combined reasons and EN/BG reason text,
+explainable ordering/ties, dependency prose, independent acceptance, unchanged
+four status values, rejection of persisted task Upcoming, Team at-risk scope,
+invalid dates, and clock initialization/rearm/cleanup. Boundary cases cover
+yesterday/today/tomorrow/day 7/day 8 and 1 ms before/at local midnight in
+Europe/Kyiv, America/Los_Angeles and UTC. They assert agreement between domain
+selectors, Dashboard timeline/checkpoints, Tasks ordering and Team counts.
+Clock tests also cover Kyiv's 23-hour and 25-hour DST days. The prior selector
+test now expects earlier overdue work before later Critical work; unrelated
+existing assertions were retained.
+
+### Production-browser evidence
+
+Controlled Playwright checks used installed Edge/Chromium **154.0.4258.37**,
+headless, against the production preview at local port 4173, with a 900 px
+viewport height and Europe/Kyiv timezone. No browser or project dependency was
+installed. Synthetic semantic fixtures used an explicit **2026-08-12** clock;
+unchanged-seed screenshots used an explicit **2026-09-28** clock. Seed source
+files were not edited. Test storage was confined to isolated browser contexts.
+
+| Surface                       | Viewports / language / theme                           | Result                                                                                                                                                                                                                 |
+| ----------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dashboard semantic fixture    | 1440 EN Light; 1440 EN Dark; 390 BG Light; 320 BG Dark | Correct five-item preview, eight eligible expanded items and deterministic order; excluded far Critical/Important/completed/dependency-only tasks; all simultaneous reasons visible                                    |
+| Dashboard unchanged demo seed | Same four configurations                               | Existing layout inspected; stale scenario remains visible; bounded focus list                                                                                                                                          |
+| Tasks                         | 1440 EN Dark; 320 BG Dark                              | Operational row order; status/search/owner/category filters; mouse and keyboard BudoSelect; exactly four localized drawer statuses; no Upcoming option; separate overdue and lifecycle labels                          |
+| Team                          | 1440 EN Dark; 320 BG Dark                              | Regression spot-check; actual lifecycle and overdue text both visible                                                                                                                                                  |
+| Local midnight                | Dashboard, Tasks and Team at 1440 EN Light             | Controlled clock crossed 23:59:59.500 to 00:00:00.500 without reload; due-today task became overdue, Dashboard removed it from future timeline and admitted day-8 Critical work into Near; workspace storage unchanged |
+
+All **15 browser cases passed**. Dashboard disclosure was exercised with Enter
+and Space; the same button retained focus, had visible focus styling and
+updated both its label and `aria-expanded`. Its `aria-controls` matched the
+list. Canonical focus links opened the correct Tasks drawer and Escape returned
+to Dashboard. Tasks status edits persisted after reload without accepting the
+task or adding/changing its stored fields; listbox Escape followed by drawer
+Escape worked. Screenshots of the required configurations, expanded mobile
+focus, Tasks register/drawer, and Team were visually inspected. No unexpected
+layout regression or horizontal page overflow was observed. Application
+console warnings, errors and uncaught page errors: **0**.
+
+Local reproducibility/evidence artifacts are retained in ignored
+`tmp/phase-2b-2-2-browser.mjs` and `tmp/phase-2b-2-2-evidence/` (JSON report and
+screenshots). They are local audit artifacts, not new runtime dependencies or
+committed product fixtures. This is controlled Chromium evidence, not
+physical-device, Firefox, Safari, screen-reader or formal accessibility testing.
+
+### Changed files and unresolved follow-up
+
+- Domain: `src/domain/taskTiming.ts`, `src/domain/taskAttention.ts`,
+  `src/domain/workspace.ts`, `src/domain/taskSemantics.test.ts`,
+  `src/domain/workspace.test.ts`.
+- Calendar refresh: `src/hooks/localCalendarClock.ts`,
+  `src/hooks/localCalendarClock.test.ts`, `src/hooks/useLocalCalendarNow.ts`.
+- Consumers: `src/pages/DashboardPage.tsx`,
+  `src/pages/dashboard/OperationalFocus.tsx`, `src/pages/dashboard/helpers.ts`,
+  `src/pages/TasksPage.tsx`, `src/pages/tasks/helpers.ts`,
+  `src/components/TaskDrawer.tsx`, `src/pages/TeamPage.tsx`.
+- Catalog/test registration/evidence: `src/i18n/messages.ts`, `package.json`,
+  `docs/TEST_EVIDENCE.md`, `docs/AI_ASSISTANCE_LOG.md`.
+
+**Confirmed unresolved follow-up — Demo Freshness / Critique Verification:**
+the fictional seminar still runs **18–20 September 2026**. At the explicit
+28 September reference date all 13 open seed tasks are overdue, and historical
+milestones still carry their existing Current/Upcoming narrative. Corrected
+calendar semantics intentionally expose this stale scenario. Refreshing seed
+dates and reviewing milestone narrative are separate work; neither was done
+here. Team 2B.3 and the deferred visual critique items remain out of scope.
+
+The product remains a fictional, unauthenticated browser-local prototype.
+The mandatory regulation read for this project is the historical **2025–2026**
+NOIT source; dates, category/group details, submission requirements and defence
+rules must be reverified for the actual later competition year.
