@@ -192,14 +192,48 @@ one from a different event and expect it to resolve.
 - **Tasks** provides localized search, combined status/owner/category filters,
   optional owner grouping, dense responsibility rows, and the primary task
   detail/editing drawer described above.
-- **Team** shows roles, comparable workload counts, and assigned-task details
-  for fictional team members.
+- **Team** is a responsibility workspace with a compact roster and selected
+  person's work. It shows factual task counts and attention reasons for the
+  fictional seminar, without capacity or performance ratings.
 - **Changes & Plan B** connects a change to affected work. Update its response
   state, acknowledge it, and treat any scenario-specific escalation instruction
   as guidance for communication outside BudoGraph.
 - **Templates** previews the fictional seminar preparation structure.
   **Reset demo event** opens a confirmation before replacing saved workspace
   changes with the fictional seed.
+
+## Team responsibility workspace
+
+The roster puts people with blocked or overdue work first, followed by other
+work needing attention, then open work without attention, then people with no
+open work. This is an inspection order for the organizer, not a rating of people.
+A fresh visit selects the first person in that order. Select another person to
+keep reviewing their responsibilities even if task edits change the order.
+
+On desktop, the roster and detail sit side by side. Selection keeps keyboard
+focus on the roster; **Go to [name]'s tasks** moves to the detail heading.
+At compact widths, selecting a person opens a fullscreen sheet. **Close**,
+`Escape`, or browser Back returns to that person's roster row. The sheet keeps
+keyboard focus inside it and scrolls independently of the page.
+
+The detail shows the person's role, actual task categories, and open/attention
+counts. Overdue, blocked, and not-accepted counts can overlap. Attention uses
+the same rules and demo date as Dashboard and Tasks. Accepted is an independent
+local responsibility state; it is neither completion nor verified identity.
+
+Needs attention and Upcoming work contain different tasks. Upcoming includes
+today, the next seven days, and later work. Initially up to five tasks appear
+across these sections; **Show more** reveals all remaining rows in that section,
+and **Show less** restores its preview. Completed work is a separate, initially
+collapsed disclosure. No assigned tasks and all tasks completed have distinct
+empty states.
+
+Choose a task title to open its canonical Tasks drawer. Back, Close, or `Escape`
+restores the person, disclosure state, useful scroll position, and task focus;
+if an edit moves or removes that row, focus returns to a visible alternative.
+**Open Tasks** opens the complete seminar register for all people. Temporary
+Team context belongs to that browser history entry and is not saved in
+`localStorage`. A new Team visit starts fresh.
 
 ## Saved local state
 

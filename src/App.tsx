@@ -45,6 +45,8 @@ export default function App() {
   const [dashboardContext, setDashboardContext] = useState(() =>
     readDashboardContext(window.history.state),
   );
+  // Team remounts from its own history-entry context, including same-route sheets.
+  const [teamEntry, setTeamEntry] = useState(0);
   const pendingTaskFocusRef = useRef<PendingTaskFocus | null>(
     currentLocation.path === "/" && dashboardContext.origin
       ? { ...dashboardContext.origin, trigger: null }
@@ -71,6 +73,10 @@ export default function App() {
         window.location.search,
       );
       const historyState = window.history.state;
+      if (nextLocation.path === "/team") {
+        pendingTaskFocusRef.current = null;
+        setTeamEntry((entry) => entry + 1);
+      }
       const dashboard = readDashboardContext(historyState);
       setDashboardContext(dashboard);
       if (nextLocation.path === "/") {
@@ -113,6 +119,7 @@ export default function App() {
       }
 
       setDashboardContext(readDashboardContext(options.state));
+      if (nextLocation.path === "/team") setTeamEntry((entry) => entry + 1);
       setCurrentLocation(nextLocation);
       if (options.scroll !== false) {
         pendingTaskFocusRef.current = null;
@@ -172,6 +179,10 @@ export default function App() {
   }, [navigate]);
 
   useEffect(() => {
+    if (currentLocation.path === "/team") {
+      pendingTaskFocusRef.current = null;
+      return;
+    }
     if (currentLocation.path === "/tasks" && currentLocation.taskId !== null) {
       return;
     }
@@ -282,7 +293,15 @@ export default function App() {
       />
     );
   } else if (currentLocation.path === "/team") {
-    page = <TeamPage state={localizedState} now={now} />;
+    page = (
+      <TeamPage
+        key={`${localizedState.currentEventId}:${teamEntry}`}
+        state={localizedState}
+        now={now}
+        onOpenTask={openTask}
+        onNavigate={navigate}
+      />
+    );
   } else if (currentLocation.path === "/changes") {
     page = (
       <ChangesPage

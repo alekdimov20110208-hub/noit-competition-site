@@ -1553,3 +1553,168 @@ Files changed: `src/App.tsx`, `src/dashboardNavigation.ts`,
 CSS/typography, sidebar, Tasks layouts, deterministic data/time, attention and
 workload ranking were not changed. Team 2B.3, backend/authentication, Plan B
 redesign and Templates redesign remain deferred. Historical entries are intact.
+
+## Phase 2B.3 — Team Responsibility Workspace — 2026-09-30
+
+Implemented after explicit human approval of the design contract at baseline
+`82102f3003ae1cead099aead5930568797d1d559`. The contract remains unchanged as the
+approved pre-implementation specification. This entry records implementation
+verification; it does not rewrite earlier entries where Team was deferred.
+
+### Scope and behavior
+
+Team now uses an operational roster and one shared member detail body, inline
+on desktop or in a fullscreen portal sheet at constrained widths. The roster
+uses canonical attention representatives: blocked/overdue failures, other
+attention, open work without attention, then no open work. Ties follow canonical
+ordering and stable source order. A fresh entry selects Lina in the fictional
+seed; valid manual/history selection takes precedence thereafter.
+
+Counts are factual open/attention totals with subordinate overlapping reasons.
+There are no capacity, productivity or performance scores. Status, priority,
+timing and Accepted remain independent. Attention and upcoming partition tasks
+without duplication; the initial five-row budget is allocated 3/2 with unused
+slots reassigned to attention first. Each section can show all its rows.
+Completed history starts collapsed; defensive invalid-date open work has a
+separate disclosure. No canonical domain helper, demo clock/data or schema changed.
+
+Real task anchors use `/tasks?task=<encoded-id>`. The existing Tasks drawer owns
+editing. Team history stores selected member, disclosures, sheet state, focus
+origin and scroll only in `history.state.budographTeam`. Desktop selection
+replaces context; a compact roster selection pushes one same-route sheet entry.
+Back/Close/Escape return to Team; Forward reopens the task. Removed/changed
+origins use a visible fallback. Open Tasks goes to the full unfiltered `/tasks`
+register, with no unsupported owner-filter promise.
+
+### Automated checks
+
+Windows, Node `v24.16.0`, pnpm `11.9.0`:
+
+| Command                                             | Result                                              |
+| --------------------------------------------------- | --------------------------------------------------- |
+| `pnpm.cmd format`                                   | Passed; final source formatting was already stable. |
+| `pnpm.cmd format:check`                             | Passed.                                             |
+| `pnpm.cmd lint`                                     | Passed, no errors or warnings.                      |
+| `pnpm.cmd typecheck`                                | Passed.                                             |
+| `pnpm.cmd test`                                     | **94 passed, 0 failed**; 16 new focused Team tests. |
+| `pnpm.cmd build`                                    | Passed; production Vite bundle generated.           |
+| `git diff --check`                                  | Passed.                                             |
+| Explicit Prettier check of both new browser scripts | Passed.                                             |
+
+New unit coverage includes canonical attention, representative selection,
+blocked/overdue union counts, separate acceptance, stable roster grouping,
+current-event ownership, zero-task members, mutually exclusive task sections,
+five-row budget allocation, 100-task completed-heavy data, encoded links,
+selected-member fallback, history serialization/malformed context, sheet state,
+and matching interpolated BG/EN catalogs. Existing tests were not weakened.
+
+### Browser matrix and interactions
+
+Production preview on `http://127.0.0.1:4173`, isolated headless Microsoft Edge
+`154.0.4258.37` contexts, Europe/Sofia timezone, **900 CSS px height**:
+
+- Full matrix: **1440, 1024, 768, 390 and 320** × **EN/BG** × **Light/Dark**
+  (20 cases).
+- Additional primary cases: **1280 BG Light, 960 EN Light, 961 BG Dark,
+  900 EN Light, 430 EN Light, 360 EN Dark** (6 cases).
+- **23 additional cases**, including four dense fixtures at 1440 EN Light,
+  1024 BG Dark, 390 BG Light and 320 BG Dark; direct valid/invalid Tasks URLs;
+  completed/accepted task edits; resize and available-width fallback; full
+  register navigation; reduced motion; default-detail engagement/reload;
+  stale task/member/event data; empty roster; malformed history; and native
+  accessibility-tree/contrast checks in both themes.
+
+**49 Team browser cases passed.** Every primary matrix case checked initial
+selection, keyboard selection, canonical task href, Back/Forward/Back, Task
+Escape/Close, restored member/focus, and unchanged localStorage. Compact cases
+also checked the sheet, focus trap, inert shell, close/back/forward/reopen and
+44 px close control. Desktop cases checked the 38/62 roster/detail ratio,
+selection focus and skip-to-detail control. No horizontal document or Team
+region overflow was measured; no sampled Team text was below 12 px.
+
+Measured available width explains the transition: 961 px remains compact;
+967 px gives **659 px** of Team width and is compact; 968 px gives **660 px**
+and uses the split. 1024 px uses the split. A forced 650 px content container at
+1440 px also switches to compact. Resizing preserves selection and does not
+push history. An interacted-with default detail becomes a sheet; inactive
+roster mode stays closed. 1440→720 CSS px reflow (equivalent layout width to
+200% zoom at 1440) preserves the open disclosure and has no clipping. This is
+viewport emulation, not a claim of testing browser zoom controls.
+
+Dense fixtures are created only in the browser script, never in product seed
+or persistent developer data. They exercise **24 members**, a person with
+**100 tasks: 20 attention, 10 upcoming, 70 completed**, overlapping blocked/
+overdue/not-accepted reasons, long Bulgarian names/roles/titles and unbroken
+strings, zero tasks, completed-only work, and accepted work without attention.
+Show more/less exposes the complete relevant sets. Returning from a task reload
+preserved a deep expanded-row origin and scroll; completed task returns also
+restored their expanded disclosure. All completed history starts collapsed.
+
+The existing `tests/dashboard-disclosure.browser.mjs` also passed unchanged:
+**13 cases** (6 matrix + 7 extra), including Dashboard focus/disclosures,
+Task Back/Forward/Close/Escape, direct URLs, reduced motion and edited origins.
+Across both suites: **62 browser cases**, **0 application console warnings,
+0 application console errors and 0 uncaught page errors**. Screenshots were
+visually inspected for desktop, constrained BG detail, mobile roster/sheet,
+and 320 px long-content stress.
+
+### Accessibility and limits
+
+Native accessibility-tree checks confirmed selected buttons, expanded native
+summaries, a modal named by the member heading, and exclusion of inert shell
+navigation. Keyboard checks covered Enter/Space, heading→Close, Tab/Shift+Tab
+wrap, Escape, visible return targets and disclosure focus. The sheet uses one
+scrolling body, opaque topbar, `100dvh`, safe-area padding and body scroll lock;
+only one member detail tree is interactive. Reduced motion adds no animation.
+
+Measured 58 rendered text/background pairs per theme on the default Team
+workspace. Minimum contrast was **5.10:1 Light** and **4.98:1 Dark**; each sample
+met its WCAG AA text-size threshold. These are scoped measurements, not a full
+accessibility certification. No physical-device safe-area/rotation test,
+Safari/Firefox test or human screen-reader session is claimed. Native AX-tree
+inspection does not substitute for a screen-reader user review. No real-user
+usability, productivity or organizer-effectiveness results are claimed.
+
+### Independent review and corrected findings
+
+A separate read-only agent reviewed product semantics, ordering/selection,
+navigation, accessibility source, responsive design, localization and adherence
+to the approved contract. It found two P2 issues: interacting with the default
+inline detail did not mark it viewed for resize; and the summary gave all five
+counts equal large-number emphasis. Both were corrected with engagement-aware
+history state and compact primary/subordinate text. The reviewer re-read both
+fixes and reported no remaining confirmed source findings. It did not run the
+browser suite; browser evidence above belongs to the implementing agent.
+
+Intermediate verification also corrected a test's shortened seed member ID,
+a TypeScript narrowing assertion, an incorrect expected Anton task count, and
+a harness assumption that 961 px always had enough content width for a split.
+Those failures are not counted as passes. Final source and production bundle
+were stable before the successful browser run and final automated checks.
+
+### Files and reproduction
+
+Team implementation: `src/pages/TeamPage.tsx`, `src/pages/team/MemberDetail.tsx`,
+`MemberSheet.tsx`, `helpers.ts`, `helpers.test.ts`, `team.css`,
+`src/teamNavigation.ts`, `src/teamNavigation.test.ts`, and
+`src/i18n/teamMessages.ts`. Minimal shared integration: `src/App.tsx` remounts
+Team on history entry changes and lets Team restore its own focus;
+`src/i18n/messages.ts` registers new Team strings; `package.json` adds the two
+unit-test files to the existing test command. Dependencies and lockfile did
+not change. `docs/USER_GUIDE.md` describes the implemented interaction.
+Dashboard, Tasks, TaskDrawer, BudoSelect, shared CSS/shell/navigation, Plan B,
+Templates, domain semantics, storage and seed/time files remain unchanged.
+
+After `pnpm.cmd build`, run a production preview on port 4173, then
+`node tests/team-workspace.browser.mjs`. It imports the focused boundary checks
+in `tests/team-workspace-edges.mjs`. As with the existing Dashboard script,
+`PLAYWRIGHT_MODULE_PATH` can point to an already installed Playwright
+`index.mjs`, `BROWSER_EXECUTABLE_PATH` to Edge/Chromium, and
+`BUDOGRAPH_BASE_URL` to another preview origin. No app dependency was added.
+Raw report/screenshots are ignored under `tmp/phase-2b-3-evidence/`; existing
+Dashboard regression output is under `tmp/phase-2b-2-3d-evidence/`.
+
+Backend/auth, invitations/permissions, real collaboration, Plan B/Templates
+redesign and Change Consequence Path are not implemented by this phase. The
+2025–2026 competition requirements are historical and require verification for
+a later competition year.

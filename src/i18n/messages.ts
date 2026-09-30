@@ -1,5 +1,6 @@
 import type { Language } from "../preferences/types.ts";
 import { DEMO_BG_MESSAGES, DEMO_EN_MESSAGES } from "./demoMessages.ts";
+import { TEAM_BG_MESSAGES, TEAM_EN_MESSAGES } from "./teamMessages.ts";
 
 const UI_EN_MESSAGES = {
   "meta.title": "BudoGraph organizer workspace",
@@ -326,6 +327,7 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...TEAM_EN_MESSAGES,
   ...UI_EN_MESSAGES,
   ...DEMO_EN_MESSAGES,
 } as const;
@@ -662,6 +664,7 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...TEAM_BG_MESSAGES,
   ...UI_BG_MESSAGES,
   ...DEMO_BG_MESSAGES,
 } satisfies Record<MessageKey, string>;

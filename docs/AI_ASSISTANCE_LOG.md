@@ -228,3 +228,50 @@ design contract before implementation and authorized documentation-only
 finalization, commit and push. This supersedes the pending-approval status
 recorded above without changing the historical analysis or the approved design
 decisions. Team 2B.3 remains unimplemented; no implementation testing is claimed.
+
+## Phase 2B.3 — approved Team implementation — 2026-09-30
+
+After explicit human approval of the Team design contract and the separate
+instruction to implement Phase 2B.3, Codex implemented the Team Responsibility
+Workspace from baseline `82102f3003ae1cead099aead5930568797d1d559`. Earlier entries
+recording an unimplemented Team remain historical; the approved contract itself
+has not been altered.
+
+Assistance included pure canonical selectors and tests, the compact operational
+roster, desktop member detail, accessible fullscreen member sheet, factual
+counts, attention/upcoming separation, bounded previews and completed
+history, natural BG/EN strings and Team-scoped styling. Real task links reuse
+the existing Tasks route/drawer. Transient Team history owns selected member,
+sheet/disclosures, focus and scroll without changing localStorage schemas.
+Minimal App integration handles same-route Team history entries; catalog
+registration and the package test command are the other shared changes.
+No Dashboard/Tasks redesign, dependency addition, demo-clock/data change,
+backend/authentication, account/invitation/permission system, fake collaboration,
+performance metric or Change Consequence Path was added.
+
+Final checks passed: `pnpm.cmd format`, `format:check`, `lint`, `typecheck`,
+`test` (**94/94**, 16 new), `build`, `git diff --check`, and explicit formatting
+checks for the new browser scripts. Isolated production Edge verification
+passed **49 Team cases** plus **13 unchanged Dashboard regression cases**, with
+zero application console warnings/errors and zero uncaught page errors.
+Coverage, exact widths, dense fixture counts, contrast measurements, navigation
+and focus evidence, reproduction steps and limitations are appended to
+`docs/TEST_EVIDENCE.md`; the user guide now explains the implemented Team flow.
+Synthetic stress data lives only in tests and did not replace product seed data.
+
+The explicitly requested independent read-only agent review found two issues:
+default-detail engagement was not retained on responsive mode change, and the
+summary treated secondary reasons as equal large metrics. Both were corrected
+and the reviewer confirmed the source fixes with no remaining findings. The
+implementing agent verified the affected browser behavior. Test fixture/count
+and type assertion mistakes were corrected during verification; only the final
+passing runs are reported as passing evidence.
+
+The human author approved the pre-implementation design, not these automated
+results or the completed UI. No new human implementation approval, survey,
+user feedback, physical-device test, Safari/Firefox test, human screen-reader
+session or formal accessibility certification is claimed. Those checks remain
+limitations of the controlled Edge/AX-tree evidence. The author should review
+and understand the final implementation and recorded evidence. Historical
+2025–2026 NOIT requirements still require verification for a later competition
+year. Backend, Plan B/Templates redesign and the future signature remain deferred.
