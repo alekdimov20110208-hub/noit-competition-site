@@ -182,3 +182,49 @@ claimed. The human author should understand history-entry ownership, native
 disclosure semantics and focus/scroll fallback decisions. Team 2B.3, backend,
 Plan B and Templates redesign remain outside this phase. Historical logs remain
 intact; the NOIT **2025–2026** regulation needs later-year verification.
+
+## 2026-09-30 — Phase 2B.3A deliberate design contract
+
+OpenAI Codex assisted with the explicitly requested analysis/specification phase
+from `d230be00670d30e40fb55710c313a71926104bcf`. A successful origin fetch confirmed
+clean `main`, matching HEAD/origin/main and 0/0 ahead/behind. Git ancestry and
+current source/documentation confirmed 2B.2.2 and 2B.2.3B/C/D. The master prompt
+and all 30 regulation pages were read; the Software Applications rubric was
+also rendered and visually inspected. The 2025–2026 rules remain historical and
+require verification for the actual competition year.
+
+Codex inspected Team, its model/selectors, localization, semantic CSS tokens,
+Dashboard TeamPressure, Tasks routing/drawer and 2B.2.3D return-context behavior.
+Real in-app Chromium inspection covered 1440 EN Light, 1440 EN Dark, 1024 EN
+Light, 768 EN Light, 390 BG Light and 320 BG Dark. An isolated local origin on
+port 5187 avoided resetting older saved demo data found on port 5173. Browser
+actions changed only selection/language/theme and scroll; no task data was
+edited. Screenshots showed the large roster separating selection from detail;
+DOM measurements and limitations are recorded in the single design contract.
+Captured fresh-origin application console warnings/errors were zero. This was
+read-only product inspection on the dev server, not implementation acceptance
+or production/cross-browser verification.
+
+Created `BUDOGRAPH_TEAM_2B3_DESIGN_CONTRACT.md` with the eight decision axes,
+desktop roster/detail and compact full-screen sheet proposal, factual workload
+labels, canonical semantics/order, task navigation/history/focus requirements,
+backend boundaries, self-critique, exact scope/exclusions and future acceptance
+criteria. The proposal preserves the palette/system stack and selects change
+consequence path as a future signature direction without implementing it.
+OpenAI documentation informed the requested model recommendation; reasoning
+effort is a task-specific recommendation, not a measured result.
+
+No application source/CSS, dependencies, demo data or persistence schema changed.
+No Team implementation tests were run and no commit/push was made. Only this
+append-only log and the design contract changed. The human author still needs
+to review and approve the proposal and later inspect the actual implementation;
+no human approval, usability finding or accessibility certification is claimed.
+Documentation-only verification passed: Prettier checks for both changed
+documents, `git diff --check`, and an empty diff for application source,
+`package.json` and `pnpm-lock.yaml`.
+
+Approval follow-up: the human project author explicitly approved the Team 2B.3
+design contract before implementation and authorized documentation-only
+finalization, commit and push. This supersedes the pending-approval status
+recorded above without changing the historical analysis or the approved design
+decisions. Team 2B.3 remains unimplemented; no implementation testing is claimed.
