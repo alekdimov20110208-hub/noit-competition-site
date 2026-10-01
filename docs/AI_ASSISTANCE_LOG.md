@@ -319,3 +319,17 @@ person/task typography; Dashboard and Tasks preserve their denser operational
 structure. No backend, authentication, real collaboration, Plan B/Templates
 redesign or Change Consequence Path was started. Competition-year-specific
 2025–2026 NOIT requirements need verification for later years.
+
+## Phase 2B.4C — approved de-SaaS design contract — 2026-10-02
+
+Human visual review identified remaining generic AI/SaaS composition in
+Dashboard and Tasks. Four human-provided screenshots served as the visual
+baseline. Codex created the Phase 2B.4C design contract before implementation;
+the human approved it and explicitly requested repository documentation.
+
+This step persisted the complete approved contract, added the four requested
+guardrails for Event Overview, Decision Queue, Operational Change Record and
+Tasks totals, and appended this entry. Team remains locked; Dashboard and
+Tasks functional architecture remains protected. No implementation, source,
+CSS, test, dependency or backend changes occurred in this step. The known
+unrelated untracked shortcut was left untouched and is excluded from staging.
