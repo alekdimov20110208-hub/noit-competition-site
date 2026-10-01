@@ -333,3 +333,38 @@ Tasks totals, and appended this entry. Team remains locked; Dashboard and
 Tasks functional architecture remains protected. No implementation, source,
 CSS, test, dependency or backend changes occurred in this step. The known
 unrelated untracked shortcut was left untouched and is excluded from staging.
+
+## Phase 2B.4C — Dashboard + Tasks implementation — 2026-10-02
+
+Following explicit human authorization, Codex implemented the approved
+Phase 2B.4C contract in three verified groups. The human visual review and
+four screenshots supplied the design direction; the contract existed before
+implementation. Dashboard now uses a compact event readout, task-first queue,
+date-led preparation sequence, flat operational change record and factual
+pressure rows. Tasks has event-specific context, textual totals, a connected
+controls/register region and plain priority text. All four implementation
+guardrails were applied. Team remains locked.
+
+Assistance included scoped JSX/CSS/i18n changes, a focused browser harness,
+one priority-selector update to the existing responsive test, verification
+and appended evidence. Domain/attention/timing/acceptance, navigation/history,
+fixtures/clock/storage, shell/palette/font and dependencies were preserved.
+There were no backend, database, authentication, new assets, Plan B/Templates
+redesign or Change Consequence Path changes. The unrelated shortcut was left
+untouched and excluded from staging.
+
+Passed: all required format/lint/typecheck/test/build/diff checks, 94 unit
+tests, 58 final composition matrix/boundary cases, 13 existing Dashboard
+cases and 49 existing Team cases. Final browser runs had no application
+console warnings/errors, uncaught errors or document overflow. All 16
+controlled Team screenshots match the baseline byte-for-byte.
+
+The implementing agent performed a separate fresh read-only diff/render
+review; no independent person or second agent is claimed. Confirmed fixes
+addressed selected-priority contrast, tablet Tasks header alignment and
+mobile milestone spacing. Harness-only hidden-text/Intl whitespace issues
+and an interrupted preview run were corrected and rerun. Exact scope,
+commands, matrix, findings and limitations are recorded in
+`docs/TEST_EVIDENCE.md`. Automated evidence does not imply human acceptance
+of the final UI or real-user research. Historical 2025–2026 competition
+requirements need verification for later competition years.

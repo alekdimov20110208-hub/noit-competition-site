@@ -169,7 +169,7 @@ const UI_EN_MESSAGES = {
   "dashboard.attention.action.acknowledge": "Accept task",
   "dashboard.attention.action.reviewCritical": "Review upcoming deadline",
   "dashboard.timeline.label": "Preparation time",
-  "dashboard.timeline.title": "Tasks and milestones",
+  "dashboard.timeline.title": "Seminar preparation",
   "dashboard.timeline.description":
     "One sequence for immediate work, near-term deadlines, and later preparation.",
   "dashboard.timeline.window.current": "Current or missed",
@@ -220,8 +220,7 @@ const UI_EN_MESSAGES = {
   "dashboard.milestones.collapse": "Show fewer milestones",
   "tasks.eyebrow": "Preparation work",
   "tasks.title": "Tasks",
-  "tasks.description":
-    "Ownership, deadlines, dependencies, and current status for event preparation.",
+  "tasks.description": "Seminar preparation register · {event}",
   "tasks.resultCount": "{visible} of {total} tasks",
   "tasks.summary.label": "Task summary",
   "tasks.summary.total": "Total",
@@ -503,7 +502,7 @@ const UI_BG_MESSAGES = {
   "dashboard.attention.action.acknowledge": "Приемане на задачата",
   "dashboard.attention.action.reviewCritical": "Преглед на предстоящия срок",
   "dashboard.timeline.label": "Време за подготовка",
-  "dashboard.timeline.title": "Задачи и ключови етапи",
+  "dashboard.timeline.title": "Подготовка на семинара",
   "dashboard.timeline.description":
     "Една последователност за незабавната работа, близките срокове и по-късната подготовка.",
   "dashboard.timeline.window.current": "Текущи или пропуснати",
@@ -555,8 +554,7 @@ const UI_BG_MESSAGES = {
   "dashboard.milestones.collapse": "Показване на по-малко етапи",
   "tasks.eyebrow": "Подготвителна работа",
   "tasks.title": "Задачи",
-  "tasks.description":
-    "Отговорности, срокове, зависимости и текущ статус на подготовката.",
+  "tasks.description": "Регистър за подготовката на семинара · {event}",
   "tasks.resultCount": "{visible} от {total} задачи",
   "tasks.summary.label": "Обобщение на задачите",
   "tasks.summary.total": "Всички",

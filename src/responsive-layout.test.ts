@@ -29,7 +29,7 @@ test("Tasks use a purpose-built mobile summary instead of stacked desktop column
   );
   assert.match(
     styles,
-    /@media \(max-width: 600px\) \{[\s\S]*\.task-row__context \.status-badge,[\s\S]*\.task-row__status \.status-badge\s*\{[^}]*font-size:\s*0\.75rem;/,
+    /@media \(max-width: 600px\) \{[\s\S]*\.task-priority,[\s\S]*\.task-row__status \.status-badge\s*\{[^}]*font-size:\s*0\.75rem;/,
   );
   assert.match(
     styles,

@@ -61,15 +61,16 @@ export function PreparationTimeline({
       return (
         <li className="timeline-entry timeline-entry--milestone" key={entry.id}>
           {date}
-          <span className="timeline-entry__rail" aria-hidden="true" />
           <span className="timeline-entry__body">
-            <span className="timeline-entry__kind">
-              {t("dashboard.timeline.milestone")}
-            </span>
             <strong>{entry.milestone.title}</strong>
-          </span>
-          <span className="timeline-entry__state timeline-entry__state--milestone">
-            {t(MILESTONE_STATUS_MESSAGE_KEYS[entry.milestone.status])}
+            <span className="timeline-entry__meta">
+              <span className="timeline-entry__kind">
+                {t("dashboard.timeline.milestone")}
+              </span>
+              <span className="timeline-entry__state timeline-entry__state--milestone">
+                {t(MILESTONE_STATUS_MESSAGE_KEYS[entry.milestone.status])}
+              </span>
+            </span>
           </span>
         </li>
       );
@@ -85,20 +86,22 @@ export function PreparationTimeline({
           data-task-focus-key={`timeline:${entry.task.id}`}
         >
           {date}
-          <span className="timeline-entry__rail" aria-hidden="true" />
           <span className="timeline-entry__body">
-            <span className="timeline-entry__kind">
-              {t("dashboard.timeline.task")}
-            </span>
             <strong>{entry.task.title}</strong>
-            <span>
-              {t("taskDetails.owner")}: {owner?.name ?? t("common.unassigned")}
+            <span className="timeline-entry__meta">
+              <span className="timeline-entry__kind">
+                {t("dashboard.timeline.task")}
+              </span>
+              <span className="timeline-entry__owner">
+                {t("taskDetails.owner")}:{" "}
+                {owner?.name ?? t("common.unassigned")}
+              </span>
+              <span
+                className={`timeline-entry__state timeline-entry__state--${entry.task.status}`}
+              >
+                {t(TASK_STATUS_MESSAGE_KEYS[entry.task.status])}
+              </span>
             </span>
-          </span>
-          <span
-            className={`timeline-entry__state timeline-entry__state--${entry.task.status}`}
-          >
-            {t(TASK_STATUS_MESSAGE_KEYS[entry.task.status])}
           </span>
         </AppLink>
       </li>
@@ -109,7 +112,6 @@ export function PreparationTimeline({
     <section className="preparation-timeline" aria-labelledby="timeline-title">
       <header className="dashboard-section-heading dashboard-section-heading--action">
         <div>
-          <p>{t("dashboard.timeline.label")}</p>
           <h2 id="timeline-title">{t("dashboard.timeline.title")}</h2>
         </div>
         <button
@@ -121,9 +123,6 @@ export function PreparationTimeline({
           <ArrowRight size={15} aria-hidden="true" />
         </button>
       </header>
-      <p className="dashboard-section-description">
-        {t("dashboard.timeline.description")}
-      </p>
 
       {entries.length === 0 ? (
         <EmptyState

@@ -48,62 +48,65 @@ export function ChangeImpact({
         key={change.id}
       >
         <header>
-          <div className="change-impact__signals">
+          <div className="change-impact__identity">
+            <h3>{change.title}</h3>
             <span>{t(CHANGE_SEVERITY_MESSAGE_KEYS[change.severity])}</span>
-            <span>{t(CHANGE_STATUS_MESSAGE_KEYS[change.responseStatus])}</span>
           </div>
-          <h3>{change.title}</h3>
           <p>{change.description}</p>
+        </header>
+
+        <div className="change-impact__details">
+          <section>
+            <strong>{t("changes.affectedWork")}</strong>
+            <div className="change-impact__affected">
+              <span>
+                {plural(affectedTasks.length, {
+                  one: "dashboard.changes.affectedTasks.one",
+                  other: "dashboard.changes.affectedTasks.other",
+                })}
+              </span>
+              <ul>
+                {change.affectedAreas.map((area) => (
+                  <li key={area}>{area}</li>
+                ))}
+              </ul>
+            </div>
+          </section>
           <div className="change-impact__meta">
-            <span>
+            <strong>
               {t("changes.responseOwner", {
                 owner: owner?.name ?? t("common.unassigned"),
               })}
-            </span>
+            </strong>
+            <span>{t(CHANGE_STATUS_MESSAGE_KEYS[change.responseStatus])}</span>
             <span>
               {t("changes.reported", {
                 date: formatDateTime(change.reportedAt),
               })}
             </span>
           </div>
-        </header>
-
-        <div className="change-impact__details">
-          <section>
-            <strong>{t("changes.affectedWork")}</strong>
-            <span>
-              {plural(affectedTasks.length, {
-                one: "dashboard.changes.affectedTasks.one",
-                other: "dashboard.changes.affectedTasks.other",
-              })}
-            </span>
-            <ul>
-              {change.affectedAreas.map((area) => (
-                <li key={area}>{area}</li>
-              ))}
-            </ul>
-          </section>
           <section>
             <strong>{t("changes.currentResponse")}</strong>
-            <p>{change.response}</p>
+            <div className="change-impact__response">
+              <p>{change.response}</p>
+              {checkpoint && (
+                <AppLink
+                  href={createTaskHref(checkpoint.id)}
+                  onNavigate={() => onOpenTask(checkpoint.id)}
+                  className="change-impact__checkpoint"
+                  data-task-focus-key={`change:${change.id}:checkpoint:${checkpoint.id}`}
+                >
+                  <span>{t("dashboard.changes.nextCheckpoint")}</span>
+                  <strong>{checkpoint.title}</strong>
+                  <time dateTime={checkpoint.deadline}>
+                    {formatRelativeDate(checkpoint.deadline, now)} ·{" "}
+                    {formatDate(checkpoint.deadline)}
+                  </time>
+                </AppLink>
+              )}
+            </div>
           </section>
         </div>
-
-        {checkpoint && (
-          <AppLink
-            href={createTaskHref(checkpoint.id)}
-            onNavigate={() => onOpenTask(checkpoint.id)}
-            className="change-impact__checkpoint"
-            data-task-focus-key={`change:${change.id}:checkpoint:${checkpoint.id}`}
-          >
-            <span>{t("dashboard.changes.nextCheckpoint")}</span>
-            <strong>{checkpoint.title}</strong>
-            <time dateTime={checkpoint.deadline}>
-              {formatRelativeDate(checkpoint.deadline, now)} ·{" "}
-              {formatDate(checkpoint.deadline)}
-            </time>
-          </AppLink>
-        )}
       </article>
     );
   }

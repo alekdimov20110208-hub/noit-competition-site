@@ -1878,3 +1878,133 @@ Reproduction: build, start a production preview and run
 variables documented for the existing suites. Final screenshots/report are
 ignored under `tmp/phase-2b-4b-evidence/`; the controlled baseline comparison
 is under `tmp/phase-2b-4b-before/`. No runtime package was installed.
+
+## Phase 2B.4C — Dashboard + Tasks human-led de-SaaS refinement — 2026-10-02
+
+### Scope and controlled baseline
+
+Implemented the approved `BUDOGRAPH_2B4C_DESAAS_DESIGN_CONTRACT.md` from
+`6386bd2a95e0342aadf9f44f160e621cc21c49ac`. The four human-provided screenshots
+and the approved contract drove the work. A controlled browser baseline was
+captured before code changes: 24 page cases, Dashboard factual snapshots, and
+16 Team images (initial and second-member selection at eight configurations).
+These are synthetic demo observations, not real-user feedback.
+
+Group 1 removed the Event Overview hero shell, decorative metadata icons and
+KPI layout; retained all event facts/counts and the exact accessible progress;
+made queue titles precede plain action guidance, reasons and metadata; and
+made the preparation sequence date-led without rails/dots. Group 2 flattened
+change records into change/impact/owner/response relationships with an adjacent
+checkpoint, separated severity from response status, and joined pressure
+signals/counts after removing Dashboard-only initials and tinted person rows.
+Both groups passed focused tests and their own 16-case Dashboard/Team browser
+review before the next group began.
+
+Group 3 added the approved event-specific Tasks context, a single wrapping
+textual totals summary, and a common controls/results region. Priority is
+plain semantic text next to category. Register columns, lifecycle badges,
+acceptance, initials, chevrons, links, row sizing and responsive modes remain.
+All four contract guardrails are implemented without replacement pills or
+stat tiles. No architecture or data semantics were redesigned.
+
+### Verification
+
+All required checks passed: `pnpm.cmd format`, `pnpm.cmd format:check`,
+`pnpm.cmd lint`, `pnpm.cmd typecheck`, `pnpm.cmd test` (**94/94**),
+`pnpm.cmd build`, and `git diff --check`. The new browser script also passed
+an explicit Prettier check. Group 1 and Group 2 focused runs each passed
+30 tests; the Tasks focused run passed 21 tests.
+
+The final production build was served with Vite preview at
+`http://127.0.0.1:5190`, using the existing Playwright runtime and installed
+headless Microsoft Edge. No dependencies were installed.
+
+| Width × height | Language | Theme | Pages                  |
+| -------------- | -------- | ----- | ---------------------- |
+| 1440 × 1000    | EN       | Light | Dashboard, Tasks, Team |
+| 1440 × 1000    | EN       | Dark  | Dashboard, Tasks, Team |
+| 1280 × 900     | BG       | Light | Dashboard, Tasks, Team |
+| 1024 × 900     | EN       | Light | Dashboard, Tasks, Team |
+| 768 × 1024     | EN       | Light | Dashboard, Tasks, Team |
+| 390 × 844      | BG       | Light | Dashboard, Tasks, Team |
+| 360 × 800      | EN       | Dark  | Dashboard, Tasks, Team |
+| 320 × 740      | BG       | Dark  | Dashboard, Tasks, Team |
+
+`tests/desaas-composition.browser.mjs`: **24 page cases + 34 boundary cases**.
+Tasks was checked in EN and BG at **1280, 1100, 1024, 1000, 980, 970, 961,
+960, 900, 800, 768, 600, 430, 420, 390, 360 and 320 px**. Every boundary checks
+ungrouped/grouped row geometry, popup bounds, keyboard operation, heading
+alignment and document overflow. No existing breakpoint was moved.
+
+The harness compares Dashboard facts to the controlled baseline when present
+and independently verifies demo facts/counts/progress, canonical attention
+order/reasons/owners, timeline windows/order/previews/kinds/lifecycle, change
+fields/checkpoint, and pressure membership/order/roles/counts. Tasks checks
+all four cell roles, category/priority, ownership/acceptance, deadlines and
+lifecycle; event-wide totals remain unchanged by search and each filter.
+It exercises empty search/clear, grouping, invalid links, task opening,
+Back/Forward, reload with a task open, Escape and focus restoration.
+Keyboard listbox navigation/cancellation, drawer focus trap, nested Escape,
+44 px controls, sampled text contrast and native disclosures are checked.
+The existing Dashboard suite also covers dense disclosures and reduced motion.
+
+Existing unmodified suites passed: `tests/dashboard-disclosure.browser.mjs`
+(**13 cases**) and `tests/team-workspace.browser.mjs` including its imported
+edge suite (**49 cases**). Final runs reported **zero application console
+warnings/errors, zero uncaught page errors and no document-level horizontal
+overflow**.
+
+All 16 final Team images match the baseline byte-for-byte. Team source,
+styles and navigation remain unchanged. Direct comparisons also confirmed
+unchanged palette/font/shell/shared pre-Dashboard CSS, Drawer and Changes CSS
+blocks, components, domain, data, routes, App and package/lock files.
+
+### Fresh read-only review and fixes
+
+A separate read-only pass reviewed the complete diff and rendered screenshots
+against the requested checklist. It was performed by the implementing agent;
+no second agent or human acceptance of the finished interface is claimed.
+Screenshots were inspected in both themes/languages across the matrix, with
+additional Tasks inspection at 961/960, 600 and 420 px, and Dashboard lower
+sections at desktop and 390/320 px.
+
+Confirmed findings were fixed within scope: plain Important text on the
+selected row had 4.42:1 contrast, so that state now uses the existing ink token;
+the Tasks header inherited centered alignment at 768 px after totals moved,
+so Tasks alone now aligns its header with the working region; a redundant
+phone padding override suppressed the milestone spacing, so it was removed.
+Regression assertions cover these cases and affected browser checks were rerun.
+No further confirmed information loss, behavior change, clipping, weak
+checkpoint affordance, replacement KPI/pill pattern or Team regression remained
+in this pass.
+
+Intermediate non-passing runs are not counted as evidence. The harness was
+corrected to use DOM text for closed timeline disclosures and normalize
+Node/browser Intl date-range whitespace. One Team run overlapped a production
+rebuild and encountered a transient preview HTTP failure; its complete rerun
+against the stable build passed all 49 cases.
+
+Intentional differences remain: Dashboard is a flat operational readout;
+Tasks retains its useful table surface and lifecycle badges; Team retains its
+locked roster/detail layout and larger person/task type. The existing phone
+Event Overview still hides guest text and Review all tasks, with Tasks
+available through existing navigation. Queue/timeline heights remain natural,
+not artificially equal. Other-browser, physical-device, human screen-reader
+and real-user testing are not claimed. Competition-year-specific 2025–2026
+NOIT requirements require verification for later years.
+
+Changed files: the five Dashboard components, `src/pages/TasksPage.tsx`,
+`src/i18n/messages.ts`, `src/styles.css`, `src/responsive-layout.test.ts`,
+`tests/desaas-composition.browser.mjs`, and appended entries in this evidence
+file and `docs/AI_ASSISTANCE_LOG.md`. No backend, authentication, database,
+dependency, asset, demo clock/storage, Plan B/Templates redesign or Change
+Consequence Path work occurred. The unrelated untracked shortcut was not
+read, modified, deleted, staged or committed.
+
+Reproduce after building and starting a production preview:
+`node tests/desaas-composition.browser.mjs`, with optional
+`PLAYWRIGHT_MODULE_PATH`, `BROWSER_EXECUTABLE_PATH` and `BUDOGRAPH_BASE_URL`.
+`BUDOGRAPH_REVIEW_STAGE` defaults to `final`; `baseline`, `group1` and `group2`
+are available for staged comparison. Ignored screenshots/factual snapshots
+and JSON reports are under `tmp/phase-2b-4c-evidence/`. Baseline comparison is
+additional to the fixture-derived assertions and requires the saved baseline.

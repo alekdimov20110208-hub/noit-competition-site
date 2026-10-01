@@ -40,10 +40,8 @@ export function OperationalFocus({
     <section className="operational-focus" aria-labelledby="focus-title">
       <header className="dashboard-section-heading">
         <div>
-          <p>{t("dashboard.attention.eyebrow")}</p>
           <h2 id="focus-title">{t("dashboard.attention.title")}</h2>
         </div>
-        <span>{t("dashboard.attention.description")}</span>
       </header>
 
       {tasks.length === 0 ? (
@@ -53,7 +51,7 @@ export function OperationalFocus({
         />
       ) : (
         <ol className="focus-list" id={listId}>
-          {visibleTasks.map((task, index) => {
+          {visibleTasks.map((task) => {
             const overdue = isTaskOverdue(task, now);
             const owner = members.get(task.ownerId);
             const risk =
@@ -67,22 +65,11 @@ export function OperationalFocus({
                   className={`focus-item focus-item--${risk}`}
                   data-task-focus-key={`focus:${task.id}`}
                 >
-                  <span className="focus-item__number" aria-hidden="true">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
                   <span className="focus-item__body">
-                    <span className="focus-item__topline">
-                      <span className="focus-item__action">
-                        {t(getAttentionActionKey(task, overdue))}
-                      </span>
-                      <span
-                        className={`focus-item__priority focus-item__priority--${task.priority}`}
-                      >
-                        {t("taskDetails.priority")}:{" "}
-                        {t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
-                      </span>
-                    </span>
                     <strong>{task.title}</strong>
+                    <span className="focus-item__action">
+                      {t(getAttentionActionKey(task, overdue))}
+                    </span>
                     <span className="focus-item__reason">
                       {getAttentionReason(task, now, i18n)}
                     </span>
@@ -99,6 +86,12 @@ export function OperationalFocus({
                           { date: formatDate(task.deadline) },
                         )}
                       </time>
+                      <span
+                        className={`focus-item__priority focus-item__priority--${task.priority}`}
+                      >
+                        {t("taskDetails.priority")}:{" "}
+                        {t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
+                      </span>
                     </span>
                   </span>
                 </AppLink>

@@ -5,7 +5,6 @@ import {
   type TeamWorkload,
 } from "../../domain/workspace.ts";
 import { useI18n, type MessageKey } from "../../i18n/index.ts";
-import { getInitials } from "../../utils/format.ts";
 import { DashboardDisclosure } from "./DashboardDisclosure.tsx";
 import {
   getWorkloadSignal,
@@ -41,24 +40,23 @@ export function TeamPressure({ workloads, onNavigate }: TeamPressureProps) {
         className={`pressure-row pressure-row--${signal}`}
         key={workload.member.id}
       >
-        <div className="avatar avatar--small" aria-hidden="true">
-          {getInitials(workload.member.name)}
-        </div>
         <span className="pressure-row__identity">
           <strong>{workload.member.name}</strong>
           <span>{workload.member.role}</span>
         </span>
-        <span className="pressure-row__signal">
-          {t(WORKLOAD_SIGNAL_KEYS[signal], {
-            threshold: formatNumber(HIGH_ACTIVE_LOAD_THRESHOLD),
-          })}
-        </span>
-        <span className="pressure-row__counts">
-          {t("dashboard.workload.pressureSummary", {
-            blocked: formatNumber(workload.blocked),
-            overdue: formatNumber(workload.overdue),
-            active: formatNumber(workload.active),
-          })}
+        <span className="pressure-row__context">
+          <span className="pressure-row__signal">
+            {t(WORKLOAD_SIGNAL_KEYS[signal], {
+              threshold: formatNumber(HIGH_ACTIVE_LOAD_THRESHOLD),
+            })}
+          </span>
+          <span className="pressure-row__counts">
+            {t("dashboard.workload.pressureSummary", {
+              blocked: formatNumber(workload.blocked),
+              overdue: formatNumber(workload.overdue),
+              active: formatNumber(workload.active),
+            })}
+          </span>
         </span>
       </article>
     );

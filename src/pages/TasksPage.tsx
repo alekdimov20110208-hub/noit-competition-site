@@ -95,12 +95,6 @@ function TaskList({
         const owner = memberById.get(task.ownerId);
         const overdue = isTaskOverdue(task, now);
         const selected = selectedTaskId === task.id;
-        const priorityTone =
-          task.priority === "critical"
-            ? "critical"
-            : task.priority === "important"
-              ? "warning"
-              : "neutral";
 
         return (
           <div
@@ -124,11 +118,11 @@ function TaskList({
               <div className="task-row__context">
                 <span>{task.category}</span>
                 {task.priority !== "normal" && (
-                  <StatusBadge
-                    compact
-                    tone={priorityTone}
-                    label={t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
-                  />
+                  <span
+                    className={`task-priority task-priority--${task.priority}`}
+                  >
+                    {t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
+                  </span>
                 )}
               </div>
             </div>
@@ -205,6 +199,7 @@ export function TasksPage({
     () => state.tasks.filter((task) => task.eventId === state.currentEventId),
     [state.currentEventId, state.tasks],
   );
+  const event = state.events.find((event) => event.id === state.currentEventId);
   const categories = useMemo(() => getTaskCategories(eventTasks), [eventTasks]);
   const filters = useMemo<TaskFilters>(
     () => ({
@@ -304,28 +299,26 @@ export function TasksPage({
     <div className="page page--tasks">
       <PageHeader
         title={t("tasks.title")}
-        description={t("tasks.description")}
-        actions={
-          <dl className="tasks-overview" aria-label={t("tasks.summary.label")}>
-            <div>
-              <dt>{t("tasks.summary.total")}</dt>
-              <dd>{formatNumber(counts.total)}</dd>
-            </div>
-            <div>
-              <dt>{t("tasks.summary.active")}</dt>
-              <dd>{formatNumber(counts.active)}</dd>
-            </div>
-            <div>
-              <dt>{t("tasks.summary.blocked")}</dt>
-              <dd>{formatNumber(counts.blocked)}</dd>
-            </div>
-            <div className="tasks-overview__risk">
-              <dt>{t("tasks.summary.overdue")}</dt>
-              <dd>{formatNumber(counts.overdue)}</dd>
-            </div>
-          </dl>
-        }
+        description={t("tasks.description", { event: event?.name ?? "" })}
       />
+      <dl className="tasks-overview" aria-label={t("tasks.summary.label")}>
+        <div>
+          <dt>{t("tasks.summary.total")}</dt>
+          <dd>{formatNumber(counts.total)}</dd>
+        </div>
+        <div>
+          <dt>{t("tasks.summary.active")}</dt>
+          <dd>{formatNumber(counts.active)}</dd>
+        </div>
+        <div>
+          <dt>{t("tasks.summary.blocked")}</dt>
+          <dd>{formatNumber(counts.blocked)}</dd>
+        </div>
+        <div className="tasks-overview__risk">
+          <dt>{t("tasks.summary.overdue")}</dt>
+          <dd>{formatNumber(counts.overdue)}</dd>
+        </div>
+      </dl>
 
       {invalidTaskId && (
         <div className="notice notice--warning" role="status">
@@ -344,139 +337,144 @@ export function TasksPage({
         </div>
       )}
 
-      <section className="task-filters" aria-label={t("tasks.filters.label")}>
-        <div className="task-search">
-          <Search size={17} aria-hidden="true" />
-          <label className="sr-only" htmlFor="task-search">
-            {t("tasks.filters.search")}
-          </label>
-          <input
-            id="task-search"
-            type="search"
-            value={searchQuery}
-            placeholder={t("tasks.filters.searchPlaceholder")}
-            autoComplete="off"
-            onChange={(event) => setSearchQuery(event.target.value)}
-          />
-        </div>
+      <div className="task-workspace">
+        <section className="task-filters" aria-label={t("tasks.filters.label")}>
+          <div className="task-search">
+            <Search size={17} aria-hidden="true" />
+            <label className="sr-only" htmlFor="task-search">
+              {t("tasks.filters.search")}
+            </label>
+            <input
+              id="task-search"
+              type="search"
+              value={searchQuery}
+              placeholder={t("tasks.filters.searchPlaceholder")}
+              autoComplete="off"
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+          </div>
 
-        <div className="task-filter-controls">
-          <BudoSelect<TaskStatus | "all">
-            id="status-filter"
-            className={`task-filter-select ${statusFilter !== "all" ? "is-filtered" : ""}`}
-            label={t("tasks.filters.status")}
-            labelMode="sr-only"
-            value={statusFilter}
-            options={statusOptions}
-            onChange={setStatusFilter}
-            icon={<ListFilter size={15} aria-hidden="true" />}
-            popupMinWidth={190}
-          />
+          <div className="task-filter-controls">
+            <BudoSelect<TaskStatus | "all">
+              id="status-filter"
+              className={`task-filter-select ${statusFilter !== "all" ? "is-filtered" : ""}`}
+              label={t("tasks.filters.status")}
+              labelMode="sr-only"
+              value={statusFilter}
+              options={statusOptions}
+              onChange={setStatusFilter}
+              icon={<ListFilter size={15} aria-hidden="true" />}
+              popupMinWidth={190}
+            />
 
-          <BudoSelect
-            id="owner-filter"
-            className={`task-filter-select task-filter-select--owner ${ownerFilter !== "all" ? "is-filtered" : ""}`}
-            label={t("tasks.filters.owner")}
-            labelMode="sr-only"
-            value={ownerFilter}
-            options={ownerOptions}
-            onChange={setOwnerFilter}
-            icon={<UserRound size={15} aria-hidden="true" />}
-            popupMinWidth={220}
-          />
+            <BudoSelect
+              id="owner-filter"
+              className={`task-filter-select task-filter-select--owner ${ownerFilter !== "all" ? "is-filtered" : ""}`}
+              label={t("tasks.filters.owner")}
+              labelMode="sr-only"
+              value={ownerFilter}
+              options={ownerOptions}
+              onChange={setOwnerFilter}
+              icon={<UserRound size={15} aria-hidden="true" />}
+              popupMinWidth={220}
+            />
 
-          <BudoSelect
-            id="category-filter"
-            className={`task-filter-select task-filter-select--category ${categoryFilter !== "all" ? "is-filtered" : ""}`}
-            label={t("tasks.filters.category")}
-            labelMode="sr-only"
-            value={categoryFilter}
-            options={categoryOptions}
-            onChange={setCategoryFilter}
-            icon={<Tag size={15} aria-hidden="true" />}
-            popupMinWidth={260}
-          />
+            <BudoSelect
+              id="category-filter"
+              className={`task-filter-select task-filter-select--category ${categoryFilter !== "all" ? "is-filtered" : ""}`}
+              label={t("tasks.filters.category")}
+              labelMode="sr-only"
+              value={categoryFilter}
+              options={categoryOptions}
+              onChange={setCategoryFilter}
+              icon={<Tag size={15} aria-hidden="true" />}
+              popupMinWidth={260}
+            />
 
-          <button
-            type="button"
-            className={`group-toggle ${groupByOwner ? "is-active" : ""}`}
-            aria-pressed={groupByOwner}
-            onClick={() => setGroupByOwner((current) => !current)}
-          >
-            <Layers3 size={15} aria-hidden="true" />{" "}
-            {t("tasks.filters.groupByOwner")}
-          </button>
-
-          {filtersActive && (
             <button
               type="button"
-              className="task-filters__clear"
-              onClick={clearFilters}
+              className={`group-toggle ${groupByOwner ? "is-active" : ""}`}
+              aria-pressed={groupByOwner}
+              onClick={() => setGroupByOwner((current) => !current)}
             >
-              <RotateCcw size={14} aria-hidden="true" />{" "}
-              {t("tasks.filters.clear")}
+              <Layers3 size={15} aria-hidden="true" />{" "}
+              {t("tasks.filters.groupByOwner")}
             </button>
-          )}
-        </div>
 
-        <div className="task-filters__result" aria-live="polite">
-          {t("tasks.resultCount", {
-            visible: formatNumber(filteredTasks.length),
-            total: formatNumber(eventTasks.length),
-          })}
-        </div>
-      </section>
-
-      <div id="task-results">
-        {filteredTasks.length === 0 ? (
-          <EmptyState
-            title={t("tasks.empty.title")}
-            description={t("tasks.empty.description")}
-            action={
+            {filtersActive && (
               <button
-                className="button button--secondary"
+                type="button"
+                className="task-filters__clear"
                 onClick={clearFilters}
               >
-                <RotateCcw size={16} aria-hidden="true" />{" "}
-                {t("tasks.empty.clear")}
+                <RotateCcw size={14} aria-hidden="true" />{" "}
+                {t("tasks.filters.clear")}
               </button>
-            }
-          />
-        ) : groupByOwner ? (
-          <div className="task-groups">
-            {groupedTasks.map(({ member, tasks }) => (
-              <section className="task-group" key={member?.id ?? "unassigned"}>
-                <header>
-                  <span className="avatar" aria-hidden="true">
-                    {member ? getInitials(member.name) : "—"}
-                  </span>
-                  <div>
-                    <h2>{member?.name ?? t("common.unassigned")}</h2>
-                    <p>
-                      {plural(
-                        tasks.length,
-                        {
-                          one: "tasks.group.assigned.one",
-                          other: "tasks.group.assigned.other",
-                        },
-                        { role: member?.role ?? t("common.unassigned") },
-                      )}
-                    </p>
-                  </div>
-                </header>
-                <TaskList
-                  now={now}
-                  tasks={tasks}
-                  members={state.teamMembers}
-                  selectedTaskId={selectedTaskId}
-                  onOpen={onOpenTask}
-                />
-              </section>
-            ))}
+            )}
           </div>
-        ) : (
-          taskList
-        )}
+
+          <div className="task-filters__result" aria-live="polite">
+            {t("tasks.resultCount", {
+              visible: formatNumber(filteredTasks.length),
+              total: formatNumber(eventTasks.length),
+            })}
+          </div>
+        </section>
+
+        <div id="task-results">
+          {filteredTasks.length === 0 ? (
+            <EmptyState
+              title={t("tasks.empty.title")}
+              description={t("tasks.empty.description")}
+              action={
+                <button
+                  className="button button--secondary"
+                  onClick={clearFilters}
+                >
+                  <RotateCcw size={16} aria-hidden="true" />{" "}
+                  {t("tasks.empty.clear")}
+                </button>
+              }
+            />
+          ) : groupByOwner ? (
+            <div className="task-groups">
+              {groupedTasks.map(({ member, tasks }) => (
+                <section
+                  className="task-group"
+                  key={member?.id ?? "unassigned"}
+                >
+                  <header>
+                    <span className="avatar" aria-hidden="true">
+                      {member ? getInitials(member.name) : "—"}
+                    </span>
+                    <div>
+                      <h2>{member?.name ?? t("common.unassigned")}</h2>
+                      <p>
+                        {plural(
+                          tasks.length,
+                          {
+                            one: "tasks.group.assigned.one",
+                            other: "tasks.group.assigned.other",
+                          },
+                          { role: member?.role ?? t("common.unassigned") },
+                        )}
+                      </p>
+                    </div>
+                  </header>
+                  <TaskList
+                    now={now}
+                    tasks={tasks}
+                    members={state.teamMembers}
+                    selectedTaskId={selectedTaskId}
+                    onOpen={onOpenTask}
+                  />
+                </section>
+              ))}
+            </div>
+          ) : (
+            taskList
+          )}
+        </div>
       </div>
 
       <TaskDrawer
