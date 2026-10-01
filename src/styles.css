@@ -974,7 +974,7 @@ h3 {
 }
 
 .event-overview__metric--overdue dd {
-  color: var(--time-on-structure);
+  color: var(--risk-on-structure);
 }
 
 .dashboard-command-grid {
@@ -1124,19 +1124,20 @@ h3 {
 
 .focus-item__action {
   color: var(--decision);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.015em;
 }
 
 .focus-item__body strong {
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   line-height: 1.4;
+  font-weight: 700;
 }
 
 .focus-item__reason {
   color: var(--ink-soft);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   line-height: 1.4;
 }
 
@@ -1145,14 +1146,14 @@ h3 {
   flex-wrap: wrap;
   gap: 4px 14px;
   color: var(--ink-soft);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   line-height: 1.4;
 }
 
 .focus-item__priority {
   flex: 0 0 auto;
   color: var(--ink-soft);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 780;
   letter-spacing: 0.01em;
 }
@@ -1175,7 +1176,7 @@ h3 {
   margin: 0;
   padding-bottom: 8px;
   color: var(--warning);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 790;
   letter-spacing: 0.01em;
 }
@@ -1201,7 +1202,7 @@ h3 {
 
 .timeline-entry > time {
   color: var(--ink-soft);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -1241,25 +1242,26 @@ h3 {
 
 .timeline-entry__kind {
   color: var(--ink-soft);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 780;
   letter-spacing: 0.01em;
 }
 
 .timeline-entry__body strong {
-  font-size: 0.76rem;
+  font-size: 0.875rem;
   line-height: 1.4;
+  font-weight: 700;
 }
 
 .timeline-entry__body > span:last-child:not(.timeline-entry__kind) {
   color: var(--ink-soft);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   line-height: 1.4;
 }
 
 .timeline-entry__state {
   color: var(--ink-soft);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 720;
   text-align: right;
 }
@@ -1287,9 +1289,11 @@ h3 {
   padding: 10px 0;
   color: var(--decision);
   cursor: pointer;
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 750;
   list-style-position: inside;
+  min-height: 44px;
+  line-height: 1.5;
 }
 
 .dashboard-overflow__content {
@@ -1329,7 +1333,7 @@ h3 {
   gap: 5px 16px;
   margin-bottom: 9px;
   color: var(--process);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 790;
   letter-spacing: 0.01em;
 }
@@ -1347,7 +1351,7 @@ h3 {
 .change-impact__details p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   line-height: 1.55;
 }
 
@@ -1357,7 +1361,7 @@ h3 {
   gap: 5px 18px;
   margin-top: 10px;
   color: var(--ink-soft);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
 }
 
 .change-impact__details {
@@ -1378,14 +1382,14 @@ h3 {
   display: block;
   margin-bottom: 5px;
   color: var(--ink-soft);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 790;
   letter-spacing: 0.01em;
 }
 
 .change-impact__details section > span {
   color: var(--ink-soft);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
 }
 
 .change-impact__details ul {
@@ -1399,7 +1403,7 @@ h3 {
 
 .change-impact__details li {
   color: var(--ink);
-  font-size: 0.69rem;
+  font-size: 0.75rem;
 }
 
 .change-impact__checkpoint {
@@ -1419,13 +1423,14 @@ h3 {
 }
 
 .change-impact__checkpoint strong {
-  font-size: 0.74rem;
+  font-size: 0.875rem;
   line-height: 1.4;
+  font-weight: 700;
 }
 
 .change-impact__checkpoint time {
   color: var(--ink-soft);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   text-align: right;
 }
 
@@ -1469,19 +1474,21 @@ h3 {
 }
 
 .pressure-row__identity strong {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .pressure-row__identity span,
 .pressure-row__counts {
   color: var(--ink-soft);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   line-height: 1.4;
 }
 
 .pressure-row__signal {
   color: var(--warning);
-  font-size: 0.69rem;
+  font-size: 0.75rem;
   font-weight: 760;
 }
 
@@ -1514,7 +1521,7 @@ h3 {
 
 .team-pressure__quiet li {
   color: var(--ink-soft);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
 }
 
 .member-task-list {
@@ -1556,6 +1563,31 @@ h3 {
   height: 29px;
   border-radius: 8px;
   font-size: 0.55rem;
+}
+
+/* Comparable operational values keep a steady reading rhythm. */
+.event-overview__metrics dd,
+.event-overview__progress-value,
+.focus-item__meta time,
+.timeline-entry > time,
+.change-impact__checkpoint time,
+.pressure-row__counts,
+.tasks-overview dd,
+.task-filters__result,
+.task-deadline,
+.task-progress-meta dd,
+.task-drawer__metadata dd {
+  font-variant-numeric: tabular-nums;
+}
+
+.page--dashboard .text-button {
+  min-height: 44px;
+}
+
+.task-drawer__topbar .icon-button {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
 }
 
 /* Tasks */
@@ -1613,7 +1645,7 @@ h3 {
 
 .tasks-overview dt {
   color: var(--ink-soft);
-  font-size: 0.64rem;
+  font-size: 0.6875rem;
   font-weight: 780;
   letter-spacing: 0.05em;
   line-height: 1.2;
@@ -1646,7 +1678,7 @@ h3 {
 .task-search {
   display: flex;
   min-width: 0;
-  min-height: 38px;
+  min-height: 44px;
   align-items: center;
   gap: 8px;
   padding: 0 11px;
@@ -1668,13 +1700,13 @@ h3 {
 .task-search input {
   width: 100%;
   min-width: 0;
-  min-height: 34px;
+  min-height: 42px;
   padding: 0;
   border: 0;
   outline: 0;
   color: var(--ink);
   background: transparent;
-  font-size: 0.73rem;
+  font-size: 0.75rem;
 }
 
 .task-search input::placeholder {
@@ -1833,10 +1865,10 @@ h3 {
 }
 
 .task-filter-select .budo-select__trigger {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 8px;
   color: var(--ink-soft);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 680;
 }
 
@@ -1853,7 +1885,7 @@ h3 {
 .page--tasks .group-toggle,
 .task-filters__clear {
   display: inline-flex;
-  min-height: 36px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   gap: 6px;
@@ -1863,7 +1895,7 @@ h3 {
   color: var(--ink-soft);
   background: var(--surface-subtle);
   cursor: pointer;
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -1882,7 +1914,7 @@ h3 {
 
 .task-filters__result {
   color: var(--ink-soft);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 680;
   text-align: right;
   white-space: nowrap;
@@ -1915,9 +1947,9 @@ h3 {
   padding: 0 42px 0 18px;
   color: var(--ink-soft);
   background: var(--context-surface);
-  font-size: 0.61rem;
-  font-weight: 800;
-  letter-spacing: 0.075em;
+  font-size: 0.6875rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -1946,9 +1978,9 @@ h3 {
 
 .task-row__link {
   color: var(--ink);
-  font-size: 0.82rem;
-  font-weight: 770;
-  line-height: 1.35;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
   text-decoration: none;
 }
 
@@ -1974,12 +2006,12 @@ h3 {
 
 .task-row__context > span:first-child {
   color: var(--ink-soft);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
 }
 
 .task-row__context .status-badge {
   padding: 3px 6px;
-  font-size: 0.64rem;
+  font-size: 0.75rem;
 }
 
 .task-responsibility {
@@ -1999,7 +2031,7 @@ h3 {
 
 .task-owner > span:last-child {
   min-width: 0;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 680;
   line-height: 1.35;
 }
@@ -2009,7 +2041,7 @@ h3 {
   align-items: center;
   gap: 5px;
   color: var(--ink-soft);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 680;
   line-height: 1.2;
 }
@@ -2027,7 +2059,7 @@ h3 {
   min-width: 0;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -2037,7 +2069,7 @@ h3 {
 
 .task-deadline small {
   color: var(--ink-soft);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 520;
   line-height: 1.3;
 }
@@ -2058,7 +2090,7 @@ h3 {
 
 .task-row__status .status-badge {
   max-width: 100%;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
 }
 
 .task-row__chevron {
@@ -2107,7 +2139,7 @@ h3 {
 .task-group p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
 }
 
 .empty-state {
@@ -2287,12 +2319,13 @@ h3 {
 .task-drawer__owner > div > span,
 .task-drawer__owner small {
   color: var(--ink-soft);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
 }
 
 .task-drawer__owner strong {
-  font-size: 0.79rem;
-  line-height: 1.35;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  font-weight: 700;
 }
 
 .task-drawer__acceptance {
@@ -2326,14 +2359,14 @@ h3 {
 .task-drawer__acceptance-state p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
 .task-drawer__acceptance .button {
   min-height: 40px;
   margin-top: 13px;
-  font-size: 0.69rem;
+  font-size: 0.75rem;
 }
 
 .task-progress-panel {
@@ -2411,7 +2444,7 @@ h3 {
   gap: 5px;
   margin-bottom: 5px;
   color: var(--ink-soft);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 730;
 }
 
@@ -2419,7 +2452,7 @@ h3 {
 .task-drawer__metadata dd {
   margin: 0;
   color: var(--ink);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1.4;
 }
@@ -3409,11 +3442,11 @@ h3 {
   .task-acceptance,
   .task-deadline small,
   .task-row__status .status-badge {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 
   .task-row__context > span:first-child {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     line-height: 1.25;
   }
 
@@ -3818,12 +3851,12 @@ h3 {
 
   .focus-item__action,
   .focus-item__priority {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 
   .focus-item__reason,
   .focus-item__meta {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     line-height: 1.45;
   }
 
@@ -3841,7 +3874,7 @@ h3 {
   .timeline-entry > time,
   .timeline-entry__body > span:last-child:not(.timeline-entry__kind),
   .timeline-entry__state {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
 
   .change-impact__entry {

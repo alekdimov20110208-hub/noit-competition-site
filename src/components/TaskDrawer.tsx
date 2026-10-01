@@ -177,7 +177,6 @@ export function TaskDrawer({
             <div className="task-drawer__section-heading">
               <UserRound size={17} aria-hidden="true" />
               <div>
-                <span>{t("taskDetails.section.responsibilityLabel")}</span>
                 <h3 id="task-responsibility-heading">
                   {t("taskDetails.section.responsibility")}
                 </h3>
@@ -246,7 +245,6 @@ export function TaskDrawer({
             <div className="task-drawer__section-heading">
               <CircleDot size={17} aria-hidden="true" />
               <div>
-                <span>{t("taskDetails.section.progressLabel")}</span>
                 <h3 id="task-progress-heading">
                   {t("taskDetails.section.progress")}
                 </h3>
@@ -328,7 +326,6 @@ export function TaskDrawer({
           >
             <div className="task-drawer__section-heading">
               <div>
-                <span>{t("taskDetails.section.metadataLabel")}</span>
                 <h3 id="task-metadata-heading">
                   {t("taskDetails.section.metadata")}
                 </h3>

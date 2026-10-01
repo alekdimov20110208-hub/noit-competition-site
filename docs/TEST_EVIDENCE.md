@@ -1718,3 +1718,163 @@ Backend/auth, invitations/permissions, real collaboration, Plan B/Templates
 redesign and Change Consequence Path are not implemented by this phase. The
 2025–2026 competition requirements are historical and require verification for
 a later competition year.
+
+## Phase 2B.4B — cross-page design-language alignment — 2026-10-01
+
+Implemented the approved narrow alignment from baseline
+`7c585a1e3fec84ae1ffeba426f332f417d803b5e`. This is not a global redesign.
+Dashboard retains its five sections and operational ordering/limits; Tasks
+retains its four-column register, content-width compact treatment, mobile
+summary, filters and grouping. Team source, layout and content remain locked.
+
+### Scope and measured typography
+
+Dashboard focus, timeline and checkpoint titles and pressure names now use
+14 px/700; Tasks titles use 14 px/700 instead of 13.12 px/770. Operational
+metadata, owner/acceptance/deadline text and scoped status/priority labels use
+12 px. Register and compact summary labels remain subordinate at 11 px.
+Existing font families, semantic palette, surfaces, radius and shadows remain.
+Comparable dates/counts use tabular numerals in these scoped elements.
+
+EventOverview Overdue now uses `--risk-on-structure`, like Blocked; progress
+and preparation timing retain gold. Removed only Dashboard's “What changed”
+and “Team view”, Tasks' “Preparation work”, and TaskDrawer's “Ownership”,
+“Current state” and “Record” kickers. All h1/h2/h3 headings and section
+`aria-labelledby` relationships remain. “Task relationships” remains because
+it identifies the relationship context above “Operational context”. Other
+PageHeader callers still render their supplied eyebrow.
+
+Controlled before/after measurements use the same installed headless Edge,
+fresh isolated storage, language/theme and viewport. The before bundle was
+built from a Git archive of the exact baseline under ignored `tmp/`, using
+existing dependencies; it was served separately on port 5195. Its asset hashes
+match the audited baseline (`index-C2XmWAmA.css`, `index-CYNGnRfi.js`). The final
+bundle was served on port 5194 (`index-B8adJ7rs.css`, `index-CDEcCUEB.js`). These
+measurements supersede approximate cross-browser positions from Phase 2B.4A.
+
+| Representative measure, CSS px            |       Before |       After |
+| ----------------------------------------- | -----------: | ----------: |
+| Dashboard focus title, desktop            |        13.12 |          14 |
+| Dashboard focus metadata, desktop         |        10.88 |          12 |
+| Dashboard timeline title                  |        12.16 |          14 |
+| Dashboard pressure name                   |           12 |          14 |
+| Tasks title                               |        13.12 |          14 |
+| Tasks acceptance, desktop                 |        10.56 |          12 |
+| Tasks deadline / updated text             | 11.2 / 10.24 |     12 / 12 |
+| Dashboard text-button height, desktop     |           28 |          44 |
+| Dashboard disclosures, audit baseline     |     about 34 | at least 44 |
+| Tasks filter / grouping control height    |           36 | at least 44 |
+| Tasks search outer height                 |           38 |          44 |
+| TaskDrawer close control                  |      38 × 38 |     44 × 44 |
+| First Tasks row height, 1440 EN           |           76 |          76 |
+| First Dashboard focus row height, 1440 EN |        111.3 |       117.2 |
+
+The search input occupies 42 px inside its 44 px bordered wrapper. The 390 BG
+group button grows to fit its two-line label. Existing BudoSelect truncation
+in constrained triggers and complete option labels remain intact.
+
+### Browser matrix and vertical rhythm
+
+`tests/interface-alignment.browser.mjs` adds 21 cross-page cases and 18 Tasks
+boundary cases. Each primary row below covers Dashboard, Tasks and Team;
+positions are the document Y of the first operational row, before → after.
+
+| Viewport / language / theme |   Dashboard Y |       Tasks Y |        Team Y |
+| --------------------------- | ------------: | ------------: | ------------: |
+| 1440 × 1000 EN Light        | 542.1 → 542.1 | 337.2 → 320.2 | 242.3 → 242.3 |
+| 1440 × 1000 EN Dark         | 542.1 → 542.1 | 337.2 → 320.2 | 242.3 → 242.3 |
+| 1280 × 900 BG Light         | 621.6 → 621.6 | 380.8 → 371.8 | 237.9 → 237.9 |
+| 1024 × 900 EN Light         | 613.9 → 613.9 | 364.1 → 355.1 | 232.7 → 232.7 |
+| 390 × 844 BG Light          | 505.0 → 505.0 | 489.7 → 494.6 | 264.2 → 264.2 |
+| 360 × 800 EN Dark           | 476.6 → 476.6 | 621.2 → 639.0 | 241.7 → 241.7 |
+| 320 × 740 BG Dark           | 505.0 → 505.0 | 621.2 → 639.0 | 264.2 → 264.2 |
+
+Larger mobile controls cost 4.9 px at 390 and 17.8 px at 360/320 above the first
+Tasks row after removing the kicker. No new section or spacing system was
+added. Dashboard starts at the same Y; text wrapping makes the first focus
+row 20.9 px taller at 390, 23.2 px at 360 and 6.6 px at 320. This is the bounded
+readability tradeoff, not a claim that all row heights are unchanged.
+
+Tasks boundaries **1100, 1024, 1000, 980, 970, 961, 960, 900, 768** passed in
+both EN and BG. The existing available-width query produces compact rows at
+1100–961, four columns at 960 and 900 after the sidebar disappears, and compact
+rows again at 768. Grouped and ungrouped registers passed cell overflow,
+cell collision and badge/arrow checks. Every primary and boundary case had
+document scroll width equal to viewport width. Filter popups stayed within
+both viewport axes; Enter/Space, Home/End, Escape and restored trigger focus
+passed. Grouping and zero-result search/reset passed across the primary matrix.
+
+The unchanged Team suite passed **49 cases** and the unchanged Dashboard suite
+passed **13 cases**: a total of **101 browser cases** including the new 39.
+Existing suites cover disclosures, task routes, Back/Forward/Close/Escape,
+return focus/scroll, direct URLs, edits, responsive transitions, stress fixtures
+and reduced motion. The Dashboard suite was rerun after the checkpoint-title
+review correction; the final new suite also covers TaskDrawer and Team.
+All seven Team baseline/final initial screenshots are byte-for-byte identical,
+and Team source/navigation have an empty Git diff.
+
+### Accessibility, visual review and checks
+
+New drawer checks preserve responsibility/progress/metadata h3 headings,
+conditional relationships, Tab/Shift+Tab wrapping, Escape ordering for the
+status listbox versus drawer, and return focus to the original task link.
+The close control measures 44 × 44 px. The existing focus-ring and reduced-
+motion CSS and behavior were retained. Scoped rendered text/background
+sampling (including composited translucent backgrounds) passed AA thresholds:
+Dashboard 78 samples per matrix case, minimum **4.61:1 Light / 4.98:1 Dark**;
+Tasks 93 desktop or 78 mobile samples, minimum **4.62:1 Light / 5.92:1 Dark**.
+Drawer text was sampled as well. This is not a full accessibility certification.
+
+Screenshots were inspected for the desktop Dashboard/register/Team comparison,
+1024 compact register, 390 BG mobile register, 320 BG Dashboard/pressure and
+drawer, and desktop operational changes. The final runs reported **zero
+application console warnings/errors and zero uncaught page errors**.
+
+Passed: `pnpm.cmd format`, `pnpm.cmd format:check`, `pnpm.cmd lint`,
+`pnpm.cmd typecheck`, `pnpm.cmd test` (**94/94**), `pnpm.cmd build`,
+`git diff --check`, plus explicit Prettier checking for the new browser script.
+The existing responsive unit contract now expects the aligned 12 px mobile
+utility labels; architecture and breakpoint assertions remain in place.
+
+### Focused read-only review and limits
+
+A separate read-only diff/render review pass used the requested independent-
+review checklist: scope, typography hierarchy, wrapping/density, touch targets,
+risk color, retained headings, breakpoint behavior, Team preservation and
+semantic preservation. This was performed by the implementing agent; no second
+agent or human reviewer is claimed. It found a checkpoint title still smaller
+than its updated utility text and a tabular-number selector targeting a `time`
+element absent from drawer metadata. Both were corrected locally and affected
+browser checks rerun. No remaining confirmed source/render finding was found
+in this scoped pass.
+
+Two intermediate harness failures were corrected: focus restoration needed to
+wait for the existing animation-frame callback; animated geometry needed a
+subpixel tolerance rather than exact floating-point equality. They were test
+synchronization issues, not product behavior changes, and are not counted as
+passing runs.
+
+Intentional visual differences remain: Team has 15 px task links and 16 px
+person names; Dashboard and Tasks retain denser 14 px operational titles.
+Page titles, surfaces, structural kickers, badges/icons and information
+architecture retain their page-specific purposes. No physical-device,
+Safari/Firefox, browser zoom control, human screen-reader or real-user study is
+claimed. The historical 2025–2026 NOIT requirements require verification for a
+later competition year.
+
+Changed implementation files: `src/styles.css`, `src/components/PageHeader.tsx`,
+`src/components/TaskDrawer.tsx`, `src/pages/TasksPage.tsx`,
+`src/pages/dashboard/ChangeImpact.tsx`, `src/pages/dashboard/TeamPressure.tsx`.
+Changed/added tests: `src/responsive-layout.test.ts`,
+`tests/interface-alignment.browser.mjs`. Evidence is appended to this file and
+`docs/AI_ASSISTANCE_LOG.md`. No dependency, lockfile, domain, demo/time, routing,
+BudoSelect implementation, shell/navigation, backend or data changes were made.
+The unrelated untracked `docs/market-research/docs - Shortcut.lnk` was not read,
+edited, deleted or staged.
+
+Reproduction: build, start a production preview and run
+`node tests/interface-alignment.browser.mjs` with the same optional
+`PLAYWRIGHT_MODULE_PATH`, `BROWSER_EXECUTABLE_PATH` and `BUDOGRAPH_BASE_URL`
+variables documented for the existing suites. Final screenshots/report are
+ignored under `tmp/phase-2b-4b-evidence/`; the controlled baseline comparison
+is under `tmp/phase-2b-4b-before/`. No runtime package was installed.

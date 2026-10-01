@@ -68,7 +68,6 @@ export function TeamPressure({ workloads, onNavigate }: TeamPressureProps) {
     <section className="team-pressure" aria-labelledby="team-pressure-title">
       <header className="dashboard-section-heading dashboard-section-heading--action">
         <div>
-          <p>{t("dashboard.workload.eyebrow")}</p>
           <h2 id="team-pressure-title">{t("dashboard.workload.title")}</h2>
         </div>
         <button

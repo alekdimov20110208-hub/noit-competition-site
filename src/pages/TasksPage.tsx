@@ -303,7 +303,6 @@ export function TasksPage({
   return (
     <div className="page page--tasks">
       <PageHeader
-        eyebrow={t("tasks.eyebrow")}
         title={t("tasks.title")}
         description={t("tasks.description")}
         actions={

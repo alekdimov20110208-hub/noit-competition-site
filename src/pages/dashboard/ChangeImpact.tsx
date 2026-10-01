@@ -112,7 +112,6 @@ export function ChangeImpact({
     <section className="change-impact" aria-labelledby="change-impact-title">
       <header className="dashboard-section-heading dashboard-section-heading--action">
         <div>
-          <p>{t("dashboard.changes.eyebrow")}</p>
           <h2 id="change-impact-title">{t("dashboard.changes.title")}</h2>
         </div>
         <button

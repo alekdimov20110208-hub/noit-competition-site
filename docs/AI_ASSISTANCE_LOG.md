@@ -275,3 +275,47 @@ limitations of the controlled Edge/AX-tree evidence. The author should review
 and understand the final implementation and recorded evidence. Historical
 2025–2026 NOIT requirements still require verification for a later competition
 year. Backend, Plan B/Templates redesign and the future signature remain deferred.
+
+## Phase 2B.4B — cross-page design-language alignment — 2026-10-01
+
+The human author explicitly requested implementation of the narrow Phase
+2B.4A audit recommendations from `7c585a1e3fec84ae1ffeba426f332f417d803b5e`,
+followed by verification, the specified commit and push to `origin/main`.
+Codex adjusted scoped Dashboard/Tasks operational typography and utility
+labels, applied the existing risk-on-structure token to Overdue, removed only
+the named redundant kickers, retained TaskDrawer headings and relationship
+context, enlarged the named touch controls and added scoped tabular numerals.
+This is an alignment pass, not a global redesign. Team remains locked.
+
+Assistance included the focused browser harness, the updated mobile typography
+expectation in the existing responsive test, production-browser measurement
+and documentation. Existing dependencies were reused. A temporary Git archive
+of the baseline was built under ignored `tmp/` to measure before/after with
+the same Edge runtime. All seven Team initial screenshots match byte-for-byte;
+Team source/navigation, semantic/data/time code, BudoSelect implementation,
+application routing, shell, palette architecture and package files did not
+change. The unrelated untracked shortcut was left untouched and unstaged.
+
+Passed checks: format, format:check, lint, typecheck, **94/94 unit tests**,
+production build, diff whitespace check and explicit browser-script formatting.
+Browser evidence comprises **39 new matrix/boundary cases, 49 existing Team
+cases and 13 existing Dashboard cases**, with zero application console warnings,
+errors or uncaught page errors. The exact viewport/language/theme matrix,
+responsive boundaries, before/after dimensions, keyboard behavior, contrast
+samples, visual inspection and reproduction steps are appended to
+`docs/TEST_EVIDENCE.md`.
+
+The requested review checklist was run as a separate read-only review pass by
+the implementing agent; no second agent or human review is claimed. It found
+and corrected a small checkpoint title and a nonmatching drawer date selector.
+Affected checks were rerun. Intermediate harness timing/subpixel assertions
+were corrected without changing product focus or drawer behavior. Only passing
+final runs count as evidence.
+
+The author approved the implementation scope, not these automated results or
+the finished UI. Human usability/screen-reader review and physical-device or
+other-browser testing remain unclaimed. Team intentionally retains larger
+person/task typography; Dashboard and Tasks preserve their denser operational
+structure. No backend, authentication, real collaboration, Plan B/Templates
+redesign or Change Consequence Path was started. Competition-year-specific
+2025–2026 NOIT requirements need verification for later years.
