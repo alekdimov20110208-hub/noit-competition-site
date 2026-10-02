@@ -368,3 +368,35 @@ commands, matrix, findings and limitations are recorded in
 `docs/TEST_EVIDENCE.md`. Automated evidence does not imply human acceptance
 of the final UI or real-user research. Historical 2025–2026 competition
 requirements need verification for later competition years.
+
+## Backend foundation architecture contract — 2026-10-03
+
+Under explicit human direction, Codex converted the prior read-only backend
+architecture audit, as supplied in the human request, into
+`docs/BUDOGRAPH_BACKEND_FOUNDATION_CONTRACT.md` version 1.0. The contract was
+refined under human direction and records the intended Event boundary,
+identity/permissions, task assignment and acceptance, transactional concurrency,
+activity history, service and demo/real separation, P1 schema/API/security,
+two-user responsibility loop, verification strategy, exclusions and roadmap.
+
+No backend implementation occurred. No application source, CSS, tests,
+dependencies, package/lockfiles, configuration, environment files, migrations
+or authentication implementation changed. Dashboard, Tasks and Team remain
+functionally and visually locked; Plan B and Templates were not redesigned.
+The known unrelated untracked shortcut remains outside staging and scope.
+
+The master prompt and supplied 2025–2026 regulations were read; year-specific
+rules are flagged for verification for a later competition year. Assistance
+was documentation authoring and repository verification only. The contract
+is awaiting human approval, and explicit human approval is still required
+before Backend P1. No human approval of this final artifact, working backend,
+new research or backend test results is claimed. Historical entries are preserved.
+
+Passed documentation checks: `pnpm.cmd format:check`, explicit Prettier check
+of both changed documentation files (the new contract is outside the package
+script's file list), and `git diff --check`. Formatting was limited to those
+two files. Full application build/tests were not run for this documentation-only
+change. Baseline verification confirmed `main`, HEAD and freshly fetched
+`origin/main` at `49562d870f88f740b8cfb7155a1d0ef494909492`, ahead/behind 0/0,
+and no tracked pre-existing changes. The implementing agent reviewed the
+contract against the supplied requirements; no independent agent review is claimed.
