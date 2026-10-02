@@ -400,3 +400,18 @@ change. Baseline verification confirmed `main`, HEAD and freshly fetched
 `origin/main` at `49562d870f88f740b8cfb7155a1d0ef494909492`, ahead/behind 0/0,
 and no tracked pre-existing changes. The implementing agent reviewed the
 contract against the supplied requirements; no independent agent review is claimed.
+
+## Backend foundation contract — explicit human approval — 2026-10-03
+
+The human reviewer explicitly approved Backend Foundation Architecture
+Contract v1.0 for Backend P1 implementation. Backend P1 is now authorized to
+begin within the approved scope and security preconditions. Codex recorded
+the approval, updated pending approval-gate wording, and added the six
+human-approved implementation guardrails without changing architecture or
+P1 scope. Historical log entries remain unchanged.
+
+No backend implementation occurred in this approval commit. Only the contract
+and this AI assistance log changed; no source, CSS, tests, dependencies,
+package files, server/database/auth code, migrations or `.gitignore` changes
+were made. Plan B and Templates were not started. The unrelated untracked
+shortcut was left untouched and excluded from staging and the commit.

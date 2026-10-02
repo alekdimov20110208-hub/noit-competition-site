@@ -4,15 +4,16 @@
 
 Този документ превръща предходния read-only архитектурен одит в единен
 implementation contract, уточнен под човешко ръководство. Записва зададената
-архитектурна посока; окончателното човешко одобрение предстои. След одобрение
-той е водещият договор за Backend P1; промяна на основната идея изисква изрично
+архитектурна посока; човешкият reviewer изрично одобри v1.0 на 2026-10-03
+за Backend P1 implementation. Той е водещият договор за Backend P1;
+промяна на основната идея изисква изрично
 разрешение. Всички backend модели, API и проверки по-долу са бъдещи изисквания,
 а не реализирани функции или постигнати резултати.
 
 | Статус                        | Стойност                         |
 | ----------------------------- | -------------------------------- |
 | BACKEND IMPLEMENTATION STATUS | NOT STARTED                      |
-| BACKEND FOUNDATION CONTRACT   | AWAITING HUMAN APPROVAL          |
+| BACKEND FOUNDATION CONTRACT   | APPROVED FOR P1 IMPLEMENTATION   |
 | DASHBOARD                     | LOCKED — functionally + visually |
 | TASKS                         | LOCKED — functionally + visually |
 | TEAM                          | LOCKED — functionally + visually |
@@ -20,8 +21,8 @@ implementation contract, уточнен под човешко ръководст
 | TEMPLATES                     | NOT YET REDESIGNED               |
 | Phase 2B.4C                   | ACCEPTED                         |
 
-**Този contract НЕ разрешава автоматично започване на Backend P1.** Текущата
-задача е documentation only: без source/CSS/tests, dependencies/lockfiles,
+**Backend P1 е разрешен чрез изричното човешко одобрение на v1.0.** Текущата
+задача записва одобрението и е documentation only: без source/CSS/tests, dependencies/lockfiles,
 configuration/`.gitignore`/environment files, server/database/auth code,
 migrations или API routes; без redesign на заключените страници, Plan B и Templates.
 
@@ -344,8 +345,23 @@ User/Event/mode change; remote loading може временно да обезс
 member/task и UI трябва безопасно да обработва това. Future routes може да
 изискват explicit Event context. Това не разрешава UI edits в текущата задача.
 
-Следващата разрешена стъпка е човешки review/approval на този contract и P1
-scope, data model, security/test strategy и deployment plan. Backend configuration,
-dependencies, migrations, auth/API/server code и frontend service migration
-чакат изрично човешко разрешение. **Не започвай Backend P1, Plan B или Templates
-като продължение на този documentation commit.**
+Човешкият reviewer изрично одобри Backend Foundation Contract v1.0 за P1
+implementation. Backend P1 е разрешен в одобрения scope и при спазване на
+security preconditions, включително `.gitignore` hardening преди backend
+configuration. Архитектурните решения и P1 scope остават непроменени.
+**Тази задача записва одобрението само чрез документация. Не започвай Backend
+P1, Plan B или Templates като продължение на този approval commit.**
+
+## 14. Одобрени P1 implementation guardrails — 2026-10-03
+
+Човешкото одобрение на v1.0 включва следните implementation уточнения,
+без промяна на архитектурата или P1 scope:
+
+- Използвай versioned SQL migrations от първата database schema.
+- Better Auth управлява auth-specific schema/integration details; не създавай
+  паралелни credential/session модели.
+- Controlled test-account credentials идват от environment/setup provisioning
+  и никога не се commit-ват.
+- Date-only task deadlines остават Event-local calendar dates.
+- Server/activity/auth timestamps представляват реални instants.
+- В real mode не е разрешен demo fallback.
