@@ -2344,3 +2344,119 @@ shortcut. Environment-name matches were configuration references/placeholders;
 test passwords were explicit synthetic sentinels. Both applied SQL checksums
 remained unchanged. `git diff --cached --check` passed. Fresh independent reviews
 reported no remaining confirmed actionable findings after fixes.
+
+## Backend P1C — two-user responsibility loop — 2026-10-03
+
+Authorized baseline: `221031b7d5cb04cb56c24e208e04d305009825b2` on `main`,
+freshly fetched `origin/main` equal, ahead/behind 0/0, tracked worktree clean.
+Only `docs/market-research/docs - Shortcut.lnk` was untracked; it was untouched.
+The complete master prompt, supplied 30-page 2025–2026 regulation, approved
+backend contract and P1B implementation were read before implementation.
+The earlier contract documentation-only restriction does not override this
+explicit human authorization to implement P1C. Historical competition rules
+still require verification for the actual participation year.
+
+### Preflight and implemented scope
+
+P1B preflight passed: backend typecheck, 57 offline tests (one intentional DB
+skip), 17/17 real PostgreSQL schema tests and the real two-account auth verifier.
+P1C adds five task routes, strict command DTO validation, transactional scoped
+authorization, responsibility/status commands, canonical task DTOs, explicit
+development Event bootstrap and a reproducible real HTTP verification script.
+No frontend source, migration SQL, dependency or lockfile was changed.
+
+### Real approved PostgreSQL and HTTP evidence
+
+| Verification                      | Observed result                                                                                                                                                                                      |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Explicit `server:bootstrap-event` | First run created one Event, two memberships and one minimal task; repeated run reported all already-exists with identical UUIDs.                                                                    |
+| Organizer session                 | Actual loopback HTTP login, safe identity, Better Auth lookup and additional database session row passed.                                                                                            |
+| Member session                    | Separate memory-only cookie jar independently resolved Member; distinct from Organizer, with its own database session row.                                                                           |
+| Both reads                        | Both active memberships read the same live Event task; deadline stayed `2026-10-04`.                                                                                                                 |
+| Assignment                        | Organizer assigned the task to Member; Member refetch and SQL state confirmed the membership reference. Member assignment returned 403.                                                              |
+| Acceptance                        | Organizer impersonation returned 403. Member acceptance persisted its resolved member ID and database instant; Organizer refetch saw it. Forged actor/time/role/history fields returned 400.         |
+| Current-version acceptance repeat | Returned canonical unchanged state; version and original acceptance instant remained unchanged.                                                                                                      |
+| Status                            | Current Member changed status to in-progress; current acceptance remained unchanged. Organizer status authority also passed.                                                                         |
+| Stale request                     | Old expectedVersion returned 409 with `TASK_VERSION_CONFLICT`; no stale overwrite/history.                                                                                                           |
+| Withdrawal                        | Organizer impersonation returned 403; Member withdrawal cleared both acceptance fields and recorded history; explicit Member reacceptance succeeded.                                                 |
+| Reassignment                      | Organizer reassigned to their own active membership; SQL showed new assignee and both acceptance fields null together. Activity recorded prior accepted member/time and clearing.                    |
+| Old assignee                      | Member acceptance and status writes after reassignment returned 403.                                                                                                                                 |
+| Unassignment / assign-back        | Organizer accepted their own task, then unassigned; SQL showed assignment/acceptance null. Assigning back to Member left acceptance empty.                                                           |
+| History                           | Previous Member acceptance remained stored with server actor/instant; all six dotted command action types were present.                                                                              |
+| Actual concurrent writes          | Simultaneous Organizer/Member HTTP status commands with the same version used independent pg transactions: exactly one 200 and one 409, one version increment and one additional activity.           |
+| Event boundary                    | Both real sessions denied foreign Event/task IDs with 404; Organizer could not mutate a foreign task using Event A's path; foreign membership assignment returned 404. SQL version stayed unchanged. |
+| Operational role                  | A persisted MEMBER with operational text `Organizer` still received assignment 403.                                                                                                                  |
+| Missing auth                      | Task read without a session and reads after logout returned 401.                                                                                                                                     |
+| Session isolation / cleanup       | Organizer logout left Member authenticated; both verifier-created sessions were revoked and session counts returned to baseline.                                                                     |
+| Foreign fixtures                  | Unique synthetic identity/Events/members/tasks existed only in a fixture transaction; rollback and absence queries passed. Controlled auth users were not deleted.                                   |
+| Log safety                        | Captured logs contained none of the loaded database/auth secrets, account passwords/emails, cookie strings or encoded/decoded cookie values.                                                         |
+
+The real workflow intentionally persists changes/history on the separate
+development task; it does not reset or delete history. Both the initial run and
+post-review rerun of `pnpm.cmd server:verify-responsibility` passed. This is actual
+backend HTTP verification with the real auth library/database, not browser UI E2E.
+
+Final read-only database inventory: **2 Users, 2 credential Accounts, 0 Sessions,
+1 development Event, 2 EventMembers, 1 Task, 22 ActivityEntries**. All six action
+types are present. No P1B/P1C disposable identity remains. These counts reflect
+the two intentional verifier runs, not imported demo data or user activity.
+
+### Automated checks
+
+| Check                                                | Result                                                                           |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Frontend `pnpm.cmd test`                             | 94/94 passed; locked UI source unchanged.                                        |
+| Backend `pnpm.cmd server:test`                       | 74 passed, zero failed, two intentional opt-in DB suites skipped.                |
+| PostgreSQL explicit opt-in `server:test:integration` | 27/27 passed, zero failed/skipped: P1B 17 plus P1C 10 including parent/subtests. |
+| `pnpm.cmd format` / `format:check`                   | Passed.                                                                          |
+| `pnpm.cmd lint`                                      | Passed.                                                                          |
+| Frontend and backend typechecks/builds               | Passed.                                                                          |
+| `git diff --check`                                   | Passed.                                                                          |
+
+Seventeen new offline tests cover strict input/version validation, assignment,
+reassignment, unassignment, acceptance/withdrawal and impersonation, independent
+status, permissions/operationalRole, version increments, stale no-op rejection,
+idempotent current-state results, missing/foreign/inactive lookup results,
+history construction, mutation/activity failure rollback and failed-rollback
+client destruction, DTO/query scope, HTTP origin/forged fields/conflict/log safety,
+and development bootstrap configuration without passwords. Injected pg/session
+cases are test doubles and are not represented as real SQL evidence.
+
+The P1C real SQL suite verifies command/state/history behavior, stale writes,
+withdrawal/reacceptance, reassignment/unassignment/assign-back, permissions,
+foreign/inactive users/members, actual constraint-failure rollback of task/history,
+soft-deleted reads/mutations, archive write denial and repeatable bootstrap.
+Outer fixture transactions and command savepoints are explicitly test-only;
+all disposable rows are rolled back and absence verified. Concurrent real pg
+transactions are covered separately by the two-session HTTP verifier.
+
+### Fresh review, confirmed correction and boundaries
+
+A fresh read-only review checked route/service separation, persisted roles,
+Event-scoped SQL and FKs, locked User/membership/assignment state, acceptance
+impersonation/clearing, version checks before no-op handling, atomic history,
+rollback/disconnection cleanup, safe HTTP failures/logs, strict fields/origin,
+bootstrap reruns, test evidence and scope exclusions. No subagents were used.
+This is a focused code/security review, not formal certification or human acceptance.
+
+A non-ISO PostgreSQL `DateStyle` probe exposed pg TIMESTAMPTZ parsing returning
+null during DTO serialization. That intermediate run failed and is not passing
+evidence. Commands now set ISO DateStyle locally and format DATE explicitly as
+YYYY-MM-DD. The real suite retains SQL/DMY + Pacific/Honolulu session setup as
+a regression probe; all 27 tests and the real HTTP verifier passed after correction.
+Applied migration checksums are unchanged from P1B: 0001 `3eea6d946b15cfc651e83f32d454c3f5b4bae28062421f9fa2ba2eeea14c3d91`,
+0002 `f6bba034c1f709cb4f6768c5350823aae7c01f384ab5ce9dd652a23deb5b9785`.
+
+Dashboard/Tasks/Team, all frontend source/demo behavior and styles remain locked.
+No frontend auth, RemoteWorkspaceService, Event/task authoring UI, invitation,
+Plan B/Templates/Budget/AI/notifications/chat/realtime or generic policy/audit
+framework was implemented. Production hosting, separate least-privilege DB
+grants, restore verification and browser integration remain unfinished.
+
+Final staged audit passed for 18 intended runtime/script/test/documentation files.
+No environment, credentials, cookie jars, shortcut, locked frontend or applied
+migration files were staged. Exact loaded database/auth/account credential values
+were absent from the staged diff; password/session/cookie word matches were
+configuration, verification code or synthetic tests, not usable credentials.
+Staged diff whitespace validation passed and freshly fetched main remained
+synchronized before the implementation commit.

@@ -1,9 +1,24 @@
 # Known Limitations
 
 This document records the local prototype boundary and the separate backend
-P1A/P1B foundation. Historical phase descriptions remain scoped to those phases;
+P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases;
 the current backend limitations are recorded below. Update this record when a
 limitation is removed or discovered.
+
+## Current backend P1C boundary — 2026-10-03
+
+- P1C implements backend task reads and the two-user responsibility loop with scoped authorization, atomic task/history transactions and optimistic conflicts. P1B's exclusions below are historical, superseded only for this approved slice.
+- Dashboard/Tasks/Team still use local fictional data. No login UI, remote workspace service, browser auth integration, demo migration, realtime updates, Event/task authoring or invitation UI is implemented.
+- Bootstrap is explicit and DEVELOPMENT ONLY. It creates one separate real Event and minimal task with the two controlled users; reruns preserve current state. It is not general Event creation or public onboarding.
+- Verification intentionally appends real development history. Immutable history is preserved; disposal uses transaction rollback for synthetic fixtures. There is no reset/drop/delete-history operation.
+- Organizer manages assignment and status; only the current assignee accepts/withdraws. Operational descriptions grant no authority. Archived Event writes are denied conservatively.
+- No new migration is needed. Owner transfer, membership management/deactivation with open work and soft deletion commands remain unimplemented; their future transactions must preserve the approved contract.
+- Task reads currently return the authorized Event's full live task list; pagination, aggregate snapshots, member/Event navigation and a history-read endpoint are later scope.
+- Actual changes increment version; matching-version repeats are unchanged 200 responses. Stale repeats return 409. Clients must refetch; no automatic intent replay.
+- P1C cookie writes require the exact configured Origin; separate-origin browser CORS/auth integration remains future work. Auth abuse controls remain single-process Better Auth limits; dedicated task-route/distributed rate limiting is deployment hardening work.
+- Real HTTP two-session verification is not a browser interaction test, product validation, formal security certification, production deployment or backup/restore verification.
+- Separate least-privilege runtime/migration DB grants, production HTTPS/proxy configuration, restore drills, recovery and invitation onboarding remain limitations. No dependencies or licenses were added in P1C.
+- The supplied 2025–2026 NOIT rules still require verification for the actual competition year, including eligibility, licensing, submissions, documentation format and online availability.
 
 ## Product and evidence
 
@@ -19,7 +34,7 @@ limitation is removed or discovered.
 - Workspace data and UI preferences use separate versioned records: `budograph.workspace.v1` and `budograph.preferences.v1`. This separation preserves the existing workspace schema, but neither record is a production database.
 - The task acceptance UI still stores its value in the Phase 1-compatible `Task.acknowledged` boolean. Accepted means that the assigned person has seen and accepted the task; it is not authenticated, does not prove that the person actually reviewed it, and is neither completion nor approval.
 - Task acceptance and acknowledgement of an operational change are separate interactions even though the compatible internal naming uses acknowledgement language. They must not be interpreted as one shared workflow.
-- There is no cloud sync, multi-device continuity, concurrent editing, conflict resolution, server backup, recovery service, or audit history.
+- The browser prototype has no cloud sync, multi-device continuity, concurrent editing, conflict resolution, server backup, recovery service, or audit history. P1C implements backend version conflicts and activity history separately.
 - Clearing site data, using a different origin/profile/browser, or resetting the demo can remove or replace local changes.
 - A blocked or unavailable browser-storage API causes a safe in-memory/default fallback and a notice; manual language, theme, or workspace changes may not survive the next visit in that case.
 - Local data is not encrypted by BudoGraph and must not contain passwords, private operational details, personal data, interview information, payment data, or other sensitive content.

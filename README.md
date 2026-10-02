@@ -170,7 +170,7 @@ pnpm format
 
 These are the project commands, not claims that a particular run passed. Record verified results separately as test evidence; do not infer them from this README.
 
-## Backend P1A/P1B foundation
+## Backend P1A/P1B/P1C
 
 Backend P1A adds a separate TypeScript/Fastify server, PostgreSQL pool,
 liveness/readiness endpoints, validated configuration, and versioned SQL runner.
@@ -179,10 +179,14 @@ database-backed sessions, a safe `GET /api/me` diagnostic, controlled CLI accoun
 provisioning, Event/EventMember/Task/ActivityEntry relational schema, and
 server-side Event authorization helpers. Public sign-up is closed.
 
+P1C adds backend task reads, assignment/reassignment/unassignment,
+acceptance/withdrawal, status commands, version conflicts and atomic activity
+history. An explicit development-only CLI creates a separate real Event with
+the controlled Organizer and Member. The real two-session responsibility loop
+is verified against development PostgreSQL; see the evidence below.
+
 The browser application continues to use fictional local demo data; Dashboard,
-Tasks, and Team remain locked. P1B does not include frontend login, a remote
-workspace service, Event setup, task assignment/acceptance/status HTTP commands,
-or the two-user responsibility loop. Those remain later work.
+Tasks, and Team remain locked. Frontend login and remote integration are unfinished.
 
 Backend development requires Node.js **22.x from 22.18.0, or 24.0.0 and later**, and the repository's
 **pnpm 11.9.0**. From the repository root, copy `server/.env.example` to the ignored
@@ -209,6 +213,11 @@ Better Auth's server API using local credentials; `pnpm server:verify-auth`
 checks real auth behavior; `pnpm server:test:integration` explicitly runs
 rollback-only PostgreSQL schema/constraint checks. These commands require the
 approved database and configuration; credentials must remain untracked.
+`pnpm server:bootstrap-event` uses only the two controlled account emails and
+never runs at startup. `pnpm server:verify-responsibility` signs in with separate
+in-memory cookie jars over real loopback HTTP, checks the workflow/database
+state and logs out its sessions. It intentionally adds development task history;
+foreign fixtures are rolled back. It is not a browser UI test.
 
 No CORS dependency or separate frontend-origin setting is added in P1B. Better
 Auth trusts only its configured origin. Business UUIDs are server-generated;

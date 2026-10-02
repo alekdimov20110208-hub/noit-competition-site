@@ -548,3 +548,44 @@ The project author still needs to inspect, understand and defend the auth,
 generated SQL, scoped authorization, tests and licenses. Agent review and passing
 checks are not human acceptance, user research, legal compliance or formal
 security certification.
+
+## Backend P1C — responsibility workflow — 2026-10-03
+
+The human explicitly authorized the approved backend-only two-user loop,
+development bootstrap, real PostgreSQL/two-session verification, commit and push
+from clean synchronized `221031b`. Codex read the mandatory master prompt,
+historical 2025–2026 regulation, approved architecture and complete P1B code;
+P1B offline/schema/auth preflight passed. No subagents were used.
+
+Assistance implemented narrow task routes, strict command/DTO definitions,
+session-derived actors, locked active same-Event authorization, Organizer-only
+assignment, assignee-only acceptance/withdrawal, permitted lifecycle updates,
+version conflicts and atomic task/history transactions. The development-only
+bootstrap uses existing controlled email identities without passwords, preserves
+state on rerun and creates separate real development data. It never imports the
+fictional browser seed or runs automatically. No migrations/dependencies added.
+
+Verification added 17 offline tests and 10 real PostgreSQL parent/subtests;
+P1B/P1C integration totals 27 passing tests with rollback-only synthetic fixtures.
+The real verifier uses separate memory-only cookies over actual loopback HTTP,
+the controlled P1B credentials from ignored files and the approved database.
+Assignment, acceptance, withdrawal, status, clearing/reassign-back, history,
+simultaneous writes (one 200 / one 409), IDOR/forgery/role denial and isolated
+logout passed. Only intentional development history remains; synthetic fixtures
+and verifier sessions are removed by rollback/logout. Credentials were never
+printed, committed, or placed in shell arguments.
+
+A fresh read-only review found a dependency on PostgreSQL ISO timestamp output.
+An added SQL/DMY DateStyle probe failed; local ISO transaction configuration and
+explicit DATE formatting corrected it. The full real suite and two-session
+verifier passed after the correction. Tests, formatting/lint/typechecks/builds,
+locked frontend regression (94 tests), migration hashes and diff safety checks
+were verified; exact results and boundaries are in TEST_EVIDENCE.md.
+
+README, backend development guide, test evidence and current limitations were
+updated; historical records were preserved. Dashboard/Tasks/Team and frontend
+demo behavior remain unchanged. Frontend integration, production deployment,
+least-privilege role separation, backup restore and onboarding remain later work.
+The project author still must review, understand and defend the code; this log
+does not fabricate human review, user research or formal security certification.
+Year-specific NOIT requirements remain subject to actual-year verification.

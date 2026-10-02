@@ -1,4 +1,4 @@
-# Backend P1A/P1B Development
+# Backend P1A/P1B/P1C Development
 
 P1A establishes the TypeScript/Fastify runtime, typed configuration, PostgreSQL
 pool, health checks, shutdown handling, and explicit SQL migration runner. P1B
@@ -7,11 +7,11 @@ development-account provisioning, the core relational schema, and server-side
 authentication and Event authorization helpers under the approved
 [Backend Foundation Contract](BUDOGRAPH_BACKEND_FOUNDATION_CONTRACT.md).
 
-Dashboard, Tasks, and Team remain locked and continue to use the fictional local
-demo. P1B does not implement frontend authentication, a remote workspace service,
-Event/task HTTP commands, or the P1 two-user responsibility loop. Assignment,
-acceptance, lifecycle mutations, and permanent development Event creation belong
-to P1C. Backend P1B verification results are recorded separately in
+P1C adds explicit development Event bootstrap, task reads, Organizer assignment,
+assignee acceptance/withdrawal, authorized status updates, optimistic concurrency
+and atomic immutable activity history. Dashboard, Tasks, and Team remain locked
+and continue to use the fictional local demo. Frontend authentication and remote
+workspace integration remain unfinished. Backend verification results are in
 [TEST_EVIDENCE.md](TEST_EVIDENCE.md); this guide is not a test report.
 
 ## Prerequisites and commands
@@ -27,18 +27,20 @@ pnpm install --frozen-lockfile
 
 In Windows PowerShell, use `pnpm.cmd` if shell execution policy prevents `pnpm`.
 
-| Command                        | Purpose                                                                                           |
-| ------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `pnpm server:dev`              | Watch the native TypeScript runtime.                                                              |
-| `pnpm server:start`            | Start compiled runtime after `server:build`.                                                      |
-| `pnpm server:typecheck`        | Check backend source, scripts, and tests.                                                         |
-| `pnpm server:test`             | Run focused tests without a real PostgreSQL database.                                             |
-| `pnpm server:build`            | Compile runtime/scripts into ignored `server/dist/`.                                              |
-| `pnpm db:migrate`              | Apply reviewed versioned SQL to the approved configured database.                                 |
-| `pnpm server:auth-schema`      | Generate review SQL using the pinned official CLI into ignored `tmp/`; never apply it.            |
-| `pnpm server:provision`        | Explicitly provision two controlled accounts; development only.                                   |
-| `pnpm server:verify-auth`      | Verify real sign-in, sessions, logout, and protected routes using configured controlled accounts. |
-| `pnpm server:test:integration` | Opt-in PostgreSQL schema/constraint verification using rollback-only fixture transactions.        |
+| Command                             | Purpose                                                                                                      |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `pnpm server:dev`                   | Watch the native TypeScript runtime.                                                                         |
+| `pnpm server:start`                 | Start compiled runtime after `server:build`.                                                                 |
+| `pnpm server:typecheck`             | Check backend source, scripts, and tests.                                                                    |
+| `pnpm server:test`                  | Run focused tests without a real PostgreSQL database.                                                        |
+| `pnpm server:build`                 | Compile runtime/scripts into ignored `server/dist/`.                                                         |
+| `pnpm db:migrate`                   | Apply reviewed versioned SQL to the approved configured database.                                            |
+| `pnpm server:auth-schema`           | Generate review SQL using the pinned official CLI into ignored `tmp/`; never apply it.                       |
+| `pnpm server:provision`             | Explicitly provision two controlled accounts; development only.                                              |
+| `pnpm server:verify-auth`           | Verify real sign-in, sessions, logout, and protected routes using configured controlled accounts.            |
+| `pnpm server:bootstrap-event`       | Explicit development-only Event, two memberships and one task; repeatable, no passwords required.            |
+| `pnpm server:verify-responsibility` | Real two-session HTTP responsibility loop, committed development history and rollback-only foreign fixtures. |
+| `pnpm server:test:integration`      | Opt-in PostgreSQL schema and responsibility commands using rollback-only fixture transactions.               |
 
 Root `typecheck`, `test`, and `build` retain frontend scope; `lint`, `format`, and
 `format:check` also include backend files. Backend checks do not establish a
@@ -195,12 +197,12 @@ The script reports `created` or `already-exists` for each label and does not
 reset existing passwords. Rerunning with different passwords will not rotate
 them; verification needs the actual credentials. Organizer/Member labels do not
 grant global auth roles. Permissions come only from an EventMember's scoped
-`access_role` after a later explicit Event setup.
+`access_role` after explicit Event setup.
 
 Email verification, recovery, invitation UI, and real user onboarding are outside
 P1B. These two accounts are controlled development identities, not a complete
-competition jury-account package. Permanent Event creation and membership
-bootstrap are deferred to P1C. Provisioning never imports the localStorage demo.
+competition jury-account package. The separate P1C bootstrap explicitly creates
+permanent development memberships. Provisioning never imports the localStorage demo.
 
 ## Core relational schema
 
@@ -231,10 +233,10 @@ The frontend's fictional snapshot clock does not enter real database records.
 No history-destroying cascades are introduced for business records. Activity
 history is append-only: one narrow statement trigger rejects UPDATE, DELETE,
 and TRUNCATE with SQLSTATE `55000`. There is no event sourcing. The schema does not
-replace server authorization or all transactional invariants: future commands
-must keep the owner an active ORGANIZER, reject inactive assignees, resolve open
-work before deactivation, validate targets in Event scope, and combine business
-updates/history/version checks atomically. P1B exposes no activity-edit API.
+replace server authorization or all transactional invariants: P1C commands reject
+inactive assignees, validate targets in Event scope and combine task/history/version
+checks atomically. Future membership/ownership commands must keep the owner an
+active ORGANIZER and resolve open work before deactivation. There is no activity-edit API.
 
 ## Authentication and Event authorization
 
@@ -252,6 +254,110 @@ fails an organizer requirement with `403` within an authorized Event.
 `requireActiveEventMembership`, `requireOrganizerMembership`, and
 `requireOwnAssignedTask`. The last scopes a live task and verifies its current
 assignee, but does not implement a task mutation transaction or endpoint.
+
+## P1C responsibility commands and development setup
+
+Run `pnpm server:bootstrap-event` explicitly after P1B account provisioning and
+migrations. It requires `NODE_ENV=development`, `DATABASE_URL` and only
+`BUDOGRAPH_ORGANIZER_EMAIL` / `BUDOGRAPH_MEMBER_EMAIL`; no password or auth secret
+is needed by setup itself. The CLI loads the existing optional ignored P1B
+environment file for those emails. There is no setup route or startup hook.
+
+One transaction creates **BudoGraph P1 development responsibility loop**, the
+owner's active ORGANIZER membership, the second active MEMBER membership, and
+one minimal backend verification task. Fixture dates are explicitly 3–4 October
+2026 in `Europe/Sofia`; they are development data, not competition deadlines or
+frontend demo dates. Server-generated UUID references are printed, with
+`created` / `already-exists` per resource and no account data. An advisory
+transaction lock serializes reruns; name plus owner identifies this separate
+development Event. Ambiguous, archived or incompatible existing setup fails
+without repairing/deleting it. Reruns preserve task assignment, acceptance,
+status, version and history. No localStorage or frontend seed is imported.
+
+All task endpoints require a database-backed session, active User and active
+same-Event membership. Identifiers are UUIDs; all task SQL includes Event scope
+and `deleted_at IS NULL`. Reads return `{ tasks: TaskDto[] }` or `{ task: TaskDto }`.
+The list may be empty. Task DTO fields are `id`, `title`, `category`, `context`,
+`deadline`, `status`, `priority`, `assignedMemberId`, `accepted`,
+`acceptedByMemberId`, `acceptedAt`, `version`, `updatedAt`. Membership IDs are
+references, not auth account records. Deadline is `YYYY-MM-DD`; instants are ISO
+strings. SQL formats DATE explicitly and each transaction sets ISO DateStyle
+locally for pg instant parsing. Responses use `Cache-Control: no-store`.
+
+| Method / route suffix under `/api/events/:eventId/tasks` | Input / permission                                                              |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `GET /`                                                  | Active Event member; authorized tasks only.                                     |
+| `GET /:taskId`                                           | Active Event member; one scoped live task.                                      |
+| `POST /:taskId/assignment`                               | `{ assignedMemberId: UUID \| null, expectedVersion: integer }`; ORGANIZER only. |
+| `PUT /:taskId/acceptance`                                | `{ accepted: boolean, expectedVersion: integer }`; current assignee only.       |
+| `PATCH /:taskId/status`                                  | `{ status, expectedVersion: integer }`; ORGANIZER or current assignee.          |
+
+Command bodies allow exactly the two listed fields, without coercion. Reject
+client actor, timestamp, role, Event and history fields. `expectedVersion` is a
+positive integer below the PostgreSQL INTEGER maximum (room for increment).
+Cookie mutations require `Origin` exactly equal to `BETTER_AUTH_URL`; absent or
+foreign Origin and cross-site Fetch Metadata are denied. CLI callers must send
+that Origin. No CORS allowlist or browser integration is introduced.
+
+Assignment targets must be active same-Event memberships of active Users.
+Changing assignment or unassigning clears both acceptance fields in the same
+transaction. Assigning a former assignee again leaves acceptance empty. Only
+the current assignee can accept or withdraw; Organizer has this authority only
+on their own assigned task. Acceptance uses the locked member ID and database
+`clock_timestamp()`. Status accepts the four existing lifecycle values without
+a new state machine and neither accepts nor withdraws responsibility.
+
+Every actual state change increments version once. Version mismatch returns
+`409` with `{ "status": "error", "code": "TASK_VERSION_CONFLICT" }`; refetch
+before deciding on a new command. No automatic overwrite/replay is performed.
+With a matching version, an unchanged assignment/status/acceptance returns the
+canonical task unchanged (200), without another version, activity or timestamp.
+An unchanged assignment preserves existing acceptance. Stale repeats still fail
+409; permission checks precede conflict disclosure.
+
+`src/routes/tasks.ts` handles trusted session/Origin and HTTP transport;
+`src/tasks/model.ts` validates commands and defines the safe DTO;
+`src/tasks/service.ts` performs scoped authorization and explicit command logic;
+`src/db/transaction.ts` pins pg clients and guarantees commit/rollback/resource
+cleanup. Event, actor membership/User and target membership/User receive SHARE
+locks; the task receives UPDATE lock plus a version-checked UPDATE. SHARE locks
+prevent role/activity changes during command validation. Task and ActivityEntry
+commit together. Statement/lock timeouts bound DB work; no transaction spans
+external auth/network calls. No ORM, repository framework or policy engine.
+
+History actions follow the existing dotted convention: `task.assigned`,
+`task.reassigned`, `task.unassigned`, `task.accepted`,
+`task.acceptance_withdrawn`, `task.status_changed`. Payload includes relevant
+before/after member/status values and `taskVersion`; reassignment records prior
+acceptance member/time and `acceptanceCleared`. This records invalidation in
+the reassignment entry without creating a separate generic audit mechanism.
+Actors come from the session and resolved membership; times come from the DB.
+Existing append-only history remains unchanged. There is no history edit route.
+
+HTTP semantics: missing/invalid session or inactive User → 401; prohibited action
+inside authorized Event, origin denial or archived-Event write → 403;
+inaccessible/missing Event membership, scoped task or assignee → non-disclosing
+404; malformed IDs/body → 400; stale version → 409. Unexpected failures return
+sanitized 500, never SQL/credential details. Archived Events remain readable to
+active members; writes are conservatively denied because archive authoring is
+outside P1C. Operational-role text never grants permissions.
+
+Run `pnpm server:verify-responsibility` with the actual controlled credentials
+in ignored environment files. It starts real loopback HTTP listeners and uses
+distinct memory-only cookie jars, the real Better Auth configuration and
+approved database. It verifies read/refetch, all commands, actor/time forgery
+denial, stale retry, simultaneous two-session writes, foreign Event/task/member
+denial and isolated logout. Successful commands intentionally retain history
+on the development task. Foreign probes use unique rollback-only fixtures;
+controlled users are never deleted. Run one verifier at a time. This is backend
+HTTP verification, not browser UI integration or user acceptance testing.
+
+The opt-in PostgreSQL suite includes P1B schema tests and P1C command tests.
+P1C uses an outer fixture transaction and maps command transactions to real
+savepoints; this proves sequential SQL behavior/rollback, while the real HTTP
+verifier separately proves concurrent commands on independent pg clients.
+Integration queries inspect canonical state/history and confirm fixture absence.
+No new migrations or dependencies were needed. Applied 0001/0002 SQL is immutable.
 
 ## Explicit immutable migrations
 
@@ -314,7 +420,7 @@ rejection, and activity persistence without dropping/resetting tables or importi
 fictional demo state. Migration-runner protocol doubles remain separate evidence.
 See test evidence for the exact executed results and limits.
 
-P1C task commands, Event setup, frontend auth/data integration, production hosting,
+Frontend auth/data integration, Event/task authoring UI, production hosting,
 recovery/verification workflows, distributed rate limiting, least-privilege grant
 audit, and backup/restore remain unfinished. Keep the
 [license register](THIRD_PARTY_NOTICES.md), [AI assistance log](AI_ASSISTANCE_LOG.md),

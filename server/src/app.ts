@@ -6,11 +6,15 @@ import Fastify, {
 } from "fastify";
 import { registerHealthRoutes, type CheckDatabase } from "./routes/health.ts";
 import { registerAuthRoutes, type AuthIntegration } from "./routes/auth.ts";
+import { registerTaskRoutes } from "./routes/tasks.ts";
+import type { TaskService } from "./tasks/service.ts";
+import { TaskCommandError } from "./tasks/model.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
   logger?: FastifyServerOptions["logger"];
   authentication?: AuthIntegration;
+  tasks?: TaskService;
 }
 
 const standardMethods = new Set([
@@ -27,6 +31,7 @@ export function createApp({
   checkDatabase,
   logger = false,
   authentication,
+  tasks,
 }: AppOptions) {
   const app = Fastify({
     requestIdHeader: false,
@@ -66,6 +71,11 @@ export function createApp({
     return reply.code(404).send({ status: "not_found" });
   });
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof TaskCommandError) {
+      return reply
+        .code(error.statusCode)
+        .send({ status: "error", code: error.code });
+    }
     const reportedStatus =
       typeof error === "object" && error !== null && "statusCode" in error
         ? error.statusCode
@@ -84,5 +94,6 @@ export function createApp({
 
   registerHealthRoutes(app, checkDatabase);
   if (authentication) registerAuthRoutes(app, authentication);
+  if (authentication && tasks) registerTaskRoutes(app, authentication, tasks);
   return app;
 }

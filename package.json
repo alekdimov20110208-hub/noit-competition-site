@@ -20,9 +20,11 @@
     "server:build": "tsc -p server/tsconfig.build.json",
     "db:migrate": "node --env-file-if-exists=server/.env server/scripts/migrate.ts",
     "server:provision": "node --env-file-if-exists=server/.env --env-file-if-exists=server/.env.p1b.local server/scripts/provision.ts",
+    "server:bootstrap-event": "node --env-file-if-exists=server/.env --env-file-if-exists=server/.env.p1b.local server/scripts/bootstrap-event.ts",
+    "server:verify-responsibility": "node --env-file-if-exists=server/.env --env-file-if-exists=server/.env.p1b.local server/scripts/verify-responsibility.ts",
     "server:verify-auth": "node --env-file-if-exists=server/.env --env-file-if-exists=server/.env.p1b.local server/scripts/verify-auth.ts",
     "server:auth-schema": "node --env-file-if-exists=server/.env --env-file-if-exists=server/.env.p1b.local server/scripts/generate-auth-schema.ts",
-    "server:test:integration": "node --env-file-if-exists=server/.env --test server/tests/schema.integration.test.ts"
+    "server:test:integration": "node --env-file-if-exists=server/.env --test server/tests/*.integration.test.ts"
   },
   "dependencies": {
     "better-auth": "1.7.7",

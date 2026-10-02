@@ -1,0 +1,228 @@
+import { randomUUID } from "node:crypto";
+import type { AuthenticatedUser } from "../auth/session.ts";
+import { UnauthorizedError } from "../auth/session.ts";
+import {
+  inTransaction,
+  type TransactionDatabase,
+  type TransactionPool,
+} from "../db/transaction.ts";
+import {
+  parseTaskCommand,
+  TaskCommandError,
+  taskColumns,
+  taskDto,
+  uuidPattern,
+  type TaskCommand,
+  type TaskDto,
+  type TaskRow,
+} from "./model.ts";
+
+interface ActorMembership {
+  id: string;
+  access_role: "ORGANIZER" | "MEMBER";
+}
+
+async function authorizeEvent(
+  database: TransactionDatabase,
+  eventId: string,
+  userId: string,
+  writing: boolean,
+): Promise<ActorMembership> {
+  const events = await database.query(
+    "SELECT archived_at FROM public.event WHERE id = $1 FOR SHARE",
+    [eventId],
+  );
+  const event = events.rows[0] as { archived_at: Date | null } | undefined;
+  // Lock active identity and membership through commit. FOR SHARE also conflicts
+  // with non-key updates (active/access_role), unlike FOR KEY SHARE.
+  const members = await database.query(
+    `SELECT member.id, member.access_role FROM public.event_member AS member
+     JOIN public."user" AS identity ON identity.id = member.user_id
+     WHERE member.event_id = $1 AND member.user_id = $2
+       AND member.active = TRUE AND member.deactivated_at IS NULL AND identity.active = TRUE
+     FOR SHARE OF member, identity`,
+    [eventId, userId],
+  );
+  const actor = members.rows[0] as ActorMembership | undefined;
+  if (!actor) throw new TaskCommandError(404, "NOT_FOUND");
+  if (!event) throw new TaskCommandError(404, "NOT_FOUND");
+  // Archive authoring is out of scope; conservatively deny writes to an archive.
+  if (writing && event.archived_at !== null)
+    throw new TaskCommandError(403, "EVENT_ARCHIVED");
+  return actor;
+}
+
+async function requireAssignee(
+  database: TransactionDatabase,
+  eventId: string,
+  memberId: string,
+) {
+  const result = await database.query(
+    `SELECT member.id FROM public.event_member AS member
+     JOIN public."user" AS identity ON identity.id = member.user_id
+     WHERE member.event_id = $1 AND member.id = $2 AND member.active = TRUE
+       AND member.deactivated_at IS NULL AND identity.active = TRUE
+     FOR SHARE OF member, identity`,
+    [eventId, memberId],
+  );
+  if (!result.rows.length)
+    throw new TaskCommandError(404, "ASSIGNEE_NOT_FOUND");
+}
+
+function scopedIds(eventId: string, taskId?: string) {
+  if (
+    !uuidPattern.test(eventId) ||
+    (taskId !== undefined && !uuidPattern.test(taskId))
+  ) {
+    throw new TaskCommandError(400, "INVALID_ID");
+  }
+  return { eventId: eventId.toLowerCase(), taskId: taskId?.toLowerCase() };
+}
+
+export function createTaskService(pool: TransactionPool) {
+  async function read(
+    user: AuthenticatedUser,
+    event: string,
+    task?: string,
+  ): Promise<TaskDto[]> {
+    if (!user?.id) throw new UnauthorizedError();
+    const { eventId, taskId } = scopedIds(event, task);
+    return inTransaction(pool, async (database) => {
+      await authorizeEvent(database, eventId, user.id, false);
+      const result = await database.query(
+        `SELECT ${taskColumns} FROM public.task WHERE event_id = $1 AND deleted_at IS NULL
+         ${taskId ? "AND id = $2" : ""} ORDER BY deadline, id`,
+        taskId ? [eventId, taskId] : [eventId],
+      );
+      if (taskId && !result.rows.length)
+        throw new TaskCommandError(404, "NOT_FOUND");
+      return (result.rows as TaskRow[]).map(taskDto);
+    });
+  }
+
+  async function mutate(
+    user: AuthenticatedUser,
+    event: string,
+    task: string,
+    kind: TaskCommand["kind"],
+    input: unknown,
+  ): Promise<TaskDto> {
+    if (!user?.id) throw new UnauthorizedError();
+    const { eventId, taskId } = scopedIds(event, task);
+    const command = parseTaskCommand(kind, input);
+    return inTransaction(pool, async (database) => {
+      const actor = await authorizeEvent(database, eventId, user.id, true);
+      if (command.kind === "assignment" && actor.access_role !== "ORGANIZER") {
+        throw new TaskCommandError(403, "FORBIDDEN");
+      }
+      const result = await database.query(
+        `SELECT ${taskColumns} FROM public.task
+         WHERE event_id = $1 AND id = $2 AND deleted_at IS NULL FOR UPDATE`,
+        [eventId, taskId],
+      );
+      const before = result.rows[0] as TaskRow | undefined;
+      if (!before) throw new TaskCommandError(404, "NOT_FOUND");
+      if (
+        (command.kind === "acceptance" ||
+          (command.kind === "status" && actor.access_role !== "ORGANIZER")) &&
+        before.assigned_member_id !== actor.id
+      )
+        throw new TaskCommandError(403, "FORBIDDEN");
+      // Check BEFORE no-op handling. A repeated old request is still a conflict.
+      if (before.version !== command.expectedVersion)
+        throw new TaskCommandError(409, "TASK_VERSION_CONFLICT");
+
+      let assignment = before.assigned_member_id;
+      let acceptedBy = before.accepted_by_member_id;
+      let acceptedAt = before.accepted_at;
+      let status = before.status;
+      let action: string;
+      let payload: Record<string, unknown>;
+      if (command.kind === "assignment") {
+        if (command.assignedMemberId)
+          await requireAssignee(database, eventId, command.assignedMemberId);
+        if (assignment === command.assignedMemberId) return taskDto(before);
+        action =
+          command.assignedMemberId === null
+            ? "task.unassigned"
+            : assignment === null
+              ? "task.assigned"
+              : "task.reassigned";
+        assignment = command.assignedMemberId;
+        acceptedBy = null;
+        acceptedAt = null;
+        payload = {
+          previousAssignedMemberId: before.assigned_member_id,
+          assignedMemberId: assignment,
+          previousAcceptedByMemberId: before.accepted_by_member_id,
+          previousAcceptedAt: before.accepted_at?.toISOString() ?? null,
+          acceptanceCleared: before.accepted_by_member_id !== null,
+        };
+      } else if (command.kind === "acceptance") {
+        if ((acceptedBy !== null) === command.accepted) return taskDto(before);
+        if (!command.accepted && acceptedBy !== actor.id)
+          throw new TaskCommandError(403, "FORBIDDEN");
+        action = command.accepted
+          ? "task.accepted"
+          : "task.acceptance_withdrawn";
+        acceptedBy = command.accepted ? actor.id : null;
+        // The database assigns the instant in UPDATE; no client time is used.
+        acceptedAt = null;
+        payload = {
+          assignedMemberId: assignment,
+          previousAcceptedByMemberId: before.accepted_by_member_id,
+          previousAcceptedAt: before.accepted_at?.toISOString() ?? null,
+          acceptedByMemberId: acceptedBy,
+        };
+      } else {
+        if (status === command.status) return taskDto(before);
+        action = "task.status_changed";
+        status = command.status;
+        payload = { previousStatus: before.status, status };
+      }
+      const updated = await database.query(
+        `UPDATE public.task SET assigned_member_id = $3, accepted_by_member_id = $4,
+           accepted_at = CASE WHEN $5::BOOLEAN THEN clock_timestamp() ELSE $6::TIMESTAMPTZ END,
+           status = $7, version = version + 1, updated_by = $8, updated_at = clock_timestamp()
+         WHERE event_id = $1 AND id = $2 AND deleted_at IS NULL AND version = $9
+         RETURNING ${taskColumns}`,
+        [
+          eventId,
+          taskId,
+          assignment,
+          acceptedBy,
+          command.kind === "acceptance" && command.accepted,
+          acceptedAt,
+          status,
+          actor.id,
+          command.expectedVersion,
+        ],
+      );
+      const after = updated.rows[0] as TaskRow | undefined;
+      if (!after) throw new TaskCommandError(409, "TASK_VERSION_CONFLICT");
+      await database.query(
+        `INSERT INTO public.activity_entry
+           (id, event_id, actor_user_id, actor_member_id, action_type, target_type, target_id, payload, created_at)
+         VALUES ($1, $2, $3, $4, $5, 'task', $6, $7::JSONB, clock_timestamp())`,
+        [
+          randomUUID(),
+          eventId,
+          user.id,
+          actor.id,
+          action,
+          taskId,
+          JSON.stringify({
+            ...payload,
+            acceptedAt: after.accepted_at?.toISOString() ?? null,
+            taskVersion: after.version,
+          }),
+        ],
+      );
+      return taskDto(after);
+    });
+  }
+
+  return { read, mutate };
+}
+
+export type TaskService = ReturnType<typeof createTaskService>;

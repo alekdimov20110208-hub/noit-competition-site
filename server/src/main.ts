@@ -5,6 +5,7 @@ import { createAuth } from "./auth/auth.ts";
 import { EnvironmentError, readServerEnv } from "./config/env.ts";
 import { createDatabasePool } from "./db/pool.ts";
 import { createShutdown } from "./shutdown.ts";
+import { createTaskService } from "./tasks/service.ts";
 
 async function main() {
   let app: FastifyInstance | undefined;
@@ -51,6 +52,7 @@ async function main() {
     });
     const database = pool;
     app = createApp({
+      tasks: createTaskService(database),
       authentication: {
         auth: createAuth(database, config),
         baseURL: config.betterAuthUrl,
