@@ -58,3 +58,28 @@ This file is a Phase 1/Phase 2A direct-dependency register, not legal advice and
 not a claim that a final redistribution audit has been completed. The package
 manifest and lockfile must be reviewed again before submission, deployment, or
 distribution.
+
+## Backend P1A direct dependency register - 2026-10-03
+
+These resolved versions were checked against the installed package manifests and
+their complete `LICENSE` files during P1A. No external visual assets were added.
+
+| Dependency | Version | Use in BudoGraph                                                                   | License | Upstream                                             | Installed license evidence       |
+| ---------- | ------: | ---------------------------------------------------------------------------------- | ------- | ---------------------------------------------------- | -------------------------------- |
+| Fastify    |  5.12.5 | HTTP app, injection tests, request lifecycle, and built-in Pino logging foundation | MIT     | <https://github.com/fastify/fastify>                 | `node_modules/fastify/LICENSE`   |
+| pg         |  8.23.1 | PostgreSQL pool, health query, and explicit SQL migration transactions             | MIT     | <https://github.com/brianc/node-postgres>            | `node_modules/pg/LICENSE`        |
+| @types/pg  |  8.23.1 | PostgreSQL client TypeScript declarations; development only                        | MIT     | <https://github.com/DefinitelyTyped/DefinitelyTyped> | `node_modules/@types/pg/LICENSE` |
+
+The inspected copyright notices identify the Fastify team (2016-present), Brian
+Carlson (2010-2021) for `pg`, and Microsoft Corporation for `@types/pg`. Each MIT
+license requires preservation of its copyright and permission notice in copies
+or substantial portions of the package. These packages retain their MIT terms
+when included with BudoGraph's GPL-3.0-only source; retain their license texts and
+required notices in any redistributed package.
+
+P1A reuses the existing Node.js types, TypeScript, test runner, ESLint, and Prettier.
+It adds no ORM, migration framework, environment-loading package, or separate
+logging library. Fastify's transitive dependencies, including Pino, remain part of
+the resolved lockfile tree. This addition checks the three new direct packages;
+the final complete transitive redistribution/notice audit remains required and
+is not a legal certification.

@@ -75,3 +75,25 @@ This document describes the honest Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2
 - any privacy or consent forms and retention procedures.
 
 The internal project schedule and the current project choices are not official NOIT rules.
+
+## Backend P1A foundation - 2026-10-03
+
+The earlier phase descriptions above remain historical. P1A adds an independent
+Fastify server with health endpoints, validated configuration, a PostgreSQL pool,
+and SQL migration infrastructure. It does not connect the browser demo to a backend
+or implement authentication, authorization, accounts, business tables, task
+persistence, task mutations, real collaboration, or production deployment.
+Dashboard, Tasks, and Team retain their existing local prototype behavior.
+
+The migration directory contains no business SQL files. Only an explicit
+`pnpm db:migrate` invocation can create migration metadata or apply future SQL;
+server startup does not run migrations. Migration files must contain PostgreSQL
+commands that can run within one transaction; automatic rollback/down migrations
+are outside P1A.
+
+REAL POSTGRESQL INTEGRATION CHECK: **NOT RUN - no approved test database configured.**
+Injected readiness checks and database protocol test doubles exercise application
+logic but do not verify an actual PostgreSQL server. Backend configuration and
+pool settings still require verification against an approved database before
+claiming a working database integration. The historical 2025-2026 competition
+requirements must be checked for the actual participation year.

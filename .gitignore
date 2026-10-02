@@ -75,10 +75,15 @@ web_modules/
 
 # dotenv environment variable files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
+**/.env
+**/.env.*
+# Only non-secret placeholder examples may be committed.
+!.env.example
+!**/.env.example
+
+# Dedicated backend build output
+server/dist/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

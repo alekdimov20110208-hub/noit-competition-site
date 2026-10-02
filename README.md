@@ -166,6 +166,34 @@ pnpm format
 
 These are the project commands, not claims that a particular run passed. Record verified results separately as test evidence; do not infer them from this README.
 
+## Backend P1A foundation
+
+Backend P1A adds a separate TypeScript/Fastify server, a PostgreSQL pool boundary,
+liveness/readiness endpoints, validated server configuration, and a versioned SQL
+migration runner. The browser application continues to use its fictional local
+demo data; Dashboard, Tasks, and Team remain locked. Authentication, business
+tables, task persistence, and real collaboration are later phases.
+
+Backend development requires Node.js **22.x from 22.18.0, or 24.0.0 and later**, and the repository's
+**pnpm 11.9.0**. From the repository root, copy `server/.env.example` to the ignored
+`server/.env`, replace its database placeholders using an approved local/test
+database, then run:
+
+```sh
+pnpm server:dev
+```
+
+The default listener is `http://127.0.0.1:3001`. Liveness is
+`GET /api/health/live`; PostgreSQL readiness is `GET /api/health/ready`.
+Use `pnpm server:typecheck`, `pnpm server:test`, and `pnpm server:build` for backend
+checks, and `pnpm db:migrate` for explicit migrations against the configured
+database. Real credentials must remain untracked.
+
+See [backend development](docs/BACKEND_DEVELOPMENT.md) for configuration, lifecycle,
+migration behavior, and the verification boundary. A real PostgreSQL integration
+check was **not run** for P1A because no approved test database was configured;
+injected database tests do not establish real PostgreSQL compatibility.
+
 ## Replaceable wordmark
 
 The current Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2 prototype uses a text-only `BudoGraph` wordmark. The isolated component is `src/components/BrandWordmark.tsx`. When the project author finishes the hand-drawn logo, replace the visual content of that component while preserving its compact layout behavior and accessible name. Add the original asset to the repository, document its authorship and license status, and keep a readable text fallback. No generated, stock, or permanent placeholder logo is used in the current prototype.

@@ -415,3 +415,57 @@ and this AI assistance log changed; no source, CSS, tests, dependencies,
 package files, server/database/auth code, migrations or `.gitignore` changes
 were made. Plan B and Templates were not started. The unrelated untracked
 shortcut was left untouched and excluded from staging and the commit.
+
+## Backend P1A - secret safety and runtime/migration foundation - 2026-10-03
+
+The human request explicitly authorized P1A implementation, the final foundation
+commit, and push to origin/main. Codex read the complete master prompt, approved
+Backend Foundation Contract v1.0 and supplied 30-page 2025-2026 regulation, then
+verified the clean approved `main` baseline `c19c2c0` and origin synchronization.
+Historical evidence and the approved contract were preserved.
+
+Assistance was split across the primary implementing/reviewing agent, a runtime
+agent, a migration agent, and a regulation/documentation reviewer. P1A work was
+limited to secret ignores, minimal server TypeScript/Fastify/pg infrastructure,
+validated configuration, safe health endpoints/logging, lifecycle cleanup,
+immutable/locked/transactional SQL migration infrastructure, focused tests,
+backend tooling and accurate development/license/evidence documentation.
+Fastify and pg are the only new runtime dependencies; @types/pg supplies necessary
+PostgreSQL declarations. Existing Node.js, TypeScript, node:test, ESLint, Prettier
+and native environment loading were reused. No ORM, migration framework, auth library,
+Docker/PostgreSQL install, cloud provisioning or deployment was added.
+
+Automated evidence: 94 frontend and 35 backend tests passed; root formatting,
+linting, frontend typecheck/build, backend typecheck/build and diff checks passed.
+Root typecheck/test/build remain frontend-only; root lint/format include the
+backend, with separate backend typecheck/test/build scripts. Additional compiled
+runtime/refused-database and source/compiled fail-fast checks are described in
+TEST_EVIDENCE.md. No PostgreSQL integration success or actual Windows OS signal
+delivery is claimed. REAL POSTGRESQL INTEGRATION CHECK: NOT RUN - no approved
+test database configured.
+
+Review fixed a malformed-URL response leak in Fastify, missing checked-out pg
+client error handling, overly generic configuration diagnostics, Vite lint
+coverage loss, and cross-platform SQL line-ending risk. Strict backend type
+errors found during assembly were fixed without weakening compiler settings;
+intermediate failing runs are not counted as passing evidence. Exact checks,
+reviewed security boundaries and limitations are recorded in TEST_EVIDENCE.md.
+
+Dashboard, Tasks, Team, all tracked frontend implementation and browser tests,
+demo reference date/storage and selectors remain unchanged. No authentication,
+business schema, task persistence/mutations or real collaboration was added.
+The unrelated untracked shortcut was not read, modified, deleted or staged.
+
+The project author still needs to review and understand the new runtime,
+configuration, lifecycle, SQL-lock/checksum/transaction code, tests and licenses.
+Agent review and passing unit tests are not human acceptance, real-user research,
+formal security certification, legal compliance or a real database integration
+result. The supplied 2025-2026 competition requirements require re-verification
+for the actual participation year. P1B remains outside this task.
+
+A separate regulation/documentation agent subsequently performed the final fresh
+read-only review of all 29 staged files, including final source/tests and evidence:
+PASS, no remaining confirmed issues. The primary agent's final staged scope and
+secret-pattern audit passed. No secrets, compiled output, frontend files, business
+SQL or shortcut were staged; the frozen-lockfile install also passed. This agent
+review does not claim human acceptance or a real PostgreSQL integration result.

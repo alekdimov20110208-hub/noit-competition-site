@@ -2008,3 +2008,117 @@ Reproduce after building and starting a production preview:
 are available for staged comparison. Ignored screenshots/factual snapshots
 and JSON reports are under `tmp/phase-2b-4c-evidence/`. Baseline comparison is
 additional to the fixture-derived assertions and requires the saved baseline.
+
+## Backend P1A foundation - 2026-10-03
+
+Implemented under the explicit P1A request and approved Backend Foundation
+Contract v1.0. Preflight: branch `main`, HEAD and freshly fetched `origin/main`
+`c19c2c04743f041d9216b6328501ed13498d3633`, ahead/behind `0/0`, no tracked or
+staged changes. The known untracked shortcut remained outside scope.
+The entire master prompt, approved contract, and supplied 30-page 2025-2026
+regulations were read before implementation.
+
+### Executed checks
+
+Verified locally on Windows using Node.js `v24.16.0`, pnpm `11.9.0`, and the
+existing Git/TypeScript/ESLint/Prettier tools. No PostgreSQL, Docker, Testcontainers,
+or cloud database was installed or provisioned.
+
+| Command                     | Result                                                                      |
+| --------------------------- | --------------------------------------------------------------------------- |
+| `pnpm.cmd format`           | PASS; locked frontend files stayed unchanged.                               |
+| `pnpm.cmd format:check`     | PASS; includes backend source/tests/config and development guide.           |
+| `pnpm.cmd lint`             | PASS; Node globals for server and existing frontend/Vite coverage retained. |
+| `pnpm.cmd typecheck`        | PASS; existing frontend configurations unchanged.                           |
+| `pnpm.cmd test`             | PASS; 94/94 frontend tests, zero failures/skips.                            |
+| `pnpm.cmd build`            | PASS; frontend production build completed.                                  |
+| `pnpm.cmd server:typecheck` | PASS; strict NodeNext source, scripts, and tests; no skipLibCheck addition. |
+| `pnpm.cmd server:test`      | PASS; 35/35 backend tests, zero failures/skips.                             |
+| `pnpm.cmd server:build`     | PASS; dedicated ignored output in `server/dist/`; tests not emitted.        |
+| `git diff --check`          | PASS.                                                                       |
+
+The 35 backend tests comprise configuration validation/safe errors (4), Fastify
+injection and request-log safety (6), migration file/history logic and explicitly
+mocked client behavior (17), lazy pool/error boundary (1), Git ignore probes (2),
+and shutdown/startup failure behavior (5). Real PostgreSQL is not exercised by
+these tests. The migration concurrency test uses an explicitly simulated lock;
+it does not prove PostgreSQL advisory-lock behavior.
+
+Additional runtime checks executed: source and compiled server/migration entrypoints
+exit with status 1 and a safe field-specific message when DATABASE_URL is absent.
+The compiled HTTP runtime bound an ephemeral loopback port; liveness returned 200
+and the real pool's connection attempt to deliberately refused loopback port 1
+produced a safe readiness 503. Synthetic connection details did not appear in logs.
+SIGTERM and SIGINT handlers were driven with `process.emit`; cleanup exited with
+status 0. This does not claim actual Windows OS signal delivery was verified.
+No readiness-success check against a live database was performed.
+
+REAL POSTGRESQL INTEGRATION CHECK:
+**NOT RUN - no approved test database configured.**
+
+### Security, lifecycle, and scope review
+
+The first code change hardened `.gitignore`; `git check-ignore` and automated
+probes verify root/nested `.env` and `.env.*` protection, explicit `.env.example`
+allowance, and ignored compiled server output. No temporary environment files
+were created. `server/.env.example` contains unmistakable placeholders only.
+Changed-file searches reviewed key prefixes, private-key markers and credential
+URLs; URL matches were only reviewed synthetic/invalid test inputs or placeholders.
+No real database credentials, passwords, tokens, environment files, auth code,
+wildcard CORS or generated backend JavaScript were added to the intended source.
+
+Confirmed findings fixed during review:
+
+- Fastify's malformed-URL fallback echoed raw URL components outside the normal
+  error handler. A safe framework error handler and regression test now cover it.
+- Checked-out pg clients lose pg-pool's idle error listener. The migration runner
+  now handles client connection error events safely, stops further work, destroys
+  failed sessions and retains its listener through release. EventEmitter mocks
+  cover active-query errors, errors between queries and listener handoff.
+- Runtime validation now preserves safe EnvironmentError field diagnostics without
+  exposing raw startup/pg errors; shutdown cleanup survives failed reporting.
+- Existing Vite lint coverage was retained when server Node globals were separated.
+- Migration SQL checkout line endings are pinned to LF in `.gitattributes` so exact
+  byte checksums can remain reproducible across Windows and Linux.
+
+Migration metadata is fixed `public.schema_migrations`; inserts parameterize
+version/name/checksum and timestamps originate in PostgreSQL. One checked-out
+client owns the advisory lock and per-file transactions. History changes,
+renames, missing files, duplicate versions, and late versions fail; failed SQL or
+metadata writes are not marked applied. Failed rollback/unlock destroys the client.
+Migration files are trusted reviewed repository SQL, must be transaction-compatible,
+and must not control transactions/locks/metadata themselves. No down runner exists.
+
+No business SQL migration files were added. No real database was migrated, so no
+real metadata or business tables were created by this task. No Better Auth, users,
+sessions, Event/EventMember/Task/ActivityEntry tables, task commands, permissions,
+remote frontend services, Plan B/Templates work or deployment was implemented.
+
+`git diff` confirms the entire tracked frontend `src/`, browser tests, HTML,
+Vite configuration, frontend tsconfigs and workspace setup are unchanged. Demo
+state/date/storage, routes/history/focus, selectors and locked Dashboard/Tasks/Team
+remain unchanged. No new browser visual run is claimed for this infrastructure-only
+phase. All 227 previously locked package versions remain present; only the required
+backend dependency tree was added (plus refreshed ESLint deprecation metadata).
+
+Documentation: backend development guide and migration authoring guide added;
+README, known limitations, direct-dependency/license register and AI assistance
+log updated. Full installed MIT license texts for fastify, pg and @types/pg were
+reviewed; no legal certification or full transitive redistribution audit is claimed.
+The historical 2025-2026 NOIT rules still require verification for a later year.
+
+### Final independent read-only review and staged audit
+
+A separate regulation/documentation agent performed a fresh read-only review of
+all 29 staged files after the fixes, including the complete migration tests,
+client error-event handling, runtime/configuration, dependency/config diff and
+final documentation. Review result: PASS, no remaining confirmed issues. This is
+an independent agent review of the implementation, not human acceptance or an
+external security assessment. The primary agent also reviewed the complete scope.
+
+The final staged audit found only the intended 29 files: six root infrastructure/
+README files, five documentation files, and 18 files under server/. No real
+secret files or credentials, generated server output, frontend changes, business
+SQL files, or unrelated shortcut were staged. `git diff --cached --check` passed.
+`pnpm.cmd install --frozen-lockfile` also passed with the resolved lockfile.
+The unrelated shortcut remained untracked and untouched.
