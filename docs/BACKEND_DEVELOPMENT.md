@@ -76,7 +76,8 @@ loading a database URL.
 Use a least-privilege database role for runtime health checks. Explicit migration
 commands need metadata/schema privileges; use separate setup credentials where
 practical and keep both credential sets outside Git. Actual database permissions
-were not verified in P1A because no approved database was configured.
+have not been independently audited; successful readiness and empty migration
+runs establish only the access needed for those operations.
 
 ## App, runtime, and PostgreSQL boundaries
 
@@ -183,8 +184,9 @@ statements, lock changes, or direct metadata writes. See the
 P1A includes **no SQL business migration** and creates no auth or business tables.
 Running `db:migrate` with the empty SQL directory may create only the migration
 metadata table. The first business schema will be defined together with the
-later Better Auth integration. No migrations were run against a real database
-during this phase.
+later Better Auth integration. The human manually ran the empty migration runner
+twice against the approved Supabase-hosted PostgreSQL development database; both
+runs reported `Migrations complete: 0 applied, 0 already applied.`
 
 ## Verification boundary and later work
 
@@ -193,13 +195,15 @@ liveness/readiness, migration discovery/order/checksums, immutability, and
 transaction/locking behavior through test doubles. These checks do not depend
 on installing PostgreSQL, Docker, Testcontainers, or a cloud service.
 
-REAL POSTGRESQL INTEGRATION CHECK:
-**NOT RUN - no approved test database configured.**
+REAL POSTGRESQL INTEGRATION VERIFIED: **YES - human manual verification.**
+REAL MIGRATION RUNNER VERIFIED: **YES - two successful empty runs.**
 
 Injected database checks and protocol test doubles are unit/application tests,
-not PostgreSQL integration tests. Real readiness, migration idempotency, metadata,
-locking, and transactional behavior still require verification against an
-approved disposable database before claiming real PostgreSQL integration.
+not PostgreSQL integration tests. The subsequent human verification established
+real readiness, safe unavailable responses, and safe repeated execution of the
+empty migration runner. See [test evidence](TEST_EVIDENCE.md). Applying pending
+SQL files, inspecting metadata contents, checksum-change rejection, concurrent
+locking, and transactional rollback still require real-database verification.
 
 P1B, auth integration, the business schema, real frontend data services, account
 provisioning, deployment, and backup/restore remain later work. This document is

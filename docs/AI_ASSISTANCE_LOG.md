@@ -469,3 +469,25 @@ PASS, no remaining confirmed issues. The primary agent's final staged scope and
 secret-pattern audit passed. No secrets, compiled output, frontend files, business
 SQL or shortcut were staged; the frozen-lockfile install also passed. This agent
 review does not claim human acceptance or a real PostgreSQL integration result.
+
+## Backend P1A - record human PostgreSQL verification - 2026-10-03
+
+The human requested a documentation-only update for implementation baseline
+`75e76c2192322015ce815581b74672726411aec8`. The human configured the local
+secret DATABASE_URL for the approved Supabase-hosted PostgreSQL development
+database. The secret was not shared with AI and was not committed. Codex did
+not access the environment file, credentials, or Supabase secrets.
+
+The human manually verified liveness (HTTP 200), initial safe unavailable
+readiness (HTTP 503 without connection details), and real PostgreSQL readiness
+(HTTP 200) after correcting local credentials and restarting. The migration
+runner was manually executed twice; each run reported
+`Migrations complete: 0 applied, 0 already applied.` Final readiness remained
+HTTP 200. No business migrations, business tables, or auth tables were created.
+
+Codex recorded the supplied evidence in TEST_EVIDENCE.md and updated existing
+current backend status/limitations documentation. Earlier historical evidence
+was preserved. Empty-run repetition verifies safe/idempotent infrastructure
+execution, without claiming real pending-file transaction, checksum, or
+concurrency tests. No source, configuration, package, migration, or frontend
+changes were made; no dependencies were installed, and P1B was not started.

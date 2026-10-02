@@ -190,9 +190,10 @@ checks, and `pnpm db:migrate` for explicit migrations against the configured
 database. Real credentials must remain untracked.
 
 See [backend development](docs/BACKEND_DEVELOPMENT.md) for configuration, lifecycle,
-migration behavior, and the verification boundary. A real PostgreSQL integration
-check was **not run** for P1A because no approved test database was configured;
-injected database tests do not establish real PostgreSQL compatibility.
+migration behavior, and the verification boundary. The human manually verified
+real PostgreSQL readiness and two successful empty migration-runner executions
+against the approved Supabase-hosted development database. See
+[test evidence](docs/TEST_EVIDENCE.md) for results and remaining verification limits.
 
 ## Replaceable wordmark
 

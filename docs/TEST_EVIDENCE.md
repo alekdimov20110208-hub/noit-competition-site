@@ -2122,3 +2122,54 @@ secret files or credentials, generated server output, frontend changes, business
 SQL files, or unrelated shortcut were staged. `git diff --cached --check` passed.
 `pnpm.cmd install --frozen-lockfile` also passed with the resolved lockfile.
 The unrelated shortcut remained untracked and untouched.
+
+## Backend P1A - subsequent human PostgreSQL verification - 2026-10-03
+
+Implementation baseline: `75e76c2192322015ce815581b74672726411aec8`
+(`feat(server): establish backend foundation`). The human supplied the following
+manual results from the approved Supabase-hosted PostgreSQL development database.
+Codex recorded these results without accessing secrets or rerunning database
+operations. Earlier implementation evidence above remains historical; its
+NOT RUN status describes the earlier verification boundary.
+
+### Secret protection and real health checks
+
+The human ran `git check-ignore -v server/.env` and reported:
+
+```text
+.gitignore:79:**/.env   server/.env
+```
+
+The human's Git status confirmed `server/.env` was not tracked. Only the known
+unrelated untracked `docs/market-research/docs - Shortcut.lnk` remained.
+The human configured the local secret DATABASE_URL; its value was not shared
+with AI or committed.
+
+| Manual request                                                                 | Result                               | Evidence                                                                                                     |
+| ------------------------------------------------------------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `GET http://127.0.0.1:3001/api/health/live`                                    | HTTP 200, `{"status":"ok"}`          | Fastify liveness succeeded.                                                                                  |
+| Initial `GET http://127.0.0.1:3001/api/health/ready`                           | HTTP 503, `{"status":"unavailable"}` | Before credentials were corrected, database-unavailable behavior was safe and exposed no connection details. |
+| Readiness after the human corrected local credentials and restarted the server | HTTP 200, `{"status":"ok"}`          | Successful real PostgreSQL connectivity.                                                                     |
+| Final readiness after migration verification                                   | HTTP 200, `{"status":"ok"}`          | PostgreSQL readiness remained successful.                                                                    |
+
+### Real migration-runner verification
+
+The human manually executed `pnpm.cmd db:migrate` twice:
+
+```text
+Run 1: Migrations complete: 0 applied, 0 already applied.
+Run 2: Migrations complete: 0 applied, 0 already applied.
+```
+
+Both successful runs connected to real PostgreSQL and executed migration
+infrastructure. Repeating the empty run was safe/idempotent. Zero applied
+migrations is expected for P1A because no business SQL migration files exist.
+No business migrations, business tables, or auth tables were created. This
+does not claim application of pending SQL files, direct metadata inspection,
+live checksum-change rejection, concurrent locking, or transactional rollback.
+
+REAL POSTGRESQL INTEGRATION VERIFIED: **YES**
+REAL MIGRATION RUNNER VERIFIED: **YES**
+BUSINESS TABLES CREATED: **NO**
+AUTH IMPLEMENTED: **NO**
+BACKEND P1B STARTED: **NO**

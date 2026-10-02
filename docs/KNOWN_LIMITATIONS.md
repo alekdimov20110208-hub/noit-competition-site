@@ -91,9 +91,12 @@ server startup does not run migrations. Migration files must contain PostgreSQL
 commands that can run within one transaction; automatic rollback/down migrations
 are outside P1A.
 
-REAL POSTGRESQL INTEGRATION CHECK: **NOT RUN - no approved test database configured.**
-Injected readiness checks and database protocol test doubles exercise application
-logic but do not verify an actual PostgreSQL server. Backend configuration and
-pool settings still require verification against an approved database before
-claiming a working database integration. The historical 2025-2026 competition
+REAL POSTGRESQL INTEGRATION VERIFIED: **YES - human manual verification.**
+REAL MIGRATION RUNNER VERIFIED: **YES - two successful empty runs.**
+The human verified readiness against the approved Supabase-hosted development
+database and safe unavailable behavior, then ran the empty migration runner twice.
+No business tables were created. See [test evidence](TEST_EVIDENCE.md).
+Applying pending SQL files, metadata inspection, checksum-change rejection,
+concurrent locking, transactional rollback, and least-privilege permissions
+remain unverified against a real database. The historical 2025-2026 competition
 requirements must be checked for the actual participation year.
