@@ -5,10 +5,12 @@ import Fastify, {
   type FastifyServerOptions,
 } from "fastify";
 import { registerHealthRoutes, type CheckDatabase } from "./routes/health.ts";
+import { registerAuthRoutes, type AuthIntegration } from "./routes/auth.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
   logger?: FastifyServerOptions["logger"];
+  authentication?: AuthIntegration;
 }
 
 const standardMethods = new Set([
@@ -21,7 +23,11 @@ const standardMethods = new Set([
   "OPTIONS",
 ]);
 
-export function createApp({ checkDatabase, logger = false }: AppOptions) {
+export function createApp({
+  checkDatabase,
+  logger = false,
+  authentication,
+}: AppOptions) {
   const app = Fastify({
     requestIdHeader: false,
     frameworkErrors: (
@@ -77,5 +83,6 @@ export function createApp({ checkDatabase, logger = false }: AppOptions) {
   });
 
   registerHealthRoutes(app, checkDatabase);
+  if (authentication) registerAuthRoutes(app, authentication);
   return app;
 }

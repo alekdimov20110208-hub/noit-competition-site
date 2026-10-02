@@ -2173,3 +2173,174 @@ REAL MIGRATION RUNNER VERIFIED: **YES**
 BUSINESS TABLES CREATED: **NO**
 AUTH IMPLEMENTED: **NO**
 BACKEND P1B STARTED: **NO**
+
+## Backend P1B — authentication, relational schema and authorization — 2026-10-03
+
+Implemented under the explicit P1B request and approved Backend Foundation
+Contract v1.0. Preflight: `main`, HEAD and freshly fetched `origin/main`
+`96621f5da8fdd64bb4bf50d0962b8070441b8427`, ahead/behind `0/0`, no tracked/staged
+changes. The unrelated `docs/market-research/docs - Shortcut.lnk` remained
+untracked and untouched. Mandatory master prompt, 30-page regulations and
+complete approved contract/P1A implementation were read. The 2025–2026 rules
+remain historical and require verification for the actual participation year.
+
+### Auth/schema provenance and implementation boundary
+
+Only `better-auth` **1.7.7** (MIT) was added as a direct dependency, pinned in
+`package.json` and `pnpm-lock.yaml`. Official current PostgreSQL/Fastify/options/
+CLI documentation and installed 1.7.7 behavior were checked. The matching
+official generator is **`auth@1.7.7`**, invoked through pinned `pnpm dlx`, using
+the locally installed runtime configuration and existing `pg.Pool`.
+`@better-auth/cli@latest`, unmanaged auth migrations, application ORMs and an
+Admin plugin were not used.
+
+`0001_better_auth_core.sql` contains reviewed generated SQL, including the
+server-controlled `user.active` field. Auth instants are generated as
+`TIMESTAMPTZ` natively, without a hand-written table reconstruction or type
+rewrite. Raw generated SQL SHA-256:
+`1ff812a96bd306d7124d1d5a3e74b20d7ae5c04e2948bab0d8614e768641d670`.
+The migration adds provenance comments only, with LF checkout normalization.
+The generator was rerun before migration and matched the runtime schema.
+Temporary generator output is ignored and is not committed.
+
+`0002_budograph_core.sql` adds Event, EventMember, Task and ActivityEntry with
+UUID business IDs, finite `DATE` calendar values, named timezone validation,
+version constraints, scoped membership/actor foreign keys, current acceptance
+consistency, soft-delete metadata and JSONB history. One narrow database trigger
+rejects history UPDATE/DELETE/TRUNCATE. Auth and business tables have RLS enabled
+with no browser policies. Backend Event authorization still runs separately;
+the current trusted database identity bypasses owner RLS, and production
+least-privilege runtime/migration-role separation remains deployment work.
+
+Runtime authentication disables public email/password signup and also disables
+its HTTP path. The isolated DEVELOPMENT-only CLI instance uses supported
+`auth.api.signUpEmail`, with automatic signup login disabled. Better Auth owns
+password hashing, account creation and database sessions. Active User state is
+checked at session issuance and protected reads. `/api/me` returns only user
+id/name/email; authorization helpers derive identity from that trusted boundary.
+Event membership, access role and task lookup are persisted, parameterized and
+Event-scoped; descriptive operational role grants no authority.
+
+`BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` are required for auth-capable runtime;
+database-only migration commands retain the separate typed DB environment.
+Cookies are HttpOnly/SameSite=Lax and Secure for HTTPS/production. Trusted origins
+contain exactly the configured auth origin, with default CSRF checks retained.
+No separate frontend auth origin/CORS is configured. Auth memory rate limiting
+uses the direct peer IP supplied by the server, ignoring forged client IP headers.
+Fastify forwards distinct Set-Cookie headers, status, headers and body; library
+diagnostics are disabled and application logs omit credentials/cookies/raw errors.
+
+### Executed real PostgreSQL/auth verification
+
+The approved Supabase development database was accessed through native Node
+environment loading. `server/.env` was never read or printed by the agents.
+The read-only preflight reported PostgreSQL **17.11** and only
+`public.schema_migrations`; there were no conflicting auth/business tables.
+The human confirmed creation of synthetic development credentials and a random
+auth secret in the separate Git-ignored `server/.env.p1b.local`. Values were
+generated locally with Node crypto, never printed or placed in command arguments,
+source, evidence, screenshots or Git. The normal server does not require
+provisioning credentials. The development-only commands load that optional
+file; compiled `server:start` does not automatically load development credentials.
+
+| Verification                          | Observed result                                                                                                                                                          |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| First explicit `pnpm.cmd db:migrate`  | `2 applied, 0 already applied`                                                                                                                                           |
+| Second explicit `pnpm.cmd db:migrate` | `0 applied, 2 already applied`                                                                                                                                           |
+| Migration metadata                    | Both immutable filenames/checksums match repository bytes                                                                                                                |
+| Auth schema                           | `user`, `session`, `account`, `verification` present                                                                                                                     |
+| Business schema                       | `event`, `event_member`, `task`, `activity_entry` present                                                                                                                |
+| First `pnpm.cmd server:provision`     | Organizer and Member: `created`                                                                                                                                          |
+| Repeated provisioning                 | Both: `already-exists`; no password reset or duplication                                                                                                                 |
+| Real auth verifier                    | PASS: actual loopback listener/live/readiness, HTTP signup 404, direct runtime signup disabled, rejected signup creates no user                                          |
+| Organizer and Member                  | Both sign in with separate cookies; `/api/me` safe identity and Better Auth session lookup succeed                                                                       |
+| Session persistence/logout            | Each login adds a real session row; logging out Organizer leaves Member authenticated; each logout invalidates lookup/protected access and returns row count to baseline |
+| Negative auth/origin checks           | Missing/malformed session → 401; wrong password → 401; untrusted cookie-auth origin → 403; no wildcard CORS                                                              |
+| Response/log safety                   | Safe application identity; passwords, auth/database secrets and cookie/session values absent from captured logs                                                          |
+| Compiled runtime smoke                | Actual compiled main: live 200, real readiness 200, protected `/api/me` 401, safe logs                                                                                   |
+| Final persistent counts               | 2 users, 2 credential accounts, 0 sessions; 0 Events/Members/Tasks/ActivityEntries                                                                                       |
+
+Applied migration checksums:
+
+- `0001`: `3eea6d946b15cfc651e83f32d454c3f5b4bae28062421f9fa2ba2eeea14c3d91`
+- `0002`: `f6bba034c1f709cb4f6768c5350823aae7c01f384ab5ce9dd652a23deb5b9785`
+
+The opt-in `RUN_DATABASE_INTEGRATION=1 pnpm.cmd server:test:integration` run
+passed **17/17 tests**, zero failures/skips (parent plus 16 subtests). It proves
+real migration idempotence/checksums; all eight tables/RLS/no public policies;
+actual `anon` and `authenticated` SQL-role read denial across all eight tables;
+Event date/name/timezone/version constraints; membership uniqueness/role/active
+consistency; valid/invalid lifecycle and priority; whitespace-only title rejection;
+cross-Event assignee and creator/updater/deleter FKs; paired/scoped acceptance;
+date-only values under Pacific/Honolulu; JSONB/server-time history and matching
+actor User/member/Event; append-only behavior and restrictive history references;
+real scoped authorization with inactive User/member and operational-role denial.
+All generated schema fixtures were rolled back and their absence checked.
+No database/schema reset, unrelated-row deletion or TRUNCATE was executed.
+Role denial was exercised through SQL, not the external Supabase REST API.
+
+### Automated/regression checks and review
+
+Executed on Windows with Node.js `v24.16.0` and pnpm `11.9.0`:
+
+| Command                                                 | Result                                                                    |
+| ------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `pnpm.cmd format` / `format:check`                      | PASS; locked frontend files unchanged                                     |
+| `pnpm.cmd lint`                                         | PASS                                                                      |
+| `pnpm.cmd typecheck` / `build`                          | PASS; frontend production output unchanged                                |
+| `pnpm.cmd test`                                         | PASS: 94/94 frontend tests, no failures/skips                             |
+| `pnpm.cmd server:typecheck` / `server:build`            | PASS                                                                      |
+| `pnpm.cmd server:test`                                  | PASS: 57 passed, 1 intentional opt-in database suite skipped, no failures |
+| `pnpm.cmd server:test:integration` with explicit opt-in | PASS: 17/17 against approved PostgreSQL, no skips                         |
+| `pnpm.cmd server:verify-auth`                           | PASS against real PostgreSQL after final script fixes                     |
+| `pnpm.cmd server:auth-schema` after migrations          | PASS: schema up to date, no new SQL file, no migrations applied           |
+| `pnpm.cmd install --frozen-lockfile`                    | PASS                                                                      |
+| `git diff --check`                                      | PASS                                                                      |
+
+Offline tests retain P1A coverage and add real-library signup/malformed-cookie/
+origin probes, supported active-user session hook, cookie/configuration safety,
+safe identity/log errors, nine authorization tests and two provisioning-input
+tests. Their injected session/database cases are explicitly unit tests; the
+separate real verification establishes database-backed auth behavior.
+Backend DOM type libraries are needed for Better Auth's WHATWG signatures;
+`skipLibCheck` avoids its unused unconditional `bun:sqlite` declaration.
+Project code retains strict checking; no Bun dependency or false declaration shim
+was added. This limitation is documented, not hidden.
+
+Confirmed findings fixed before final verification:
+
+- PostgreSQL `btrim` alone did not reject tab/newline-only required text; reviewed
+  checks use whitespace-aware regex and real negative tests before SQL application.
+- Verification failure cleanup needed a trusted Origin for cookie-auth logout;
+  it now revokes only its pending sessions and checks cleanup responses.
+- CLI cleanup failures could escape safe error handling or skip pool closure;
+  cleanup now uses static failures and the existing ordered shutdown boundary.
+- Official CLI generation returns exit 0 with no output for an up-to-date DB;
+  each invocation now has a unique ignored output path and reports actual output
+  presence, preventing stale SQL from being called newly generated.
+- The initial auth verifier exceeded the library's 3-per-10-second sign-in limit
+  with its negative probes (429). Origin verification now uses cookie-auth logout;
+  the runtime rate limit was retained. Intermediate failures are not passing evidence.
+
+Fresh read-only agent reviews covered current official API/library behavior,
+provenance, auth/session/cookies, public signup, SQL constraints/history/RLS,
+provisioning, migration safety, query scope, tests and scope exclusions. Findings
+above were fixed and affected verification rerun. This is agent review, not formal
+security certification or human product acceptance.
+
+Dashboard/Tasks/Team and all tracked frontend source, routes, localStorage demo
+behavior, selectors and appearance are unchanged. No frontend login/integration,
+remote workspace service, Event bootstrap, task mutation endpoints, Plan B,
+Templates, Budget, AI or notification backend was added. The two-user task
+responsibility loop and transactional ownership/deactivation/lifecycle commands
+remain P1C. No real Event or demo migration is implied by controlled account
+provisioning. Production deployment, restore verification, browser auth E2E and
+separate runtime DB privileges remain limitations.
+
+Final staged audit: **PASS** — 31 intended backend/tooling/documentation files,
+no locked frontend changes, secret files, actual loaded credential values,
+private keys, credential-bearing Supabase URLs, generated build output or
+shortcut. Environment-name matches were configuration references/placeholders;
+test passwords were explicit synthetic sentinels. Both applied SQL checksums
+remained unchanged. `git diff --cached --check` passed. Fresh independent reviews
+reported no remaining confirmed actionable findings after fixes.

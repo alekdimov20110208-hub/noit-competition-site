@@ -1,10 +1,15 @@
 import { isIP } from "node:net";
 
-export interface ServerConfig {
+export interface DatabaseConfig {
   readonly nodeEnv: "development" | "test" | "production";
   readonly host: string;
   readonly port: number;
   readonly databaseUrl: string;
+}
+
+export interface ServerConfig extends DatabaseConfig {
+  readonly betterAuthSecret: string;
+  readonly betterAuthUrl: string;
 }
 
 export class EnvironmentError extends Error {
@@ -15,9 +20,9 @@ export class EnvironmentError extends Error {
 }
 
 // Messages name the invalid field, never its potentially secret value.
-export function readServerEnv(
+export function readDatabaseEnv(
   environment: Readonly<Record<string, string | undefined>> = process.env,
-): ServerConfig {
+): DatabaseConfig {
   const nodeEnv = environment.NODE_ENV ?? "development";
   if (!["development", "test", "production"].includes(nodeEnv)) {
     throw new EnvironmentError(
@@ -71,9 +76,55 @@ export function readServerEnv(
   }
 
   return Object.freeze({
-    nodeEnv: nodeEnv as ServerConfig["nodeEnv"],
+    nodeEnv: nodeEnv as DatabaseConfig["nodeEnv"],
     host,
     port,
     databaseUrl,
   });
+}
+
+export function readServerEnv(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): ServerConfig {
+  const database = readDatabaseEnv(environment);
+  const betterAuthSecret = environment.BETTER_AUTH_SECRET;
+  if (
+    !betterAuthSecret ||
+    betterAuthSecret.length < 32 ||
+    betterAuthSecret.length > 512 ||
+    /\s|REPLACE_|SYNTHETIC_|CHANGE_ME/i.test(betterAuthSecret) ||
+    new Set(betterAuthSecret).size < 12
+  ) {
+    throw new EnvironmentError(
+      "BETTER_AUTH_SECRET must be a high-entropy secret of at least 32 characters; replace example placeholders.",
+    );
+  }
+
+  const betterAuthUrl = environment.BETTER_AUTH_URL;
+  try {
+    if (!betterAuthUrl) throw new Error("Missing auth URL");
+    const url = new URL(betterAuthUrl);
+    if (
+      !["http:", "https:"].includes(url.protocol) ||
+      !url.hostname ||
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash ||
+      url.pathname !== "/" ||
+      /\s|REPLACE_/i.test(betterAuthUrl) ||
+      (database.nodeEnv === "production" && url.protocol !== "https:")
+    ) {
+      throw new Error("Invalid auth URL");
+    }
+    return Object.freeze({
+      ...database,
+      betterAuthSecret,
+      betterAuthUrl: url.origin,
+    });
+  } catch {
+    throw new EnvironmentError(
+      "BETTER_AUTH_URL must be an explicit HTTP(S) origin without credentials, query, fragment or path; production requires HTTPS.",
+    );
+  }
 }

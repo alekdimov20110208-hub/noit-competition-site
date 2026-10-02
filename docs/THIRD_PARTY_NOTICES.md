@@ -83,3 +83,34 @@ logging library. Fastify's transitive dependencies, including Pino, remain part 
 the resolved lockfile tree. This addition checks the three new direct packages;
 the final complete transitive redistribution/notice audit remains required and
 is not a legal certification.
+
+## Backend P1B direct dependency register - 2026-10-03
+
+P1B adds one direct runtime dependency, pinned in `package.json` and
+`pnpm-lock.yaml`:
+
+| Dependency  | Version | Use in BudoGraph                                                                                 | License | Evidence                                                                                                                                           |
+| ----------- | ------: | ------------------------------------------------------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Better Auth |   1.7.7 | Email/password credentials, database-backed sessions, supported server APIs, auth schema tooling | MIT     | Installed `node_modules/better-auth/package.json` and [tagged upstream license](https://github.com/better-auth/better-auth/blob/v1.7.7/LICENSE.md) |
+
+The tagged upstream license names **Copyright (c) 2024 - present, Bereket Engida**.
+Preserve its copyright and permission notice when redistributing Better Auth.
+The installed 1.7.7 package manifest declares MIT; its package distribution
+contains `dist` and does not contain a root `LICENSE` file, so the tagged upstream
+`LICENSE.md` was read as the complete notice evidence. The MIT component retains
+its terms alongside BudoGraph's GPL-3.0-only source; final distribution must
+include the required notices.
+
+Schema generation uses the exact-version official `auth@1.7.7` CLI (MIT) as an
+explicit `pnpm dlx` development tool, not a new direct runtime/build dependency.
+The schema is generated from the locally installed Better Auth configuration
+and incorporated into immutable repository SQL. See
+[migration provenance](../server/migrations/README.md).
+
+P1B reuses `pg` and Fastify. It adds no `@fastify/cors`, application ORM, password
+hashing package, custom session library, Admin plugin, or visual asset.
+Better Auth brings transitive auth/crypto/validation and database-adapter
+packages, including Kysely internally; these are not direct BudoGraph ORM
+dependencies. Their full resolved tree and redistribution notices still require
+the final transitive license audit. This entry does not claim legal certification
+or current-year NOIT license compliance; verify the applicable competition rules.

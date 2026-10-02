@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { EnvironmentError, readServerEnv } from "../src/config/env.ts";
+import { EnvironmentError, readDatabaseEnv } from "../src/config/env.ts";
 import { MigrationError, runMigrations } from "../src/db/migrations.ts";
 import { createDatabasePool } from "../src/db/pool.ts";
 
@@ -15,7 +15,7 @@ async function migrate(): Promise<void> {
   let pool: ReturnType<typeof createDatabasePool> | undefined;
   let failed = false;
   try {
-    const config = readServerEnv();
+    const config = readDatabaseEnv();
     pool = createDatabasePool(config, () => {
       console.error("Migration database connection error; details omitted.");
     });

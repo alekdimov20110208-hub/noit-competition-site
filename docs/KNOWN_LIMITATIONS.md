@@ -1,6 +1,9 @@
 # Known Limitations
 
-This document describes the honest Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2 boundary. It must be updated when a limitation is removed or a new one is discovered.
+This document records the local prototype boundary and the separate backend
+P1A/P1B foundation. Historical phase descriptions remain scoped to those phases;
+the current backend limitations are recorded below. Update this record when a
+limitation is removed or discovered.
 
 ## Product and evidence
 
@@ -12,7 +15,7 @@ This document describes the honest Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2
 
 ## Data and persistence
 
-- State is stored only in browser `localStorage` for the current browser profile and origin.
+- The browser prototype's state is stored only in `localStorage` for the current browser profile and origin. The separate P1B backend has PostgreSQL storage, but the browser does not use it.
 - Workspace data and UI preferences use separate versioned records: `budograph.workspace.v1` and `budograph.preferences.v1`. This separation preserves the existing workspace schema, but neither record is a production database.
 - The task acceptance UI still stores its value in the Phase 1-compatible `Task.acknowledged` boolean. Accepted means that the assigned person has seen and accepted the task; it is not authenticated, does not prove that the person actually reviewed it, and is neither completion nor approval.
 - Task acceptance and acknowledgement of an operational change are separate interactions even though the compatible internal naming uses acknowledgement language. They must not be interpreted as one shared workflow.
@@ -100,3 +103,32 @@ Applying pending SQL files, metadata inspection, checksum-change rejection,
 concurrent locking, transactional rollback, and least-privilege permissions
 remain unverified against a real database. The historical 2025-2026 competition
 requirements must be checked for the actual participation year.
+
+## Backend P1B auth/schema foundation - 2026-10-03
+
+P1B adds Better Auth 1.7.7 database-backed email/password sessions, a protected
+safe-identity diagnostic, controlled development provisioning, immutable auth
+and Event/EventMember/Task/ActivityEntry migrations, and scoped authorization
+helpers. It does not remove the local browser limitations above.
+
+- No frontend login, remote workspace service, server data loading, or demo-to-real migration is implemented. The locked UI remains independent of authentication.
+- No Event authoring/bootstrap, assignment/acceptance/status HTTP command, concurrency loop, or real two-user task collaboration is implemented. Those are P1C/later scope.
+- Organizer/Member provisioning labels identify controlled accounts, not global auth permissions. Permanent Event memberships and ownership setup are deferred; tests create only isolated rollback fixtures.
+- Public sign-up is disabled. The CLI provisions only in development through Better Auth-supported account creation and reports existing accounts without rotating their passwords. It is not an invitation or administration UI.
+- Email verification, recovery, social login, MFA, self-service onboarding, and a complete jury-account package are not implemented.
+- Active User/session and active EventMember checks are server-side foundations; no generic policy engine or task mutation service exists. Operational-role text grants no permission.
+- Composite foreign keys and checks reject invalid relational scope/acceptance, but future transactions must enforce owner/active ORGANIZER consistency, inactive-assignee rejection, open-work deactivation safeguards, atomic version checks, and business update/history writes.
+- Activity history rejects UPDATE, DELETE, and TRUNCATE through one narrow database trigger and has no edit API. Future commands still must validate polymorphic targets and atomically append history with business updates. It is not event sourcing or a complete production audit system.
+- No CORS plugin or `CLIENT_ORIGIN` is configured because P1B has no browser frontend integration. Only the configured auth base origin is trusted; later separate-origin integration requires an explicit credentialed origin allowlist.
+- Cookies are HttpOnly, SameSite=Lax, and Secure for production/HTTPS. HTTP development is local-only; production HTTPS/proxy configuration remains unverified until deployment.
+- Better Auth rate limits use memory in one process. Proxy trust, restart behavior, distributed rate limiting, and abuse controls need deployment review.
+- RLS is enabled without public policies on auth/business tables to deny direct Supabase public API access. The trusted backend connection currently requires table-owner/bypass capability. Separate least-privilege runtime/migration grants have not been audited or implemented as deployment infrastructure.
+- `skipLibCheck` accommodates Better Auth's published `bun:sqlite` type import; application TypeScript remains strict. This does not validate every upstream declaration.
+- Database migration/constraint checks and real auth checks are distinct from offline test doubles. Exact executed results belong in [test evidence](TEST_EVIDENCE.md); this limitation register does not assert test passes.
+- No production hosting, monitoring, tested restore, account-retention/deletion process, or deployment security certification is delivered by P1B. Destructive database work still requires separate human approval.
+
+The schema uses application-generated UUIDs and Event-local DATE values with
+TIMESTAMPTZ audit/auth/activity instants. UUID knowledge does not grant access.
+Fictional local demo state is never imported automatically. GPLv3/source,
+documentation, test-role account, and online-access requirements remain
+**2025–2026 source rules requiring verification for a later competition year**.

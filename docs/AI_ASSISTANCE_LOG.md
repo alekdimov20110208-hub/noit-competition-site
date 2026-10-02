@@ -491,3 +491,60 @@ was preserved. Empty-run repetition verifies safe/idempotent infrastructure
 execution, without claiming real pending-file transaction, checksum, or
 concurrency tests. No source, configuration, package, migration, or frontend
 changes were made; no dependencies were installed, and P1B was not started.
+
+## Backend P1B — auth, schema and authorization foundation — 2026-10-03
+
+The human explicitly requested P1B implementation, non-destructive verification
+against the approved development PostgreSQL database, final commit and push.
+The approved contract and complete mandatory sources were read; `main` and
+freshly fetched `origin/main` matched clean baseline `96621f5`. The unrelated
+shortcut remained outside scope. Earlier source/contract/evidence was preserved.
+
+Codex assistance was divided across the primary integration/provisioning agent,
+auth documentation/implementation agent, business schema/authorization agent,
+and documentation/independent-review agent. Better Auth 1.7.7 official docs and
+installed APIs were checked; exact package and matching official auth CLI were
+used. The only new direct dependency is Better Auth (MIT). Auth schema came from
+generation, then reviewed immutable SQL migrations; direct pg business queries
+and the P1A checksum/lock/transaction runner remain the approved persistence.
+
+Assistance implemented typed auth configuration, database sessions, active-user
+checks, closed public registration, Fastify cookie forwarding, safe identity,
+explicit DEVELOPMENT account provisioning, four business tables and small
+session-first/Event-scoped authorization helpers. The human confirmed generation
+of synthetic credentials/random secret into a separate ignored local environment
+file. The agents never read or printed server/.env, credential values or session
+values; passwords were not placed in command arguments, source or evidence.
+
+Real evidence: reviewed migrations applied 2/0 then 0/2; both controlled accounts
+created and rerun reported already-exists; both sign-in/session/isolated logout
+flows passed against database-backed sessions; unauthenticated/origin/signup
+denials and safe logs passed. Seventeen PostgreSQL integration tests passed with
+rollback-only fixtures, including real anon/authenticated-role RLS denial and
+cross-Event/acceptance/history constraints. Final counts preserve only the two
+controlled auth accounts, with no sessions or business/demo rows.
+
+Verification includes 94 frontend tests, 57 offline backend tests (plus the
+intentionally skipped opt-in DB suite), typechecks/builds, formatting/lint,
+frozen lockfile, compiled runtime smoke and diff checks. Exact commands/results,
+schema hashes, intermediate failures and boundaries are in TEST_EVIDENCE.md.
+No visual or external REST/browser-auth result is fabricated.
+
+Independent review found and fixed trusted-Origin cleanup, safe ordered CLI
+resource closure and official CLI no-output/stale-output handling. The primary
+review caught whitespace-only SQL text behavior before migrations. The initial
+auth verifier triggered the genuine login rate limit; its probe sequence was
+corrected without weakening auth protection. Strict project checking remains;
+library checking needs a documented skip for the library's unused Bun declaration.
+
+Frontend/locked UI/demo state are untouched. Task mutation endpoints, authoring,
+Event bootstrap, frontend authentication and the full two-user responsibility
+loop remain P1C. No feature outside P1B was implemented. Current development DB
+owner access is documented; production least-privilege separation/restore/browser
+verification remain later work. Historical 2025–2026 competition rules require
+verification for the participation year.
+
+The project author still needs to inspect, understand and defend the auth,
+generated SQL, scoped authorization, tests and licenses. Agent review and passing
+checks are not human acceptance, user research, legal compliance or formal
+security certification.

@@ -6,7 +6,11 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, the locked Phase 2B.1 Dashboard direction, and the Phase 2B.2 Tasks workspace redesign**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarified BudoGraph's visual identity and Dashboard reading order. Phase 2B.2 applies that identity to a dense operational task register, compact search and filtering, and a primary task detail/editing drawer without changing the approved product idea or adding production services.
 
-The application remains a technical prototype. These phases do not prove product-market fit, commercial demand, adoption, willingness to pay, or usability.
+The repository also contains the separate Backend P1A/P1B foundation described
+below. Its database-backed auth and relational schema are not connected to the
+browser prototype yet. The application remains a technical prototype. These
+phases do not prove product-market fit, commercial demand, adoption, willingness
+to pay, or usability.
 
 The historical research and validation record remains under `docs/validation/` and `docs/market-research/`. Those files are preserved as evidence and are not rewritten to make the Phase 1 decision appear stronger than the evidence supports. The decision to build this prototype is a competition-project decision, not a commercial-validation conclusion.
 
@@ -166,18 +170,32 @@ pnpm format
 
 These are the project commands, not claims that a particular run passed. Record verified results separately as test evidence; do not infer them from this README.
 
-## Backend P1A foundation
+## Backend P1A/P1B foundation
 
-Backend P1A adds a separate TypeScript/Fastify server, a PostgreSQL pool boundary,
-liveness/readiness endpoints, validated server configuration, and a versioned SQL
-migration runner. The browser application continues to use its fictional local
-demo data; Dashboard, Tasks, and Team remain locked. Authentication, business
-tables, task persistence, and real collaboration are later phases.
+Backend P1A adds a separate TypeScript/Fastify server, PostgreSQL pool,
+liveness/readiness endpoints, validated configuration, and versioned SQL runner.
+P1B adds pinned Better Auth **1.7.7** email/password authentication with
+database-backed sessions, a safe `GET /api/me` diagnostic, controlled CLI account
+provisioning, Event/EventMember/Task/ActivityEntry relational schema, and
+server-side Event authorization helpers. Public sign-up is closed.
+
+The browser application continues to use fictional local demo data; Dashboard,
+Tasks, and Team remain locked. P1B does not include frontend login, a remote
+workspace service, Event setup, task assignment/acceptance/status HTTP commands,
+or the two-user responsibility loop. Those remain later work.
 
 Backend development requires Node.js **22.x from 22.18.0, or 24.0.0 and later**, and the repository's
 **pnpm 11.9.0**. From the repository root, copy `server/.env.example` to the ignored
-`server/.env`, replace its database placeholders using an approved local/test
-database, then run:
+`server/.env`, replace placeholders using an approved local/test database, and
+provide a cryptographically generated `BETTER_AUTH_SECRET` plus an explicit
+`BETTER_AUTH_URL`. Keep credentials in ignored local environment files or the
+process environment. Run reviewed migrations explicitly before auth usage:
+
+```sh
+pnpm db:migrate
+```
+
+Then start the backend:
 
 ```sh
 pnpm server:dev
@@ -186,14 +204,23 @@ pnpm server:dev
 The default listener is `http://127.0.0.1:3001`. Liveness is
 `GET /api/health/live`; PostgreSQL readiness is `GET /api/health/ready`.
 Use `pnpm server:typecheck`, `pnpm server:test`, and `pnpm server:build` for backend
-checks, and `pnpm db:migrate` for explicit migrations against the configured
-database. Real credentials must remain untracked.
+checks. `pnpm server:provision` creates two controlled development users through
+Better Auth's server API using local credentials; `pnpm server:verify-auth`
+checks real auth behavior; `pnpm server:test:integration` explicitly runs
+rollback-only PostgreSQL schema/constraint checks. These commands require the
+approved database and configuration; credentials must remain untracked.
+
+No CORS dependency or separate frontend-origin setting is added in P1B. Better
+Auth trusts only its configured origin. Business UUIDs are server-generated;
+date-only deadlines remain Event-local DATE values. RLS without public policies
+protects auth/business tables from direct Supabase public API access; backend
+least-privilege deployment grants still require review.
 
 See [backend development](docs/BACKEND_DEVELOPMENT.md) for configuration, lifecycle,
-migration behavior, and the verification boundary. The human manually verified
-real PostgreSQL readiness and two successful empty migration-runner executions
-against the approved Supabase-hosted development database. See
-[test evidence](docs/TEST_EVIDENCE.md) for results and remaining verification limits.
+migration/schema generation, provisioning, and the verification boundary. See
+[test evidence](docs/TEST_EVIDENCE.md) for actual command results and remaining
+verification limits; this README does not assert a passing run or production
+deployment.
 
 ## Replaceable wordmark
 

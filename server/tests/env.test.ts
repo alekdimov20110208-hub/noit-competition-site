@@ -1,13 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { EnvironmentError, readServerEnv } from "../src/config/env.ts";
+import { randomBytes } from "node:crypto";
+import {
+  EnvironmentError,
+  readDatabaseEnv,
+  readServerEnv,
+} from "../src/config/env.ts";
 
 // Reserved .invalid host and unmistakable synthetic test markers; no real credentials.
 const databaseUrl =
   "postgresql://SYNTHETIC_USER:SYNTHETIC_SECRET@database.invalid/SYNTHETIC_DATABASE";
 
 test("environment uses safe local defaults and returns only typed configuration", () => {
-  const config = readServerEnv({
+  const config = readDatabaseEnv({
     DATABASE_URL: databaseUrl,
     UNRELATED_SECRET: "OMIT_ME",
   });
@@ -24,7 +29,7 @@ test("environment accepts explicit supported runtime values", () => {
   for (const nodeEnv of ["development", "test", "production"]) {
     for (const host of ["localhost", "0.0.0.0", "::1", "api.example.invalid"]) {
       assert.deepEqual(
-        readServerEnv({
+        readDatabaseEnv({
           NODE_ENV: nodeEnv,
           HOST: host,
           PORT: "65535",
@@ -40,7 +45,7 @@ test("environment accepts explicit supported runtime values", () => {
     }
   }
   assert.equal(
-    readServerEnv({
+    readDatabaseEnv({
       PORT: "1",
       DATABASE_URL: "postgres://database.invalid/example",
     }).port,
@@ -51,7 +56,7 @@ test("environment accepts explicit supported runtime values", () => {
 test("database configuration is required even in test mode for database commands", () => {
   for (const NODE_ENV of ["test", "development", "production"]) {
     assert.throws(
-      () => readServerEnv({ NODE_ENV }),
+      () => readDatabaseEnv({ NODE_ENV }),
       /DATABASE_URL is required/,
     );
   }
@@ -91,13 +96,85 @@ test("environment rejects invalid ports, environments, hosts, and database URLs 
   ];
   for (const invalid of invalidEnvironments) {
     assert.throws(
-      () => readServerEnv({ DATABASE_URL: databaseUrl, ...invalid }),
+      () => readDatabaseEnv({ DATABASE_URL: databaseUrl, ...invalid }),
       (error: unknown) => {
         assert.ok(error instanceof EnvironmentError);
         assert.doesNotMatch(
           error.message,
           /SYNTHETIC_SECRET|SYNTHETIC_USER|postgresql:\/\/|https:\/\/|REPLACE_PASSWORD/,
         );
+        return true;
+      },
+    );
+  }
+});
+
+test("auth-capable runtime requires its secret and explicit URL", () => {
+  const secret = randomBytes(32).toString("hex");
+  const config = readServerEnv({
+    DATABASE_URL: databaseUrl,
+    BETTER_AUTH_SECRET: secret,
+    BETTER_AUTH_URL: "http://127.0.0.1:3001/",
+    UNRELATED_SECRET: "OMIT_ME",
+  });
+  assert.deepEqual(config, {
+    nodeEnv: "development",
+    host: "127.0.0.1",
+    port: 3001,
+    databaseUrl,
+    betterAuthSecret: secret,
+    betterAuthUrl: "http://127.0.0.1:3001",
+  });
+  assert.ok(Object.isFrozen(config));
+  assert.equal(
+    readServerEnv({
+      NODE_ENV: "production",
+      DATABASE_URL: databaseUrl,
+      BETTER_AUTH_SECRET: secret,
+      BETTER_AUTH_URL: "https://auth.example.invalid",
+    }).betterAuthUrl,
+    "https://auth.example.invalid",
+  );
+});
+
+test("auth configuration failures never print rejected secrets or URL values", () => {
+  const secret = randomBytes(32).toString("hex");
+  const invalid = [
+    ...[
+      undefined,
+      "",
+      "SHORT_SECRET",
+      "x".repeat(64),
+      "REPLACE_AUTH_SECRET",
+    ].map((BETTER_AUTH_SECRET) => ({ BETTER_AUTH_SECRET })),
+    ...[
+      undefined,
+      "",
+      "https://name:SYNTHETIC_SECRET@auth.example.invalid",
+      "ftp://auth.example.invalid",
+      "https://auth.example.invalid/path",
+      "https://auth.example.invalid?secret=SYNTHETIC_SECRET",
+      "https://auth.example.invalid#SYNTHETIC_SECRET",
+      "http://REPLACE_HOST",
+    ].map((BETTER_AUTH_URL) => ({ BETTER_AUTH_URL })),
+    { NODE_ENV: "production", BETTER_AUTH_URL: "http://auth.example.invalid" },
+  ];
+  for (const fields of invalid) {
+    assert.throws(
+      () =>
+        readServerEnv({
+          DATABASE_URL: databaseUrl,
+          BETTER_AUTH_SECRET: secret,
+          BETTER_AUTH_URL: "http://127.0.0.1:3001",
+          ...fields,
+        }),
+      (error: unknown) => {
+        assert.ok(error instanceof EnvironmentError);
+        assert.doesNotMatch(
+          error.message,
+          /SYNTHETIC_SECRET|SHORT_SECRET|name:|auth\.example|https:\/\//,
+        );
+        assert.equal(error.message.includes(secret), false);
         return true;
       },
     );
