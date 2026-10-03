@@ -1,5 +1,60 @@
 # BudoGraph Test Evidence
 
+## P2A Bulgarian sidebar micro-scroll fix — 2026-10-03
+
+Baseline: synchronized `main`/`origin/main` at
+`8be4b620da7acc12415474f76dc5ed711cd58a51`; tracked tree clean. The user reports
+all P2A functional flows PASS and requests only this confirmed visual defect.
+The unrelated `docs/market-research/docs - Shortcut.lnk` remains untouched.
+
+### Confirmed cause and focused change
+
+Actual rendered Edge layout at both 1440 and 1080 px widths: Bulgarian wraps
+the brand subtitle onto a second line (+15 px) and the Event switcher actions
+onto two rows (+44 px). The minimum content/padding stack is EN 684 px / BG
+743 px. At 740 px viewport height, BG scrollHeight is 743, clientHeight is 740,
+and setting scrollTop confirms exactly 3 px of scroll travel; EN has zero.
+At 720 px height BG travel is 23 px. Box sizing is border-box, sidebar height
+equals viewport height, and measured dimensions are whole pixels. Navigation,
+Event actions, select and logout remain at least 44 px high.
+
+Only product change: `src/styles.css`, desktop widths >=961 px and heights
+<=768 px. Sidebar vertical padding becomes 20/14 px (saves 8), brand bottom
+padding 18 px (saves 4), nav top margin 18 px (saves 4), nav gap 4 px (saves 5),
+footer top padding 10 px (saves 4). This recovers 25 px without changing fonts,
+labels, controls, switcher layout or legitimate overflow-y auto. Taller desktop
+and mobile layouts retain their existing rules. Only the two related evidence/
+assistance logs are additionally updated.
+
+### Browser and frontend results
+
+- Headless Microsoft Edge renders the real application with explicitly synthetic,
+  read-only safe identity/Event/task/member transport fixtures and a fixed clock.
+  No backend/auth/database writes or session artifacts are involved.
+- **24/24** cases pass: widths **1440/1080**, heights **900/740/720**, **EN/BG**,
+  **Light/Dark**. Language/theme changes use the actual preference controls.
+  Every normal sidebar has zero scroll travel, no horizontal overflow, no clipped
+  labels/controls and unchanged text/control dimensions and switcher height.
+- Keyboard Tab reaches logout with a visible focus outline and the complete
+  control inside the viewport in every case. At 560 px height, all 12 contexts
+  retain real scrolling and the final controls/footer remain reachable.
+- **72/72** Dashboard/Tasks/Team interior screenshot pairs are pixel-identical.
+  All **8/8** tall (900 px) EN/BG Light/Dark sidebar pairs are exact after one
+  targeted repeat. The initial 1440 EN dark sidebar comparison differed at four
+  rounded-corner pixels (maximum channel delta 5); geometry was unchanged, and
+  the repeat is exact. The initial comparison assertion is not counted as PASS.
+- Representative corrected BG 1440 light and 1080 dark sidebar screenshots
+  were visually inspected: full text, switcher actions, account and footer fit.
+- `pnpm.cmd format`, `pnpm.cmd format:check`, `pnpm.cmd lint`,
+  `pnpm.cmd typecheck`, `pnpm.cmd test` (**201/201**, zero skips),
+  `pnpm.cmd build` and `git diff --check`: PASS.
+
+Local ignored reproduction/report/screenshots: `tmp/sidebar-scan.mjs`,
+`tmp/sidebar-verify.mjs`, `tmp/sidebar-compare.py`, `tmp/sidebar-scroll/`.
+No new human verification, device coverage or accessibility certification is
+claimed. Dashboard/Tasks/Team interiors, backend/database/auth and P2B remain
+outside this change. Commit/push synchronization is reported in the final reply.
+
 ## P2A Event authoring and multiple-Event navigation — 2026-10-03
 
 Preflight: `main`, clean tracked worktree, freshly fetched `origin/main` equal to

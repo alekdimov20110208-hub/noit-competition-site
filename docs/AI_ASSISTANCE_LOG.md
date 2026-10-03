@@ -1,5 +1,27 @@
 # AI Assistance Log
 
+## P2A Bulgarian sidebar micro-scroll fix — 2026-10-03
+
+Codex handled only the user's confirmed desktop sidebar overflow from synchronized
+baseline `8be4b620da7acc12415474f76dc5ed711cd58a51`. Rendered Edge measurements
+confirmed that Bulgarian adds a 15 px subtitle line and a 44 px Event action row:
+the minimum sidebar stack grows from 684 to 743 px, causing 3 px scroll travel
+at a 740 px viewport height. This is content height plus decorative spacing,
+not a viewport calculation, box-sizing or fractional-pixel error.
+
+The only product edit is a desktop height media query in `src/styles.css` that
+recovers 25 px from padding/gaps at heights up to 768 px. Fonts, full labels,
+44 px targets, Event switcher geometry, navigation order and overflow-y auto
+are preserved. Backend, database, auth and locked page interiors are unchanged;
+P2B was not begun. No subagent or dependency was used.
+
+Read-only synthetic transport fixtures render the real application for 24 width/
+height/language/theme cases, actual EN-to-BG control switching, keyboard focus,
+short-height scrolling and pixel comparisons. These are controlled browser
+checks, not new human usability results. The user supplied a functional P2A PASS.
+Exact commands, observations and the initial tiny raster discrepancy/recheck
+are recorded in TEST_EVIDENCE.md. The unrelated shortcut was left untouched.
+
 ## P2A Event authoring and multiple-Event navigation — 2026-10-03
 
 OpenAI Codex implemented the user's attached narrow P2A contract from synchronized
