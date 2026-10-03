@@ -4,7 +4,9 @@ import { DEMO_REFERENCE_DATE } from "../data/demoTime.ts";
 import type { Event } from "../domain/types.ts";
 import { useI18n, type MessageKey } from "../i18n/index.ts";
 import { usePreferences } from "../preferences/index.ts";
-import { APP_ROUTES, type AppPath } from "../routes.ts";
+import { APP_ROUTES, eventHref, type AppPath } from "../routes.ts";
+import type { TaskEvent } from "../services/RemoteWorkspaceService.ts";
+import { EventSwitcher } from "./EventSwitcher.tsx";
 import { AppLink } from "./AppLink.tsx";
 import { BrandWordmark } from "./BrandWordmark.tsx";
 import { PreferencesControls } from "./PreferencesControls.tsx";
@@ -28,12 +30,19 @@ const PREFERENCE_ERROR_KEYS = {
 interface AppShellProps {
   currentPath: AppPath;
   event:
-    | (Pick<Event, "name" | "startDate" | "endDate"> & { location?: string })
+    | (Pick<Event, "name" | "startDate" | "endDate"> & {
+        location?: string;
+        id?: string;
+      })
     | null;
   persistenceError: PersistenceError;
   onNavigate: (path: string) => void;
   children: ReactNode;
   dataMode?: "demo" | "remote-tasks" | "remote-workspace";
+  events?: readonly TaskEvent[];
+  onSwitchEvent?: (eventId: string) => void;
+  eventEditHref?: string;
+  eventsStatus?: "loading" | "ready" | "error";
 }
 
 export function AppShell({
@@ -43,6 +52,10 @@ export function AppShell({
   onNavigate,
   children,
   dataMode = "demo",
+  events = [],
+  onSwitchEvent,
+  eventEditHref,
+  eventsStatus,
 }: AppShellProps) {
   const { t, formatDate, formatDateRange } = useI18n();
   const { storageError: preferenceStorageError } = usePreferences();
@@ -60,7 +73,18 @@ export function AppShell({
 
         <div className="sidebar__event" aria-label={t("shell.currentEvent")}>
           <div className="sidebar__event-label">{t("shell.currentEvent")}</div>
-          <strong>{event?.name ?? t("tasks.remote.context")}</strong>
+          {onSwitchEvent ? (
+            <EventSwitcher
+              events={events}
+              currentEventId={event?.id}
+              onSwitch={onSwitchEvent}
+              onNavigate={onNavigate}
+              editHref={eventEditHref}
+              status={eventsStatus}
+            />
+          ) : (
+            <strong>{event?.name ?? t("tasks.remote.context")}</strong>
+          )}
           {event && (
             <span>{formatDateRange(event.startDate, event.endDate)}</span>
           )}
@@ -79,7 +103,11 @@ export function AppShell({
             return (
               <AppLink
                 key={route.path}
-                href={route.path}
+                href={
+                  onSwitchEvent && event?.id
+                    ? eventHref(event.id, route.path)
+                    : route.path
+                }
                 onNavigate={onNavigate}
                 className="sidebar__link"
                 aria-current={currentPath === route.path ? "page" : undefined}
@@ -108,6 +136,17 @@ export function AppShell({
           </div>
         </div>
         <PreferencesControls />
+        {onSwitchEvent && (
+          <EventSwitcher
+            events={events}
+            currentEventId={event?.id}
+            onSwitch={onSwitchEvent}
+            onNavigate={onNavigate}
+            editHref={eventEditHref}
+            status={eventsStatus}
+            mobile
+          />
+        )}
       </header>
 
       <main className="app-main" id="main-content" tabIndex={-1}>
@@ -147,7 +186,11 @@ export function AppShell({
           return (
             <AppLink
               key={route.path}
-              href={route.path}
+              href={
+                onSwitchEvent && event?.id
+                  ? eventHref(event.id, route.path)
+                  : route.path
+              }
               onNavigate={onNavigate}
               className="mobile-nav__link"
               aria-current={currentPath === route.path ? "page" : undefined}

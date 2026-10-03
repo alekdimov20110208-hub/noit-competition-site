@@ -1,4 +1,57 @@
-# Backend P1A/P1B/P1C and P1D Development
+# Backend P1 and P2A Development
+
+## Current P2A Event commands and navigation — 2026-10-03
+
+`POST /api/events` accepts exactly `{ name, startDate, endDate, timezone }` and
+returns 201 `{ event }`. `PATCH /api/events/:eventId` accepts those four fields
+plus a required `expectedVersion` and returns canonical 200 `{ event }`.
+Only an active same-Event ORGANIZER may edit; any authenticated active User may
+create. Owner, membership ID/access role, actors, IDs, timestamps and version
+come from the server. There is no global Organizer account type.
+
+Name is trimmed and bounded to 1–200 characters; NUL and malformed Unicode
+surrogates are rejected safely while valid emoji are accepted. Dates are strict real calendar
+strings `YYYY-MM-DD` (years 0001–9999), with end >= start, stored as PostgreSQL
+DATE. Runtime IANA validation and the existing database timezone function must
+both accept the timezone. Raw numeric offsets are rejected. Cookie commands use
+the existing exact trusted-origin/Fetch Metadata guard; SQL is parameterized.
+
+One pinned transaction locks the active creator and inserts Event, creator's
+active ORGANIZER EventMember and EVENT_CREATED ActivityEntry. It inserts no
+tasks and imports no development fixture. Editing locks Event and active actor
+membership/User in the P1 lock order. A changed update and EVENT_UPDATED history
+commit together; payload contains only changed before/after fields and versions.
+Matching-version no-op edits preserve timestamp/version/history. Stale versions,
+including stale no-ops, return 409 EVENT_VERSION_CONFLICT. Archive writes remain
+denied. Foreign membership returns 404 and same-Event Member edits return 403.
+
+`GET /api/events` still filters active memberships and Users. Safe DTOs now include
+version and created/updated ISO instants alongside fields/archive/membership.
+`RemoteWorkspaceService` adds focused list/get/create/update Event operations.
+The existing controller owns selection and all scoped reads; canceled/revision
+checks prevent prior Event work from publishing after a switch or identity change.
+Event commands settle a pending workspace read/task refetch before writing; new
+focus reads coalesce so prior metadata cannot overwrite a canonical successful edit.
+No polling, browser auth storage, demo fallback or second data architecture exists.
+
+Workspace paths are `/events/:eventId/dashboard`, `/events/:eventId/tasks` and
+`/events/:eventId/team`; task details retain `?task=...`. `/events/new` and
+`/events/:eventId/edit` provide the narrow forms. Login return paths are allowlisted.
+The shell switcher preserves the page, discards task-detail IDs, and exposes create;
+edit appears only for the current Event's real ORGANIZER membership. Zero Events
+exposes create, one resolves directly, and multiple Events are explicitly switchable.
+Fresh Event Tasks are empty and Team has only the creator; no bootstrap is needed.
+
+409 recovery refetches canonical Event details and requires explicit save. A failed
+conflict refetch disables saving until **Load latest details** succeeds. Field,
+session, permission, missing-resource and connection errors remain safe/localized.
+
+`pnpm test:browser:events` runs the controlled real-account P2A verifier.
+Existing P1 browser verifiers preserve their checks with Event-scoped assertions.
+See TEST_EVIDENCE.md for executed results and intentional development Events.
+No migration or dependency was added. **TASK AUTHORING NOT YET IMPLEMENTED;
+INVITATIONS NOT YET IMPLEMENTED; EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED;
+CHANGES/PLAN B NOT YET IMPLEMENTED.** Later descriptions are historical P1 scope.
 
 P1A establishes the TypeScript/Fastify runtime, typed configuration, PostgreSQL
 pool, health checks, shutdown handling, and explicit SQL migration runner. P1B

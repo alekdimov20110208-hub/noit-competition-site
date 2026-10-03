@@ -512,9 +512,11 @@ export function TasksPage({
                 <span>
                   {t(
                     readState?.status === "error"
-                      ? readState.error === "forbidden"
-                        ? "tasks.remote.forbidden"
-                        : "tasks.remote.error"
+                      ? readState.error === "not-found"
+                        ? "events.error.not-found"
+                        : readState.error === "forbidden"
+                          ? "tasks.remote.forbidden"
+                          : "tasks.remote.error"
                       : "tasks.remote.loading",
                   )}
                 </span>

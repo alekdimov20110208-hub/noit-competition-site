@@ -36,9 +36,11 @@ export function WorkspaceReadNotice({
             {t(
               state.status === "loading"
                 ? "workspace.loading"
-                : state.error === "forbidden"
-                  ? "workspace.forbidden"
-                  : "workspace.error",
+                : state.error === "not-found"
+                  ? "events.error.not-found"
+                  : state.error === "forbidden"
+                    ? "workspace.forbidden"
+                    : "workspace.error",
             )}
           </span>
           {state.status === "error" && (

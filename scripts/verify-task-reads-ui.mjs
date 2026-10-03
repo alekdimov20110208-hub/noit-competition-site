@@ -34,6 +34,7 @@ const contexts = [];
 let lastLogin = 0;
 async function make(label, poison = false) {
   const context = await browser.newContext({
+    reducedMotion: "reduce",
     viewport: { width: 1440, height: 900 },
     locale: "en-GB",
   });
@@ -143,7 +144,7 @@ try {
     assert.equal(dto.assignedMemberId, row.assigned_member_id);
     assert.equal(
       await organizer.page
-        .locator(`a[href="/tasks?task=${row.id}"]`)
+        .locator(`a[href="/events/${initial.event.id}/tasks?task=${row.id}"]`)
         .innerText(),
       row.title,
     );
@@ -175,7 +176,9 @@ try {
   );
 
   const task = initial.tasks[0];
-  await organizer.page.goto(origin + `/tasks?task=${task.id}`);
+  await organizer.page.goto(
+    origin + `/events/${initial.event.id}/tasks?task=${task.id}`,
+  );
   await organizer.page.getByRole("dialog").waitFor();
   assert.equal(
     await organizer.page.locator(".task-drawer__identity h2").innerText(),
@@ -202,7 +205,9 @@ try {
     "Real task deep link and drawer preserve canonical content; Organizer assignment/status available, no acceptance impersonation; no actions sent",
   );
 
-  await organizer.page.goto(origin + "/tasks?task=task-transport");
+  await organizer.page.goto(
+    origin + `/events/${initial.event.id}/tasks?task=task-transport`,
+  );
   await ready(organizer.page);
   await organizer.page.locator(".notice--warning").waitFor();
   assert.equal(await organizer.page.getByRole("dialog").count(), 0);
@@ -283,9 +288,7 @@ try {
     }),
   );
   await organizer.page.reload();
-  await organizer.page
-    .getByRole("heading", { name: "No accessible event" })
-    .waitFor();
+  await organizer.page.getByRole("alert").waitFor();
   assert.equal(await organizer.page.locator(".task-row").count(), 0);
   await organizer.page.unroute("**/api/events");
   await organizer.page.reload();
@@ -330,7 +333,10 @@ try {
     await organizer.page.getByRole("alert").innerText(),
     /cannot access/,
   );
-  assert.equal(new URL(organizer.page.url()).pathname, "/tasks");
+  assert.equal(
+    new URL(organizer.page.url()).pathname,
+    `/events/${initial.event.id}/tasks`,
+  );
   assert.equal(await organizer.page.locator(".task-row").count(), 0);
   assert.equal(
     await organizer.page.evaluate(async () => (await fetch("/api/me")).status),

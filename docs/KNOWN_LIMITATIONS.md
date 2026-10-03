@@ -5,7 +5,33 @@ P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases
 the current backend limitations are recorded below. Update this record when a
 limitation is removed or discovered.
 
-## Current P1D.3 real workspace boundary — 2026-10-03
+## Current P2A boundary — 2026-10-03
+
+Event creation/basic editing and explicit Event-scoped navigation extend P1.
+Any authenticated active User can create an Event and become its owner/active
+ORGANIZER. There is no global Organizer account type. New Events contain no
+authored Tasks, sample fixtures or copied development data; they show real empty
+Dashboard/Tasks regions and the creator on Team. Dates remain calendar strings.
+
+The switcher uses active accessible memberships and Event IDs in URLs. A URL is
+navigation state, never authorization. Event Organizer edits require expectedVersion;
+409 loads current details, never replays intent, and requires explicit review/save.
+Refetch failure blocks save. Scoped controller revisions/cancellation prevent old
+Event data from rendering after switching; no offline cache/polling/realtime exists.
+
+**TASK AUTHORING NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
+There is no ownership transfer, role/member management, public signup, email
+verification, recovery, Templates, Budget, AI or activity feed. Archived Events
+retain P1 read-only behavior; P2A adds no archival action. List pagination and a
+large-Event-count navigation design are future work, not new P2A infrastructure.
+
+Production deployment, least-privilege grant audit and backup/restore remain
+separate. Browser evidence uses desktop Edge/Chromium emulation, not human
+acceptance, physical devices, Safari/Firefox or formal certification. Supplied
+NOIT requirements are for 2025–2026 and need actual-year reverification.
+
+## Historical P1D.3 real workspace boundary — 2026-10-03
 
 **P1D.3 REAL WORKSPACE: PASS. P1 CORE COMPLETE: YES.** This closes the approved P1
 scope; it does not implement P2/P3 or establish production readiness.

@@ -22,6 +22,9 @@ const event: TaskEvent = {
   endDate: "2026-10-04",
   timezone: "Europe/Sofia",
   archived: false,
+  version: 1,
+  createdAt: "2026-10-03T12:00:00Z",
+  updatedAt: "2026-10-03T12:00:00Z",
   membership: { id: member.id, accessRole: "MEMBER" },
 };
 const dto = {

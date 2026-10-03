@@ -15,10 +15,12 @@ import { PageHeader } from "./components/PageHeader.tsx";
 import { DashboardPage } from "./pages/DashboardPage.tsx";
 import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
+import { EventFormPage } from "./pages/EventFormPage.tsx";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
 import {
   createTaskDetailHistoryState,
   createTaskHref,
+  eventHref,
   isTaskDetailHistoryState,
   parseAppLocation,
   resolveTaskLocation,
@@ -48,6 +50,7 @@ export default function App() {
   );
   // Team remounts from its own history-entry context, including same-route sheets.
   const [teamEntry, setTeamEntry] = useState(0);
+  const pendingRouteFocus = useRef(false);
   const pendingTaskFocusRef = useRef<PendingTaskFocus | null>(
     currentLocation.path === "/" && dashboardContext.origin
       ? { ...dashboardContext.origin, trigger: null }
@@ -55,7 +58,11 @@ export default function App() {
   );
   const identity = useAuth();
   const remoteEnabled = Boolean(identity.user);
-  const remoteTasks = useRemoteTasks(remoteEnabled, identity.user?.id ?? "");
+  const remoteTasks = useRemoteTasks(
+    remoteEnabled,
+    identity.user?.id ?? "",
+    currentLocation.eventId,
+  );
   const remoteEvent = remoteTasks.workspace.events[0] ?? null;
   useEffect(() => {
     if (!remoteEnabled) return;
@@ -115,11 +122,18 @@ export default function App() {
   const navigate = useCallback(
     (href: string, options: NavigationOptions = {}) => {
       const targetUrl = new URL(href, window.location.origin);
+      const scope =
+        parseAppLocation(window.location.pathname, window.location.search)
+          .eventId ?? remoteTasks.workspace.currentEventId;
+      if (scope && !targetUrl.pathname.startsWith("/events/")) {
+        const legacy = parseAppLocation(targetUrl.pathname, targetUrl.search);
+        targetUrl.pathname = eventHref(scope, legacy.path);
+      }
       const nextLocation = parseAppLocation(
         targetUrl.pathname,
         targetUrl.search,
       );
-      const normalizedHref = `${nextLocation.path}${targetUrl.search}`;
+      const normalizedHref = `${targetUrl.pathname}${targetUrl.search}`;
       const currentHref = `${window.location.pathname}${window.location.search}`;
 
       if (options.replace || currentHref === normalizedHref) {
@@ -133,11 +147,47 @@ export default function App() {
       setCurrentLocation(nextLocation);
       if (options.scroll !== false) {
         pendingTaskFocusRef.current = null;
+        pendingRouteFocus.current = true;
         window.scrollTo({ top: 0, behavior: "auto" });
       }
     },
-    [],
+    [remoteTasks.workspace.currentEventId],
   );
+  useEffect(() => {
+    if (
+      remoteTasks.status === "ready" &&
+      remoteTasks.workspace.currentEventId &&
+      !currentLocation.eventId &&
+      currentLocation.eventMode === "workspace"
+    ) {
+      navigate(
+        eventHref(
+          remoteTasks.workspace.currentEventId,
+          currentLocation.path,
+          currentLocation.taskId,
+        ),
+        { replace: true, scroll: false },
+      );
+    }
+  }, [
+    remoteTasks.status,
+    remoteTasks.workspace.currentEventId,
+    currentLocation,
+    navigate,
+  ]);
+  useEffect(() => {
+    if (
+      !pendingRouteFocus.current ||
+      (currentLocation.eventMode === "workspace" &&
+        remoteTasks.status === "loading")
+    )
+      return;
+    const frame = window.requestAnimationFrame(() => {
+      pendingRouteFocus.current = false;
+      document.getElementById("main-content")?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [currentLocation, remoteTasks.status]);
   const openTask = useCallback(
     (taskId: string) => {
       const trigger =
@@ -145,7 +195,10 @@ export default function App() {
           ? document.activeElement
           : null;
       const focusKey = trigger?.dataset.taskFocusKey ?? null;
-      if (window.location.pathname === "/") {
+      if (
+        parseAppLocation(window.location.pathname, window.location.search)
+          .path === "/"
+      ) {
         window.history.replaceState(
           withDashboardContext(window.history.state, {
             ...readDashboardContext(window.history.state),
@@ -159,12 +212,12 @@ export default function App() {
         taskId,
         trigger,
       };
-      navigate(createTaskHref(taskId), {
+      navigate(createTaskHref(taskId, remoteTasks.workspace.currentEventId), {
         scroll: false,
         state: createTaskDetailHistoryState(focusKey),
       });
     },
-    [navigate],
+    [navigate, remoteTasks.workspace.currentEventId],
   );
   const closeTask = useCallback(() => {
     const historyState = window.history.state;
@@ -196,6 +249,9 @@ export default function App() {
     if (currentLocation.path === "/tasks" && currentLocation.taskId !== null) {
       return;
     }
+    // Back can restore a Dashboard origin across Events. Keep its focus/scroll
+    // pending until the matching scoped content has replaced the loading mask.
+    if (remoteTasks.status === "loading") return;
 
     const pendingFocus = pendingTaskFocusRef.current;
     if (!pendingFocus) return;
@@ -203,7 +259,10 @@ export default function App() {
     const animationFrame = window.requestAnimationFrame(() => {
       pendingTaskFocusRef.current = null;
       const taskHref = pendingFocus.taskId
-        ? createTaskHref(pendingFocus.taskId)
+        ? createTaskHref(
+            pendingFocus.taskId,
+            currentLocation.eventId ?? undefined,
+          )
         : null;
       const remountedExactTrigger = pendingFocus.focusKey
         ? [
@@ -242,7 +301,7 @@ export default function App() {
     });
 
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [currentLocation]);
+  }, [currentLocation, remoteTasks.status]);
 
   const taskLocation = resolveTaskLocation(
     currentLocation,
@@ -356,10 +415,113 @@ export default function App() {
     }
   }
 
+  const deniedEvent =
+    remoteTasks.status === "error" &&
+    (remoteTasks.error === "forbidden" || remoteTasks.error === "not-found");
+  const contextEvent = deniedEvent
+    ? null
+    : (remoteTasks.accessibleEvents.find(
+        (event) => event.id === currentLocation.eventId,
+      ) ?? remoteEvent);
+  const authoringEvent =
+    currentLocation.eventMode === "edit" ? contextEvent : null;
+  if (
+    currentLocation.eventMode === "create" ||
+    (authoringEvent && currentLocation.eventMode === "edit")
+  ) {
+    if (
+      authoringEvent &&
+      (authoringEvent.archived ||
+        authoringEvent.membership.accessRole !== "ORGANIZER")
+    ) {
+      page = (
+        <div className="page">
+          <PageHeader
+            title={t("events.edit")}
+            description={t("events.permission")}
+          />
+          <div className="notice" role="alert">
+            {t("events.permission")}
+          </div>
+        </div>
+      );
+    } else {
+      page = (
+        <EventFormPage
+          key={authoringEvent?.id ?? "new-event"}
+          event={authoringEvent ?? undefined}
+          onSave={(fields, expectedVersion, signal) =>
+            authoringEvent && expectedVersion !== null
+              ? remoteTasks.updateEvent(
+                  authoringEvent.id,
+                  expectedVersion,
+                  fields,
+                  signal,
+                )
+              : remoteTasks.createEvent(fields, signal)
+          }
+          onReload={(signal) =>
+            remoteTasks.getEvent(authoringEvent!.id, signal)
+          }
+          onSuccess={(event) =>
+            navigate(eventHref(event.id), { replace: true })
+          }
+          onCancel={() =>
+            navigate(contextEvent ? eventHref(contextEvent.id) : "/")
+          }
+        />
+      );
+    }
+  } else if (
+    remoteTasks.status === "ready" &&
+    !remoteEvent &&
+    currentLocation.eventMode !== "edit"
+  ) {
+    page = (
+      <div className="page">
+        <PageHeader
+          title={t("events.none")}
+          description={t("events.empty.description")}
+        />
+        <EmptyState
+          title={t("events.none")}
+          description={t("events.empty.description")}
+          action={
+            <button
+              className="button button--primary"
+              type="button"
+              onClick={() => navigate("/events/new")}
+            >
+              {t("events.create")}
+            </button>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <AppShell
       currentPath={currentLocation.path}
-      event={remoteEvent}
+      event={contextEvent}
+      events={remoteTasks.accessibleEvents}
+      eventsStatus={remoteTasks.status}
+      onSwitchEvent={(eventId) =>
+        navigate(
+          eventHref(
+            eventId,
+            currentLocation.eventMode === "workspace"
+              ? currentLocation.path
+              : "/",
+          ),
+        )
+      }
+      eventEditHref={
+        contextEvent?.membership.accessRole === "ORGANIZER" &&
+        !contextEvent.archived
+          ? `/events/${contextEvent.id}/edit`
+          : undefined
+      }
       dataMode="remote-workspace"
       persistenceError={null}
       onNavigate={(href) => navigate(href)}

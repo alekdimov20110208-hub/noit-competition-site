@@ -1,5 +1,49 @@
 # AI Assistance Log
 
+## P2A Event authoring and multiple-Event navigation — 2026-10-03
+
+OpenAI Codex implemented the user's attached narrow P2A contract from synchronized
+`24ac5baf1139a20b601cfd63940e1dfe4ea4db80`, a documented P1 fix descendant of
+`dfccbe92d3ea851376225dc0ab905e39fd5cf821`. The complete master prompt and all
+30 regulation pages were read. Existing concept/MVP/backend contract, schema,
+authorization, service/controller and locked core page composition were extended.
+
+Assistance covers atomic Event/owner/Organizer/history creation, versioned
+Organizer edits, strict date/timezone/body validation, safe reads/errors, scoped
+URLs/auth return allowlisting, cancelable selection, compact switcher, localized
+four-field forms, conflict recovery and truthful fresh Event states. No migration,
+dependency, fixture cloning, task authoring, invitation, member management, archive/
+delete, Changes/Plan B, Templates, Budget or AI feature was added.
+
+Delegated backend/state/browser work and a fresh read-only review support
+verification; exact executed counts, intermediate harness issues and limitations
+belong in TEST_EVIDENCE.md. Browser-created development Events are intentional
+and preserved with history. Credentials remain ignored/in memory; no cookie jars,
+auth dumps, HAR or session artifacts are deliverables. No database reset occurs.
+
+Completion evidence: **201 frontend tests**, **99 offline backend passes/four
+opt-in skips**, **43 enabled PostgreSQL checks**, and **69 grouped browser checks /
+93 layout cases** pass. The 80 locked core visual pairs preserve design/geometry;
+67 initial pairs are exact and tiny raster differences/repeats are disclosed.
+Ten intentional browser-authored development Events remain documented, each with
+one membership and zero Tasks. The original controlled task ends Member-assigned,
+unaccepted, not-started; SQL verifies 24 final-run changes/history entries.
+
+Confirmed review findings fixed: revoked membership retaining an edit context,
+malformed name encoding, pre-write reads overwriting canonical Event metadata,
+cross-Event Back restoring focus before content, form alerts focusing before commit,
+and mobile form focus under fixed navigation. Passing reruns/regressions and failed
+harness attempts are recorded honestly. The 46-file staged audit finds no actual
+configured credentials or excluded artifacts. P2A ends here; P2B is not begun.
+
+Human review has not been invented: the student author must inspect and understand
+transaction locking, identity vs Event roles, strict calendar semantics, version/
+409 handling, request revisions, scoped link/history/focus behavior and every
+evidence claim. Agent-run Chromium checks do not establish human usability,
+physical-device coverage or formal certification. The supplied 2025–2026 rules,
+categories, dates, licensing, online period and document format need actual-year
+verification. The internal 15 September 2026 deadline is not an official NOIT rule.
+
 ## P1 final-audit closure fixes — 2026-10-03
 
 OpenAI Codex applied the user's explicitly authorized correction of three final

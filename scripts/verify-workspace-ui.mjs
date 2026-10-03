@@ -56,6 +56,7 @@ for (const rows of [
   }
 async function make(label) {
   const context = await browser.newContext({
+    reducedMotion: "reduce",
     viewport: { width: 1440, height: 900 },
     locale: "en-GB",
   });
@@ -154,7 +155,7 @@ async function verifyDashboard(page, data) {
     focus.map((t) => t.title),
   );
   const links = await page
-    .locator('.page--dashboard a[href^="/tasks?task="]')
+    .locator('.page--dashboard a[href*="/tasks?task="]')
     .evaluateAll((nodes) =>
       nodes.map((node) => new URL(node.href).searchParams.get("task")),
     );
@@ -172,7 +173,9 @@ async function verifyDashboard(page, data) {
   await safe(page);
 }
 async function verifyTeam(page, data) {
-  await page.locator('.sidebar__nav a[href="/team"]').click();
+  await page
+    .locator(`.sidebar__nav a[href="/events/${data.event.id}/team"]`)
+    .click();
   await page.locator(".team-roster__member").first().waitFor();
   const view = toWorkspaceView({
     ...mapTaskRead(data.event, data),
@@ -216,12 +219,14 @@ async function roundTrip(page, selector, destination) {
   const link = page.locator(selector).first();
   const href = await link.getAttribute("href"),
     focusKey = await link.getAttribute("data-task-focus-key");
+  const eventId = new URL(href, origin).pathname.split("/")[2];
+  const scopedDestination = `/events/${eventId}/${destination === "/" ? "dashboard" : destination.slice(1)}`;
   const scroll = await page.evaluate(() => scrollY);
   await link.click();
   await page.getByRole("dialog").waitFor();
   assert.equal(new URL(page.url()).search, new URL(href, origin).search);
   await page.keyboard.press("Escape");
-  await page.waitForURL(origin + destination);
+  await page.waitForURL(origin + scopedDestination);
   await page.locator(`[data-task-focus-key="${focusKey}"]`).waitFor();
   await page.waitForFunction(
     (key) => document.activeElement?.dataset.taskFocusKey === key,
@@ -231,10 +236,10 @@ async function roundTrip(page, selector, destination) {
   await page.goForward();
   await page.getByRole("dialog").waitFor();
   await page.goBack();
-  await page.waitForURL(origin + destination);
+  await page.waitForURL(origin + scopedDestination);
 }
 async function dashboardRoundTrip(page, data, restoredData = data) {
-  const selector = '.page--dashboard a[href^="/tasks?task="]:visible';
+  const selector = '.page--dashboard a[href*="/tasks?task="]:visible';
   if (await page.locator(selector).count()) {
     await roundTrip(page, selector, "/");
     return "real-link";
@@ -365,7 +370,7 @@ try {
   await verifyTeam(organizer.page, initial);
   await roundTrip(
     organizer.page,
-    '.team-work-row__link[href^="/tasks?task="]',
+    '.team-work-row__link[href*="/tasks?task="]',
     "/team",
   );
   assert.equal(readRequests, 0);
@@ -388,7 +393,7 @@ try {
   await verifyDashboard(member.page, seen);
   await verifyTeam(member.page, seen);
   await member.page
-    .locator('.team-work-row__link[href^="/tasks?task="]')
+    .locator('.team-work-row__link[href*="/tasks?task="]')
     .first()
     .click();
   await member.page.getByRole("dialog").waitFor();
@@ -404,7 +409,10 @@ try {
     for (const width of [1440, 768, 390, 320]) {
       report.step = `${path} viewport ${width}`;
       await organizer.page.setViewportSize({ width, height: 900 });
-      await organizer.page.goto(origin + path);
+      await organizer.page.goto(
+        origin +
+          `/events/${initial.event.id}/${path === "/" ? "dashboard" : path.slice(1)}`,
+      );
       await organizer.page
         .locator(
           path === "/" ? "#event-overview-title" : ".team-roster__member",
@@ -491,7 +499,7 @@ try {
       .first()
       .waitFor();
     assert.equal(
-      await organizer.page.locator('a[href^="/tasks?task="]').count(),
+      await organizer.page.locator('a[href*="/tasks?task="]').count(),
       0,
     );
     await safe(organizer.page);
@@ -501,16 +509,16 @@ try {
       route.fulfill({ json: { events: [] } }),
     );
     await organizer.page.reload();
-    await organizer.page
-      .getByRole("heading", { name: "No accessible event" })
-      .waitFor();
+    await organizer.page.getByRole("alert").waitFor();
     await organizer.page.unroute("**/api/events");
     checked(
       `${path}: real responsive layout plus labelled intercepted loading/empty/no-Event/500/403 states; sanitized retry, no demo fallback`,
     );
   }
   for (const path of ["/changes", "/templates"]) {
-    await organizer.page.goto(origin + path);
+    await organizer.page.goto(
+      origin + `/events/${initial.event.id}/${path.slice(1)}`,
+    );
     await organizer.page.locator(".empty-state").waitFor();
     await safe(organizer.page);
   }

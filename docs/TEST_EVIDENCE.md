@@ -1,5 +1,259 @@
 # BudoGraph Test Evidence
 
+## P2A Event authoring and multiple-Event navigation — 2026-10-03
+
+Preflight: `main`, clean tracked worktree, freshly fetched `origin/main` equal to
+`24ac5baf1139a20b601cfd63940e1dfe4ea4db80`, a documented P1 audit-fix descendant
+of requested `dfccbe92d3ea851376225dc0ab905e39fd5cf821`; ahead/behind 0/0.
+The unrelated `docs/market-research/docs - Shortcut.lnk` was left untouched.
+The full mandatory master prompt, all 30 regulation pages, approved backend
+contract and current P1 architecture were reviewed before implementation.
+2025–2026 dates/categories/licensing/document/online requirements still need
+actual-year verification; no current-year compliance claim is made.
+
+### Automated code and database checks
+
+Before changes, frontend **169/169**, offline backend **80 passes / three opt-in
+skips**, enabled PostgreSQL **34/34**, typechecks/builds/lint/format all passed.
+Immutable P1 browser baselines were also recorded before equivalent new-route
+verification; aborted live runs during shared HMR/watch changes are not counted.
+
+Final implementation checks: `pnpm format`, `format:check`, `lint`, `typecheck`,
+`test`, `build`, `server:typecheck`, `server:test`, `server:build`: PASS.
+Frontend **201/201**, zero skips/failures. Offline backend **103 total / 99 passes /
+four opt-in integration-root skips**, zero failures. Explicit enabled database
+command `$env:RUN_DATABASE_INTEGRATION='1'; pnpm server:test:integration`:
+**43/43**, zero skips/failures. A preliminary invocation without the required
+gate skipped all four integration roots and is not database verification.
+The five changed/new browser `.mjs` files receive explicit Prettier checks because
+the project format command does not include scripts.
+
+Real PostgreSQL rollback-only cases verify independent Event creation by a Member,
+trusted owner, active ORGANIZER membership, no cloned Tasks, correct mixed roles,
+accessible-only lists, all four field edits, calendar semantics, version/history,
+atomic create/update failure rollback, stale/no-op semantics, inactive/archive/
+foreign denial, and NUL/lone-surrogate validation without database changes.
+Valid emoji remain accepted. Existing schema/RLS/least-privilege read checks,
+immutable history, P1 responsibility commands and scoped reads also pass.
+No database reset/drop, account deletion, migration edit or schema addition occurs.
+
+### Focused read-only review
+
+Independent agent reviews and root review cover transaction locks/atomicity,
+owner/Organizer invariants, Origin/Fetch Metadata, parameterized SQL, role versus
+identity, date/timezone semantics, expectedVersion/no-op behavior, scoped URL/auth
+allowlisting, stale requests, permission affordances, locked pages and narrow scope.
+Confirmed findings were fixed: a list-to-scoped-read membership revocation race
+could retain an edit context; denied Event entries are now removed and matching
+403/404 regression tests pass. NUL and malformed Unicode names could reach
+PostgreSQL text/JSONB errors; server and frontend reject them safely and real
+create/edit tests prove canonical data/history unchanged. This is code review and
+executed verification, not external/formal security certification or human acceptance.
+
+Further integrated review caught cross-Event browser Back consuming saved Dashboard
+focus/scroll while reads were still loading; restoration now waits for the scoped
+content. Event-form feedback focus now runs after the alert commits and pending
+controls settle, including failed conflict reloads. A deferred pre-write Event-list
+read could publish old metadata after a confirmed edit; Event commands now settle
+an existing read/task refetch before writing, while new focus reads coalesce with
+the command. Five deferred regressions verify full same-Event workspace/version
+preservation, create/list ordering, task refresh, conflict/no replay and prompt
+cancel/no write. Browser cases cover committed alert
+focus and delayed cross-Event Back rather than asserting only immediate responses.
+Actual mobile focus testing also found a Create target partly covered by fixed
+navigation despite being geometrically in the viewport. The new Event form now
+uses the existing focus-reveal helper after native focus, keeping fields/buttons/
+alerts above the real fixed header/nav; stale/unmounted focus frames are canceled.
+This is scoped form behavior, with no locked core CSS change.
+
+### Browser/visual verification method and intermediate runs
+
+Chromium/Edge runs use separate real controlled Organizer and Member sessions,
+the running development backend and read-only SQL proof. Named transport doubles
+cover zero memberships, held reads and 400/403/404/500/network failures; equivalent
+content visuals use fixed-clock, read-only intercepted P1 fixtures. Those cases
+are labelled and are not presented as live database behavior or human feedback.
+
+Incomplete attempts are not passing-suite evidence. Shared archive/current Vite
+dependency cache produced duplicate React; the archive cache was isolated and the
+current Vite cache rebuilt. Initial live P1 runs during HMR/backend watch changes
+were replaced by immutable archived baselines. An Organizer edit diagnostic helped
+confirm the pre-write stale-list race fixed above. Error-focus assertions were
+changed to await the exact failed response and settled pending controls, avoiding
+an older alert. Native-select verification initially ran before Event loading;
+it now waits for ready/current value and validates the actual selected accessible
+ID. Preference seeding originally reset every navigation to EN/light; conditional
+seeding and explicit document language/theme/localized heading assertions corrected
+the matrix and actual viewport recaptures. A concurrent auth run hit the real
+sign-in limiter and was rerun sequentially. The expired-edit test now waits for
+initial reads to settle, so it specifically verifies a command 401 instead of an
+earlier protected-read 401. Credentials/raw backend errors/auth material are not saved.
+An incomplete final P1 action run was interrupted by backend watch restarts;
+it is excluded and the completed rerun uses the same backend without watch mode.
+
+### Completed current-browser checks
+
+- P2A authoring: **14 grouped checks / 20 layout configurations**, PASS, zero
+  application errors. Each configuration verifies both Create and Edit, actual
+  BG/EN document language/localized heading, light/dark theme, labels, date/timezone
+  controls, >=44px targets, overflow, native-focus hit testing and manual scroll
+  reachability. Widths: 1440/1024/768/390/320. Native keyboard switching, committed
+  alert focus, held initial loading and delayed cross-Event Back focus/scroll pass.
+- Real independent sessions verify Organizer create/edit and Member create,
+  MEMBER in the original Event versus owner/ORGANIZER in the newly created Event,
+  scoped switcher options, Dashboard/Tasks/Team page equivalence, deep links,
+  refresh, Back/Forward, task-detail dropping and late-request isolation. Fresh
+  Dashboard/Tasks are empty and Team contains only the creator. Poisoned old local
+  demo state is unused. Creation issues one pending command without a page reload.
+- Read-only SQL confirms trusted owner/active Organizer, no cloned tasks,
+  canonical fields/versions, EVENT_CREATED and useful changed-field EVENT_UPDATED
+  payloads. Two simultaneous real edits with one expectedVersion yield exactly
+  one 200/one 409 and one history addition. Stale form 409 loads canonical fields
+  and requires explicit review/save; no replay occurs. Actual expired edit PATCH
+  returns 401, clears the shell, preserves the Event and leaves the independent
+  Member session authenticated. Real Member edit403 and foreign read/route404,
+  plus forged owner/role/actor field400 cases, fail closed.
+- Preserved P1 workspace: **11 grouped checks / eight real page-width cases**,
+  PASS. Real Dashboard/Team counts, identities, task round-trip, history/focus/
+  scroll and shared reads are retained; no business write request is sent.
+- Preserved P1 Tasks reads: **13 grouped checks / five widths**, PASS, no task
+  command requests, zero application errors; real scoped rows/roles, failure,
+  refresh, deep links and protected-read expiry remain covered.
+- Preserved P1 auth: **15 grouped checks / 20 Login layout cases**, PASS, zero
+  application/console errors. Real sign-in/session/sign-out/revocation, return
+  allowlisting and the mobile account menu remain covered.
+- Preserved P1 responsibility actions: **16 grouped checks / 40 role/language/
+  theme/width drawer cases**, PASS, zero application errors. Real assignment,
+  acceptance, withdrawal, all statuses, self-assigned Organizer acceptance,
+  reassignment clearing, task409, foreign/role denial, pending/duplicate prevention,
+  failed-refetch recovery, keyboard controls and actual mutation401 remain covered.
+  SQL confirms **24 confirmed UI changes / 24 ActivityEntry rows**, all six task
+  action types, correct server actors, and final controlled task **Member-assigned,
+  unaccepted, not-started, version306**. History from incomplete attempts is retained.
+
+All five current browser suites total **69 grouped checks / 93 layout cases**, PASS,
+zero application errors. The additional eight native-focus mobile Create/Edit
+checks and 21 corrected actual shell/form viewport images support visual inspection.
+
+These are agent-run Chromium/Edge desktop/emulation results, not real-device,
+Safari/Firefox, screen-reader certification, human acceptance or invented feedback.
+
+### Intentional retained development Events
+
+All **10** `BudoGraph P2A ...` Events from complete/incomplete UI attempts remain
+in the development database, as permitted. Each has exactly **one membership and
+zero Tasks**. No original Event/account was deleted or reset. Version and activity
+counts are recorded below; history is retained, not cleaned destructively.
+
+| Event ID                             | Account label/run suffix          | Version | Activity rows |
+| ------------------------------------ | --------------------------------- | ------: | ------------: |
+| 8d004297-6103-4580-9d63-d8d268a8ce4a | Organizer / 6f657643              |       2 |             2 |
+| 96a5aecc-6856-4934-8950-aa20c6a39537 | Organizer / 17e79bb2              |       2 |             2 |
+| 4aa73faa-1d2f-49e6-a4cd-8c3492036938 | Organizer / abd91634              |       4 |             4 |
+| 97137f46-4614-4a53-8207-e97461e80f9b | Member / abd91634                 |       1 |             1 |
+| 5e69c3ae-d451-4a9f-b5e5-07a8b710fb27 | Organizer / 77534830              |       4 |             4 |
+| 938b3d87-5ffb-4546-8968-07dd5259275e | Member / 77534830                 |       1 |             1 |
+| f6efadf2-89a7-417d-8797-8345a0a37817 | Organizer / 0237d19c              |       4 |             4 |
+| 465cc5f7-2a9d-4d30-bd92-c6ba2906c527 | Member / 0237d19c                 |       1 |             1 |
+| a32aa42a-54db-4d15-a8ca-f4c9b8d34062 | Organizer / e1a9a556 (final pass) |       4 |             4 |
+| c1e397c7-69e3-474c-bb91-8d7940c8522f | Member / e1a9a556 (final pass)    |       1 |             1 |
+
+Private SQL owner/actor proofs use actual server-derived identities; credentials,
+session values and controlled account emails are not included here. Local ignored
+`tmp/p2a-evidence` holds sanitized reports/screenshots and the attempt ledger.
+
+### Locked equivalent-content visuals
+
+Immutable baseline/current pairs cover Dashboard, Tasks, Team and an other-assignee
+task drawer at **1440/1024/768/390/320 × BG/EN × light/dark: 80 pairs**. The fixed
+clock/content transport fixture is read-only and creates no real Tasks. Core
+capture dimensions match in all 80; horizontal overflow is absent. The added
+mobile sticky switcher legitimately overlays ordinary `.app-main` screenshots, so
+header/mobile-nav visibility was hidden symmetrically only for the core comparison.
+No core page region was masked. Actual shell and form viewport captures are separate.
+
+**67/80 first core pairs are pixel-identical**. Twelve remaining pairs differ in
+only **1–18 pixels**, maximum RGB channel delta **1**; the remaining 1440 BG-dark
+Dashboard pair differed by 390 pixels, almost all delta <=2 with one delta12 pixel.
+An unchanged-current recapture of that pair is exactly identical to baseline,
+demonstrating raster/compositor variance. Repeats of the other twelve retain only
+the tiny RGB1 differences. Difference images and representative actual/core
+desktop/mobile captures were inspected: no core content, geometry or design change
+was found. This is not a claim that all first screenshots were pixel-identical.
+An unchanged-current 390 EN-light Dashboard repeat is also exactly identical to
+both baseline and first current capture (zero changed pixels).
+Shared core CSS, Dashboard and TaskDrawer source are unchanged; Team changes are
+scoped-link/history handling, and Tasks/read-notice changes localize inaccessible
+Event feedback. New CSS is limited to Event authoring/switcher selectors.
+
+### Staged safety and completion boundary
+
+Staged review contains exactly the **46 intended manifest files** below. Private
+comparison of **seven configured credential/secret values** (including database
+password, full connection URL, auth secret and controlled account inputs) against
+the full staged contents, staged diff and frontend bundle finds **zero matches**.
+No environment file, cookie/session dump, browser auth state, HAR/trace, temporary
+evidence or unrelated shortcut is staged. Staged whitespace is clean.
+
+Applied migrations, dependency lockfile, shared core CSS, Dashboard and TaskDrawer
+are unchanged. No schema/dependency/asset addition or destructive database operation
+is included. Local current Vite5173 and non-watch backend3001 remain runnable;
+temporary archive helpers stopped. Normal documented `server:dev` remains available.
+P2A is complete; task authoring, invitations, Event archive/delete and Changes/Plan B
+are not implemented. P2B is not started. Production/offline/backup verification and
+actual-year NOIT rule verification remain separate work.
+
+### Changed files (46)
+
+```text
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/DEPLOYMENT_AND_DEMO_PLAN.md
+docs/KNOWN_LIMITATIONS.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-auth-ui.mjs
+scripts/verify-event-authoring-ui.mjs
+scripts/verify-task-actions-ui.mjs
+scripts/verify-task-reads-ui.mjs
+scripts/verify-workspace-ui.mjs
+server/src/app.ts
+server/src/events/model.ts
+server/src/events/service.ts
+server/src/main.ts
+server/src/routes/events.ts
+server/tests/event-authoring.integration.test.ts
+server/tests/event-authoring.test.ts
+server/tests/event-validation.test.ts
+server/tests/events.test.ts
+src/App.tsx
+src/auth/routing.ts
+src/components/AppLink.tsx
+src/components/AppShell.tsx
+src/components/EventSwitcher.tsx
+src/components/WorkspaceReadNotice.tsx
+src/components/eventSwitcher.css
+src/hooks/useRemoteTasks.ts
+src/i18n/eventMessages.ts
+src/i18n/messages.ts
+src/pages/EventFormPage.tsx
+src/pages/TasksPage.tsx
+src/pages/TeamPage.tsx
+src/pages/events/events.css
+src/pages/events/helpers.test.ts
+src/pages/events/helpers.ts
+src/routes.test.ts
+src/routes.ts
+src/services/RemoteWorkspaceService.ts
+src/services/eventActions.test.ts
+src/services/taskActions.test.ts
+src/services/taskReadState.ts
+src/services/taskReads.test.ts
+src/services/workspaceViews.test.ts
+```
+
 ## P1 final-audit closure fixes — 2026-10-03
 
 Authorized baseline `dfccbe92d3ea851376225dc0ab905e39fd5cf821`, `main` and

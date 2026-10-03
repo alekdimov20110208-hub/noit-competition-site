@@ -1,4 +1,10 @@
-import { APP_ROUTES, createTaskHref, parseAppLocation } from "../routes.ts";
+import {
+  APP_ROUTES,
+  createTaskHref,
+  parseAppLocation,
+  eventHref,
+  eventEditHref,
+} from "../routes.ts";
 
 export function safeReturnTo(value: string | null): string {
   if (
@@ -12,8 +18,14 @@ export function safeReturnTo(value: string | null): string {
     const url = new URL(value, "https://budograph.invalid");
     if (url.origin !== "https://budograph.invalid" || url.hash) return "/";
     const path = url.pathname.replace(/\/+$/, "") || "/";
-    if (!APP_ROUTES.some((route) => route.path === path)) return "/";
     const location = parseAppLocation(path, url.search);
+    if (path === "/events/new") return path;
+    if (location.eventId) {
+      return location.eventMode === "edit"
+        ? eventEditHref(location.eventId)
+        : eventHref(location.eventId, location.path, location.taskId);
+    }
+    if (!APP_ROUTES.some((route) => route.path === path)) return "/";
     return location.path === "/tasks" && location.taskId
       ? createTaskHref(location.taskId)
       : location.path;

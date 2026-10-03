@@ -1,4 +1,5 @@
 import type { Language } from "../preferences/types.ts";
+import { EVENT_BG_MESSAGES, EVENT_EN_MESSAGES } from "./eventMessages.ts";
 import {
   WORKSPACE_BG_MESSAGES,
   WORKSPACE_EN_MESSAGES,
@@ -335,6 +336,7 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...EVENT_EN_MESSAGES,
   ...TASK_READ_EN_MESSAGES,
   ...WORKSPACE_EN_MESSAGES,
   ...AUTH_EN_MESSAGES,
@@ -674,6 +676,7 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...EVENT_BG_MESSAGES,
   ...TASK_READ_BG_MESSAGES,
   ...WORKSPACE_BG_MESSAGES,
   ...AUTH_BG_MESSAGES,

@@ -45,6 +45,7 @@ const labels = {
 };
 async function make(label) {
   const context = await browser.newContext({
+    reducedMotion: "reduce",
     viewport: { width: 1440, height: 900 },
     locale: "en-GB",
   });
@@ -110,7 +111,7 @@ async function read(page) {
   });
 }
 async function open(page) {
-  await page.goto(origin + `/tasks?task=${taskId}`);
+  await page.goto(origin + `/events/${eventId}/tasks?task=${taskId}`);
   await page.getByRole("dialog").waitFor();
 }
 async function settled(page) {
@@ -535,7 +536,8 @@ try {
   await member.page.keyboard.press("Escape");
   await member.page.getByRole("dialog").waitFor({ state: "hidden" });
   for (const href of ["/", "/team"]) {
-    await member.page.locator(`.sidebar__nav a[href="${href}"]`).click();
+    const scopedHref = `/events/${eventId}/${href === "/" ? "dashboard" : href.slice(1)}`;
+    await member.page.locator(`.sidebar__nav a[href="${scopedHref}"]`).click();
     await member.page.getByRole("alert").waitFor();
     assert.match(
       await member.page.getByRole("alert").innerText(),
@@ -543,7 +545,9 @@ try {
     );
     await member.page.getByRole("button", { name: "Try again" }).waitFor();
   }
-  await member.page.locator('.sidebar__nav a[href="/tasks"]').click();
+  await member.page
+    .locator(`.sidebar__nav a[href="/events/${eventId}/tasks"]`)
+    .click();
   await member.page.getByRole("button", { name: "Refresh task" }).waitFor();
   const otherTask = member.page.locator(
     `.task-row__link:not([href$="${taskId}"])`,
@@ -644,7 +648,7 @@ try {
               ),
             { language, theme },
           );
-          await page.goto(origin + `/tasks?task=${taskId}`);
+          await page.goto(origin + `/events/${eventId}/tasks?task=${taskId}`);
           await page.getByRole("dialog").waitFor();
           await page.evaluate(() => document.fonts.ready);
           assert.equal(

@@ -10,14 +10,15 @@ import { registerTaskRoutes } from "./routes/tasks.ts";
 import type { TaskService } from "./tasks/service.ts";
 import { TaskCommandError } from "./tasks/model.ts";
 import { registerEventReadRoutes } from "./routes/events.ts";
-import type { EventReadService } from "./events/service.ts";
+import type { EventService } from "./events/service.ts";
+import { EventCommandError } from "./events/model.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
   logger?: FastifyServerOptions["logger"];
   authentication?: AuthIntegration;
   tasks?: TaskService;
-  events?: EventReadService;
+  events?: EventService;
 }
 
 const standardMethods = new Set([
@@ -75,6 +76,13 @@ export function createApp({
     return reply.code(404).send({ status: "not_found" });
   });
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof EventCommandError) {
+      return reply.code(error.statusCode).send({
+        status: "error",
+        code: error.code,
+        ...(error.fields ? { fields: error.fields } : {}),
+      });
+    }
     if (error instanceof TaskCommandError) {
       return reply
         .code(error.statusCode)

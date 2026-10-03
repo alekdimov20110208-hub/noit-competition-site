@@ -29,6 +29,9 @@ const event: TaskEvent = {
   endDate: "2026-10-05",
   timezone: "Pacific/Kiritimati",
   archived: false,
+  version: 1,
+  createdAt: "2026-10-03T12:00:00Z",
+  updatedAt: "2026-10-03T12:00:00Z",
   membership: { id: uid(2), accessRole: "MEMBER" },
 };
 const active = { id: uid(2), name: "Active Member", role: "Organizer" };

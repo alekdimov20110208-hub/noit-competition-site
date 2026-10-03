@@ -1,12 +1,27 @@
 # Installation, Deployment, and Demonstration Plan
 
-Current scope: Backend P1A/P1B/P1C and P1D.1/P1D.2A/P1D.2B/P1D.3. Better Auth
-login protects one real Event workspace backed by the configured PostgreSQL
+Current scope: Backend P1A/P1B/P1C, P1D.1/P1D.2A/P1D.2B/P1D.3 and P2A. Better Auth
+login protects Event-scoped workspaces backed by the configured PostgreSQL
 (Supabase-hosted development) database. **Dashboard REAL, Tasks REAL, Team REAL.**
 They share the same authorized Event, tasks and members; no runtime demo fallback
-or local-demo reset exists in the authenticated application. **Backend P2 has not
-started.** The older frontend Phase 2A/2B names refer to historical UI work, not
-Backend P2 authoring.
+or local-demo reset exists in the authenticated application. **P2A implements
+Event creation/basic editing and switching.** The older frontend Phase 2A/2B
+names refer to historical UI work, not this backend authoring phase.
+
+## P2A demonstration extension
+
+Sign in, choose **Create event**, supply name/start/end/timezone and save. The new
+Event opens at `/events/:eventId/dashboard`, has no Tasks and contains the creator
+as Organizer on Team. Edit basics, refresh, then switch Dashboard/Tasks/Team back
+to the original P1 Event and confirm its data. Sign in independently as the Member
+and create a separate Event: Member-in-A / Organizer-in-B is Event-scoped authority,
+not a global account type. Never clone/bootstrap demo data into a new Event.
+
+Event editing uses expectedVersion; stale edits load canonical details and require
+explicit save, with failed-refetch recovery. Production SPA fallback must also
+support `/events/new` and `/events/:eventId/{dashboard,tasks,team,edit}` while
+keeping all `/api` requests outside fallback and uncached. No hosting verification
+or offline authenticated package is implied by this local implementation.
 
 ## Current P1D.3 development demonstration
 
@@ -33,10 +48,11 @@ below, then open `http://127.0.0.1:5173/login`.
 5. Navigate Dashboard/Tasks/Team, check real links and Back/Forward, then sign out.
    Refresh/focus/visibility/online revalidate; there is no polling or offline cache.
 
-Event selection is earliest accessible start date then UUID, pinned through
-navigation/refetch. **Event creation and task authoring are not implemented.**
-There is no Event switcher, public signup, recovery or invitation UI. **Changes/Plan
-B persistence is not yet implemented**; its page/region has no fictional records.
+Legacy URLs resolve an accessible Event then replace with its Event-scoped route;
+the compact shell switcher changes context explicitly. **TASK AUTHORING NOT YET
+IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED. EVENT ARCHIVE/DELETE NOT YET
+IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.** There is no public signup
+or recovery UI; the Plan B page/region has no fictional records.
 Templates are unconnected; Budget and AI are excluded. These are scope boundaries,
 not partially working P2 features. Preserve the locked Dashboard/Tasks/Team UI.
 

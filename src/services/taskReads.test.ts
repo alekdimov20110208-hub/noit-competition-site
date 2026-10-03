@@ -22,6 +22,9 @@ const event: TaskEvent = {
   endDate: "2026-10-05",
   timezone: "Europe/Sofia",
   archived: false,
+  version: 1,
+  createdAt: "2026-10-03T12:00:00Z",
+  updatedAt: "2026-10-03T12:00:00Z",
   membership: { id: randomUUID(), accessRole: "ORGANIZER" },
 };
 const member = { id: randomUUID(), name: "Synthetic assignee", role: "Venue" };
@@ -187,7 +190,7 @@ test("fetch transport is invoked without the adapter as receiver", async () => {
 for (const [status, code] of [
   [401, "unauthenticated"],
   [403, "forbidden"],
-  [404, "forbidden"],
+  [404, "not-found"],
   [500, "unavailable"],
 ] as const)
   test(`HTTP ${status} fails explicitly with sanitized ${code}`, async () => {

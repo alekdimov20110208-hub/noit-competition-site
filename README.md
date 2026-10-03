@@ -16,7 +16,37 @@ to pay, or usability.
 
 The historical research and validation record remains under `docs/validation/` and `docs/market-research/`. Those files are preserved as evidence and are not rewritten to make the Phase 1 decision appear stronger than the evidence supports. The decision to build this prototype is a competition-project decision, not a commercial-validation conclusion.
 
-## P1D.3 real workspace integration
+## P2A Event authoring and navigation
+
+Any authenticated user can create an Event with **name, start date, end date and
+IANA timezone**. Creation atomically stores the Event, its owner, the creator's
+active ORGANIZER membership and EVENT_CREATED history. No development bootstrap
+or copied demo tasks are involved. The new Event opens at its Dashboard; Tasks
+are empty and Team contains its real creator.
+
+The compact shell switcher lists accessible active Events and keeps the equivalent
+Dashboard/Tasks/Team page when switching. A task detail switches to the new Event's
+Tasks list. Current context is in `/events/:eventId/dashboard`, `/tasks`, `/team`
+(the latter two also have the `/events/:eventId` prefix). Refresh, deep links and
+history retain Event scope. Legacy P1 paths safely resolve and replace their URL.
+The URL never grants permission; the server checks membership on every request.
+
+Use **Create event** (`/events/new`) and, for an Event Organizer, **Edit event**
+(`/events/:eventId/edit`). Account identity has no global Organizer role: a Member
+in Event A can create Event B and become its Organizer. Matching-version edits
+increment version only on meaningful changes and store EVENT_UPDATED atomically.
+A stale edit returns 409; the form loads canonical details and requires explicit
+review/save. Failed conflict refresh blocks another save until refresh succeeds.
+
+Run `pnpm test:browser:events` with the same ignored controlled accounts and browser
+runtime as P1. See [test evidence](docs/TEST_EVIDENCE.md) for executed results.
+No dependencies or migrations were added; applied SQL remains immutable.
+
+**TASK AUTHORING NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
+Templates, Budget, AI, membership management and production hardening remain outside P2A.
+
+## P1D.3 real workspace integration (historical)
 
 Dashboard, Tasks and Team share one authorized Event snapshot and real task IDs.
 Initial Event selection is earliest accessible start date, then UUID; navigation
@@ -31,7 +61,8 @@ Run `pnpm test:browser:workspace` for real controlled Organizer/Member verificat
 alongside existing auth/Tasks browser and PostgreSQL suites. See
 [test evidence](docs/TEST_EVIDENCE.md) for the acceptance results and limitations.
 **P1 CORE COMPLETE: YES.** P1D.3 acceptance and preserved auth/Tasks/backend/PostgreSQL
-regressions pass. This does not imply production readiness; P2 remains out of scope.
+regressions pass. This does not imply production readiness; the P2A section above
+supersedes the temporary selection/authoring limitations in this historical section.
 
 ## Phase 1 scope (historical local prototype)
 
@@ -281,7 +312,10 @@ configuration and the stopped-backend test. Production must serve the frontend
 and `/api` at the same HTTPS origin, preserve History API routes, and proxy to
 Fastify. Hosting and production proxy verification remain separate work.
 
-## P1D.2A Tasks read integration
+## Historical P1D.2A Tasks read integration
+
+This records the read-only stage before shared P1D.3 workspace state and P2A
+Event selection. See the current P2A section for the active product behavior.
 
 `GET /api/events` returns only Events with the current user's active membership.
 Tasks select the sole Event automatically; if several exist, the earliest start
@@ -303,7 +337,12 @@ environment options as the auth verifier. See
 [backend development](docs/BACKEND_DEVELOPMENT.md) and
 [test evidence](docs/TEST_EVIDENCE.md) for the precise boundary and results.
 
-## P1D.2B task responsibility actions
+## Historical P1D.2B task responsibility actions
+
+This records the initial responsibility stage. The later P1 audit enabled
+acceptance for any current assignee, including an Organizer's own task; P1D.3
+connected Team and P2A added Event authoring/selection. Current guidance is in
+the user guide and P2A section.
 
 Open a real task's existing drawer. Organizers choose an active Event member in
 **Assign responsibility**; choosing **Unassigned** clears assignment. Reassignment
@@ -334,7 +373,7 @@ The current Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2 prototype uses a text-
 ## Documentation
 
 - [Phase 1 record and Phase 2A/2B architecture boundary](docs/BUDOGRAPH_PHASE_1.md)
-- [Phase 2B.2 user guide](docs/USER_GUIDE.md)
+- [Current user guide](docs/USER_GUIDE.md)
 - [Installation, deployment, and demonstration plan](docs/DEPLOYMENT_AND_DEMO_PLAN.md)
 - [Presentation outline](docs/PRESENTATION_OUTLINE.md)
 - [Phase 1, Phase 2A, and Phase 2B test evidence](docs/TEST_EVIDENCE.md)

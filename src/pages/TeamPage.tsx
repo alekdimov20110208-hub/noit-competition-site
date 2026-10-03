@@ -3,7 +3,7 @@ import type { WorkspaceView } from "../services/workspaceViews.ts";
 import { useI18n } from "../i18n/index.ts";
 import type { MessageKey } from "../i18n/messages.ts";
 import { isVisibleFocusTarget, revealFocusTarget } from "../navigationFocus.ts";
-import { createTaskHref } from "../routes.ts";
+import { createTaskHref, eventHref, parseAppLocation } from "../routes.ts";
 import {
   closeMemberContext,
   readTeamContext,
@@ -59,7 +59,14 @@ export function TeamPage({
   function save(next: TeamNavigationContext, push = false, render = true) {
     contextRef.current = next;
     const history = withTeamContext(window.history.state, next);
-    if (push) window.history.pushState(history, "", "/team");
+    if (push)
+      window.history.pushState(
+        history,
+        "",
+        parseAppLocation(window.location.pathname, "").eventId
+          ? eventHref(state.currentEventId, "/team")
+          : "/team",
+      );
     else window.history.replaceState(history, "");
     if (render) setContext(next);
   }
@@ -85,7 +92,11 @@ export function TeamPage({
 
   useEffect(() => {
     function recordScroll() {
-      if (window.location.pathname !== "/team" || sheetOpen) return;
+      if (
+        parseAppLocation(window.location.pathname, "").path !== "/team" ||
+        sheetOpen
+      )
+        return;
       const next = { ...contextRef.current, pageScrollY: window.scrollY };
       contextRef.current = next;
       window.history.replaceState(
@@ -120,8 +131,12 @@ export function TeamPage({
           ) ??
           [...detail.querySelectorAll<HTMLAnchorElement>("a[href]")].find(
             (element) =>
-              element.getAttribute("href") === createTaskHref(origin.taskId) &&
-              isVisibleFocusTarget(element),
+              element.getAttribute("href") ===
+                createTaskHref(
+                  origin.taskId,
+                  parseAppLocation(window.location.pathname, "").eventId ??
+                    undefined,
+                ) && isVisibleFocusTarget(element),
           ) ??
           [
             ...detail.querySelectorAll<HTMLElement>("[data-team-disclosure]"),

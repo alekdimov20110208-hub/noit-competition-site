@@ -1,20 +1,34 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { auth } from "../auth/runtime.ts";
-import { RemoteWorkspaceService } from "../services/RemoteWorkspaceService.ts";
+import {
+  emptyTasksWorkspace,
+  RemoteWorkspaceService,
+} from "../services/RemoteWorkspaceService.ts";
 import { TaskReadController } from "../services/taskReadState.ts";
 
-export function useRemoteTasks(enabled: boolean, userId: string) {
-  const [controller] = useState(
-    () =>
-      new TaskReadController(new RemoteWorkspaceService(), auth.expireSession),
+export function useRemoteTasks(
+  enabled: boolean,
+  userId: string,
+  selectedEventId: string | null = null,
+) {
+  // A new identity receives a new store during render, before effects can run.
+  const identityScope = useMemo(
+    () => ({
+      userId,
+      controller: new TaskReadController(
+        new RemoteWorkspaceService(),
+        auth.expireSession,
+      ),
+    }),
+    [userId],
   );
+  const controller = identityScope.controller;
   const state = useSyncExternalStore(
     controller.subscribe,
     controller.getSnapshot,
   );
   useEffect(() => {
     if (!enabled) return;
-    void controller.load();
     const refetch = () => {
       if (document.visibilityState === "visible") void controller.load();
     };
@@ -27,6 +41,35 @@ export function useRemoteTasks(enabled: boolean, userId: string) {
       document.removeEventListener("visibilitychange", refetch);
       controller.clear();
     };
-  }, [controller, enabled, userId]);
-  return { ...state, retry: controller.load, mutate: controller.mutate };
+  }, [controller, enabled]);
+  useEffect(() => {
+    if (!enabled) return;
+    controller.selectEvent(selectedEventId);
+    void controller.load();
+  }, [controller, enabled, selectedEventId]);
+  // URL scope changes synchronously. Never paint former-Event rows under the
+  // next Event URL while waiting for the selection effect to cancel/read.
+  const visible =
+    !enabled ||
+    controller.getSelectedEventId() !== selectedEventId ||
+    (selectedEventId &&
+      state.workspace.currentEventId &&
+      selectedEventId !== state.workspace.currentEventId)
+      ? {
+          ...state,
+          status: "loading" as const,
+          workspace: emptyTasksWorkspace(),
+          error: null,
+          mutation: null,
+        }
+      : state;
+  return {
+    ...visible,
+    retry: controller.load,
+    mutate: controller.mutate,
+    refreshEvents: controller.refreshEvents,
+    getEvent: controller.getEvent,
+    createEvent: controller.createEvent,
+    updateEvent: controller.updateEvent,
+  };
 }

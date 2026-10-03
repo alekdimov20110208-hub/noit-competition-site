@@ -67,6 +67,7 @@ if (process.argv.includes("--backend-unavailable")) {
 let lastSignIn = 0;
 async function make(width = 1440, language = "en", theme = "light") {
   const context = await browser.newContext({
+    reducedMotion: "reduce",
     viewport: { width, height: 900 },
     locale: language === "bg" ? "bg-BG" : "en-GB",
   });
@@ -218,7 +219,7 @@ try {
   await page.locator(".app-main").waitFor();
   await page.unroute("**/api/auth/sign-in/email");
   assert.equal(commands, 1);
-  assert.equal(new URL(page.url()).pathname, "/tasks");
+  await page.waitForURL(/\/events\/[^/]+\/tasks(?:\?|$)/);
   const organizer = await me(page);
   assert.ok(
     organizer.status === 200 &&
@@ -241,7 +242,7 @@ try {
   );
   await page.goto(origin + "/login");
   await page.locator(".app-main").waitFor();
-  assert.equal(new URL(page.url()).pathname, "/");
+  await page.waitForURL(/\/events\/[^/]+\/dashboard$/);
   checked(
     "Organizer refresh persistence; authenticated Login redirects to workspace",
   );
@@ -365,7 +366,7 @@ try {
   await page.goto(origin + "/login?returnTo=https://attacker.example.invalid");
   await signIn(page, "MEMBER");
   assert.equal(new URL(page.url()).origin, origin);
-  assert.equal(new URL(page.url()).pathname, "/");
+  await page.waitForURL(/\/events\/[^/]+\/dashboard$/);
   await logout(page);
   checked("external returnTo is rejected without a redirect loop");
   const signupStatus = await page.evaluate(

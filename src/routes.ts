@@ -10,7 +10,7 @@ import type { MessageKey } from "./i18n/index.ts";
 
 export type AppPath = "/" | "/tasks" | "/team" | "/changes" | "/templates";
 
-export type AppLocation =
+export type AppLocation = (
   | {
       path: "/tasks";
       taskId: string | null;
@@ -18,7 +18,11 @@ export type AppLocation =
   | {
       path: Exclude<AppPath, "/tasks">;
       taskId: null;
-    };
+    }
+) & {
+  eventId: string | null;
+  eventMode: "workspace" | "create" | "edit";
+};
 
 export interface AppRoute {
   path: AppPath;
@@ -102,16 +106,54 @@ export function parseAppLocation(
   pathname: string,
   search: string,
 ): AppLocation {
-  const path = normalizePath(pathname);
+  const normalized = pathname.replace(/\/+$/, "") || "/";
+  if (normalized === "/events/new")
+    return { path: "/", taskId: null, eventId: null, eventMode: "create" };
+  const scoped =
+    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/(dashboard|tasks|team|changes|templates|edit)$/i.exec(
+      normalized,
+    );
+  const eventId = scoped?.[1]?.toLowerCase() ?? null;
+  const eventMode =
+    scoped?.[2]?.toLowerCase() === "edit" ? "edit" : "workspace";
+  const page = scoped?.[2]?.toLowerCase();
+  const path = scoped
+    ? page === "dashboard" || page === "edit"
+      ? "/"
+      : (`/${page}` as AppPath)
+    : normalizePath(pathname);
 
   if (path === "/tasks") {
-    return { path, taskId: getTaskId(search) };
+    return { path, taskId: getTaskId(search), eventId, eventMode };
   }
 
-  return { path, taskId: null };
+  return { path, taskId: null, eventId, eventMode };
 }
 
-export function createTaskHref(taskId: string): string {
+export function eventHref(
+  eventId: string,
+  path: AppPath = "/",
+  taskId?: string | null,
+): string {
+  if (
+    !/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(eventId)
+  )
+    throw new Error("Invalid Event route.");
+  const base = `/events/${eventId.toLowerCase()}/${path === "/" ? "dashboard" : path.slice(1)}`;
+  return path === "/tasks" && taskId?.trim()
+    ? `${base}?task=${encodeURIComponent(taskId)}`
+    : base;
+}
+
+export function eventEditHref(eventId: string): string {
+  return eventHref(eventId).replace(/\/dashboard$/, "/edit");
+}
+
+export function createTaskHref(
+  taskId: string,
+  eventId?: string | null,
+): string {
+  if (eventId) return eventHref(eventId, "/tasks", taskId);
   return taskId.trim().length > 0
     ? `/tasks?task=${encodeURIComponent(taskId)}`
     : "/tasks";
@@ -181,6 +223,14 @@ export function resolveTaskLocation<TTask extends TaskRouteTarget>(
 ): TaskRouteResolution<TTask> {
   if (location.path !== "/tasks" || location.taskId === null) {
     return { status: "none", taskId: null, task: null };
+  }
+  if (location.eventId && location.eventId !== currentEventId) {
+    return {
+      status: "invalid",
+      reason: "wrong-event",
+      taskId: location.taskId,
+      task: null,
+    };
   }
 
   const matchingTasks = tasks.filter((task) => task.id === location.taskId);

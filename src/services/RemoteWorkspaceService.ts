@@ -6,6 +6,9 @@ export type TaskEvent = Pick<Event, "id" | "name" | "startDate" | "endDate"> & {
   timezone: string;
   archived: boolean;
   membership: { id: string; accessRole: "ORGANIZER" | "MEMBER" };
+  version: number;
+  createdAt: string;
+  updatedAt: string;
 };
 export interface RemoteTask extends Task {
   assignedMemberId: string | null;
@@ -21,12 +24,13 @@ export interface TasksWorkspace {
   assignableMembers?: TaskAssignee[];
   // Active roster only. Historical assignees remain in teamMembers for task names.
   activeMembers?: TaskAssignee[];
+  accessibleEvents?: TaskEvent[];
 }
 export function emptyTasksWorkspace(): TasksWorkspace {
   return { currentEventId: "", events: [], teamMembers: [], tasks: [] };
 }
 export type WorkspaceReadError =
-  "unauthenticated" | "forbidden" | "unavailable" | "invalid";
+  "unauthenticated" | "forbidden" | "not-found" | "unavailable" | "invalid";
 export class WorkspaceReadFailure extends Error {
   readonly code: WorkspaceReadError;
   constructor(code: WorkspaceReadError) {
@@ -74,37 +78,52 @@ function uniqueIds(values: { id: string }[]) {
 }
 
 export function readAccessibleEvents(value: unknown): TaskEvent[] {
-  const events = array(record(value).events).map<TaskEvent>((value) => {
-    const row = record(value),
-      member = record(row.membership);
-    const timezone = string(row.timezone);
-    if (typeof row.archived !== "boolean") invalid();
-    try {
-      new Intl.DateTimeFormat("en", { timeZone: timezone });
-    } catch {
-      invalid();
-    }
-    const accessRole = member.accessRole;
-    if (accessRole !== "ORGANIZER" && accessRole !== "MEMBER") invalid();
-    const startDate = date(row.startDate),
-      endDate = date(row.endDate);
-    if (endDate < startDate) invalid();
-    return {
-      id: id(row.id),
-      name: string(row.name),
-      startDate,
-      endDate,
-      timezone,
-      archived: row.archived,
-      membership: { id: id(member.id), accessRole },
-    };
-  });
+  const events = array(record(value).events).map(readRemoteEvent);
   uniqueIds(events);
   return events;
 }
 
-// Temporary P1 selection: earliest startDate, then opaque ID. Never a stored
-// privileged ID or an email/name guess. Each subsequent server read authorizes.
+export function readRemoteEvent(value: unknown): TaskEvent {
+  const row = record(value),
+    member = record(row.membership);
+  const timezone = string(row.timezone);
+  const name = string(row.name);
+  if (!name.trim() || name.length > 200 || name !== name.trim()) invalid();
+  if (typeof row.archived !== "boolean" || /^[+-]/.test(timezone)) invalid();
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: timezone });
+  } catch {
+    invalid();
+  }
+  const accessRole = member.accessRole;
+  if (accessRole !== "ORGANIZER" && accessRole !== "MEMBER") invalid();
+  const startDate = date(row.startDate),
+    endDate = date(row.endDate);
+  if (
+    startDate.startsWith("0000-") ||
+    endDate.startsWith("0000-") ||
+    endDate < startDate ||
+    !Number.isSafeInteger(row.version) ||
+    (row.version as number) < 1 ||
+    (row.version as number) > 2147483647
+  )
+    invalid();
+  return {
+    id: id(row.id),
+    name,
+    startDate,
+    endDate,
+    timezone,
+    archived: row.archived,
+    membership: { id: id(member.id), accessRole },
+    version: row.version as number,
+    createdAt: instant(row.createdAt),
+    updatedAt: instant(row.updatedAt),
+  };
+}
+
+// Legacy entry without a scope chooses a deterministic landing Event; explicit
+// Event URLs always resolve the requested membership and never use this fallback.
 export function selectAccessibleEvent(
   events: readonly TaskEvent[],
 ): TaskEvent | null {
@@ -218,11 +237,49 @@ export interface TasksMutationService {
 }
 
 export interface TasksReadService {
-  readTasks(signal: AbortSignal): Promise<TasksWorkspace>;
+  readTasks(
+    signal: AbortSignal,
+    eventId?: string | null,
+  ): Promise<TasksWorkspace>;
+}
+
+export interface EventFields {
+  name: string;
+  startDate: string;
+  endDate: string;
+  timezone: string;
+}
+export type EventActionError = TaskActionError;
+export type EventFieldErrors = Partial<
+  Record<keyof EventFields | "expectedVersion", string>
+>;
+export class EventActionFailure extends Error {
+  readonly code: EventActionError;
+  readonly fields: EventFieldErrors;
+  constructor(code: EventActionError, fields: EventFieldErrors = {}) {
+    super("Event action failed.");
+    this.code = code;
+    this.fields = fields;
+  }
+}
+export interface EventWorkspaceService {
+  listEvents(signal: AbortSignal): Promise<TaskEvent[]>;
+  getEvent(eventId: string, signal: AbortSignal): Promise<TaskEvent>;
+  readEventTasks(
+    event: TaskEvent,
+    signal: AbortSignal,
+  ): Promise<TasksWorkspace>;
+  createEvent(fields: EventFields, signal: AbortSignal): Promise<TaskEvent>;
+  updateEvent(
+    eventId: string,
+    expectedVersion: number,
+    fields: EventFields,
+    signal: AbortSignal,
+  ): Promise<TaskEvent>;
 }
 
 export class RemoteWorkspaceService
-  implements TasksReadService, TasksMutationService
+  implements TasksReadService, TasksMutationService, EventWorkspaceService
 {
   private request: typeof fetch;
   constructor(request: typeof fetch = fetch) {
@@ -247,8 +304,8 @@ export class RemoteWorkspaceService
     }
     if (response.status === 401)
       throw new WorkspaceReadFailure("unauthenticated");
-    if (response.status === 403 || response.status === 404)
-      throw new WorkspaceReadFailure("forbidden");
+    if (response.status === 403) throw new WorkspaceReadFailure("forbidden");
+    if (response.status === 404) throw new WorkspaceReadFailure("not-found");
     if (!response.ok) throw new WorkspaceReadFailure("unavailable");
     try {
       return await response.json();
@@ -257,16 +314,41 @@ export class RemoteWorkspaceService
     }
   }
 
-  async readTasks(signal: AbortSignal): Promise<TasksWorkspace> {
-    const event = selectAccessibleEvent(
-      readAccessibleEvents(await this.get("/api/events", signal)),
-    );
-    if (!event) return emptyTasksWorkspace();
+  async listEvents(signal: AbortSignal): Promise<TaskEvent[]> {
+    const events = readAccessibleEvents(await this.get("/api/events", signal));
     signal.throwIfAborted();
-    return this.readEventTasks(event, signal);
+    return events;
   }
 
-  private async readEventTasks(
+  async getEvent(eventId: string, signal: AbortSignal): Promise<TaskEvent> {
+    const requested = id(eventId);
+    const event = (await this.listEvents(signal)).find(
+      (event) => event.id === requested,
+    );
+    if (!event) throw new WorkspaceReadFailure("not-found");
+    return event;
+  }
+
+  async readTasks(
+    signal: AbortSignal,
+    eventId?: string | null,
+  ): Promise<TasksWorkspace> {
+    const events = await this.listEvents(signal);
+    const event = eventId
+      ? events.find((event) => event.id === id(eventId))
+      : selectAccessibleEvent(events);
+    if (!event) {
+      if (eventId) throw new WorkspaceReadFailure("not-found");
+      return emptyTasksWorkspace();
+    }
+    signal.throwIfAborted();
+    return {
+      ...(await this.readEventTasks(event, signal)),
+      accessibleEvents: events,
+    };
+  }
+
+  async readEventTasks(
     event: TaskEvent,
     signal: AbortSignal,
   ): Promise<TasksWorkspace> {
@@ -281,6 +363,7 @@ export class RemoteWorkspaceService
       return { id: id(row.id), name: string(row.name), role: string(row.role) };
     });
     uniqueIds(members);
+    signal.throwIfAborted();
     return {
       ...workspace,
       activeMembers: members,
@@ -301,12 +384,113 @@ export class RemoteWorkspaceService
     eventId: string,
     signal: AbortSignal,
   ): Promise<TasksWorkspace> {
-    const event = readAccessibleEvents(
-      await this.get("/api/events", signal),
-    ).find((event) => event.id === id(eventId));
+    const events = await this.listEvents(signal);
+    const event = events.find((event) => event.id === id(eventId));
     if (!event) throw new WorkspaceReadFailure("forbidden");
     signal.throwIfAborted();
-    return this.readEventTasks(event, signal);
+    return {
+      ...(await this.readEventTasks(event, signal)),
+      accessibleEvents: events,
+    };
+  }
+
+  createEvent(fields: EventFields, signal: AbortSignal): Promise<TaskEvent> {
+    return this.eventCommand("/api/events", "POST", fields, signal);
+  }
+
+  updateEvent(
+    eventId: string,
+    expectedVersion: number,
+    fields: EventFields,
+    signal: AbortSignal,
+  ): Promise<TaskEvent> {
+    const event = id(eventId);
+    return this.eventCommand(`/api/events/${event}`, "PATCH", fields, signal, {
+      eventId: event,
+      expectedVersion,
+    });
+  }
+
+  private async eventCommand(
+    path: string,
+    method: "POST" | "PATCH",
+    fields: EventFields,
+    signal: AbortSignal,
+    update?: { eventId: string; expectedVersion: number },
+  ): Promise<TaskEvent> {
+    // Explicit projection prevents client properties from becoming authority.
+    const body = {
+      name: fields.name,
+      startDate: fields.startDate,
+      endDate: fields.endDate,
+      timezone: fields.timezone,
+      ...(update ? { expectedVersion: update.expectedVersion } : {}),
+    };
+    let response: Response;
+    try {
+      const request = this.request;
+      response = await request(path, {
+        method,
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+        signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
+      });
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new EventActionFailure("unavailable");
+    }
+    const errors: Record<number, EventActionError> = {
+      400: "invalid",
+      401: "unauthenticated",
+      403: "forbidden",
+      404: "not-found",
+      409: "conflict",
+    };
+    if (!response.ok) {
+      const code = errors[response.status] ?? "unavailable";
+      const fieldErrors: EventFieldErrors = {};
+      if (code === "invalid") {
+        try {
+          const raw = record(record(await response.json()).fields);
+          const safeCodes: Record<keyof EventFieldErrors, readonly string[]> = {
+            name: ["INVALID_NAME"],
+            startDate: ["INVALID_DATE"],
+            endDate: ["INVALID_DATE", "END_BEFORE_START"],
+            timezone: ["INVALID_TIMEZONE"],
+            expectedVersion: ["INVALID_VERSION"],
+          };
+          for (const key of Object.keys(
+            safeCodes,
+          ) as (keyof EventFieldErrors)[]) {
+            if (
+              typeof raw[key] === "string" &&
+              safeCodes[key].includes(raw[key])
+            )
+              fieldErrors[key] = raw[key];
+          }
+        } catch {
+          /* Only fixed validation codes cross the application boundary. */
+        }
+      }
+      if (signal.aborted) throw signal.reason;
+      throw new EventActionFailure(code, fieldErrors);
+    }
+    try {
+      const event = readRemoteEvent(record(await response.json()).event);
+      if (update && event.id !== update.eventId) invalid();
+      if (
+        !update &&
+        (event.archived || event.membership.accessRole !== "ORGANIZER")
+      )
+        invalid();
+      signal.throwIfAborted();
+      return event;
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new EventActionFailure("invalid");
+    }
   }
 
   assignTask(

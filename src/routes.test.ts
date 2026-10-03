@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { randomUUID } from "node:crypto";
+import { safeReturnTo, loginHref } from "./auth/routing.ts";
 import {
   readDashboardContext,
   withDashboardContext,
@@ -12,7 +14,83 @@ import {
   parseAppLocation,
   resolveTaskLocation,
   TASK_DETAIL_HISTORY_STATE,
+  eventHref,
+  eventEditHref,
 } from "./routes.ts";
+
+test("Event URLs preserve explicit Dashboard, Tasks, Team and edit scope through refresh", () => {
+  const eventId = randomUUID();
+  for (const path of ["/", "/tasks", "/team"] as const) {
+    const href = eventHref(eventId, path);
+    const url = new URL(href, "https://budograph.invalid");
+    assert.deepEqual(parseAppLocation(url.pathname, url.search), {
+      path,
+      taskId: null,
+      eventId,
+      eventMode: "workspace",
+    });
+    assert.equal(safeReturnTo(href), href);
+    assert.equal(
+      new URL("https://budograph.invalid" + loginHref(href)).searchParams.get(
+        "returnTo",
+      ),
+      href,
+    );
+  }
+  assert.deepEqual(parseAppLocation(eventEditHref(eventId), ""), {
+    path: "/",
+    taskId: null,
+    eventId,
+    eventMode: "edit",
+  });
+  assert.equal(safeReturnTo(eventEditHref(eventId)), eventEditHref(eventId));
+  assert.deepEqual(parseAppLocation("/events/new", "?task=foreign"), {
+    path: "/",
+    taskId: null,
+    eventId: null,
+    eventMode: "create",
+  });
+  assert.equal(safeReturnTo("/events/new?private=discard"), "/events/new");
+});
+
+test("Event switch destinations keep page type and drop former Event task-detail state", () => {
+  const a = randomUUID(),
+    b = randomUUID(),
+    taskId = randomUUID();
+  const taskUrl = new URL(
+    createTaskHref(taskId, a),
+    "https://budograph.invalid",
+  );
+  const location = parseAppLocation(taskUrl.pathname, taskUrl.search);
+  assert.equal(location.eventId, a);
+  assert.equal(location.taskId, taskId);
+  assert.equal(eventHref(b, location.path), `/events/${b}/tasks`);
+  const next = parseAppLocation(eventHref(b, location.path), "");
+  assert.equal(next.taskId, null);
+  assert.equal(
+    resolveTaskLocation(location, [{ id: taskId, eventId: a }], b).status,
+    "invalid",
+  );
+  assert.equal(
+    safeReturnTo(`${eventHref(a, "/tasks")}?task=${taskId}&token=discard`),
+    createTaskHref(taskId, a),
+  );
+});
+
+test("Event login return allowlist rejects unknown pages, unsafe/encoded IDs, external routes and loops", () => {
+  const eventId = randomUUID();
+  for (const href of [
+    `/events/${eventId}/unknown`,
+    `/events/${eventId}/login`,
+    "/events/unsafe%2fid/tasks",
+    "/events/%2f%2fattacker.invalid/team",
+    "/events/new#fragment",
+    "//attacker.invalid/events/new",
+    `/events/${eventId}\\tasks`,
+  ])
+    assert.equal(safeReturnTo(href), "/");
+  assert.throws(() => eventHref("unsafe/id"));
+});
 
 test("normalizes only the existing top-level application paths", () => {
   assert.equal(normalizePath("/"), "/");
@@ -36,6 +114,8 @@ test("creates and parses a canonical encoded task deep link", () => {
     {
       path: "/tasks",
       taskId,
+      eventId: null,
+      eventMode: "workspace",
     },
   );
 });
@@ -53,6 +133,8 @@ test("ignores absent, blank, duplicate, and malformed task parameters", () => {
     assert.deepEqual(parseAppLocation("/tasks", search), {
       path: "/tasks",
       taskId: null,
+      eventId: null,
+      eventMode: "workspace",
     });
   }
 
@@ -60,6 +142,8 @@ test("ignores absent, blank, duplicate, and malformed task parameters", () => {
   assert.deepEqual(parseAppLocation("/tasks", "?task=task-one&view=list"), {
     path: "/tasks",
     taskId: "task-one",
+    eventId: null,
+    eventMode: "workspace",
   });
 });
 
@@ -67,10 +151,14 @@ test("task query state is limited to the tasks route", () => {
   assert.deepEqual(parseAppLocation("/team", "?task=task-one"), {
     path: "/team",
     taskId: null,
+    eventId: null,
+    eventMode: "workspace",
   });
   assert.deepEqual(parseAppLocation("/missing", "?task=task-one"), {
     path: "/",
     taskId: null,
+    eventId: null,
+    eventMode: "workspace",
   });
 });
 

@@ -1,5 +1,33 @@
 # BudoGraph User Guide
 
+## Create, switch and edit Events (P2A)
+
+After signing in, use **Create event** in the shell or the first-event empty state.
+Enter a name (1–200 characters), start/end calendar dates, and the region/city's
+timezone. End must be on or after start. The browser timezone is only an editable
+initial suggestion; the server validates your choice. Saving opens the new Event's
+Dashboard without a page reload. You are its owner and Organizer, even if you are
+a Member in another Event. Team contains your real membership; Tasks are empty.
+
+Use **Switch event** in the sidebar (desktop) or header (mobile/tablet) to choose
+an accessible Event. Keyboard users can use the native select's arrows/typeahead.
+Dashboard, Tasks and Team retain their page when switching. An open task detail
+returns to the selected Event's Tasks list. Refresh and browser history keep Event
+context in `/events/:eventId/dashboard`, `/events/:eventId/tasks` and
+`/events/:eventId/team`; sharing a URL does not give its recipient permission.
+
+An Organizer of the current Event can use **Edit event** to change only its name,
+dates and timezone. A Member has no actionable edit control for that Event.
+If details changed elsewhere, the latest details appear with an explanation;
+review them before choosing **Save event** again. Failed conflict refresh blocks
+saving; choose **Load latest details**. Errors preserve a safe retry path and never
+show fictional data. Switching away discards an unsaved form; no automatic save exists.
+
+**TASK AUTHORING NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
+No additional setup/bootstrap script is needed to create a normal Event. The P1
+development Event remains separate for existing task responsibility demonstrations.
+
 ## Sign in and sign out (P1D.1)
 
 Open `/login` and enter the email and password of your provided account. There
@@ -15,9 +43,9 @@ session check. Server-unavailable errors show a safe retry message.
 
 Your account identity, Dashboard, Tasks and Team reads are real. All three pages
 share the same authorized Event and PostgreSQL tasks/members. Loading, empty results and retryable errors are
-explicit; a server failure never replaces records with fictional data. If several
-Events are accessible, earliest start date then UUID chooses the temporary Event.
-There is no switcher yet. Dates use the Event calendar and real current day.
+explicit; a server failure never replaces records with fictional data. A legacy
+workspace URL resolves an accessible Event and replaces itself with its scoped URL.
+The P2A switcher then chooses Event context explicitly. Dates use the Event calendar and real current day.
 An expired workspace-read or action session returns to Login.
 
 Dashboard shows the stored Event name, dates and timezone, existing task-completion

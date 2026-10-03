@@ -19,6 +19,9 @@ const row = {
   archived_at: null,
   member_id: randomUUID(),
   access_role: "MEMBER",
+  version: 1,
+  created_at: new Date("2026-10-03T08:00:00Z"),
+  updated_at: new Date("2026-10-03T08:00:00Z"),
 };
 
 test("Event list authenticates first, parameterizes user and projects calendar dates/membership only", async () => {
@@ -42,6 +45,9 @@ test("Event list authenticates first, parameterizes user and projects calendar d
     endDate: row.end_date,
     timezone: row.timezone,
     archived: false,
+    version: 1,
+    createdAt: row.created_at.toISOString(),
+    updatedAt: row.updated_at.toISOString(),
     membership: { id: row.member_id, accessRole: "MEMBER" },
   });
   assert.deepEqual(calls[0]?.values, [user.id]);
