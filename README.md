@@ -7,9 +7,9 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, the locked Phase 2B.1 Dashboard direction, and the Phase 2B.2 Tasks workspace redesign**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarified BudoGraph's visual identity and Dashboard reading order. Phase 2B.2 applies that identity to a dense operational task register, compact search and filtering, and a primary task detail/editing drawer without changing the approved product idea or adding production services.
 
 The repository also contains the Backend P1A/P1B/P1C foundation, P1D.1 browser
-authentication, and P1D.2A remote Tasks reads. Login and Tasks reads use the real
-PostgreSQL-backed backend; Dashboard and Team retain fictional local data.
-Tasks are read only until P1D.2B. The application remains a technical prototype. These
+authentication, P1D.2A remote Tasks reads, and P1D.2B task responsibility actions.
+Login and Tasks use the real PostgreSQL-backed backend; Dashboard and Team retain
+fictional local data. The application remains a technical prototype. These
 phases do not prove product-market fit, commercial demand, adoption, willingness
 to pay, or usability.
 
@@ -187,7 +187,7 @@ the controlled Organizer and Member. The real two-session responsibility loop
 is verified against development PostgreSQL; see the evidence below.
 
 Dashboard, Tasks, and Team retain their locked visual composition. P1D.1 adds
-real Login and a protected shell. P1D.2A connects only Tasks reads to the real
+real Login and a protected shell. P1D.2A connects Tasks reads and P1D.2B connects responsibility actions to the real
 backend; Dashboard and Team keep the local demo service unchanged.
 
 Backend development requires Node.js **22.x from 22.18.0, or 24.0.0 and later**, and the repository's
@@ -254,7 +254,7 @@ recheck the session without polling.
 
 Authentication identity and local demo Dashboard/Team data are intentionally
 separate. Tasks use authenticated Event-scoped reads through
-`RemoteWorkspaceService`. Task mutation controls are disabled until P1D.2B.
+`RemoteWorkspaceService`, including server-confirmed task responsibility commands.
 
 `pnpm test:browser:auth` runs the real browser check when Playwright and a browser
 are available; see [backend development](docs/BACKEND_DEVELOPMENT.md) for runtime
@@ -283,6 +283,30 @@ and sends no task mutation commands. Playwright/browser paths use the same
 environment options as the auth verifier. See
 [backend development](docs/BACKEND_DEVELOPMENT.md) and
 [test evidence](docs/TEST_EVIDENCE.md) for the precise boundary and results.
+
+## P1D.2B task responsibility actions
+
+Open a real task's existing drawer. Organizers choose an active Event member in
+**Assign responsibility**; choosing **Unassigned** clears assignment. Reassignment
+and unassignment clear acceptance. The assigned Member can **Accept responsibility**
+or **Withdraw acceptance**. Organizers and assigned Members can change the four
+existing statuses. Organizer acceptance controls are hidden; the backend remains
+the authorization authority. Archived Events remain readable with no write controls.
+
+Every command sends the displayed server `expectedVersion`. Controls disable
+during saving/refetch; confirmed task data changes only after the server response.
+A stale `409` refetches current task/role/member data, explains the conflict and
+requires a new user action. A failed refetch marks the display as potentially stale
+and blocks writes until explicit refresh. There is no replay, polling or realtime.
+
+`GET /api/events/:eventId/members` supplies only active scoped member IDs, names and
+operational-role text for assignment. It adds no remote Team integration. Run
+`pnpm test:browser:task-actions` against the controlled development Event with the
+same ignored account/browser configuration as the read verifier. It performs real
+UI mutations, verifies PostgreSQL/activity history, and leaves the development task
+assigned to the controlled Member, unaccepted, with status `not-started`. Append-only
+history is retained. See the [user guide](docs/USER_GUIDE.md) and
+[test evidence](docs/TEST_EVIDENCE.md) for verification limits.
 
 ## Replaceable wordmark
 

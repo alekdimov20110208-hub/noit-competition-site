@@ -1,7 +1,27 @@
 export const TASK_READ_EN_MESSAGES = {
   "tasks.remote.context": "Event task workspace",
   "tasks.remote.readOnlyShort": "Read only",
-  "tasks.remote.notice": "Server tasks · read only",
+  "tasks.remote.notice": "Server tasks",
+  "tasks.actions.assignment": "Assign responsibility",
+  "tasks.actions.accept": "Accept responsibility",
+  "tasks.actions.withdraw": "Withdraw acceptance",
+  "tasks.actions.pending": "Saving and refreshing task…",
+  "tasks.actions.conflict":
+    "This task changed elsewhere. The current state is shown. Please review it and act again if needed.",
+  "tasks.actions.conflict-refresh-failed":
+    "This task changed elsewhere. Refresh before trying again; the displayed state may be out of date.",
+  "tasks.actions.refresh-failed":
+    "The current task state could not be refreshed. Refresh before making another change.",
+  "tasks.actions.invalid":
+    "This change could not be saved. Check your selection and try again.",
+  "tasks.actions.unauthenticated": "Your session ended. Please sign in again.",
+  "tasks.actions.forbidden":
+    "You are not permitted to make this change. The current task state is shown.",
+  "tasks.actions.not-found":
+    "The task or selected member is no longer available in this event.",
+  "tasks.actions.unavailable":
+    "The change could not be confirmed. Review the current state and try again if needed.",
+  "tasks.actions.refresh": "Refresh task",
   "tasks.remote.split": "Tasks: server data · Dashboard and Team: demo",
   "tasks.remote.loading": "Loading your event and tasks…",
   "tasks.remote.error": "Tasks could not be loaded. Please try again.",
@@ -21,7 +41,27 @@ export const TASK_READ_EN_MESSAGES = {
 export const TASK_READ_BG_MESSAGES = {
   "tasks.remote.context": "Работно пространство за задачи",
   "tasks.remote.readOnlyShort": "Само преглед",
-  "tasks.remote.notice": "Задачи от сървъра · само преглед",
+  "tasks.remote.notice": "Задачи от сървъра",
+  "tasks.actions.assignment": "Възлагане на отговорност",
+  "tasks.actions.accept": "Приемане на отговорността",
+  "tasks.actions.withdraw": "Оттегляне на приемането",
+  "tasks.actions.pending": "Запазване и обновяване на задачата…",
+  "tasks.actions.conflict":
+    "Задачата е променена от друг потребител. Показано е текущото състояние. Прегледайте го и повторете действието, ако е необходимо.",
+  "tasks.actions.conflict-refresh-failed":
+    "Задачата е променена от друг потребител. Обновете преди нов опит; показаното състояние може да е остаряло.",
+  "tasks.actions.refresh-failed":
+    "Текущото състояние не можа да се обнови. Обновете преди друга промяна.",
+  "tasks.actions.invalid":
+    "Промяната не можа да се запази. Проверете избора и опитайте отново.",
+  "tasks.actions.unauthenticated": "Сесията ви приключи. Влезте отново.",
+  "tasks.actions.forbidden":
+    "Нямате право на тази промяна. Показано е текущото състояние на задачата.",
+  "tasks.actions.not-found":
+    "Задачата или избраният участник вече не е достъпен за това събитие.",
+  "tasks.actions.unavailable":
+    "Промяната не можа да се потвърди. Прегледайте текущото състояние и опитайте отново, ако е необходимо.",
+  "tasks.actions.refresh": "Обновяване на задачата",
   "tasks.remote.split": "Задачи: данни от сървъра · Табло и Екип: демо",
   "tasks.remote.loading": "Зареждане на събитието и задачите…",
   "tasks.remote.error": "Задачите не можаха да се заредят. Опитайте отново.",

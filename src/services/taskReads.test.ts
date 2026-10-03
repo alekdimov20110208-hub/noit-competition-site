@@ -21,6 +21,7 @@ const event: TaskEvent = {
   startDate: "2026-10-04",
   endDate: "2026-10-05",
   timezone: "Europe/Sofia",
+  archived: false,
   membership: { id: randomUUID(), accessRole: "ORGANIZER" },
 };
 const member = { id: randomUUID(), name: "Synthetic assignee", role: "Venue" };
@@ -148,7 +149,11 @@ for (const role of ["ORGANIZER", "MEMBER"] as const)
     assert.equal(result.tasks[0]?.title, task.title);
     assert.deepEqual(
       calls.map((call) => call.path),
-      ["/api/events", `/api/events/${event.id}/tasks`],
+      [
+        "/api/events",
+        `/api/events/${event.id}/tasks`,
+        ...(role === "ORGANIZER" ? [`/api/events/${event.id}/members`] : []),
+      ],
     );
     for (const call of calls) {
       assert.equal(call.options?.credentials, "same-origin");

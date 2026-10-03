@@ -1,9 +1,10 @@
 import { getCalendarDayNumber } from "../domain/taskTiming.ts";
-import type { Event, Task, TeamMember } from "../domain/types.ts";
+import type { Event, Task, TaskStatus, TeamMember } from "../domain/types.ts";
 
 export type TaskAssignee = Pick<TeamMember, "id" | "name" | "role">;
 export type TaskEvent = Pick<Event, "id" | "name" | "startDate" | "endDate"> & {
   timezone: string;
+  archived: boolean;
   membership: { id: string; accessRole: "ORGANIZER" | "MEMBER" };
 };
 export interface RemoteTask extends Task {
@@ -17,6 +18,7 @@ export interface TasksWorkspace {
   events: TaskEvent[];
   teamMembers: TaskAssignee[];
   tasks: RemoteTask[];
+  assignableMembers?: TaskAssignee[];
 }
 export function emptyTasksWorkspace(): TasksWorkspace {
   return { currentEventId: "", events: [], teamMembers: [], tasks: [] };
@@ -74,6 +76,7 @@ export function readAccessibleEvents(value: unknown): TaskEvent[] {
     const row = record(value),
       member = record(row.membership);
     const timezone = string(row.timezone);
+    if (typeof row.archived !== "boolean") invalid();
     try {
       new Intl.DateTimeFormat("en", { timeZone: timezone });
     } catch {
@@ -90,6 +93,7 @@ export function readAccessibleEvents(value: unknown): TaskEvent[] {
       startDate,
       endDate,
       timezone,
+      archived: row.archived,
       membership: { id: id(member.id), accessRole },
     };
   });
@@ -117,67 +121,107 @@ export function mapTaskRead(event: TaskEvent, value: unknown): TasksWorkspace {
     return { id: id(row.id), name: string(row.name), role: string(row.role) };
   });
   uniqueIds(teamMembers);
-  const tasks = array(body.tasks).map<RemoteTask>((value) => {
-    const row = record(value);
-    const status = row.status,
-      priority = row.priority;
+  const tasks = array(body.tasks).map((value) =>
+    mapRemoteTask(event.id, value),
+  );
+  for (const task of tasks) {
     if (
-      status !== "not-started" &&
-      status !== "in-progress" &&
-      status !== "blocked" &&
-      status !== "completed"
+      task.assignedMemberId !== null &&
+      !teamMembers.some((member) => member.id === task.assignedMemberId)
     )
       invalid();
-    if (
-      priority !== "normal" &&
-      priority !== "important" &&
-      priority !== "critical"
-    )
-      invalid();
-    const assignedMemberId = nullableId(row.assignedMemberId);
-    const acceptedByMemberId = nullableId(row.acceptedByMemberId);
-    const acceptedAt = row.acceptedAt === null ? null : instant(row.acceptedAt);
-    if (
-      typeof row.accepted !== "boolean" ||
-      row.accepted !== (acceptedByMemberId !== null) ||
-      (acceptedAt === null) !== (acceptedByMemberId === null) ||
-      (acceptedByMemberId !== null &&
-        acceptedByMemberId !== assignedMemberId) ||
-      !Number.isSafeInteger(row.version) ||
-      (row.version as number) < 1 ||
-      (assignedMemberId !== null &&
-        !teamMembers.some((member) => member.id === assignedMemberId))
-    )
-      invalid();
-    return {
-      id: id(row.id),
-      eventId: event.id,
-      title: string(row.title),
-      category: string(row.category),
-      context: string(row.context),
-      deadline: date(row.deadline),
-      status,
-      priority,
-      ownerId: assignedMemberId ?? "",
-      acknowledged: row.accepted,
-      blockedBy: string(row.blockedBy),
-      blocks: string(row.blocks),
-      assignedMemberId,
-      acceptedByMemberId,
-      acceptedAt,
-      version: row.version as number,
-      updatedAt: instant(row.updatedAt),
-    };
-  });
+  }
   uniqueIds(tasks);
   return { currentEventId: event.id, events: [event], teamMembers, tasks };
+}
+
+export function mapRemoteTask(eventId: string, value: unknown): RemoteTask {
+  const row = record(value);
+  const status = row.status,
+    priority = row.priority;
+  if (
+    status !== "not-started" &&
+    status !== "in-progress" &&
+    status !== "blocked" &&
+    status !== "completed"
+  )
+    invalid();
+  if (
+    priority !== "normal" &&
+    priority !== "important" &&
+    priority !== "critical"
+  )
+    invalid();
+  const assignedMemberId = nullableId(row.assignedMemberId);
+  const acceptedByMemberId = nullableId(row.acceptedByMemberId);
+  const acceptedAt = row.acceptedAt === null ? null : instant(row.acceptedAt);
+  if (
+    typeof row.accepted !== "boolean" ||
+    row.accepted !== (acceptedByMemberId !== null) ||
+    (acceptedAt === null) !== (acceptedByMemberId === null) ||
+    (acceptedByMemberId !== null && acceptedByMemberId !== assignedMemberId) ||
+    !Number.isSafeInteger(row.version) ||
+    (row.version as number) < 1 ||
+    (row.version as number) > 2147483647
+  )
+    invalid();
+  return {
+    id: id(row.id),
+    eventId: id(eventId),
+    title: string(row.title),
+    category: string(row.category),
+    context: string(row.context),
+    deadline: date(row.deadline),
+    status,
+    priority,
+    ownerId: assignedMemberId ?? "",
+    acknowledged: row.accepted,
+    blockedBy: string(row.blockedBy),
+    blocks: string(row.blocks),
+    assignedMemberId,
+    acceptedByMemberId,
+    acceptedAt,
+    version: row.version as number,
+    updatedAt: instant(row.updatedAt),
+  };
+}
+
+export type TaskAction =
+  | { kind: "assignment"; assignedMemberId: string | null }
+  | { kind: "acceptance"; accepted: boolean }
+  | { kind: "status"; status: TaskStatus };
+export type TaskActionError =
+  | "conflict"
+  | "invalid"
+  | "unauthenticated"
+  | "forbidden"
+  | "not-found"
+  | "unavailable";
+export class TaskActionFailure extends Error {
+  readonly code: TaskActionError;
+  constructor(code: TaskActionError) {
+    super("Task action failed.");
+    this.code = code;
+  }
+}
+export interface TasksMutationService {
+  executeTaskAction(
+    eventId: string,
+    taskId: string,
+    expectedVersion: number,
+    action: TaskAction,
+    signal: AbortSignal,
+  ): Promise<RemoteTask>;
+  refreshTasks(eventId: string, signal: AbortSignal): Promise<TasksWorkspace>;
 }
 
 export interface TasksReadService {
   readTasks(signal: AbortSignal): Promise<TasksWorkspace>;
 }
 
-export class RemoteWorkspaceService implements TasksReadService {
+export class RemoteWorkspaceService
+  implements TasksReadService, TasksMutationService
+{
   private request: typeof fetch;
   constructor(request: typeof fetch = fetch) {
     this.request = request;
@@ -217,12 +261,165 @@ export class RemoteWorkspaceService implements TasksReadService {
     );
     if (!event) return emptyTasksWorkspace();
     signal.throwIfAborted();
-    return mapTaskRead(
+    return this.readEventTasks(event, signal);
+  }
+
+  private async readEventTasks(
+    event: TaskEvent,
+    signal: AbortSignal,
+  ): Promise<TasksWorkspace> {
+    const workspace = mapTaskRead(
       event,
-      await this.get(
-        `/api/events/${encodeURIComponent(event.id)}/tasks`,
-        signal,
-      ),
+      await this.get(`/api/events/${event.id}/tasks`, signal),
     );
+    if (event.membership.accessRole !== "ORGANIZER") return workspace;
+    const members = array(
+      record(await this.get(`/api/events/${event.id}/members`, signal)).members,
+    ).map((value) => {
+      const row = record(value);
+      return { id: id(row.id), name: string(row.name), role: string(row.role) };
+    });
+    uniqueIds(members);
+    return {
+      ...workspace,
+      assignableMembers: members,
+      teamMembers: [
+        ...new Map(
+          [...workspace.teamMembers, ...members].map((member) => [
+            member.id,
+            member,
+          ]),
+        ).values(),
+      ],
+    };
+  }
+
+  async refreshTasks(
+    eventId: string,
+    signal: AbortSignal,
+  ): Promise<TasksWorkspace> {
+    const event = readAccessibleEvents(
+      await this.get("/api/events", signal),
+    ).find((event) => event.id === id(eventId));
+    if (!event) throw new WorkspaceReadFailure("forbidden");
+    signal.throwIfAborted();
+    return this.readEventTasks(event, signal);
+  }
+
+  assignTask(
+    eventId: string,
+    taskId: string,
+    assignedMemberId: string | null,
+    expectedVersion: number,
+    signal: AbortSignal,
+  ) {
+    return this.executeTaskAction(
+      eventId,
+      taskId,
+      expectedVersion,
+      { kind: "assignment", assignedMemberId },
+      signal,
+    );
+  }
+  acceptTask(
+    eventId: string,
+    taskId: string,
+    expectedVersion: number,
+    signal: AbortSignal,
+  ) {
+    return this.executeTaskAction(
+      eventId,
+      taskId,
+      expectedVersion,
+      { kind: "acceptance", accepted: true },
+      signal,
+    );
+  }
+  withdrawTaskAcceptance(
+    eventId: string,
+    taskId: string,
+    expectedVersion: number,
+    signal: AbortSignal,
+  ) {
+    return this.executeTaskAction(
+      eventId,
+      taskId,
+      expectedVersion,
+      { kind: "acceptance", accepted: false },
+      signal,
+    );
+  }
+  updateTaskStatus(
+    eventId: string,
+    taskId: string,
+    status: TaskStatus,
+    expectedVersion: number,
+    signal: AbortSignal,
+  ) {
+    return this.executeTaskAction(
+      eventId,
+      taskId,
+      expectedVersion,
+      { kind: "status", status },
+      signal,
+    );
+  }
+  async executeTaskAction(
+    eventId: string,
+    taskId: string,
+    expectedVersion: number,
+    action: TaskAction,
+    signal: AbortSignal,
+  ): Promise<RemoteTask> {
+    const event = id(eventId),
+      task = id(taskId);
+    const method =
+      action.kind === "assignment"
+        ? "POST"
+        : action.kind === "acceptance"
+          ? "PUT"
+          : "PATCH";
+    const body =
+      action.kind === "assignment"
+        ? { assignedMemberId: action.assignedMemberId, expectedVersion }
+        : action.kind === "acceptance"
+          ? { accepted: action.accepted, expectedVersion }
+          : { status: action.status, expectedVersion };
+    let response: Response;
+    try {
+      const request = this.request;
+      response = await request(
+        `/api/events/${event}/tasks/${task}/${action.kind}`,
+        {
+          method,
+          credentials: "same-origin",
+          cache: "no-store",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+          signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
+        },
+      );
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new TaskActionFailure("unavailable");
+    }
+    const errors: Record<number, TaskActionError> = {
+      400: "invalid",
+      401: "unauthenticated",
+      403: "forbidden",
+      404: "not-found",
+      409: "conflict",
+    };
+    if (!response.ok)
+      throw new TaskActionFailure(errors[response.status] ?? "unavailable");
+    try {
+      const result = mapRemoteTask(event, record(await response.json()).task);
+      if (result.id !== task) invalid();
+      signal.throwIfAborted();
+      return result;
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new TaskActionFailure("invalid");
+    }
   }
 }

@@ -11,6 +11,7 @@ export interface AccessibleEvent {
   startDate: string;
   endDate: string;
   timezone: string;
+  archived: boolean;
   membership: { id: string; accessRole: AccessRole };
 }
 
@@ -20,7 +21,7 @@ export function createEventReadService(database: AuthorizationDatabase) {
       if (!user?.id) throw new UnauthorizedError();
       const { rows } = await database.query(
         `SELECT event.id, event.name, to_char(event.start_date, 'YYYY-MM-DD') AS start_date,
-                to_char(event.end_date, 'YYYY-MM-DD') AS end_date, event.timezone,
+                to_char(event.end_date, 'YYYY-MM-DD') AS end_date, event.timezone, event.archived_at,
                 member.id AS member_id, member.access_role
          FROM public.event AS event
          JOIN public.event_member AS member ON member.event_id = event.id
@@ -37,6 +38,7 @@ export function createEventReadService(database: AuthorizationDatabase) {
           start_date: string;
           end_date: string;
           timezone: string;
+          archived_at: Date | null;
           member_id: string;
           access_role: AccessRole;
         };
@@ -46,6 +48,7 @@ export function createEventReadService(database: AuthorizationDatabase) {
           startDate: row.start_date,
           endDate: row.end_date,
           timezone: row.timezone,
+          archived: row.archived_at !== null,
           membership: { id: row.member_id, accessRole: row.access_role },
         };
       });

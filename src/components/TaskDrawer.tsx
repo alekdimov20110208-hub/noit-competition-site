@@ -21,6 +21,19 @@ import { getInitials } from "../utils/format.ts";
 import { getTaskStatusTone } from "../utils/statusTone.ts";
 import { BudoSelect, type BudoSelectOption } from "./BudoSelect.tsx";
 import { StatusBadge } from "./StatusBadge.tsx";
+import type { TaskAssignee } from "../services/RemoteWorkspaceService.ts";
+import type { TaskMutationState } from "../services/taskReadState.ts";
+
+export interface RemoteTaskControls {
+  assignment: boolean;
+  acceptance: boolean;
+  status: boolean;
+  members: TaskAssignee[];
+  mutation: TaskMutationState | null;
+  disabled: boolean;
+  onAssign: (memberId: string | null) => void;
+  onRefresh: () => void;
+}
 
 const TASK_STATUSES = Object.keys(TASK_STATUS_MESSAGE_KEYS) as TaskStatus[];
 
@@ -33,6 +46,7 @@ interface TaskDrawerProps {
   onToggleAcknowledgement?: (taskId: string) => void;
   readOnly?: boolean;
   timeZone?: string;
+  remoteControls?: RemoteTaskControls;
 }
 
 export function TaskDrawer({
@@ -44,6 +58,7 @@ export function TaskDrawer({
   onToggleAcknowledgement,
   readOnly = false,
   timeZone,
+  remoteControls,
 }: TaskDrawerProps) {
   const { formatDate, formatDateTime, t } = useI18n(timeZone);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -120,6 +135,8 @@ export function TaskDrawer({
         ? "warning"
         : "neutral";
   const contextId = `task-drawer-context-${task.id}`;
+  const pending = remoteControls?.mutation?.pending ?? false;
+  const disabled = readOnly || pending || remoteControls?.disabled;
   const statusOptions: readonly BudoSelectOption<TaskStatus>[] =
     TASK_STATUSES.map((status) => ({
       value: status,
@@ -136,6 +153,7 @@ export function TaskDrawer({
       <aside
         ref={drawerRef}
         className="task-drawer"
+        data-remote={remoteControls ? "true" : undefined}
         role="dialog"
         aria-modal="true"
         aria-labelledby="task-drawer-title"
@@ -178,6 +196,30 @@ export function TaskDrawer({
             <p id={contextId}>{task.context}</p>
           </header>
 
+          {remoteControls?.mutation &&
+            (pending || remoteControls.mutation.message) && (
+              <div
+                className="task-action-feedback"
+                role={pending ? "status" : "alert"}
+                aria-atomic="true"
+              >
+                <span>
+                  {pending
+                    ? t("tasks.actions.pending")
+                    : t(`tasks.actions.${remoteControls.mutation.message!}`)}
+                </span>
+                {remoteControls.mutation.needsRefresh && (
+                  <button
+                    type="button"
+                    className="button button--quiet"
+                    onClick={remoteControls.onRefresh}
+                  >
+                    {t("tasks.actions.refresh")}
+                  </button>
+                )}
+              </div>
+            )}
+
           <section
             className="task-drawer__section"
             aria-labelledby="task-responsibility-heading"
@@ -200,6 +242,37 @@ export function TaskDrawer({
                   <span>{t("taskDetails.owner")}</span>
                   <strong>{owner?.name ?? t("common.unassigned")}</strong>
                   {owner && <small>{owner.role}</small>}
+                  {remoteControls?.assignment && (
+                    <div className="field-stack task-assignment-select">
+                      <label htmlFor={`drawer-assignment-${task.id}`}>
+                        {t("tasks.actions.assignment")}
+                      </label>
+                      <select
+                        id={`drawer-assignment-${task.id}`}
+                        value={task.ownerId}
+                        disabled={disabled}
+                        onChange={(event) =>
+                          remoteControls.onAssign(event.target.value || null)
+                        }
+                      >
+                        <option value="">{t("common.unassigned")}</option>
+                        {owner &&
+                          !remoteControls.members.some(
+                            (member) => member.id === owner.id,
+                          ) && (
+                            <option value={owner.id} disabled>
+                              {owner.name}
+                            </option>
+                          )}
+                        {remoteControls.members.map((member) => (
+                          <option key={member.id} value={member.id}>
+                            {member.name}
+                            {member.role ? ` · ${member.role}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -225,24 +298,34 @@ export function TaskDrawer({
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  className="button button--secondary"
-                  disabled={readOnly}
-                  onClick={() => onToggleAcknowledgement?.(task.id)}
-                >
-                  {task.acknowledged ? (
-                    <>
-                      <X size={16} aria-hidden="true" />{" "}
-                      {t("taskDetails.markUnacknowledged")}
-                    </>
-                  ) : (
-                    <>
-                      <Check size={16} aria-hidden="true" />{" "}
-                      {t("taskDetails.acknowledge")}
-                    </>
-                  )}
-                </button>
+                {(!remoteControls || remoteControls.acceptance) && (
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    disabled={disabled}
+                    onClick={() => onToggleAcknowledgement?.(task.id)}
+                  >
+                    {task.acknowledged ? (
+                      <>
+                        <X size={16} aria-hidden="true" />{" "}
+                        {t(
+                          remoteControls
+                            ? "tasks.actions.withdraw"
+                            : "taskDetails.markUnacknowledged",
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} aria-hidden="true" />{" "}
+                        {t(
+                          remoteControls
+                            ? "tasks.actions.accept"
+                            : "taskDetails.acknowledge",
+                        )}
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </section>
@@ -261,16 +344,23 @@ export function TaskDrawer({
             </div>
 
             <div className="task-progress-panel">
-              <BudoSelect<TaskStatus>
-                id={`drawer-status-${task.id}`}
-                className="field-stack task-status-select"
-                label={t("taskDetails.currentStatus")}
-                value={task.status}
-                options={statusOptions}
-                disabled={readOnly}
-                onChange={(status) => onStatusChange?.(task.id, status)}
-                popupMinWidth={220}
-              />
+              {!remoteControls || remoteControls.status ? (
+                <BudoSelect<TaskStatus>
+                  id={`drawer-status-${task.id}`}
+                  className="field-stack task-status-select"
+                  label={t("taskDetails.currentStatus")}
+                  value={task.status}
+                  options={statusOptions}
+                  disabled={disabled}
+                  onChange={(status) => onStatusChange?.(task.id, status)}
+                  popupMinWidth={220}
+                />
+              ) : (
+                <div className="field-stack task-status-readout">
+                  <span>{t("taskDetails.currentStatus")}</span>
+                  <strong>{t(TASK_STATUS_MESSAGE_KEYS[task.status])}</strong>
+                </div>
+              )}
 
               <dl className="task-progress-meta">
                 <div>

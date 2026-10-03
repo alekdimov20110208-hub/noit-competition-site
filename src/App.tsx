@@ -313,6 +313,9 @@ export default function App() {
         onCloseTask={closeTask}
         readState={remoteTasks}
         onRetry={() => void remoteTasks.retry()}
+        onTaskAction={(taskId, action) =>
+          void remoteTasks.mutate(taskId, action)
+        }
       />
     );
   } else if (currentLocation.path === "/team") {

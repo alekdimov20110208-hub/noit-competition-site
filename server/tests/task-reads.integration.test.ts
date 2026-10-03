@@ -35,6 +35,49 @@ test(
         email: "synthetic@example.invalid",
       });
       await t.test(
+        "assignment candidates require same-Event active membership and contain no auth data",
+        async () => {
+          const candidates = await tasks.readAssignableMembers(
+            identity(fixture.organizerUser),
+            fixture.eventId,
+          );
+          assert.ok(
+            candidates.some((member) => member.id === fixture.memberId),
+          );
+          assert.ok(
+            !candidates.some((member) => member.id === fixture.foreignMemberId),
+          );
+          assert.ok(
+            !candidates.some(
+              (member) =>
+                member.id === fixture.inactiveId ||
+                member.id === fixture.inactiveUserMemberId,
+            ),
+          );
+          for (const member of candidates)
+            assert.deepEqual(Object.keys(member).sort(), [
+              "id",
+              "name",
+              "role",
+            ]);
+          assert.deepEqual(
+            await tasks.readAssignableMembers(
+              identity(fixture.memberUser),
+              fixture.eventId,
+            ),
+            candidates,
+          );
+          await assert.rejects(
+            tasks.readAssignableMembers(
+              identity(fixture.foreignUser),
+              fixture.eventId,
+            ),
+            (error) =>
+              error instanceof TaskCommandError && error.statusCode === 404,
+          );
+        },
+      );
+      await t.test(
         "Organizer and Member discover exactly their shared authorized Event and persisted access roles",
         async () => {
           for (const [user, role] of [
@@ -124,6 +167,22 @@ test(
             fixture.eventId,
           );
           assert.equal(seen.members[0]?.id, fixture.memberId);
+          assert.ok(
+            !(
+              await tasks.readAssignableMembers(
+                identity(fixture.organizerUser),
+                fixture.eventId,
+              )
+            ).some((member) => member.id === fixture.memberId),
+          );
+          await assert.rejects(
+            tasks.readAssignableMembers(
+              identity(fixture.memberUser),
+              fixture.eventId,
+            ),
+            (error) =>
+              error instanceof TaskCommandError && error.statusCode === 404,
+          );
           await assert.rejects(
             tasks.readForWorkspace(
               identity(fixture.memberUser),

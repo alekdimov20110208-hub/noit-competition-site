@@ -668,3 +668,43 @@ The author must review, understand and be able to defend the generated code and
 new service/API boundaries. Temporary data split, deterministic Event selection,
 fictional Dashboard/Team deep-link limits, read-only task actions and remaining
 deployment/offline/actual-year regulation work are documented. P1D.2B was not begun.
+
+## P1D.2B — Real task responsibility actions — 2026-10-03
+
+Codex implemented the user's explicit stage from baseline
+`407c3627c1d7e620e70d92d9ab49931b574d4044` after mandatory source/design/contract
+review, clean-main/origin preflight and passing frontend/backend/PostgreSQL/browser
+baseline. The existing drawer is the action surface; the core idea and locked
+register/page composition stay unchanged. No subagent was used.
+
+Assistance included the minimum authenticated active Event-member read, safe archive
+state, service commands, cancellable/coalesced action/refetch state, membership
+affordances, native assignment select, explicit Member acceptance/withdrawal,
+existing status control, BG/EN feedback, tests, browser verification and docs.
+Task Origin checks now share auth's exact development allowlist, preserving
+production/cross-site denial. No client actor/timestamp, optimistic success,
+automatic command replay, realtime or polling is introduced.
+
+Observed passing evidence: 155 frontend tests, 80 offline backend tests, 34 real
+PostgreSQL checks, real two-session UI including stale 409, all six activity types
+(21 confirmed UI changes), actual mutation-session expiry and 40 role/language/
+theme/viewport drawer cases. Error/held-response interceptions are explicitly
+labelled. Fresh read-only self-review fixed missing archive affordance information
+and recovery feedback that disappeared after closing/switching drawers.
+Intermediate verifier failures are recorded in TEST_EVIDENCE.md, not called passes.
+Credentials stay in ignored configuration/memory; no authentication artifacts are
+saved. The controlled task ends assigned to Member, unaccepted, `not-started`.
+
+Dashboard/Team remain demo. Authoring, activity UI, invitations, onboarding,
+production/offline/backup verification and actual-year NOIT rules remain outside
+this stage. No dependency/asset/license or applied migration was added. The author
+must review, understand and defend generated code; no human acceptance, product
+validation, security certification or accessibility certification is fabricated.
+
+Completion checks preserve 15 auth checks/20 Login cases and 13 prior Tasks read
+checks/5 viewport cases. Pixel comparisons found all 20 Dashboard, 20 Team and
+20 equivalent-content Tasks register cases identical. The drawer-switch recovery
+check uses one clearly identified read-only synthetic transport row; no new real
+task is created or mutated. Failed verifier runs are documented separately.
+The staged 29-file audit checks actual ignored credentials privately, whole staged
+content and the frontend bundle; no secrets or excluded artifacts were found.

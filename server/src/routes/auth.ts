@@ -5,6 +5,7 @@ import { requireAuthenticatedUser, type SessionAuth } from "../auth/session.ts";
 export interface AuthIntegration {
   auth: SessionAuth & { handler(request: Request): Promise<Response> };
   baseURL: string;
+  taskMutationOrigins?: readonly string[];
 }
 
 export function registerAuthRoutes(

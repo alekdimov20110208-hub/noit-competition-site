@@ -2789,3 +2789,176 @@ src/services/RemoteWorkspaceService.ts
 src/services/taskReadState.ts
 src/services/taskReads.test.ts
 ```
+
+## P1D.2B — Real task responsibility UI — 2026-10-03
+
+Authorized baseline: `407c3627c1d7e620e70d92d9ab49931b574d4044`, `main`, freshly
+fetched origin sync `0/0`, tracked worktree clean. The unrelated shortcut was excluded.
+Mandatory master prompt, all 30 pages of the supplied NOIT regulations, approved
+backend contract, task semantics, drawer/register and locked design guidance were
+read before implementation. Supplied rules are **2025–2026**; actual-year dates,
+eligibility, categories, licensing, online availability and document format still
+need official verification.
+
+### Automated verification
+
+| Check                                                     | Observed result                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------------ |
+| Baseline frontend / offline backend                       | PASS: 128 frontend; 78 backend, 3 opt-in skips                     |
+| Baseline real PostgreSQL / Tasks browser                  | PASS: 33 database checks; existing browser read/auth behavior      |
+| `pnpm.cmd format` / `format:check` / `lint` / `typecheck` | PASS                                                               |
+| `pnpm.cmd test` / `build`                                 | PASS: 155 tests, including 27 new action tests; build passes       |
+| Backend `typecheck` / `test` / `build`                    | PASS: 80 offline tests, 3 explicitly opt-in skips                  |
+| Opt-in `pnpm.cmd server:test:integration`                 | PASS: 34/34, zero skips, real approved PostgreSQL                  |
+| `pnpm.cmd test:browser:task-actions`                      | PASS: 14 workflow checks, 40 drawer cases, zero application errors |
+| Final `pnpm.cmd test:browser:tasks`                       | PASS: prior read/auth/error/empty behavior, zero task writes       |
+
+Service/controller tests cover exact bodies, expectedVersion, all commands,
+canonical projection, safe 400/401/403/404/409/500 mapping, abort/late responses,
+role/member/archive affordances, minimum candidate fields, same-Event refresh,
+duplicate coalescing, no pre-confirmation writes, conflict/refetch, blocked writes
+after failed refresh, retained confirmed response and revoked membership clearing.
+The PostgreSQL extension proves active same-Event candidates, inactive membership
+and User exclusion, safe fields and historical assignee display. All prior
+P1B/P1C/read/auth checks remain. Applied migrations are unchanged.
+
+### Real two-session UI and activity evidence
+
+Independent memory-only Edge/Chromium **154.0.4258.53** contexts use real Better Auth,
+backend HTTP and PostgreSQL. Credentials come only from ignored configuration.
+No cookie jar, session dump, HAR, trace, storageState or credential screenshot is
+saved. Ignored report/screenshots: `tmp/p1d2b-evidence/browser/`.
+
+- Organizer assigns using real active member IDs and human-readable names; refreshed
+  Member sees assignment and Accept. Organizer has no acceptance/withdrawal control;
+  other/unassigned Members have no acceptance/status control; Member cannot assign.
+- Real Member acceptance/withdrawal is server-confirmed. SQL verifies member/time,
+  cleared acceptance and preserved assignment; Organizer refresh shows acceptance.
+- Member sends all four statuses independently of acceptance. Organizer refresh
+  sees canonical status. Backend still authorizes every command.
+- Organizer changes status while Member holds an older version. Member's actual
+  stale command returns **409**; the drawer shows refreshed Blocked state and a short
+  conflict message. No overwrite or automatic replay occurs.
+- Reassignment/unassignment clear acceptance in both UIs. Assigning back retains
+  empty acceptance and Member must explicitly accept again.
+- A held response from a real acceptance command preserves Not accepted before
+  delivery, disables related controls and produces exactly one request.
+- A second real 409 plus an explicitly intercepted failed GET marks the display
+  stale and disables actions; explicit Refresh recovers. The failed GET is a double.
+- Actual revoked Member session produces mutation **401**, clears its app and returns
+  to Login, while the independent Organizer session remains valid.
+
+Explicit 400/403/404/500/network transport doubles separately prove accessible,
+sanitized feedback, retained safe content, refetch and no command retry. These
+do not claim real permission/resource/outage conditions; actual authorization and
+transaction failures remain covered by P1C unit/PostgreSQL checks.
+
+Read-only SQL found **21 ActivityEntry records for 21 confirmed UI changes** in the
+passing run. All six types (`task.assigned`, `task.reassigned`, `task.unassigned`,
+`task.accepted`, `task.acceptance_withdrawn`, `task.status_changed`) matched response
+versions and authenticated scoped actors. Reassignment records `acceptanceCleared`.
+No activity UI was added. The single controlled task ends assigned to Member,
+unaccepted, `not-started`, version **157** in the final passing run. Intermediate-run history is preserved;
+no controlled account/task/membership/history was deleted or reset via SQL.
+
+### Accessibility, review and limits
+
+Both roles × BG/EN × light/dark × 1440, 1024, 768, 390 and 320 CSS px: **40/40**,
+no horizontal overflow, action targets at least 44px. Keyboard status mutation uses
+Enter/End/Enter; native assignment has a real label and keyboard focus. Existing
+drawer focus/Escape/return behavior remains. Pending/error/conflict feedback uses
+status/alert semantics. Representative desktop/narrow BG-dark screenshots were
+visually inspected. This is Chromium evidence, not formal screen-reader/real-device
+coverage, accessibility certification or user validation.
+
+A fresh read-only self-review covered mutation correctness, authorization boundary,
+version handling, stale state/refetch, identity/role resolution, cancellation,
+duplicate submissions, accessibility, locked design and scope. It found missing
+archive affordance data; safe backend `archived` state and guards corrected it.
+It also found a failed-refresh recovery action could disappear after closing or
+switching drawers; shared recovery feedback and a list-level refresh action fix it.
+Affected tests and real-browser verification were rerun. No external reviewer,
+subagent or human acceptance is claimed.
+
+Task Origin checks now share auth's explicit helper: configured origin plus exactly
+the Vite origin in development, with no production expansion. Tests reject missing,
+spoofed/foreign Origin and cross-site Fetch Metadata. Backend validation/scoped
+membership/task/assignment/version checks remain authoritative. No client actor,
+timestamp, role, email/name or localStorage data grants permission. Browser storage
+was checked for credentials/tokens. No dependencies, schema, authoring, activity UI,
+Team/Dashboard integration, realtime or server polling were added.
+
+Intermediate failures are not PASS evidence: an initial browser run did not complete;
+Edge could not expose a 409 body to Playwright although UI recovery worked, so the
+verifier now checks status/DOM/canonical reads. Another verifier step used a stale
+Organizer version after Member acceptance; its legitimate 409 required adding an
+explicit refresh before unassignment. Request-count and format assertions were
+updated for the member endpoint and formatting. Only the completed passing run
+is counted. Additional recovery-verifier runs stopped on a missing second real task
+and an overly broad selector; neither is counted as a pass. A clearly marked
+read-only transport row now tests drawer switching without creating a database
+task, and the selector targets the status button. Final completion evidence follows.
+
+### Completion evidence
+
+- Final responsibility rerun: **14 checks / 40 drawer cases**, zero application
+  errors. Failed-refresh recovery passes after closing/switching drawers; the second
+  row is an explicit read-only transport fixture. Real commands/history remain on
+  the existing controlled task. SQL confirms **21 changes / 21 ActivityEntry records**,
+  all six types, and the final Member-assigned/unaccepted/`not-started` state at
+  version **157**. Actual mutation 401 and isolated session clearing pass afterward.
+- Final auth regression: **15 checks / 20 Login layout cases**, plus the actual mobile
+  account menu; zero application errors. Real login/session/logout/revocation remain
+  covered; injected failure/malformed identity cases remain labelled doubles.
+- Final read regression: **13 checks / 5 viewport cases**, zero application errors,
+  **zero task commands**. Prior empty/loading/error, deep-link, poisoned demo and
+  real expired-session behavior remains covered.
+- Locked visuals: **20/20 Dashboard and 20/20 Team** `.app-main` comparisons are
+  pixel-identical to preimplementation snapshots. **20/20 Tasks** equivalent-content
+  register comparisons are also pixel-identical using explicitly intercepted,
+  fixed-clock visual fixtures. Widths are 1440/1024/768/390/320, BG/EN, light/dark.
+  All 60 after snapshots have zero horizontal overflow. The 40 real role/drawer
+  captures cover only the expected contextual controls and acceptance state.
+- The recovery fix reran frontend typecheck/lint, **155/155 tests**, build and format
+  checks. Backend source was unchanged after its **80-test / 34-database-test** pass.
+- Staged safety review found exactly **29 intended files**, no excluded environment,
+  shortcut, temporary output, cookies, session dumps, HAR, traces or auth artifacts.
+  Actual configured credentials/secrets were checked privately against the staged
+  diff, complete staged file contents and frontend bundle: none found. The remote
+  boundary contains no browser storage, demo fallback, console output or hardcoded
+  development UUID. Locked Dashboard/Team/demo/navigation files, dependencies and
+  migrations are unchanged; existing CSS rules are unchanged. Staged whitespace is clean.
+
+### Changed files (29)
+
+```text
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/KNOWN_LIMITATIONS.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-task-actions-ui.mjs
+scripts/verify-task-reads-ui.mjs
+server/src/auth/auth.ts
+server/src/events/service.ts
+server/src/main.ts
+server/src/routes/auth.ts
+server/src/routes/tasks.ts
+server/src/tasks/service.ts
+server/tests/events.test.ts
+server/tests/task-reads.integration.test.ts
+server/tests/tasks.test.ts
+src/App.tsx
+src/components/TaskDrawer.tsx
+src/hooks/useRemoteTasks.ts
+src/i18n/taskReadMessages.ts
+src/pages/TasksPage.tsx
+src/services/RemoteWorkspaceService.ts
+src/services/taskActions.test.ts
+src/services/taskAffordances.ts
+src/services/taskReadState.ts
+src/services/taskReads.test.ts
+src/styles.css
+```

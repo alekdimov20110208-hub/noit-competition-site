@@ -18,9 +18,35 @@ fictional local demonstration. Open Tasks to view the accessible development
 Event and its PostgreSQL tasks. Loading, empty results and retryable errors are
 explicit; a server failure never replaces tasks with fictional data. If several
 Events are accessible, earliest start date then UUID chooses the temporary Event.
-There is no switcher yet. Task drawers show **Read only**; acceptance and status
-controls are disabled until P1D.2B. Dates use the Event calendar and real current
-day. An expired task-read session returns to Login.
+There is no switcher yet. Dates use the Event calendar and real current day.
+An expired task-read or action session returns to Login.
+
+## Real task responsibility actions (P1D.2B)
+
+Open a task row to use its existing detail drawer:
+
+- Organizer: choose a real active participant in **Assign responsibility**. Choose
+  another participant to reassign, or **Unassigned** to remove assignment. A changed
+  assignment clears acceptance, including when assigning back to a previous owner.
+- Assigned Member: choose **Accept responsibility**. After confirmation, **Accepted**
+  appears in the drawer and register. Use **Withdraw acceptance** to clear acceptance
+  while keeping the task assigned to you. Other Members and Organizers do not see
+  these Member actions.
+- Organizer or assigned Member: use **Current status** for Not started, In progress,
+  Blocked or Completed. Status and responsibility acceptance are independent.
+
+Controls disable while saving and refreshing. The page shows confirmed server data.
+If the task changed elsewhere, a short conflict message appears with the refreshed
+state. Review it and perform the action again if still needed. If refresh fails,
+the display may be stale and further actions remain disabled; choose **Refresh task**.
+The refresh action remains available after closing the drawer or opening another task.
+Other errors explain the problem without showing internal server details.
+
+There is no realtime synchronization or polling. Refresh the browser, revisit
+Tasks, or refocus the page to see another user's changes. Archived Events remain
+readable without action controls. Keyboard users can Tab to the assignment select,
+use arrow keys for member choices, and use Enter/arrow/Home/End keys in the status
+listbox. Dashboard and Team continue to show the fictional demo.
 
 Demo Dashboard/Team links use fictional IDs and therefore show an unavailable
 task notice in remote Tasks. Return to the task list for real records. The local

@@ -10,7 +10,7 @@ authentication and Event authorization helpers under the approved
 P1C adds explicit development Event bootstrap, task reads, Organizer assignment,
 assignee acceptance/withdrawal, authorized status updates, optimistic concurrency
 and atomic immutable activity history. P1D.1 connects browser authentication.
-P1D.2A connects Tasks reads to PostgreSQL; task commands remain disconnected.
+P1D.2A connects Tasks reads to PostgreSQL; P1D.2B connects task responsibility commands.
 Dashboard and Team retain their locked fictional local data and visual output.
 Verification results are in
 [TEST_EVIDENCE.md](TEST_EVIDENCE.md); this guide is not a test report.
@@ -237,7 +237,7 @@ restart the backend. That mode uses synthetic invalid form inputs and saves a
 separate report. PostgreSQL integration still requires explicit
 `RUN_DATABASE_INTEGRATION=1`; its default command otherwise skips database suites.
 
-## P1D.2A remote Tasks reads
+## P1D.2A remote Tasks reads (historical stage)
 
 The deliberate data-mode split is:
 
@@ -286,8 +286,8 @@ Loading keeps the existing Tasks structure with unknown counts and no stale rows
 Empty Event/account messages never show fake tasks. Errors are sanitized and
 retryable; 403/404 stay in the authenticated app. A 401 clears auth immediately
 through the existing P1D.1 boundary, invalidating outstanding identity checks and
-returning to Login with the session-ended notice. Remote drawer controls remain
-visibly disabled/read only. No assign/accept/status commands are connected.
+returning to Login with the session-ended notice. P1D.2A left drawer controls read only;
+P1D.2B now connects them as described below.
 
 Run `pnpm test:browser:tasks` using the same Playwright/browser configuration as
 the auth verifier. It needs the ignored `server/.env` database configuration and
@@ -298,6 +298,55 @@ test cases; expiry is an actual revoked backend session followed by a real 401.
 No task workflow mutation is sent; cleanup signs out only its own sessions.
 Ignored evidence is under `tmp/p1d2-evidence/`; no HAR/trace/storageState/cookie jar
 or session dump is saved. The PostgreSQL suite remains opt-in and rollback-only.
+
+## P1D.2B task responsibility UI
+
+The existing drawer now uses the unchanged P1C assignment, acceptance and status
+routes. `RemoteWorkspaceService` exposes `assignTask`, `acceptTask`,
+`withdrawTaskAcceptance`, `updateTaskStatus`, the shared command transport and
+scoped `refreshTasks`. Bodies contain only the command field plus `expectedVersion`.
+No browser-derived actor/timestamp is sent. Canonical response projection retains
+server assignment, acceptance, version, status and update time.
+
+The read controller coalesces duplicate actions and suppresses overlapping focus
+reads while a command/refetch is pending. Before response it preserves confirmed
+content; after response it applies only canonical task data and refetches the same
+Event's membership, tasks and assignment candidates. Navigation/logout abort and
+revision guards reject late former-user responses. Refetch never selects a different
+Event. Unavailable canonical reads mark stale state and block further writes until
+explicit reload; inaccessible membership clears the workspace. Every error is safe
+product copy. A 401 clears existing auth; 400/403/404 and server/network failure
+never fall back to demo data. A 409 refetches and asks the user to review and act again;
+commands are never automatically replayed.
+
+`GET /api/events/:eventId/members` requires a session and active same-Event
+membership. Its transaction reuses the P1C Event/identity authorization locks and
+returns `{ members: [{ id, name, role }] }`, with inactive memberships/Users excluded.
+It returns no emails, auth User IDs, accounts, credentials or sessions. Names/roles
+are display fields; only member UUIDs identify assignment targets. Existing task
+reads still include names for historical inactive assignees. This is assignment
+context only, not Team integration. Event discovery adds safe `archived` state to
+hide all writes to archived Events; current member ID/access role remain separate
+from authentication identity. The backend rechecks every permission/version.
+
+Task cookie mutations now share authentication's explicit trusted-origin helper:
+the configured auth origin, plus exactly `http://127.0.0.1:5173` in development.
+Missing/foreign Origin and cross-site Fetch Metadata remain denied. Production
+never adds the development origin. No CORS wildcard or forwarded-header trust is
+introduced. This is required for the existing same-origin Vite proxy browser flow.
+
+Run `pnpm test:browser:task-actions` with the existing controlled account and
+Playwright/browser environment. The verifier drives independent real sessions,
+UI commands, a real stale 409 and read-only PostgreSQL/activity queries. Specific
+validation/permission/resource/server/network/pending and failed-refetch transports
+are explicitly identified test interceptions. A read-only synthetic second row
+checks failed-refresh recovery across drawers; no command targets that row and no
+database task is created. It retains append-only activity and
+leaves the single controlled task assigned to Member, unaccepted, `not-started`.
+Credentials come only from ignored configuration; no HAR, trace, storageState,
+cookie jars or session dumps are saved. Ignored evidence is in `tmp/p1d2b-evidence/`.
+There is no realtime/polling, activity UI, task authoring, migration or new dependency.
+Dashboard and Team keep their original demo data and visual output.
 
 ## Controlled development accounts
 
@@ -540,7 +589,7 @@ rejection, and activity persistence without dropping/resetting tables or importi
 fictional demo state. Migration-runner protocol doubles remain separate evidence.
 See test evidence for the exact executed results and limits.
 
-Task mutation/Dashboard/Team data integration, Event/task authoring UI, production hosting,
+Dashboard/Team data integration, Event/task authoring UI, production hosting,
 recovery/verification workflows, distributed rate limiting, least-privilege grant
 audit, and backup/restore remain unfinished. Keep the
 [license register](THIRD_PARTY_NOTICES.md), [AI assistance log](AI_ASSISTANCE_LOG.md),

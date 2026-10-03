@@ -11,6 +11,15 @@ export interface AuthOptions {
   developmentProvisioning?: true;
 }
 
+export function trustedApplicationOrigins(
+  config: Pick<AuthConfig, "nodeEnv" | "betterAuthUrl">,
+) {
+  return [
+    new URL(config.betterAuthUrl).origin,
+    ...(config.nodeEnv === "development" ? ["http://127.0.0.1:5173"] : []),
+  ];
+}
+
 // The provisioning instance is created only by an explicit local CLI command.
 // The HTTP server always uses the default instance with registration disabled.
 export function createAuth(
@@ -31,10 +40,7 @@ export function createAuth(
     secret: config.betterAuthSecret,
     baseURL: config.betterAuthUrl,
     basePath: "/api/auth",
-    trustedOrigins: [
-      new URL(config.betterAuthUrl).origin,
-      ...(config.nodeEnv === "development" ? ["http://127.0.0.1:5173"] : []),
-    ],
+    trustedOrigins: trustedApplicationOrigins(config),
     disabledPaths: ["/sign-up/email"],
     emailAndPassword: {
       enabled: true,

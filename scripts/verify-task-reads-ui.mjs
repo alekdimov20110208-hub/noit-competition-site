@@ -182,22 +182,24 @@ try {
     task.title,
   );
   assert.equal(
-    await organizer.page
-      .locator(".task-drawer__acceptance button")
-      .isDisabled(),
+    await organizer.page.locator(".task-drawer__acceptance button").count(),
+    0,
+  );
+  assert.equal(
+    await organizer.page.locator(".task-assignment-select select").isEnabled(),
     true,
   );
   assert.equal(
     await organizer.page.locator(".task-status-select button").isDisabled(),
-    true,
+    false,
   );
   await organizer.page
     .getByRole("dialog")
-    .screenshot({ path: `${out}/readonly-drawer.png` });
+    .screenshot({ path: `${out}/organizer-drawer.png` });
   await organizer.page.keyboard.press("Escape");
   await organizer.page.getByRole("dialog").waitFor({ state: "hidden" });
   checked(
-    "Real task deep link and drawer preserve canonical content; acceptance/status controls disabled",
+    "Real task deep link and drawer preserve canonical content; Organizer assignment/status available, no acceptance impersonation; no actions sent",
   );
 
   await organizer.page.goto(origin + "/tasks?task=task-transport");

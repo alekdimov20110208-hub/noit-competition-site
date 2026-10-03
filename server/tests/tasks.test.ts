@@ -11,6 +11,7 @@ import {
 import type { TransactionClient } from "../src/db/transaction.ts";
 import { createApp } from "../src/app.ts";
 import { readBootstrapConfig } from "../src/development/bootstrap.ts";
+import { trustedApplicationOrigins } from "../src/auth/auth.ts";
 
 const eventId = randomUUID(),
   taskId = randomUUID(),
@@ -495,4 +496,118 @@ test("development bootstrap configuration uses only emails, rejects production/p
     { ...config, BUDOGRAPH_MEMBER_EMAIL: config.BUDOGRAPH_ORGANIZER_EMAIL },
   ])
     assert.throws(() => readBootstrapConfig(invalid));
+});
+
+test("assignable member read authenticates and scopes active safe candidates", async () => {
+  const h = harness("ORGANIZER");
+  await assert.rejects(
+    h.service.readAssignableMembers(
+      null as unknown as typeof identity,
+      eventId,
+    ),
+    { statusCode: 401 },
+  );
+  await assert.rejects(
+    h.service.readAssignableMembers(identity, "unsafe/id"),
+    rejected(400),
+  );
+  assert.equal(h.calls.length, 0);
+  const members = await h.service.readAssignableMembers(identity, eventId);
+  assert.deepEqual(members, [
+    { id: memberId, name: "Synthetic assignee", role: "Venue" },
+  ]);
+  const query = h.calls.find((call) =>
+    call.sql.includes("ORDER BY identity.name"),
+  )!;
+  assert.deepEqual(query.values, [eventId]);
+  assert.match(query.sql, /member\.active = TRUE/);
+  assert.match(
+    query.sql,
+    /member\.deactivated_at IS NULL AND identity\.active = TRUE/,
+  );
+  assert.doesNotMatch(query.sql, /email|password|session|account/);
+  h.state.actor = false;
+  await assert.rejects(
+    h.service.readAssignableMembers(identity, eventId),
+    rejected(404),
+  );
+});
+
+test("browser mutation origins are explicit in development, strict in production, and reject spoofed Origin/Fetch Metadata", async (t) => {
+  for (const nodeEnv of ["development", "production"] as const) {
+    const h = harness();
+    const app = createApp({
+      checkDatabase: async () => {},
+      tasks: h.service,
+      authentication: {
+        baseURL: "http://127.0.0.1:3001",
+        taskMutationOrigins: trustedApplicationOrigins({
+          nodeEnv,
+          betterAuthUrl: "http://127.0.0.1:3001",
+        }),
+        auth: {
+          handler: async () => new Response(),
+          api: {
+            getSession: async () => ({ user: { ...identity, active: true } }),
+          },
+        },
+      },
+    });
+    t.after(() => app.close());
+    const url = `/api/events/${eventId}/tasks/${taskId}/acceptance`;
+    for (const origin of [
+      undefined,
+      "http://127.0.0.1:5173.evil.invalid",
+      "http://localhost:5173",
+      "null",
+    ])
+      assert.equal(
+        (
+          await app.inject({
+            method: "PUT",
+            url,
+            payload: { accepted: true, expectedVersion: 1 },
+            headers: origin ? { origin } : {},
+          })
+        ).statusCode,
+        403,
+      );
+    assert.equal(
+      (
+        await app.inject({
+          method: "PUT",
+          url,
+          payload: { accepted: true, expectedVersion: 1 },
+          headers: {
+            origin: "http://127.0.0.1:3001",
+            "sec-fetch-site": "cross-site",
+          },
+        })
+      ).statusCode,
+      403,
+    );
+    assert.equal(
+      (
+        await app.inject({
+          method: "PUT",
+          url,
+          payload: { accepted: true, expectedVersion: 1 },
+          headers: {
+            origin: "http://127.0.0.1:5173",
+            "sec-fetch-site": "same-origin",
+          },
+        })
+      ).statusCode,
+      nodeEnv === "development" ? 200 : 403,
+    );
+    const members = await app.inject({
+      method: "GET",
+      url: `/api/events/${eventId}/members`,
+    });
+    assert.equal(members.statusCode, 200);
+    assert.equal(members.headers["cache-control"], "no-store");
+    assert.deepEqual(members.json(), {
+      members: [{ id: memberId, name: "Synthetic assignee", role: "Venue" }],
+    });
+  }
 });

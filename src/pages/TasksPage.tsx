@@ -26,6 +26,8 @@ import {
 } from "../domain/labels.ts";
 import type { Task, TaskStatus, TeamMember, Event } from "../domain/types.ts";
 import type { TaskReadState } from "../services/taskReadState.ts";
+import type { TaskAction } from "../services/RemoteWorkspaceService.ts";
+import { taskAffordances } from "../services/taskAffordances.ts";
 import { getTaskCounts, isTaskOverdue } from "../domain/workspace.ts";
 import { useI18n } from "../i18n/index.ts";
 import { createTaskHref } from "../routes.ts";
@@ -61,6 +63,7 @@ interface TasksPageProps {
   onToggleAcknowledgement?: (taskId: string) => void;
   readState?: TaskReadState;
   onRetry?: () => void;
+  onTaskAction?: (taskId: string, action: TaskAction) => void;
 }
 
 interface TaskListProps {
@@ -195,6 +198,7 @@ export function TasksPage({
   onToggleAcknowledgement,
   readState,
   onRetry,
+  onTaskAction,
 }: TasksPageProps) {
   const timeZone = state.events.find(
     (event) => event.id === state.currentEventId,
@@ -235,6 +239,32 @@ export function TasksPage({
   const selectedOwner = state.teamMembers.find(
     (member) => member.id === selectedTask?.ownerId,
   );
+  const remoteWorkspace = readState?.workspace;
+  const remoteTask =
+    remoteWorkspace?.tasks.find((task) => task.id === selectedTaskId) ?? null;
+  const affordances = taskAffordances(remoteWorkspace?.events[0], remoteTask);
+  const mutation = readState?.mutation;
+  const selectedMutation =
+    mutation && (mutation.taskId === selectedTaskId || mutation.needsRefresh)
+      ? mutation
+      : null;
+  const remoteControls =
+    readState && onTaskAction
+      ? {
+          ...affordances,
+          members: remoteWorkspace?.assignableMembers ?? [],
+          disabled: Boolean(mutation?.pending || mutation?.needsRefresh),
+          mutation: selectedMutation,
+          onAssign: (assignedMemberId: string | null) => {
+            if (selectedTaskId)
+              onTaskAction(selectedTaskId, {
+                kind: "assignment",
+                assignedMemberId,
+              });
+          },
+          onRefresh: () => onRetry?.(),
+        }
+      : undefined;
   const knownMemberIds = new Set(state.teamMembers.map((member) => member.id));
   const groupedTasks = groupByOwner
     ? [
@@ -367,6 +397,21 @@ export function TasksPage({
           >
             {t("taskDetails.invalid.back")}
           </button>
+        </div>
+      )}
+
+      {mutation?.message && !selectedTask && (
+        <div className="notice" role="alert">
+          <span>{t(`tasks.actions.${mutation.message}`)}</span>
+          {mutation.needsRefresh && (
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={onRetry}
+            >
+              {t("tasks.actions.refresh")}
+            </button>
+          )}
         </div>
       )}
 
@@ -567,9 +612,23 @@ export function TasksPage({
         task={selectedTask}
         owner={selectedOwner}
         onClose={onCloseTask}
-        onStatusChange={onStatusChange}
-        onToggleAcknowledgement={onToggleAcknowledgement}
-        readOnly={Boolean(readState)}
+        onStatusChange={
+          onTaskAction
+            ? (taskId, status) =>
+                onTaskAction(taskId, { kind: "status", status })
+            : onStatusChange
+        }
+        onToggleAcknowledgement={
+          onTaskAction
+            ? (taskId) =>
+                onTaskAction(taskId, {
+                  kind: "acceptance",
+                  accepted: !selectedTask?.acknowledged,
+                })
+            : onToggleAcknowledgement
+        }
+        readOnly={Boolean(readState) && !remoteControls}
+        remoteControls={remoteControls}
         timeZone={timeZone}
       />
     </div>

@@ -28,5 +28,5 @@ export function useRemoteTasks(enabled: boolean, userId: string) {
       controller.clear();
     };
   }, [controller, enabled, userId]);
-  return { ...state, retry: controller.load };
+  return { ...state, retry: controller.load, mutate: controller.mutate };
 }

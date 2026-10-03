@@ -16,6 +16,21 @@ export function registerTaskRoutes(
     });
     type Params = { eventId: string; taskId: string };
     routes.get<{ Params: Params }>(
+      "/api/events/:eventId/members",
+      async (request) => {
+        const user = await requireAuthenticatedUser(
+          authentication.auth,
+          request,
+        );
+        return {
+          members: await service.readAssignableMembers(
+            user,
+            request.params.eventId,
+          ),
+        };
+      },
+    );
+    routes.get<{ Params: Params }>(
       "/api/events/:eventId/tasks",
       async (request) => {
         const user = await requireAuthenticatedUser(
@@ -41,6 +56,7 @@ export function registerTaskRoutes(
       },
     );
     const origin = new URL(authentication.baseURL).origin;
+    const origins = new Set(authentication.taskMutationOrigins ?? [origin]);
     for (const [kind, method] of [
       ["assignment", "POST"],
       ["acceptance", "PUT"],
@@ -58,7 +74,7 @@ export function registerTaskRoutes(
           // Cookie writes require the explicit trusted origin, even for CLI
           // callers. SameSite alone cannot protect against a hostile sibling.
           if (
-            request.headers.origin !== origin ||
+            !origins.has(request.headers.origin ?? "") ||
             request.headers["sec-fetch-site"] === "cross-site"
           ) {
             throw new TaskCommandError(403, "UNTRUSTED_ORIGIN");

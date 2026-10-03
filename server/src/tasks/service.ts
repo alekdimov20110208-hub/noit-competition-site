@@ -138,6 +138,27 @@ export function createTaskService(pool: TransactionPool) {
     return readSnapshot(user, event, undefined, true);
   }
 
+  async function readAssignableMembers(user: AuthenticatedUser, event: string) {
+    if (!user?.id) throw new UnauthorizedError();
+    const { eventId } = scopedIds(event);
+    return inTransaction(pool, async (database) => {
+      await authorizeEvent(database, eventId, user.id, false);
+      const { rows } = await database.query(
+        `SELECT member.id, identity.name, member.operational_role AS role
+         FROM public.event_member AS member
+         JOIN public."user" AS identity ON identity.id = member.user_id
+         WHERE member.event_id = $1 AND member.active = TRUE
+           AND member.deactivated_at IS NULL AND identity.active = TRUE
+         ORDER BY identity.name, member.id`,
+        [eventId],
+      );
+      return rows.map((value) => {
+        const row = value as { id: string; name: string; role: string };
+        return { id: row.id, name: row.name, role: row.role };
+      });
+    });
+  }
+
   async function mutate(
     user: AuthenticatedUser,
     event: string,
@@ -260,7 +281,7 @@ export function createTaskService(pool: TransactionPool) {
     });
   }
 
-  return { read, readForWorkspace, mutate };
+  return { read, readForWorkspace, readAssignableMembers, mutate };
 }
 
 export type TaskService = ReturnType<typeof createTaskService>;

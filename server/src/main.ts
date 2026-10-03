@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { createApp } from "./app.ts";
-import { createAuth } from "./auth/auth.ts";
+import { createAuth, trustedApplicationOrigins } from "./auth/auth.ts";
 import { EnvironmentError, readServerEnv } from "./config/env.ts";
 import { createDatabasePool } from "./db/pool.ts";
 import { createShutdown } from "./shutdown.ts";
@@ -58,6 +58,7 @@ async function main() {
       authentication: {
         auth: createAuth(database, config),
         baseURL: config.betterAuthUrl,
+        taskMutationOrigins: trustedApplicationOrigins(config),
       },
       checkDatabase: async () => {
         // pg supports per-query timeouts; @types/pg omits this config field.

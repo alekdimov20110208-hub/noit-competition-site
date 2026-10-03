@@ -16,6 +16,7 @@ const row = {
   start_date: "2026-10-04",
   end_date: "2026-10-05",
   timezone: "Europe/Sofia",
+  archived_at: null,
   member_id: randomUUID(),
   access_role: "MEMBER",
 };
@@ -40,6 +41,7 @@ test("Event list authenticates first, parameterizes user and projects calendar d
     startDate: row.start_date,
     endDate: row.end_date,
     timezone: row.timezone,
+    archived: false,
     membership: { id: row.member_id, accessRole: "MEMBER" },
   });
   assert.deepEqual(calls[0]?.values, [user.id]);

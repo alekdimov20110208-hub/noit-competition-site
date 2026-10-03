@@ -2170,6 +2170,28 @@ h3 {
   font-weight: 700;
 }
 
+.task-assignment-select {
+  margin-top: 10px;
+  width: 100%;
+}
+.task-action-feedback {
+  margin: 0 0 20px;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.task-action-feedback .button {
+  margin-top: 8px;
+}
+
+.task-drawer[data-remote] .task-drawer__acceptance .button {
+  min-height: 44px;
+}
+.task-status-readout > span {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+}
+
 .task-drawer__acceptance {
   min-width: 0;
   padding-left: 22px;
