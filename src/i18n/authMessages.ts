@@ -1,0 +1,42 @@
+export const AUTH_EN_MESSAGES = {
+  "auth.context": "Event operations",
+  "auth.contextDetail": "Preparation, responsibilities and the next decision.",
+  "auth.title": "Sign in",
+  "auth.intro": "Enter your BudoGraph workspace with your assigned account.",
+  "auth.email": "Email",
+  "auth.password": "Password",
+  "auth.submit": "Sign in",
+  "auth.submitting": "Signing in…",
+  "auth.checking": "Checking your session…",
+  "auth.expired": "Your session has ended. Sign in to continue.",
+  "auth.error.invalid": "Email or password is incorrect. Please try again.",
+  "auth.error.unavailable":
+    "BudoGraph cannot reach the server. Please try again shortly.",
+  "auth.error.unexpected": "Sign-in could not be completed. Please try again.",
+  "auth.account": "Your BudoGraph account",
+  "auth.logout": "Sign out",
+  "auth.signingOut": "Signing out…",
+  "auth.logoutError": "Sign-out could not be confirmed. Please try again.",
+} as const;
+
+export const AUTH_BG_MESSAGES = {
+  "auth.context": "Организация на събития",
+  "auth.contextDetail": "Подготовка, отговорности и следващото решение.",
+  "auth.title": "Вход",
+  "auth.intro":
+    "Влезте в работното пространство на BudoGraph с предоставения ви акаунт.",
+  "auth.email": "Имейл",
+  "auth.password": "Парола",
+  "auth.submit": "Вход",
+  "auth.submitting": "Влизане…",
+  "auth.checking": "Проверка на сесията…",
+  "auth.expired": "Сесията ви приключи. Влезте отново, за да продължите.",
+  "auth.error.invalid": "Имейлът или паролата са неправилни. Опитайте отново.",
+  "auth.error.unavailable":
+    "Няма връзка със сървъра на BudoGraph. Опитайте отново след малко.",
+  "auth.error.unexpected": "Входът не можа да бъде завършен. Опитайте отново.",
+  "auth.account": "Вашият акаунт в BudoGraph",
+  "auth.logout": "Изход",
+  "auth.signingOut": "Излизане…",
+  "auth.logoutError": "Изходът не можа да бъде потвърден. Опитайте отново.",
+} satisfies Record<keyof typeof AUTH_EN_MESSAGES, string>;

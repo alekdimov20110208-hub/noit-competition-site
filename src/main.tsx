@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { AuthBoundary } from "./auth/AuthBoundary.tsx";
 import { PreferencesProvider } from "./preferences/index.ts";
 import "./styles.css";
 
@@ -13,7 +14,9 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <PreferencesProvider>
-      <App />
+      <AuthBoundary>
+        <App />
+      </AuthBoundary>
     </PreferencesProvider>
   </StrictMode>,
 );

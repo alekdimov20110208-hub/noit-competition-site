@@ -6,9 +6,9 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, the locked Phase 2B.1 Dashboard direction, and the Phase 2B.2 Tasks workspace redesign**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarified BudoGraph's visual identity and Dashboard reading order. Phase 2B.2 applies that identity to a dense operational task register, compact search and filtering, and a primary task detail/editing drawer without changing the approved product idea or adding production services.
 
-The repository also contains the separate Backend P1A/P1B foundation described
-below. Its database-backed auth and relational schema are not connected to the
-browser prototype yet. The application remains a technical prototype. These
+The repository also contains the Backend P1A/P1B/P1C foundation and P1D.1 browser
+authentication described below. Login uses real database-backed sessions; the
+workspace content still uses fictional local data. The application remains a technical prototype. These
 phases do not prove product-market fit, commercial demand, adoption, willingness
 to pay, or usability.
 
@@ -186,7 +186,8 @@ the controlled Organizer and Member. The real two-session responsibility loop
 is verified against development PostgreSQL; see the evidence below.
 
 The browser application continues to use fictional local demo data; Dashboard,
-Tasks, and Team remain locked. Frontend login and remote integration are unfinished.
+Tasks, and Team remain locked. P1D.1 adds real Login and a protected shell. Remote
+workspace integration remains the next P1D.2 step.
 
 Backend development requires Node.js **22.x from 22.18.0, or 24.0.0 and later**, and the repository's
 **pnpm 11.9.0**. From the repository root, copy `server/.env.example` to the ignored
@@ -219,8 +220,9 @@ in-memory cookie jars over real loopback HTTP, checks the workflow/database
 state and logs out its sessions. It intentionally adds development task history;
 foreign fixtures are rolled back. It is not a browser UI test.
 
-No CORS dependency or separate frontend-origin setting is added in P1B. Better
-Auth trusts only its configured origin. Business UUIDs are server-generated;
+No CORS dependency is added. P1D.1 also trusts the exact development browser
+origin `http://127.0.0.1:5173`; production trusts only the configured auth origin.
+Business UUIDs are server-generated;
 date-only deadlines remain Event-local DATE values. RLS without public policies
 protects auth/business tables from direct Supabase public API access; backend
 least-privilege deployment grants still require review.
@@ -230,6 +232,34 @@ migration/schema generation, provisioning, and the verification boundary. See
 [test evidence](docs/TEST_EVIDENCE.md) for actual command results and remaining
 verification limits; this README does not assert a passing run or production
 deployment.
+
+## P1D.1 authentication UI
+
+Start `pnpm server:dev` and `pnpm dev` in separate terminals, then open
+`http://127.0.0.1:5173/login`. Use the existing controlled development accounts;
+credentials stay in ignored files or your process environment. Public signup
+remains closed. The official pinned Better Auth client handles sign-in/sign-out;
+`GET /api/me` resolves only `{ id, name, email }` for application state. No session
+token is stored in React, browser storage or URLs.
+
+Vite dev and preview proxy same-origin `/api/*` requests to
+`http://127.0.0.1:3001`. Port 5173 is strict: use the documented `127.0.0.1` origin,
+not an automatically selected port or `localhost` alias. Refreshes check the
+server session before revealing the workspace. Logged-out routes redirect to
+Login, with an allowlisted task/page return destination; authenticated Login
+redirects to the workspace. Logout is available in the desktop sidebar and the
+mobile BudoGraph wordmark menu. Focus, visibility, online and navigation events
+recheck the session without polling.
+
+Authentication identity and local demo task/team data are intentionally separate.
+Logging in as Member does not turn the fictional demo actions into authorized
+server task commands. P1D.2 will integrate the real responsibility workflow.
+
+`pnpm test:browser:auth` runs the real browser check when Playwright and a browser
+are available; see [backend development](docs/BACKEND_DEVELOPMENT.md) for runtime
+configuration and the stopped-backend test. Production must serve the frontend
+and `/api` at the same HTTPS origin, preserve History API routes, and proxy to
+Fastify. Hosting and production proxy verification remain separate work.
 
 ## Replaceable wordmark
 

@@ -589,3 +589,45 @@ least-privilege role separation, backup restore and onboarding remain later work
 The project author still must review, understand and defend the code; this log
 does not fabricate human review, user research or formal security certification.
 Year-specific NOIT requirements remain subject to actual-year verification.
+
+## P1D.1 — Authentication UI and protected shell — 2026-10-03
+
+Codex implemented the user's explicitly approved auth-only slice from baseline
+`a189a33119766c285cb21e284e191eb8d22bb91f`. Mandatory master/regulations and
+the established design contracts were reviewed; tracked preflight was clean,
+main matched origin/main and the unrelated shortcut was left untouched.
+Baseline frontend/backend tests and real P1C verification passed.
+
+The pinned Better Auth 1.7.7 official client API was checked in current official
+documentation and tagged upstream sources. Its command client is used without
+the full-session React hook: `/api/me` provides only safe identity. Codex added
+the Login page, scoped styles/translations, auth controller/boundary, allowlisted
+redirects, server-backed logout, and minimal sidebar/mobile account access.
+Vite proxies same-origin API requests; only the exact development origin is
+added to the trusted-origin list. No CORS/CSRF weakening or parallel token system
+was introduced. `/api/me` now explicitly sends `Cache-Control: no-store`.
+
+Dashboard/Tasks/Team content, page source, shared styles, history contracts,
+selectors and local workspace service remain unchanged. Existing demo data is
+deliberately separate from real account identity. No dependency, remote workspace
+or P1D.2 work was added. The browser verification script reuses an existing
+Playwright/browser runtime and reads controlled account inputs only from ignored
+environment files. It does not save authentication artifacts or print credentials.
+
+Observed evidence includes 106 frontend tests, 75 offline backend tests, 27 real
+PostgreSQL checks, real Organizer/Member browser sessions, real logout/invalid
+session behavior, the stopped-backend test, 20 Login responsive cases and 60
+locked-page comparisons. Existing Tasks/Dashboard browser regressions passed.
+An intermediate control-size check failed: the later shared button rule overrode
+the initial Login button height. A scoped selector restored 48px and the entire
+Login matrix passed. A delayed-request verification harness initially timed out;
+the harness was corrected and real runs passed. These failures are not PASS evidence.
+
+A fresh read-only review covered API correctness, token/error/password safety,
+origins/cookies, redirects, race handling, keyboard/mobile behavior, scope and
+locked-page preservation. No subagents were used. The missing explicit identity
+response cache policy was corrected and tested. All required automated checks
+and staged credential checks are recorded in TEST_EVIDENCE.md. The author still
+must review, understand and defend the implementation; no human review, user
+validation, production deployment or accessibility certification is fabricated.
+Actual-year NOIT rules still require a separate official verification.

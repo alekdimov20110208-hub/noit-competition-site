@@ -8,6 +8,32 @@ responsibility register with compact filters and a primary editing drawer. It
 does not alter the locked Dashboard or introduce a backend, account system, new
 feature area, or production service.
 
+## Current P1D.1 authentication requirements
+
+The earlier phase descriptions below remain historical. P1D.1 requires the
+existing configured Fastify/PostgreSQL backend for Login and session bootstrap,
+even though the workspace itself still uses local demo data. Start
+`pnpm server:dev` and `pnpm dev` in separate terminals and use
+`http://127.0.0.1:5173/login`. Follow
+[backend development](BACKEND_DEVELOPMENT.md) for setup and controlled account
+provisioning; never put account credentials in this document. Dev/preview use
+the same-origin API proxy on strict port 5173 to backend port 3001.
+
+Production must serve frontend and `/api` at the configured HTTPS auth origin,
+proxy API requests to Fastify, exclude `/api` from SPA fallback, preserve `/login`
+and all existing History API paths, and never cache `/api/me` identity responses.
+Production hosting/reverse proxy and online availability are not yet verified.
+
+The historical frontend-only offline plan cannot verify real authentication.
+An offline authenticated demonstration requires a separately prepared and
+verified local PostgreSQL/backend setup; that package is not implemented here.
+Use a previously captured walkthrough/screenshots as the backup explanation,
+clearly labelled recorded evidence rather than a live authenticated demo.
+Existing cached browser resources/sessions are not a reliable offline backup.
+No authentication bypass or fake session fallback is added. Keep the existing
+backup materials credential-free and verify actual-year NOIT requirements
+before the competition package is finalized.
+
 ## Local installation
 
 Prerequisites are a compatible Node.js installation and pnpm. The repository

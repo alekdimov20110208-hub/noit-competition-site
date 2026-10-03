@@ -2460,3 +2460,124 @@ were absent from the staged diff; password/session/cookie word matches were
 configuration, verification code or synthetic tests, not usable credentials.
 Staged diff whitespace validation passed and freshly fetched main remained
 synchronized before the implementation commit.
+
+## P1D.1 authentication UI — 2026-10-03
+
+Baseline: `a189a33119766c285cb21e284e191eb8d22bb91f`, main == origin/main,
+tracked worktree clean. Only the known unrelated shortcut was untracked and
+was not changed/staged. Before implementation, frontend 94/94 and backend
+74 passing offline tests passed. The default backend command skipped its two
+opt-in PostgreSQL suites; explicit `RUN_DATABASE_INTEGRATION=1` subsequently
+passed all 27 real database tests. The real P1C two-user HTTP verifier passed
+assignment, acceptance, withdrawal, clearing, conflicts, authorization, history,
+rollback fixtures and isolated logout. Its intentional development history is
+preserved; no migrations/reset/destructive operation occurred.
+
+### Browser and UI evidence
+
+Real browser script: `scripts/verify-auth-ui.mjs`, run through the existing
+Playwright runtime with desktop Microsoft Edge **154.0.4258.53** against Vite
+`http://127.0.0.1:5173` and real Fastify/PostgreSQL on port 3001. Controlled
+account values came from ignored local configuration, never this document.
+Reports/screenshots are local ignored evidence under `tmp/p1d-evidence/`.
+No HAR, trace, cookies, storageState or session dump is saved.
+
+| Scenario                              | Observed result                                                                                                                                                                                                       |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unauthenticated load/direct Tasks URL | Session loading hides App, then Login with canonical intended task destination.                                                                                                                                       |
+| Login semantics                       | Explicit labels, email/password types, username/current-password autofill, keyboard submit, no signup/recovery/social controls.                                                                                       |
+| Invalid credentials                   | Generic email-or-password message; password cleared; accessible alert focused.                                                                                                                                        |
+| Duplicate submit                      | Delayed real command plus two form submissions issued one POST; disabled/aria-busy submitting state.                                                                                                                  |
+| Organizer                             | Real UI login, intended task route, safe `/api/me` identity matching configured Organizer and same identity after refresh.                                                                                            |
+| Authenticated Login                   | Replaced with workspace, no loop.                                                                                                                                                                                     |
+| Organizer logout                      | Real server sign-out; `/api/me` 401; direct Team and history navigation remain logged out with no protected content.                                                                                                  |
+| Member                                | Independent real login/identity, distinct from Organizer, refresh persistence and real logout/401.                                                                                                                    |
+| Invalidated open session              | Actual server sign-out outside React followed by focus recheck removes identity/shell and shows session-ended Login. This verifies invalid-session handling, not waiting through the natural multi-day expiry period. |
+| Server/malformed response             | Explicitly injected 500 and malformed identity show safe text and fail closed; raw details never displayed.                                                                                                           |
+| Backend unavailable                   | Backend actually stopped, Vite still running: direct protected bootstrap and Login submission show understandable safe errors. Backend restarted afterward.                                                           |
+| Redirect safety                       | External returnTo rejected; allowlist and canonical task-query unit cases pass.                                                                                                                                       |
+| Cookie/storage safety                 | Real session cookie HttpOnly/SameSite=Lax; no session token in document.cookie, localStorage or sessionStorage. React state contains only safe identity by code review.                                               |
+| Public signup                         | Real POST through proxy remains 404.                                                                                                                                                                                  |
+| Mobile account access                 | Real Member session, wordmark menu via keyboard at 768/390/320; logout passes with no shell overflow.                                                                                                                 |
+
+Login matrix: **20/20** cases — widths 1440, 1024, 768, 390 and 320 × BG/EN ×
+light/dark, at 900px viewport height. No horizontal overflow; authentication
+controls at least 44px, inputs/submit 48px; visible focus and Email → Password →
+Sign in Tab order pass. Desktop and narrow BG/dark screenshots were visually
+inspected. No auth animation was introduced. No application page errors or
+unexpected console errors occurred; expected failing HTTP requests are not
+classified as application-console failures. Screen-reader/real-device/other
+browser/password-manager product certification is not claimed.
+
+### Locked frontend regression
+
+Captured current baseline and authenticated after screenshots for Dashboard,
+Tasks and Team: **60 comparisons**, same five widths × BG/EN × light/dark.
+36 main-capture images are pixel-identical. The 24 narrow captures differ by
+121–152 pixels solely at rows 25–35 of the overlapping sticky mobile header;
+the wordmark is now the minimal account menu trigger. The workspace region
+below that header is pixel-identical in every comparison, with matching image
+dimensions and zero overflow. This is the necessary minimal shell account
+surface; no locked page composition, data or behavior was redesigned.
+
+Existing ignored browser harnesses were rerun with only the origin updated and
+real session cookies supplied in memory (then server logout), retaining their
+original assertions. Tasks 2B.2.3C: **47 layouts, 11 stress, 6 surfaces, 4
+interactions, 6 regressions**, no console/application errors. Dashboard 2B.2.3D:
+**6 matrix, 5 extra** cases including disclosures, Back/Forward/Close/Escape,
+focus/scroll return, blocked storage and reduced motion, no errors. Team source,
+styles, selectors/history and its 16 existing domain/navigation tests are
+unchanged and pass; the 20 Team screenshots are included above.
+
+### Automated checks and review
+
+| Command                                                  | Result                                                                        |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `pnpm.cmd test`                                          | 106/106 pass: original 94 plus 12 auth state/routing cases.                   |
+| `pnpm.cmd server:test`                                   | 75 pass, zero failures; two opt-in DB suites skipped in this default command. |
+| `RUN_DATABASE_INTEGRATION=1` + `server:test:integration` | 27/27 pass, zero skipped.                                                     |
+| `server:verify-auth` / `server:verify-responsibility`    | Real backend checks pass.                                                     |
+| `test:browser:auth`                                      | Real browser checks and 20 responsive cases pass.                             |
+| Stopped-backend mode                                     | Pass against the actually stopped backend.                                    |
+| `format` / `format:check` / `lint`                       | Pass.                                                                         |
+| Frontend/backend `typecheck` and `build`                 | Pass.                                                                         |
+| `git diff --check`                                       | Pass.                                                                         |
+
+An intermediate Login target-size check failed because the later shared button
+rule overrode the initial height. The scoped Login rule was corrected to 48px
+and the full browser matrix rerun passed. The initial delayed-request harness
+held the request beyond the client's timeout; its synchronization was fixed.
+The first origin-boundary test used schema validation against a deliberately
+unavailable test database and omitted a cookie; the test now explicitly isolates
+the origin boundary with an invalid synthetic cookie, while real browser runs
+keep full production-library/schema behavior. None of these failed runs is
+presented as final passing evidence.
+
+One intermediate backend auth verifier ran alongside the browser suite; their
+shared account sessions interfered with the verifier's database session-count
+assertion. Its final run was isolated after browser completion and passed.
+
+Fresh read-only review covered the official client API, safe-user-only state,
+cookie/token/password handling, non-disclosing errors, closed signup, exact
+origins, allowlisted redirects/no loops, stale-session races, keyboard/mobile
+layout and scope. `/api/me` lacked an explicit cache policy; `Cache-Control:
+no-store` was added for both authenticated and 401 responses and verified by the
+focused test. No subagents/human acceptance/security certification is claimed.
+
+Documentation updated: README, backend development, known limitations, user
+guide, deployment/offline demo plan, AI assistance log, this evidence and dependency-use notice. No dependency
+or lockfile change; no remote workspace, Event/task authoring, assignment UI,
+onboarding, Plan B/Templates/Budget/AI implementation. LocalDemoWorkspaceService
+remains intentional; P1D.2 has not begun. Production HTTPS/proxy/hosting,
+least-privilege DB grants, restore drills and actual-year NOIT rule verification
+remain limitations. Idle foreground expiry recognition waits for the next
+focus/visibility/online/navigation recheck; there is no aggressive polling.
+
+Final staged security audit passed for **27 intended files**, including the
+deployment/offline demo note. Environment/credential/session files and the
+unrelated shortcut are absent. Exact loaded database/auth secrets and controlled
+account email/password values are absent from the staged diff and built bundle.
+Auth source has no browser-storage writes or console logging. Keyword matches
+for password/session variables are only implementation/test/documentation text,
+not real credentials. Locked page/service/history sources, lockfile and applied
+migration checksums are unchanged. Staged whitespace checks passed.

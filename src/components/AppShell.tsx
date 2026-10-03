@@ -8,6 +8,7 @@ import { APP_ROUTES, type AppPath } from "../routes.ts";
 import { AppLink } from "./AppLink.tsx";
 import { BrandWordmark } from "./BrandWordmark.tsx";
 import { PreferencesControls } from "./PreferencesControls.tsx";
+import { AccountControl } from "../auth/AccountControl.tsx";
 
 type PersistenceError = "read" | "write" | null;
 
@@ -83,6 +84,7 @@ export function AppShell({
           })}
         </nav>
 
+        <AccountControl />
         <div className="sidebar__footer">
           <span className="demo-dot" aria-hidden="true" />
           {t("shell.demoNotice")}
@@ -91,7 +93,7 @@ export function AppShell({
 
       <header className="app-header">
         <div className="app-header__mobile-context">
-          <BrandWordmark compact />
+          <AccountControl mobile />
           <div className="app-header__event">
             <CalendarDays size={15} aria-hidden="true" />
             <span>{event.name}</span>

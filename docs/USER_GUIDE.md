@@ -1,4 +1,21 @@
-# BudoGraph Phase 2B.2 User Guide
+# BudoGraph User Guide
+
+## Sign in and sign out (P1D.1)
+
+Open `/login` and enter the email and password of your provided account. There
+is no public signup or password-recovery flow. If a protected page was opened
+first, successful sign-in returns to that page. A session check runs before the
+workspace appears and refresh preserves a valid session.
+
+On desktop, your account name and Sign out are at the bottom of the sidebar. On
+tablet/mobile, open the BudoGraph wordmark menu in the header and choose Sign out.
+Successful logout ends the server session and returns to Login. If logout cannot
+be confirmed, retry it. A session that has ended returns to Login at the next
+session check. Server-unavailable errors show a safe retry message.
+
+Your account identity is real, but the Dashboard, Tasks and Team below remain
+the same fictional local demonstration. Demo edits do not update server tasks
+or establish real responsibility. P1D.2 will connect the responsibility workflow.
 
 Phase 2A established the localization, theme, responsive, and navigation
 foundation for the existing Phase 1 competition MVP. Phase 2B.1 refines its

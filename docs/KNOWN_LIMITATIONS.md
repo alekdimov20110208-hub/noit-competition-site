@@ -5,7 +5,18 @@ P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases
 the current backend limitations are recorded below. Update this record when a
 limitation is removed or discovered.
 
-## Current backend P1C boundary — 2026-10-03
+## Current P1D.1 authentication boundary — 2026-10-03
+
+- Real Login, server-backed logout, safe current-user bootstrap and a protected application shell are implemented. Authentication identity and the fictional local workspace remain deliberately separate. The historical P1C exclusions below describe that earlier stage.
+- Dashboard/Tasks/Team still use the existing LocalDemoWorkspaceService boundary (`useWorkspace` and its browser-local reducer/persistence). Demo responsibility actions are not real authorized PostgreSQL commands even when signed in. There is no RemoteWorkspaceService or remote Task/Team/Dashboard data. P1D.2 is the next integration step and has not begun.
+- Only controlled development accounts can sign in. Signup remains closed; recovery, onboarding, invitations, profile/account editing, social login and MFA remain excluded.
+- Session checks occur at bootstrap, focus/visibility, online and navigation events. There is no polling: an idle foreground screen can remain visible until the next recheck. Server authorization remains authoritative for every backend request.
+- Same-origin `/api` requests use the Vite dev/preview proxy at `http://127.0.0.1:5173` to the existing backend on port 3001. Only this exact extra browser origin is trusted in development; production gets no development origin or CORS wildcard. Custom origins/ports and production HTTPS reverse proxy deployment require separate configuration and verification.
+- Session-check errors fail closed and remove current identity. A failed logout is shown as unconfirmed and does not pretend to revoke the server session; it can be retried.
+- Browser evidence uses the installed desktop Edge/Chromium engine. It does not establish real-device, Safari/Firefox, screen-reader, password-manager product compatibility, formal accessibility certification or product validation.
+- The 2025–2026 NOIT regulations remain year-specific. Verify the actual participation year's rules, dates, licensing, documentation format and availability requirements before submission.
+
+## Historical backend P1C boundary — 2026-10-03
 
 - P1C implements backend task reads and the two-user responsibility loop with scoped authorization, atomic task/history transactions and optimistic conflicts. P1B's exclusions below are historical, superseded only for this approved slice.
 - Dashboard/Tasks/Team still use local fictional data. No login UI, remote workspace service, browser auth integration, demo migration, realtime updates, Event/task authoring or invitation UI is implemented.
@@ -30,7 +41,7 @@ limitation is removed or discovered.
 
 ## Data and persistence
 
-- The browser prototype's state is stored only in `localStorage` for the current browser profile and origin. The separate P1B backend has PostgreSQL storage, but the browser does not use it.
+- The browser workspace's state is stored only in `localStorage` for the current browser profile and origin. P1D.1 uses the PostgreSQL-backed backend for authentication only; workspace content does not use it yet.
 - Workspace data and UI preferences use separate versioned records: `budograph.workspace.v1` and `budograph.preferences.v1`. This separation preserves the existing workspace schema, but neither record is a production database.
 - The task acceptance UI still stores its value in the Phase 1-compatible `Task.acknowledged` boolean. Accepted means that the assigned person has seen and accepted the task; it is not authenticated, does not prove that the person actually reviewed it, and is neither completion nor approval.
 - Task acceptance and acknowledgement of an operational change are separate interactions even though the compatible internal naming uses acknowledgement language. They must not be interpreted as one shared workflow.

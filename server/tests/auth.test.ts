@@ -82,6 +82,45 @@ test("real Better Auth session helper rejects absent and malformed cookies", asy
   assert.equal(pool.totalCount, 0);
 });
 
+test("development trusts only the explicit Vite origin in addition to the auth origin", async (t) => {
+  const pool = lazyTestPool();
+  t.after(() => pool.end());
+  const auth = createAuth(pool, { ...testConfig(), nodeEnv: "development" });
+  assert.deepEqual(auth.options.trustedOrigins, [
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1:5173",
+  ]);
+  // This origin boundary test does not require real schema validation. Real
+  // browser/development verification separately uses the unmodified runtime.
+  auth.options.advanced.database.validateSchema = false;
+  const allowed = await auth.handler(
+    new Request("http://127.0.0.1:3001/api/auth/sign-out", {
+      method: "POST",
+      headers: {
+        origin: "http://127.0.0.1:5173",
+        "content-type": "application/json",
+        cookie: "better-auth.session_token=INVALID_SYNTHETIC_COOKIE",
+      },
+      body: "{}",
+    }),
+  );
+  assert.equal(allowed.status, 200);
+  const denied = await auth.handler(
+    new Request("http://127.0.0.1:3001/api/auth/sign-out", {
+      method: "POST",
+      headers: {
+        origin: "http://127.0.0.1:5174",
+        "content-type": "application/json",
+        cookie: "better-auth.session_token=INVALID_SYNTHETIC_COOKIE",
+      },
+      body: "{}",
+    }),
+  );
+  assert.equal(denied.status, 403);
+  assert.equal(denied.headers.get("access-control-allow-origin"), null);
+  assert.equal(pool.totalCount, 0);
+});
+
 test("real Better Auth rejects an untrusted auth request origin", async (t) => {
   const pool = lazyTestPool();
   t.after(() => pool.end());
@@ -307,8 +346,10 @@ test("auth failures and /api/me output omit credentials/session values from logs
     headers: { cookie: sensitive },
   });
   assert.equal(unauthorized.statusCode, 401);
+  assert.equal(unauthorized.headers["cache-control"], "no-store");
   authenticated = true;
   const me = await app.inject({ method: "GET", url: "/api/me" });
+  assert.equal(me.headers["cache-control"], "no-store");
   assert.equal(me.statusCode, 200);
   assert.deepEqual(me.json(), {
     user: {

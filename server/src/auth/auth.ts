@@ -31,7 +31,10 @@ export function createAuth(
     secret: config.betterAuthSecret,
     baseURL: config.betterAuthUrl,
     basePath: "/api/auth",
-    trustedOrigins: [new URL(config.betterAuthUrl).origin],
+    trustedOrigins: [
+      new URL(config.betterAuthUrl).origin,
+      ...(config.nodeEnv === "development" ? ["http://127.0.0.1:5173"] : []),
+    ],
     disabledPaths: ["/sign-up/email"],
     emailAndPassword: {
       enabled: true,

@@ -114,3 +114,13 @@ packages, including Kysely internally; these are not direct BudoGraph ORM
 dependencies. Their full resolved tree and redistribution notices still require
 the final transitive license audit. This entry does not claim legal certification
 or current-year NOIT license compliance; verify the applicable competition rules.
+
+## P1D.1 dependency reuse — 2026-10-03
+
+P1D.1 also uses the existing pinned Better Auth **1.7.7** MIT client entry point
+for browser sign-in/sign-out. The same attribution and redistribution notice
+above applies. No new dependency, downloaded font, image, or visual asset was
+added and the lockfile is unchanged. Browser verification reuses an existing
+Playwright runtime (Apache-2.0) and installed desktop browser; these are external
+development tools, not included application assets/dependencies. A final full
+transitive distribution audit and actual-year NOIT license check remain required.

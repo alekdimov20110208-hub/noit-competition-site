@@ -1,4 +1,4 @@
-# Backend P1A/P1B/P1C Development
+# Backend P1A/P1B/P1C and P1D.1 Development
 
 P1A establishes the TypeScript/Fastify runtime, typed configuration, PostgreSQL
 pool, health checks, shutdown handling, and explicit SQL migration runner. P1B
@@ -10,8 +10,8 @@ authentication and Event authorization helpers under the approved
 P1C adds explicit development Event bootstrap, task reads, Organizer assignment,
 assignee acceptance/withdrawal, authorized status updates, optimistic concurrency
 and atomic immutable activity history. Dashboard, Tasks, and Team remain locked
-and continue to use the fictional local demo. Frontend authentication and remote
-workspace integration remain unfinished. Backend verification results are in
+and continue to use the fictional local demo. P1D.1 connects browser
+authentication only; remote workspace integration remains unfinished. Verification results are in
 [TEST_EVIDENCE.md](TEST_EVIDENCE.md); this guide is not a test report.
 
 ## Prerequisites and commands
@@ -167,8 +167,8 @@ response status/body/headers. `Set-Cookie` values are obtained with
 
 Cookies are HttpOnly and SameSite=Lax; Secure is enabled for configured HTTPS or
 production. Production URL validation requires HTTPS. Better Auth origin/CSRF
-checks remain enabled. Trusted origins contain only the configured auth origin.
-P1B does not connect a browser client on another origin, so it adds neither
+checks remain enabled. Production trusted origins contain only the configured auth origin.
+P1B did not connect a browser client on another origin, so it added neither
 `CLIENT_ORIGIN` nor `@fastify/cors`. Separate-origin browser integration must
 later configure one explicit origin consistently in CORS and Better Auth,
 with credentials enabled and no wildcard origin.
@@ -178,6 +178,64 @@ defaults. The adapter replaces `x-budograph-client-ip` with Fastify's direct pee
 IP; client-supplied forwarding headers cannot set the rate-limit identity.
 Proxy trust and distributed rate limiting need review before proxy/production
 deployment. This is a focused security foundation, not a security certification.
+
+## P1D.1 browser authentication path
+
+Use the existing configured backend (`pnpm server:dev`) and Vite (`pnpm dev`) in
+separate terminals. Browse `http://127.0.0.1:5173/login`. Vite dev and preview use
+strict port 5173 and proxy `/api/*` to `http://127.0.0.1:3001`, retaining the browser
+Origin. Better Auth adds exactly `http://127.0.0.1:5173` to trusted origins only in
+development. No Origin rewrite, CORS package, wildcard, cookie parsing or CSRF
+disablement is used. Custom backend ports/origins require an explicit matching
+Vite configuration. Production must serve frontend and `/api` at the configured
+HTTPS auth origin; a real reverse proxy/hosting setup is not delivered here.
+
+The existing pinned official `better-auth/client` owns sign-in and sign-out
+commands. API shapes were checked against the
+[tagged 1.7.7 client documentation](https://github.com/better-auth/better-auth/blob/v1.7.7/docs/content/docs/concepts/client.mdx),
+[tagged basic usage](https://github.com/better-auth/better-auth/blob/v1.7.7/docs/content/docs/basic-usage.mdx),
+current [session documentation](https://better-auth.com/docs/concepts/session-management)
+and [security guidance](https://better-auth.com/docs/reference/security), then
+against the installed implementation. The React full-session hook retains a
+session object, so the app instead obtains only `{ id, name, email }` from the
+existing database-backed `/api/me`, with `Cache-Control: no-store`. No session token enters application React
+state, localStorage, sessionStorage or URLs. Cookies remain server-controlled,
+HttpOnly and SameSite=Lax, with Secure for HTTPS/production as before.
+
+`AuthBoundary` mounts before `App`: loading shows a session-check state, `401`
+shows Login, and a validated identity allows the existing shell. Protected
+destinations use `/login?returnTo=...`; only existing workspace paths and one
+canonical task query are accepted, preventing external redirects/Login loops.
+Authenticated Login replaces history with that destination (default `/`).
+Server-confirmed logout clears identity and replaces the route with `/login`.
+Failed logout retains identity and shows a retryable, generic message.
+
+Focus, visibility, online, link navigation and popstate trigger coalesced session
+rechecks without polling. An invalid session clears identity and unmounts the
+workspace, showing a session-ended notice. Transport/server/malformed identity
+errors fail closed. Revision guards stop an older check from restoring identity
+after logout. Login prevents duplicate submissions, supports normal autofill
+semantics and keyboard submit, and never displays raw backend errors.
+
+**Temporary intentional separation:** the safe signed-in identity is real, but
+Dashboard/Tasks/Team still use the existing local fictional workspace service
+implemented by `useWorkspace`. No backend task/member/Event calls are added.
+P1D.2 will integrate the responsibility workflow; it is not part of P1D.1.
+
+Run `pnpm test:browser:auth` with the existing ignored controlled account inputs,
+backend and Vite running. It uses Playwright from an existing verification
+runtime; no application dependency is added. When it is not locally resolvable,
+set `BUDOGRAPH_PLAYWRIGHT_MODULE` to the absolute Playwright `index.mjs` path and
+`BUDOGRAPH_BROWSER_EXECUTABLE` to an installed browser executable. These are
+tool paths, not secrets. Reports/screenshots go to ignored `tmp/p1d-evidence/`;
+the script saves no trace, HAR, storageState, cookies or session dump and prints
+only checks/account labels. It respects the real sign-in limiter.
+
+For the actual unavailable-backend check, stop only the development backend,
+leave Vite running, and run `pnpm test:browser:auth --backend-unavailable`, then
+restart the backend. That mode uses synthetic invalid form inputs and saves a
+separate report. PostgreSQL integration still requires explicit
+`RUN_DATABASE_INTEGRATION=1`; its default command can otherwise skip both suites.
 
 ## Controlled development accounts
 

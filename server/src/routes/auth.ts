@@ -43,7 +43,8 @@ export function registerAuthRoutes(
     },
   });
 
-  app.get("/api/me", async (request) => {
+  app.get("/api/me", async (request, reply) => {
+    reply.header("cache-control", "no-store");
     const user = await requireAuthenticatedUser(auth, request);
     return { user };
   });
