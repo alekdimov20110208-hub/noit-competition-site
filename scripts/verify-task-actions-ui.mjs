@@ -163,7 +163,7 @@ async function status(page, value, actor, expected = 200) {
     expected,
   );
 }
-async function accept(page) {
+async function accept(page, actor = memberId) {
   return act(
     page,
     "acceptance",
@@ -172,10 +172,10 @@ async function accept(page) {
         .getByRole("button", { name: "Accept responsibility", exact: true })
         .click(),
     "task.accepted",
-    memberId,
+    actor,
   );
 }
-async function withdraw(page) {
+async function withdraw(page, actor = memberId) {
   return act(
     page,
     "acceptance",
@@ -184,7 +184,7 @@ async function withdraw(page) {
         .getByRole("button", { name: "Withdraw acceptance", exact: true })
         .click(),
     "task.acceptance_withdrawn",
-    memberId,
+    actor,
   );
 }
 async function sqlTask() {
@@ -213,17 +213,18 @@ try {
   const historyStart = fixture[0].version;
   await open(organizer.page);
   await open(member.page);
+  const organizerOwnTask = fixture[0].assignedMemberId === organizerId;
   assert.equal(
     await organizer.page
       .getByRole("button", { name: "Accept responsibility", exact: true })
       .count(),
-    0,
+    organizerOwnTask && !fixture[0].accepted ? 1 : 0,
   );
   assert.equal(
     await organizer.page
       .getByRole("button", { name: "Withdraw acceptance", exact: true })
       .count(),
-    0,
+    organizerOwnTask && fixture[0].accepted ? 1 : 0,
   );
   assert.equal(await member.page.locator(".task-assignment-select").count(), 0);
   const candidates = await organizer.page.evaluate(
@@ -334,7 +335,52 @@ try {
     0,
   );
   assert.equal((await sqlTask()).accepted_by_member_id, null);
+  await organizer.page
+    .getByRole("button", { name: "Accept responsibility", exact: true })
+    .waitFor();
+  const organizerAccepted = await accept(organizer.page, organizerId);
+  assert.equal(organizerAccepted.acceptedByMemberId, organizerId);
+  assert.ok(organizerAccepted.acceptedAt);
+  const storedAcceptance = await sqlTask();
+  assert.equal(storedAcceptance.accepted_by_member_id, organizerId);
+  assert.equal(
+    storedAcceptance.accepted_at.toISOString(),
+    organizerAccepted.acceptedAt,
+  );
+  await organizer.page
+    .getByRole("button", { name: "Withdraw acceptance", exact: true })
+    .waitFor();
+  await withdraw(organizer.page, organizerId);
+  const withdrawn = await sqlTask();
+  assert.equal(withdrawn.assigned_member_id, organizerId);
+  assert.equal(withdrawn.accepted_by_member_id, null);
+  assert.equal(withdrawn.accepted_at, null);
+  await organizer.page
+    .getByRole("button", { name: "Accept responsibility", exact: true })
+    .waitFor();
+  // Reaccept to prove that reassigning an Organizer's accepted work clears it too.
+  await accept(organizer.page, organizerId);
+  checked(
+    "Self-assigned Organizer: real Accept and Withdraw UI commands persist canonical member/time metadata and clear acceptance without changing assignment",
+  );
   await assign(organizer.page, memberId, "task.reassigned");
+  assert.equal(
+    await organizer.page.locator(".task-drawer__acceptance button").count(),
+    0,
+  );
+  const beforeImpersonation = await sqlTask();
+  const denied = await organizer.context.request.put(
+    `${origin}/api/events/${eventId}/tasks/${taskId}/acceptance`,
+    {
+      headers: { origin },
+      data: { accepted: true, expectedVersion: beforeImpersonation.version },
+    },
+  );
+  assert.equal(denied.status(), 403);
+  assert.deepEqual(await sqlTask(), beforeImpersonation);
+  checked(
+    "Organizer viewing another Member's task has no acceptance control; direct real-session acceptance attempt returns 403 without changing canonical state",
+  );
   await open(member.page);
   await member.page
     .getByRole("button", { name: "Accept responsibility", exact: true })

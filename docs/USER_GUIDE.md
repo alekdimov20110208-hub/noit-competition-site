@@ -44,10 +44,12 @@ Open a task row to use its existing detail drawer:
 - Organizer: choose a real active participant in **Assign responsibility**. Choose
   another participant to reassign, or **Unassigned** to remove assignment. A changed
   assignment clears acceptance, including when assigning back to a previous owner.
-- Assigned Member: choose **Accept responsibility**. After confirmation, **Accepted**
+- Current assignee (Organizer or Member): choose **Accept responsibility**. After confirmation, **Accepted**
   appears in the drawer and register. Use **Withdraw acceptance** to clear acceptance
-  while keeping the task assigned to you. Other Members and Organizers do not see
-  these Member actions.
+  while keeping the task assigned to you. An Organizer can accept or withdraw only
+  their own assigned responsibility, never on another participant's behalf.
+  Access role controls authorization; current assignment determines acceptance
+  eligibility. Other participants do not see acceptance actions for this task.
 - Organizer or assigned Member: use **Current status** for Not started, In progress,
   Blocked or Completed. Status and responsibility acceptance are independent.
 

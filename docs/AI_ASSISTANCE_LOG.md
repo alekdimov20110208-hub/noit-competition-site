@@ -1,5 +1,30 @@
 # AI Assistance Log
 
+## P1 final-audit closure fixes — 2026-10-03
+
+OpenAI Codex applied the user's explicitly authorized correction of three final
+audit findings from `dfccbe92d3ea851376225dc0ab905e39fd5cf821`: current-assignee
+acceptance affordances for self-assigned Organizers, deterministic Dashboard
+navigation verification without assuming attention items, and current real P1
+deployment/demo guidance with historical local-demo instructions clearly marked.
+Related tests, user guidance and this evidence record were updated.
+
+The agent ran frontend/backend checks and PostgreSQL rollback-only integration,
+real controlled Organizer/Member browser commands, session/read/action regression,
+and labelled baseline visual/layout fixtures. Exact results, intermediate harness
+issues and evidence boundaries are recorded in TEST_EVIDENCE.md. Controlled UI
+commands preserve ActivityEntry history and leave the development task assigned
+to Member, unaccepted and Not started. Credentials stay in ignored configuration
+or memory; no browser auth artifacts are saved or staged.
+
+Focused review covers own-assignment eligibility, impersonation denial, verifier
+determinism, current documentation, locked UI and scope. Backend authorization,
+schema/migrations, CSS/components, dependencies and architecture are unchanged.
+No database reset, new authoring feature or Backend P2 work was performed. The
+author still needs to inspect, understand and defend the correction; agent-run
+verification does not claim new human acceptance or production certification.
+The supplied 2025–2026 competition requirements remain year-specific.
+
 ## P1D.3 real Dashboard and Team — 2026-10-03
 
 Codex implemented the explicitly requested, approved P1 read integration from

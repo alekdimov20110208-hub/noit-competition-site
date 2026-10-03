@@ -1,23 +1,49 @@
 # Installation, Deployment, and Demonstration Plan
 
-Phase 2A extended the existing Phase 1 local prototype with Bulgarian/English
-localization, light/dark/system preferences, responsive behavior, and exact task
-URLs. Phase 2B.1 refines the same local prototype's visual identity and
-information hierarchy. Phase 2B.2 redesigns the Tasks workspace as a dense
-responsibility register with compact filters and a primary editing drawer. It
-does not alter the locked Dashboard or introduce a backend, account system, new
-feature area, or production service.
+Current scope: Backend P1A/P1B/P1C and P1D.1/P1D.2A/P1D.2B/P1D.3. Better Auth
+login protects one real Event workspace backed by the configured PostgreSQL
+(Supabase-hosted development) database. **Dashboard REAL, Tasks REAL, Team REAL.**
+They share the same authorized Event, tasks and members; no runtime demo fallback
+or local-demo reset exists in the authenticated application. **Backend P2 has not
+started.** The older frontend Phase 2A/2B names refer to historical UI work, not
+Backend P2 authoring.
 
-## Current P1D.1 authentication requirements
+## Current P1D.3 development demonstration
 
-The earlier phase descriptions below remain historical. P1D.1 requires the
-existing configured Fastify/PostgreSQL backend for Login and session bootstrap,
-even though the workspace itself still uses local demo data. Start
-`pnpm server:dev` and `pnpm dev` in separate terminals and use
-`http://127.0.0.1:5173/login`. Follow
-[backend development](BACKEND_DEVELOPMENT.md) for setup and controlled account
-provisioning; never put account credentials in this document. Dev/preview use
-the same-origin API proxy on strict port 5173 to backend port 3001.
+Follow [backend development](BACKEND_DEVELOPMENT.md) for ignored local
+configuration, reviewed migrations, controlled development Organizer/Member
+account provisioning and explicit Event bootstrap. Do not rerun setup to reset
+task state. Account credentials belong only in ignored configuration or the
+approved private handoff, never this document. Start both servers as described
+below, then open `http://127.0.0.1:5173/login`.
+
+1. Sign in with the controlled Organizer through Better Auth. Dashboard displays
+   stored Event identity/dates/timezone and real task totals, attention, preparation
+   and Team pressure. Missing location/guest/status fields remain honestly absent.
+2. Open a real task from Dashboard, Tasks or Team. Assign responsibility using
+   active Event membership, change status, and inspect confirmed data after refresh.
+3. Assign the controlled task to the current Organizer. That Organizer can Accept
+   and Withdraw their own responsibility. Assign it to Member: the Organizer can
+   no longer accept/withdraw for Member. In an independent browser session, Member
+   can accept their current assignment normally. Access role governs authorization;
+   current assignment governs acceptance eligibility. Backend checks every command.
+4. Verify acceptance, assignment and lifecycle remain independent. Reassignment or
+   unassignment clears current acceptance; assigning back never restores it. A stale
+   version returns 409 and requires review/refetch, never an automatic replay.
+5. Navigate Dashboard/Tasks/Team, check real links and Back/Forward, then sign out.
+   Refresh/focus/visibility/online revalidate; there is no polling or offline cache.
+
+Event selection is earliest accessible start date then UUID, pinned through
+navigation/refetch. **Event creation and task authoring are not implemented.**
+There is no Event switcher, public signup, recovery or invitation UI. **Changes/Plan
+B persistence is not yet implemented**; its page/region has no fictional records.
+Templates are unconnected; Budget and AI are excluded. These are scope boundaries,
+not partially working P2 features. Preserve the locked Dashboard/Tasks/Team UI.
+
+The task-action verifier uses explicit UI commands, preserves ActivityEntry history
+and finishes the controlled task assigned to Member, unaccepted, `not-started`.
+This is a documented development state, not a database reset. Record any manually
+chosen demo end state; never delete history or reset the database to satisfy a test.
 
 Production must serve frontend and `/api` at the configured HTTPS auth origin,
 proxy API requests to Fastify, exclude `/api` from SPA fallback, preserve `/login`
@@ -41,12 +67,18 @@ declares pnpm `11.9.0`.
 
 ```sh
 pnpm install
+pnpm server:dev
+```
+
+In a second terminal:
+
+```sh
 pnpm dev
 ```
 
-Vite prints the local URL. BudoGraph has no database, server configuration,
-secret, account, or required environment file in Phase 2A, Phase 2B.1, or Phase
-2B.2.
+The backend requires the configured database and ignored secrets; Vite alone cannot
+authenticate or load the real workspace. Dev/preview proxy `/api` on strict port
+5173 to backend port 3001. No secret belongs in a frontend `VITE_*` setting.
 
 ## Local quality and production commands
 
@@ -58,7 +90,32 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
+pnpm server:typecheck
+pnpm server:test
+pnpm server:build
+git diff --check
 ```
+
+For the approved development database, run the opt-in rollback-only integration
+suite with `RUN_DATABASE_INTEGRATION=1` as documented in the backend guide. A default
+skip is not PostgreSQL verification. Run browser suites serially with the backend,
+Vite, controlled inputs and existing Playwright/browser runtime available:
+
+```sh
+pnpm test:browser:workspace
+pnpm test:browser:task-actions
+pnpm test:browser:auth
+pnpm test:browser:tasks
+```
+
+The workspace verifier compares real reads with SQL and uses any visible Dashboard
+task link. If a completed-only state offers no link, a labelled isolated transport
+fixture exercises navigation with a loaded task ID without business writes. Its
+no-attention/no-link regressions remain separate from real SQL evidence. Task-action
+verification intentionally appends development history; auth/read suites revoke
+only their own sessions. Do not run concurrent suites against the controlled task.
+Repeat Dashboard/Tasks/Team visual comparisons at desktop/narrow widths in BG/EN
+and light/dark, including the newly authorized Organizer acceptance controls.
 
 Use `pnpm format` when formatting source and documentation intentionally. To
 inspect the generated production bundle locally, run:
@@ -92,12 +149,16 @@ Task details opened inside the application receive a scoped History-state
 marker, allowing Close or `Escape` to return to the originating page. A direct
 task URL without that marker replaces the URL with the safe Tasks list instead.
 
-No public deployment, uptime promise, monitoring, server backup, or disaster
-recovery service is part of Phase 2A, Phase 2B.1, or Phase 2B.2. Hosting and
+No public deployment, uptime promise, monitoring, tested server backup, or disaster
+recovery service is delivered by P1. Hosting and
 online-availability requirements must be selected and verified against the
 rules for the actual competition year.
 
-## Browser-local data and preferences
+## Historical frontend-only data and preferences
+
+The following local-workspace behavior describes the isolated historical prototype,
+not authenticated P1. Only language/theme preferences remain browser-local in P1;
+auth/session tokens and real workspace records are not stored there.
 
 - `budograph.workspace.v1` remains the versioned Phase 1-compatible fictional
   workspace record. Its task boolean remains `acknowledged`; the Phase 2B task
@@ -120,7 +181,11 @@ The task acceptance value is not a completion or approval record and is not
 authenticated. Acknowledging a change in Changes & Plan B remains a different
 interaction and should be demonstrated with its distinct wording.
 
-## Demonstration data and accounts
+## Historical frontend-only demonstration data (not current P1)
+
+The snapshot/reset instructions below are preserved historical context. They cannot
+be followed in the authenticated application; Templates has no reset control and
+`?fixture=stress` does not activate a local workspace in the current App.
 
 Phase 2B.2.3B uses a deterministic snapshot: **7 September 2026**, preparing for
 **18–20 September 2026**. A BG/EN notice appears on every page. All relative/task
@@ -154,7 +219,7 @@ and the existing reset confirmation. Preferences remain in their separate v1 key
 - Never enter private interview details or real personal, participant, payment,
   health, travel, or safeguarding information.
 
-## Phase 2B browser verification checklist
+## Historical frontend Phase 2B browser verification checklist
 
 Perform and record this checklist; the checklist itself is not evidence that a
 result passed:
@@ -205,7 +270,7 @@ production feature.
     `acknowledged` value persists. Separately acknowledge a change and confirm
     that neither interaction is presented as task completion or approval.
 
-### Phase 2B.2 Tasks checklist
+### Historical frontend Phase 2B.2 Tasks checklist
 
 Record actual results rather than checking these items by assumption:
 
@@ -238,7 +303,7 @@ Record actual results rather than checking these items by assumption:
    Templates pages for visible regression, then record application console
    warnings/errors from the final development and production-preview sources.
 
-## Offline and backup presentation plan
+## Historical frontend-only offline checklist (not current P1)
 
 This is a preparation plan, not a claim that an offline package has been tested
 or accepted on a competition machine.
@@ -272,7 +337,7 @@ year before registration, submission, deployment, or presentation, especially
 dates, categories, procedures, required documents and formats, media rules,
 online-availability windows, declarations, and test-account requirements.
 
-## Intentional Phase 2A and Phase 2B exclusions
+## Historical frontend Phase 2A and Phase 2B exclusions
 
 Phase 2A does not include a backend, database, authentication, real accounts,
 roles, permissions, AI, budget management, Kanban, calendar, Gantt, external

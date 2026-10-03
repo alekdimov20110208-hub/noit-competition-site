@@ -1,5 +1,99 @@
 # BudoGraph Test Evidence
 
+## P1 final-audit closure fixes — 2026-10-03
+
+Authorized baseline `dfccbe92d3ea851376225dc0ab905e39fd5cf821`, `main` and
+`origin/main` synchronized before changes. The final read-only audit confirmed
+three findings: Organizer own-task acceptance blocked by frontend role logic,
+Dashboard navigation verification assuming an attention item, and superseded
+current deployment/demo guidance. This change closes only those findings.
+
+### Correction and focused review
+
+Acceptance display eligibility now depends on the current Event membership being
+the current assignee, for Organizer and Member alike. Missing task/Event, archived
+Event and foreign-Event guards remain. The backend authorizes every command and
+was not changed. Four added role/acceptance-state unit cases cover own assignment,
+another assignee, archive and Event mismatch; existing Organizer expectations and
+missing-task coverage were corrected/retained.
+
+The workspace browser verifier uses any visible real Dashboard task link. With
+no link, its labelled one-response transport fixture reuses an already loaded
+real task ID, tests drawer/history/focus/scroll navigation, then restores and
+rechecks real reads. Explicit accepted In-progress and completed-only fixtures
+prove no-attention and no-link behavior. No production selector or business data
+is altered by this read verifier.
+
+The deployment/demo plan now describes Better Auth, configured PostgreSQL/Supabase
+development data, shared real Dashboard/Tasks/Team, controlled accounts and no
+runtime demo fallback. Old reset/local/offline instructions are historical.
+Current Event creation, task authoring and Changes/Plan B persistence are absent;
+Backend P2 has not started. The user guide distinguishes authorization role from
+acceptance eligibility and prohibits accepting on another person's behalf.
+
+Focused source review found no further confirmed defect in these corrections.
+CSS, page/drawer components, routing, backend authorization, database/schema,
+migrations, dependencies and lockfile remain unchanged. No database reset occurred.
+The unrelated `docs/market-research/docs - Shortcut.lnk` remains untouched.
+
+### Executed checks
+
+- Frontend format/write, format check, lint, typecheck, **169/169 tests**, build:
+  PASS. Both changed `.mjs` browser verifiers also received explicit formatting.
+- Backend typecheck, **80/80 offline tests**, build: PASS. Three opt-in integration
+  roots skip in the offline suite; those skips are not database evidence.
+- Explicit PostgreSQL integration suite: **34/34**, zero skips, PASS; existing
+  rollback-only fixtures against the approved development database.
+- Workspace browser: **11 grouped checks / eight real page-width cases**, PASS,
+  zero application errors and zero Event/task business mutation requests.
+- Task-action browser: **16 grouped checks / 40 role/language/theme/width drawer
+  cases**, PASS. Real UI commands and read-only SQL prove Organizer self Accept,
+  Withdraw (assignment retained and acceptance fields cleared), reaccept and
+  reassignment clearing. Organizer viewing Member assignment has no acceptance
+  control; a direct real-session acceptance request returns **403** with unchanged
+  canonical row. Member accepts normally. Real stale-version **409**, pending
+  controls, recovery and mutation **401** regressions remain covered.
+- All **24 confirmed UI changes** have matching scoped ActivityEntry action,
+  actor and version. History remains intact. Normal UI commands leave the
+  controlled task assigned to Member, unaccepted, `not-started`.
+- Auth browser: **15 grouped checks / 20 Login layout cases**, PASS, zero page
+  or console errors; real session invalidation, isolated roles, HttpOnly cookies,
+  no browser token storage and closed public signup remain verified.
+- `git diff --check` and staged scope/secret audit: PASS. Exactly eight intended
+  files staged; 229 tracked files, staged contents/diff and production bundle
+  contain no configured credentials. Environment files, shortcut, browser auth
+  artifacts and ignored evidence are absent from the staged paths.
+- Preserved Tasks read browser: **13 grouped checks / five widths**, PASS, zero
+  application errors and zero task mutation requests; real reads, forbidden demo
+  IDs, empty/loading/error states, refresh and read-session expiry remain covered.
+- Baseline/current visual comparison: **80/80 exact pixel matches** for Dashboard,
+  Tasks, Team and another-assignee drawer, at 1440/1024/768/390/320, BG/EN,
+  light/dark. These are labelled equivalent transport fixtures, not SQL proof.
+  **40 additional labelled Organizer self-assigned Accept/Withdraw layout cases**
+  verify both states, languages/themes and widths, no overflow, 44px controls,
+  zero page errors and zero writes. Representative desktop/narrow images were
+  inspected. The only intended new display behavior is the existing acceptance
+  control becoming available to the self-assigned Organizer.
+
+Ignored local browser reports/screenshots remain under the existing `tmp/p1d*-evidence`
+paths and `tmp/p1-closure-evidence`. They are not staged, and no cookies, HAR,
+traces, storageState or session dumps were saved. Failure fixtures and visual
+fixtures are explicitly separate from actual backend behavior.
+
+### Intermediate harness issues and limits
+
+Starting the archived reference through pnpm initially aborted on its dependency
+junction; invoking the existing Vite CLI directly worked without installation.
+The initial visual run matched 74/80 pairs; six drawer captures included opening
+animation frames. Using the application's reduced-motion mode and waiting for
+animations to settle produced 80/80 exact matches, without editing product code
+or masking screenshot regions. Those initial attempts are not counted as passes.
+
+This is agent-run Edge/Chromium verification, not new human acceptance, physical
+device/Safari/Firefox coverage, formal security/accessibility certification or
+production deployment proof. Hosting, operational backups and production hardening
+remain separate. The supplied 2025–2026 NOIT rules need actual-year reverification.
+
 ## P1D.3 real Dashboard and Team — 2026-10-03
 
 Authorized baseline `6566c25b3fd8021963bf6e85a50ecc7921961b7a`, `main`, freshly

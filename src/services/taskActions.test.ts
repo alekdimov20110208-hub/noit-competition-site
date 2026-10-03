@@ -217,6 +217,16 @@ test("role/member affordances use Event membership, never operational role or di
       },
       task,
     ),
+    { assignment: true, acceptance: true, status: true },
+  );
+  assert.deepEqual(
+    taskAffordances(
+      {
+        ...event,
+        membership: { id: randomUUID(), accessRole: "ORGANIZER" },
+      },
+      task,
+    ),
     { assignment: true, acceptance: false, status: true },
   );
   assert.deepEqual(
@@ -235,6 +245,11 @@ test("role/member affordances use Event membership, never operational role or di
     acceptance: false,
     status: false,
   });
+  assert.deepEqual(taskAffordances(event, null), {
+    assignment: false,
+    acceptance: false,
+    status: false,
+  });
   assert.deepEqual(taskAffordances({ ...event, archived: true }, task), {
     assignment: false,
     acceptance: false,
@@ -246,6 +261,38 @@ test("role/member affordances use Event membership, never operational role or di
     status: false,
   });
 });
+
+for (const accessRole of ["ORGANIZER", "MEMBER"] as const)
+  for (const accepted of [false, true])
+    test(`${accessRole} current assignee may ${accepted ? "withdraw acceptance" : "accept responsibility"}; other assignees and archived Events may not`, () => {
+      const ownEvent = {
+        ...event,
+        membership: { ...event.membership, accessRole },
+      };
+      const ownTask = {
+        ...task,
+        acknowledged: accepted,
+        acceptedByMemberId: accepted ? member.id : null,
+        acceptedAt: accepted ? dto.updatedAt : null,
+      };
+      assert.equal(taskAffordances(ownEvent, ownTask).acceptance, true);
+      assert.equal(
+        taskAffordances(ownEvent, {
+          ...ownTask,
+          assignedMemberId: randomUUID(),
+        }).acceptance,
+        false,
+      );
+      assert.equal(
+        taskAffordances({ ...ownEvent, archived: true }, ownTask).acceptance,
+        false,
+      );
+      assert.equal(
+        taskAffordances(ownEvent, { ...ownTask, eventId: randomUUID() })
+          .acceptance,
+        false,
+      );
+    });
 
 test("pending retains confirmed state, coalesces duplicate actions/refocus, then refetches canonical data", async () => {
   const command = deferred<RemoteTask>(),

@@ -13,9 +13,7 @@ export function taskAffordances(
   );
   return {
     assignment: Boolean(event && task && organizer),
-    acceptance: Boolean(
-      task && ownAssignment && event?.membership.accessRole === "MEMBER",
-    ),
+    acceptance: ownAssignment,
     status: Boolean(task && (organizer || ownAssignment)),
   };
 }

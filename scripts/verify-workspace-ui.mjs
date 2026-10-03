@@ -233,6 +233,51 @@ async function roundTrip(page, selector, destination) {
   await page.goBack();
   await page.waitForURL(origin + destination);
 }
+async function dashboardRoundTrip(page, data, restoredData = data) {
+  const selector = '.page--dashboard a[href^="/tasks?task="]:visible';
+  if (await page.locator(selector).count()) {
+    await roundTrip(page, selector, "/");
+    return "real-link";
+  }
+  // Completed-only preparation can legitimately have no Dashboard task links.
+  // Reuse a loaded task ID in a labelled, isolated read response, never a DB write.
+  assert.ok(
+    data.tasks.length,
+    "Controlled Event needs a stored task for navigation verification",
+  );
+  const fixture = {
+    ...data,
+    tasks: [
+      {
+        ...data.tasks[0],
+        status: "not-started",
+        accepted: false,
+        acceptedByMemberId: null,
+        acceptedAt: null,
+      },
+    ],
+  };
+  const transport = (route) =>
+    route.fulfill({
+      json: {
+        tasks: fixture.tasks,
+        members: fixture.members,
+      },
+    });
+  await page.route("**/api/events/*/tasks", transport, { times: 1 });
+  try {
+    await page.reload();
+    await page.locator("#event-overview-title").waitFor();
+    await verifyDashboard(page, fixture);
+    await roundTrip(page, selector, "/");
+  } finally {
+    await page.unroute("**/api/events/*/tasks", transport);
+    await page.reload();
+    await page.locator("#event-overview-title").waitFor();
+    await verifyDashboard(page, restoredData);
+  }
+  return "isolated-transport";
+}
 try {
   const organizer = await make("ORGANIZER"),
     initial = await read(organizer.page);
@@ -269,10 +314,49 @@ try {
     assert.equal(task.acceptedByMemberId, row.accepted_by_member_id);
   }
   await verifyDashboard(organizer.page, initial);
-  await roundTrip(organizer.page, '.focus-item[href^="/tasks?task="]', "/");
+  const navigationSource = await dashboardRoundTrip(organizer.page, initial);
   checked(
-    "Organizer Dashboard: Event/counts/focus/pressure match real API and SQL; real task round-trip restores focus, scroll, Back/Forward",
+    `Organizer Dashboard: Event/counts/focus/pressure match real API and SQL; task round-trip (${navigationSource}) restores focus, scroll, Back/Forward`,
   );
+  for (const status of ["in-progress", "completed"]) {
+    const fixture = {
+      ...initial,
+      tasks: [
+        {
+          ...initial.tasks[0],
+          status,
+          deadline: "9999-12-31",
+          assignedMemberId: initial.event.membership.id,
+          accepted: true,
+          acceptedByMemberId: initial.event.membership.id,
+          acceptedAt: initial.tasks[0].updatedAt,
+        },
+      ],
+      members: initial.activeMembers,
+    };
+    await organizer.page.route(
+      "**/api/events/*/tasks",
+      (route) =>
+        route.fulfill({
+          json: { tasks: fixture.tasks, members: fixture.members },
+        }),
+      { times: 1 },
+    );
+    await organizer.page.reload();
+    await organizer.page.locator("#event-overview-title").waitFor();
+    await verifyDashboard(organizer.page, fixture);
+    assert.equal(await organizer.page.locator(".focus-item").count(), 0);
+    assert.equal(
+      await dashboardRoundTrip(organizer.page, fixture, initial),
+      status === "completed" ? "isolated-transport" : "real-link",
+    );
+    await organizer.page.reload();
+    await organizer.page.locator("#event-overview-title").waitFor();
+    await verifyDashboard(organizer.page, initial);
+    checked(
+      `Labelled ${status} transport fixture: no attention items; meaningful task navigation without business mutations`,
+    );
+  }
   let readRequests = 0;
   const counter = (request) => {
     if (/\/api\/events/.test(request.url())) readRequests++;
