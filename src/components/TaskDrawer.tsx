@@ -27,10 +27,12 @@ const TASK_STATUSES = Object.keys(TASK_STATUS_MESSAGE_KEYS) as TaskStatus[];
 interface TaskDrawerProps {
   now: Date;
   task: Task | null;
-  owner: TeamMember | undefined;
+  owner: Pick<TeamMember, "id" | "name" | "role"> | undefined;
   onClose: () => void;
-  onStatusChange: (taskId: string, status: TaskStatus) => void;
-  onToggleAcknowledgement: (taskId: string) => void;
+  onStatusChange?: (taskId: string, status: TaskStatus) => void;
+  onToggleAcknowledgement?: (taskId: string) => void;
+  readOnly?: boolean;
+  timeZone?: string;
 }
 
 export function TaskDrawer({
@@ -40,8 +42,10 @@ export function TaskDrawer({
   onClose,
   onStatusChange,
   onToggleAcknowledgement,
+  readOnly = false,
+  timeZone,
 }: TaskDrawerProps) {
-  const { formatDate, formatDateTime, t } = useI18n();
+  const { formatDate, formatDateTime, t } = useI18n(timeZone);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const taskId = task?.id;
@@ -136,9 +140,13 @@ export function TaskDrawer({
         aria-modal="true"
         aria-labelledby="task-drawer-title"
         aria-describedby={contextId}
+        aria-description={readOnly ? t("tasks.remote.readOnly") : undefined}
       >
         <div className="task-drawer__topbar">
-          <span>{t("taskDetails.title")}</span>
+          <span>
+            {t("taskDetails.title")}
+            {readOnly && <> · {t("tasks.remote.readOnlyShort")}</>}
+          </span>
           <button
             ref={closeButtonRef}
             className="icon-button"
@@ -220,7 +228,8 @@ export function TaskDrawer({
                 <button
                   type="button"
                   className="button button--secondary"
-                  onClick={() => onToggleAcknowledgement(task.id)}
+                  disabled={readOnly}
+                  onClick={() => onToggleAcknowledgement?.(task.id)}
                 >
                   {task.acknowledged ? (
                     <>
@@ -258,7 +267,8 @@ export function TaskDrawer({
                 label={t("taskDetails.currentStatus")}
                 value={task.status}
                 options={statusOptions}
-                onChange={(status) => onStatusChange(task.id, status)}
+                disabled={readOnly}
+                onChange={(status) => onStatusChange?.(task.id, status)}
                 popupMinWidth={220}
               />
 

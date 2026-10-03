@@ -6,6 +6,7 @@ import { EnvironmentError, readServerEnv } from "./config/env.ts";
 import { createDatabasePool } from "./db/pool.ts";
 import { createShutdown } from "./shutdown.ts";
 import { createTaskService } from "./tasks/service.ts";
+import { createEventReadService } from "./events/service.ts";
 
 async function main() {
   let app: FastifyInstance | undefined;
@@ -53,6 +54,7 @@ async function main() {
     const database = pool;
     app = createApp({
       tasks: createTaskService(database),
+      events: createEventReadService(database),
       authentication: {
         auth: createAuth(database, config),
         baseURL: config.betterAuthUrl,

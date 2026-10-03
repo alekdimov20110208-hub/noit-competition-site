@@ -74,6 +74,13 @@ export class AuthController {
     for (const listener of this.listeners) listener();
   }
 
+  // A protected backend read's 401 is authoritative. Invalidate outstanding
+  // identity checks so an earlier /api/me response cannot restore stale data.
+  expireSession = () => {
+    ++this.revision;
+    this.publish({ status: "unauthenticated", user: null, error: null });
+  };
+
   refresh = (): Promise<void> => {
     if (this.submitting) return Promise.resolve();
     if (this.checking) return this.checking;

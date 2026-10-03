@@ -5,10 +5,16 @@ P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases
 the current backend limitations are recorded below. Update this record when a
 limitation is removed or discovered.
 
-## Current P1D.1 authentication boundary — 2026-10-03
+## Current P1D.2A read integration boundary — 2026-10-03
 
 - Real Login, server-backed logout, safe current-user bootstrap and a protected application shell are implemented. Authentication identity and the fictional local workspace remain deliberately separate. The historical P1C exclusions below describe that earlier stage.
-- Dashboard/Tasks/Team still use the existing LocalDemoWorkspaceService boundary (`useWorkspace` and its browser-local reducer/persistence). Demo responsibility actions are not real authorized PostgreSQL commands even when signed in. There is no RemoteWorkspaceService or remote Task/Team/Dashboard data. P1D.2 is the next integration step and has not begun.
+- Tasks use `RemoteWorkspaceService` for authorized Event/task reads. Dashboard and Team keep the existing LocalDemoWorkspaceService boundary (`useWorkspace`, local reducer/persistence) unchanged. This temporary split is explicit in the Tasks shell. Remote errors and empty results never fall back to fictional tasks or migrate local data.
+- Assignment, acceptance and status UI commands are not connected. Real task drawers are read only; acceptance/status controls are disabled. P1D.2B has not begun.
+- Dashboard/Team still link to fictional task IDs. Remote Tasks show their safe unavailable-task notice for those IDs, alongside real Event tasks. Integrating those demo navigation sources is later work; no local drawer fallback is provided.
+- Without a switcher, Tasks automatically select the accessible Event with earliest start date, then UUID as a stable tie-breaker. One Event selects automatically; zero shows no active membership. Multiple-Event product navigation remains P2 work. Accessible archived Events remain readable, matching existing P1C policy.
+- Assignee summaries contain only IDs, names and operational-role text for task-referenced memberships. Historical inactive assignees remain named; this is not a remote Team view or permission source. Current access role comes from authenticated Event membership.
+- Remote tasks reload on Tasks entry, refresh, focus/visibility, online, or explicit retry. Data clears during reload and on error, logout, account change or navigation away. No realtime updates, offline cache or silent fallback. An idle foreground view does not poll server data.
+- Real task deadlines stay `YYYY-MM-DD`; timestamps use the selected Event timezone. Deadline timing uses the real clock projected into the Event calendar, checked at minute intervals and on focus. The demo reference date remains exclusive to demo pages.
 - Only controlled development accounts can sign in. Signup remains closed; recovery, onboarding, invitations, profile/account editing, social login and MFA remain excluded.
 - Session checks occur at bootstrap, focus/visibility, online and navigation events. There is no polling: an idle foreground screen can remain visible until the next recheck. Server authorization remains authoritative for every backend request.
 - Same-origin `/api` requests use the Vite dev/preview proxy at `http://127.0.0.1:5173` to the existing backend on port 3001. Only this exact extra browser origin is trusted in development; production gets no development origin or CORS wildcard. Custom origins/ports and production HTTPS reverse proxy deployment require separate configuration and verification.
@@ -41,7 +47,7 @@ limitation is removed or discovered.
 
 ## Data and persistence
 
-- The browser workspace's state is stored only in `localStorage` for the current browser profile and origin. P1D.1 uses the PostgreSQL-backed backend for authentication only; workspace content does not use it yet.
+- The fictional Dashboard/Team workspace is stored only in `localStorage` for the current browser profile and origin. Authentication and Tasks reads use the PostgreSQL-backed backend. Remote task/session content is never persisted into that local demo workspace.
 - Workspace data and UI preferences use separate versioned records: `budograph.workspace.v1` and `budograph.preferences.v1`. This separation preserves the existing workspace schema, but neither record is a production database.
 - The task acceptance UI still stores its value in the Phase 1-compatible `Task.acknowledged` boolean. Accepted means that the assigned person has seen and accepted the task; it is not authenticated, does not prove that the person actually reviewed it, and is neither completion nor approval.
 - Task acceptance and acknowledgement of an operational change are separate interactions even though the compatible internal naming uses acknowledgement language. They must not be interpreted as one shared workflow.

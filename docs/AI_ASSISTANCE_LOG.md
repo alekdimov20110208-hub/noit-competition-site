@@ -631,3 +631,40 @@ and staged credential checks are recorded in TEST_EVIDENCE.md. The author still
 must review, understand and defend the implementation; no human review, user
 validation, production deployment or accessibility certification is fabricated.
 Actual-year NOIT rules still require a separate official verification.
+
+## P1D.2A — Remote Tasks read integration — 2026-10-03
+
+Codex implemented the user's explicit Tasks-read-only request from baseline
+`dca54ab5050ba956c4920ff78216b6e44c797145`. Mandatory sources, the approved
+architecture and existing UI/DTO/auth/semantic contracts were read. Preflight
+main/origin sync and tracked cleanliness matched; the unrelated shortcut was
+excluded. Baseline frontend/backend checks passed before code changes.
+
+Codex added the authenticated accessible-Event read and minimal scoped task
+assignment summaries, `RemoteWorkspaceService`, the cancellable/coalesced read
+controller/hook, Tasks network states, Event-calendar clock and existing auth
+401 clearing. DTO projection retains dates, status/priority, assignment,
+acceptance actor/time and version. The real task drawer is read only. No task
+commands, Event authoring, Team backend, data migration, dependency, schema or
+shared CSS changes were added. Dashboard/Team/local persistence remain unchanged.
+
+Observed results: 128 frontend tests, 78 offline backend tests, 33 opt-in real
+PostgreSQL checks, independent real Organizer/Member browser reads and refresh,
+read-only PostgreSQL-row/DTO/DOM comparison, poisoned-local-data exclusion, real
+session-revocation handling, safe state/retry tests, and locked visual comparison.
+Failure/empty/403 browser interceptions and equivalent-content visual fixtures
+are explicitly labelled mocks; they are not live backend evidence. The browser
+uses an existing verification runtime and reads only ignored credentials, with
+no saved auth material. Browser task commands were never issued.
+
+The real browser identified a native fetch-receiver issue missed by Node tests;
+Codex fixed it and added a regression test. Fresh read-only self-review found a
+possible read/assignee-summary mismatch during a concurrent reassignment; summaries
+now use the captured authorized task assignee IDs. Relevant unit/PostgreSQL/browser
+checks passed again. Evidence records intermediate failures honestly. No subagent,
+human acceptance, product validation, legal or security certification is claimed.
+
+The author must review, understand and be able to defend the generated code and
+new service/API boundaries. Temporary data split, deterministic Event selection,
+fictional Dashboard/Team deep-link limits, read-only task actions and remaining
+deployment/offline/actual-year regulation work are documented. P1D.2B was not begun.

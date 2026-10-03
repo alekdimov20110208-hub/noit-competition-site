@@ -24,12 +24,8 @@ import {
   TASK_PRIORITY_MESSAGE_KEYS,
   TASK_STATUS_MESSAGE_KEYS,
 } from "../domain/labels.ts";
-import type {
-  Task,
-  TaskStatus,
-  TeamMember,
-  WorkspaceState,
-} from "../domain/types.ts";
+import type { Task, TaskStatus, TeamMember, Event } from "../domain/types.ts";
+import type { TaskReadState } from "../services/taskReadState.ts";
 import { getTaskCounts, isTaskOverdue } from "../domain/workspace.ts";
 import { useI18n } from "../i18n/index.ts";
 import { createTaskHref } from "../routes.ts";
@@ -51,19 +47,27 @@ const TASK_STATUSES: readonly TaskStatus[] = [
 
 interface TasksPageProps {
   now: Date;
-  state: WorkspaceState;
+  state: {
+    currentEventId: string;
+    events: (Pick<Event, "id" | "name"> & { timezone?: string })[];
+    tasks: Task[];
+    teamMembers: Pick<TeamMember, "id" | "name" | "role">[];
+  };
   selectedTaskId: string | null;
   invalidTaskId: string | null;
   onOpenTask: (taskId: string) => void;
   onCloseTask: () => void;
-  onStatusChange: (taskId: string, status: TaskStatus) => void;
-  onToggleAcknowledgement: (taskId: string) => void;
+  onStatusChange?: (taskId: string, status: TaskStatus) => void;
+  onToggleAcknowledgement?: (taskId: string) => void;
+  readState?: TaskReadState;
+  onRetry?: () => void;
 }
 
 interface TaskListProps {
   now: Date;
   tasks: Task[];
-  members: TeamMember[];
+  members: Pick<TeamMember, "id" | "name" | "role">[];
+  timeZone?: string;
   selectedTaskId: string | null;
   onOpen: (taskId: string) => void;
 }
@@ -74,8 +78,9 @@ function TaskList({
   selectedTaskId,
   onOpen,
   now,
+  timeZone,
 }: TaskListProps) {
-  const { formatDate, formatDateTime, t } = useI18n();
+  const { formatDate, formatDateTime, t } = useI18n(timeZone);
   const memberById = new Map(members.map((member) => [member.id, member]));
 
   return (
@@ -188,8 +193,15 @@ export function TasksPage({
   onCloseTask,
   onStatusChange,
   onToggleAcknowledgement,
+  readState,
+  onRetry,
 }: TasksPageProps) {
-  const { formatNumber, plural, t } = useI18n();
+  const timeZone = state.events.find(
+    (event) => event.id === state.currentEventId,
+  )?.timezone;
+  const { formatNumber, plural, t } = useI18n(timeZone);
+  const dataReady = !readState || readState.status === "ready";
+  const remoteEmpty = readState?.status === "ready" && state.tasks.length === 0;
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [ownerFilter, setOwnerFilter] = useState("all");
@@ -273,10 +285,23 @@ export function TasksPage({
   );
 
   useEffect(() => {
-    if (categoryFilter !== "all" && !categories.includes(categoryFilter)) {
+    if (
+      dataReady &&
+      categoryFilter !== "all" &&
+      !categories.includes(categoryFilter)
+    ) {
       setCategoryFilter("all");
     }
-  }, [categories, categoryFilter]);
+  }, [categories, categoryFilter, dataReady]);
+
+  useEffect(() => {
+    if (
+      dataReady &&
+      ownerFilter !== "all" &&
+      !state.teamMembers.some((member) => member.id === ownerFilter)
+    )
+      setOwnerFilter("all");
+  }, [dataReady, ownerFilter, state.teamMembers]);
 
   function clearFilters() {
     setSearchQuery("");
@@ -292,31 +317,39 @@ export function TasksPage({
       members={state.teamMembers}
       selectedTaskId={selectedTaskId}
       onOpen={onOpenTask}
+      timeZone={timeZone}
     />
   );
 
   return (
-    <div className="page page--tasks">
+    <div
+      className="page page--tasks"
+      aria-busy={readState?.status === "loading" || undefined}
+    >
       <PageHeader
         title={t("tasks.title")}
-        description={t("tasks.description", { event: event?.name ?? "" })}
+        description={
+          event
+            ? t("tasks.description", { event: event.name })
+            : t("tasks.remote.context")
+        }
       />
       <dl className="tasks-overview" aria-label={t("tasks.summary.label")}>
         <div>
           <dt>{t("tasks.summary.total")}</dt>
-          <dd>{formatNumber(counts.total)}</dd>
+          <dd>{dataReady ? formatNumber(counts.total) : "—"}</dd>
         </div>
         <div>
           <dt>{t("tasks.summary.active")}</dt>
-          <dd>{formatNumber(counts.active)}</dd>
+          <dd>{dataReady ? formatNumber(counts.active) : "—"}</dd>
         </div>
         <div>
           <dt>{t("tasks.summary.blocked")}</dt>
-          <dd>{formatNumber(counts.blocked)}</dd>
+          <dd>{dataReady ? formatNumber(counts.blocked) : "—"}</dd>
         </div>
         <div className="tasks-overview__risk">
           <dt>{t("tasks.summary.overdue")}</dt>
-          <dd>{formatNumber(counts.overdue)}</dd>
+          <dd>{dataReady ? formatNumber(counts.overdue) : "—"}</dd>
         </div>
       </dl>
 
@@ -414,15 +447,66 @@ export function TasksPage({
           </div>
 
           <div className="task-filters__result" aria-live="polite">
-            {t("tasks.resultCount", {
-              visible: formatNumber(filteredTasks.length),
-              total: formatNumber(eventTasks.length),
-            })}
+            {dataReady
+              ? t("tasks.resultCount", {
+                  visible: formatNumber(filteredTasks.length),
+                  total: formatNumber(eventTasks.length),
+                })
+              : "—"}
           </div>
         </section>
 
         <div id="task-results">
-          {filteredTasks.length === 0 ? (
+          {!dataReady ? (
+            <>
+              {taskList}
+              <div
+                className="notice"
+                role={readState?.status === "error" ? "alert" : "status"}
+              >
+                <span>
+                  {t(
+                    readState?.status === "error"
+                      ? readState.error === "forbidden"
+                        ? "tasks.remote.forbidden"
+                        : "tasks.remote.error"
+                      : "tasks.remote.loading",
+                  )}
+                </span>
+                {readState?.status === "error" && (
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    onClick={onRetry}
+                  >
+                    {t("tasks.remote.retry")}
+                  </button>
+                )}
+              </div>
+            </>
+          ) : remoteEmpty ? (
+            <EmptyState
+              title={t(
+                event
+                  ? "tasks.remote.empty.title"
+                  : "tasks.remote.noEvent.title",
+              )}
+              description={t(
+                event
+                  ? "tasks.remote.empty.description"
+                  : "tasks.remote.noEvent.description",
+              )}
+              action={
+                <button
+                  type="button"
+                  className="button button--secondary"
+                  onClick={onRetry}
+                >
+                  {t("tasks.remote.retry")}
+                </button>
+              }
+            />
+          ) : filteredTasks.length === 0 ? (
             <EmptyState
               title={t("tasks.empty.title")}
               description={t("tasks.empty.description")}
@@ -467,6 +551,7 @@ export function TasksPage({
                     members={state.teamMembers}
                     selectedTaskId={selectedTaskId}
                     onOpen={onOpenTask}
+                    timeZone={timeZone}
                   />
                 </section>
               ))}
@@ -484,6 +569,8 @@ export function TasksPage({
         onClose={onCloseTask}
         onStatusChange={onStatusChange}
         onToggleAcknowledgement={onToggleAcknowledgement}
+        readOnly={Boolean(readState)}
+        timeZone={timeZone}
       />
     </div>
   );

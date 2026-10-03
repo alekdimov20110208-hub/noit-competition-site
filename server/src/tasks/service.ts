@@ -80,11 +80,12 @@ function scopedIds(eventId: string, taskId?: string) {
 }
 
 export function createTaskService(pool: TransactionPool) {
-  async function read(
+  async function readSnapshot(
     user: AuthenticatedUser,
     event: string,
     task?: string,
-  ): Promise<TaskDto[]> {
+    includeAssignees = false,
+  ) {
     if (!user?.id) throw new UnauthorizedError();
     const { eventId, taskId } = scopedIds(event, task);
     return inTransaction(pool, async (database) => {
@@ -96,8 +97,45 @@ export function createTaskService(pool: TransactionPool) {
       );
       if (taskId && !result.rows.length)
         throw new TaskCommandError(404, "NOT_FOUND");
-      return (result.rows as TaskRow[]).map(taskDto);
+      const tasks = (result.rows as TaskRow[]).map(taskDto);
+      // Only task-referenced membership summaries, including historical inactive
+      // assignees. This is task display context, not the Team product/API.
+      const members = includeAssignees
+        ? await database.query(
+            `SELECT member.id, identity.name, member.operational_role AS role
+         FROM public.event_member AS member
+         JOIN public."user" AS identity ON identity.id = member.user_id
+         WHERE member.event_id = $1 AND member.id = ANY($2::UUID[])
+         ORDER BY member.id`,
+            [
+              eventId,
+              [
+                ...new Set(
+                  tasks.flatMap((task) =>
+                    task.assignedMemberId ? [task.assignedMemberId] : [],
+                  ),
+                ),
+              ],
+            ],
+          )
+        : { rows: [] };
+      return {
+        tasks,
+        members: members.rows as { id: string; name: string; role: string }[],
+      };
     });
+  }
+
+  async function read(
+    user: AuthenticatedUser,
+    event: string,
+    task?: string,
+  ): Promise<TaskDto[]> {
+    return (await readSnapshot(user, event, task)).tasks;
+  }
+
+  async function readForWorkspace(user: AuthenticatedUser, event: string) {
+    return readSnapshot(user, event, undefined, true);
   }
 
   async function mutate(
@@ -222,7 +260,7 @@ export function createTaskService(pool: TransactionPool) {
     });
   }
 
-  return { read, mutate };
+  return { read, readForWorkspace, mutate };
 }
 
 export type TaskService = ReturnType<typeof createTaskService>;

@@ -6,6 +6,9 @@ import {
 } from "./dashboardNavigation.ts";
 import { getDemoReferenceNow } from "./data/demoTime.ts";
 import { useWorkspace } from "./hooks/useWorkspace.ts";
+import { useRemoteTasks } from "./hooks/useRemoteTasks.ts";
+import { useAuth } from "./auth/runtime.ts";
+import { eventCalendarNow } from "./services/taskReadState.ts";
 import { localizeWorkspace, useI18n } from "./i18n/index.ts";
 import { ChangesPage } from "./pages/ChangesPage.tsx";
 import { DashboardPage } from "./pages/DashboardPage.tsx";
@@ -37,6 +40,7 @@ interface PendingTaskFocus {
 
 export default function App() {
   const [now] = useState(getDemoReferenceNow);
+  const [instant, setInstant] = useState(() => new Date());
   const { language } = usePreferences();
   const { t } = useI18n();
   const [currentLocation, setCurrentLocation] = useState(() =>
@@ -55,12 +59,25 @@ export default function App() {
   const {
     state,
     persistenceError,
-    updateTaskStatus,
-    toggleTaskAcknowledgement,
     acknowledgeChange,
     updateChangeStatus,
     resetWorkspace,
   } = useWorkspace();
+  const identity = useAuth();
+  const remoteEnabled = currentLocation.path === "/tasks";
+  const remoteTasks = useRemoteTasks(remoteEnabled, identity.user?.id ?? "");
+  const remoteEvent = remoteTasks.workspace.events[0] ?? null;
+  useEffect(() => {
+    if (!remoteEnabled) return;
+    const refresh = () => setInstant(new Date());
+    refresh();
+    const interval = window.setInterval(refresh, 60_000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [remoteEnabled]);
   const localizedState = useMemo(
     () => localizeWorkspace(state, language),
     [language, state],
@@ -253,13 +270,15 @@ export default function App() {
 
   const taskLocation = resolveTaskLocation(
     currentLocation,
-    localizedState.tasks,
-    localizedState.currentEventId,
+    remoteTasks.workspace.tasks,
+    remoteTasks.workspace.currentEventId,
   );
   const selectedTaskId =
     taskLocation.status === "valid" ? taskLocation.taskId : null;
   const invalidTaskId =
-    taskLocation.status === "invalid" ? taskLocation.taskId : null;
+    remoteTasks.status === "ready" && taskLocation.status === "invalid"
+      ? taskLocation.taskId
+      : null;
 
   let page = (
     <DashboardPage
@@ -282,14 +301,18 @@ export default function App() {
   if (currentLocation.path === "/tasks") {
     page = (
       <TasksPage
-        now={now}
-        state={localizedState}
+        now={
+          remoteEvent
+            ? eventCalendarNow(instant, remoteEvent.timezone)
+            : instant
+        }
+        state={remoteTasks.workspace}
         selectedTaskId={selectedTaskId}
         invalidTaskId={invalidTaskId}
         onOpenTask={openTask}
         onCloseTask={closeTask}
-        onStatusChange={updateTaskStatus}
-        onToggleAcknowledgement={toggleTaskAcknowledgement}
+        readState={remoteTasks}
+        onRetry={() => void remoteTasks.retry()}
       />
     );
   } else if (currentLocation.path === "/team") {
@@ -317,8 +340,9 @@ export default function App() {
   return (
     <AppShell
       currentPath={currentLocation.path}
-      event={currentEvent}
-      persistenceError={persistenceError}
+      event={remoteEnabled ? remoteEvent : currentEvent}
+      dataMode={remoteEnabled ? "remote-tasks" : "demo"}
+      persistenceError={remoteEnabled ? null : persistenceError}
       onNavigate={(href) => navigate(href)}
     >
       {page}

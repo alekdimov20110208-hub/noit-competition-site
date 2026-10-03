@@ -45,6 +45,19 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
+test("protected read 401 clears identity immediately and invalidates an outstanding session response", async () => {
+  const { transport, controller } = setup();
+  await controller.signIn(user.email, "synthetic");
+  const pending = deferred<typeof user | null>();
+  transport.currentUser = () => pending.promise;
+  const refresh = controller.refresh();
+  controller.expireSession();
+  assert.equal(controller.getSnapshot().status, "unauthenticated");
+  pending.resolve(user);
+  await refresh;
+  assert.equal(controller.getSnapshot().user, null);
+});
+
 test("unauthenticated app load resolves authoritative absence after loading", async () => {
   const { controller } = setup();
   assert.equal(controller.getSnapshot().status, "loading");

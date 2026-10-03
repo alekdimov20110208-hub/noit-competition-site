@@ -9,12 +9,15 @@ import { registerAuthRoutes, type AuthIntegration } from "./routes/auth.ts";
 import { registerTaskRoutes } from "./routes/tasks.ts";
 import type { TaskService } from "./tasks/service.ts";
 import { TaskCommandError } from "./tasks/model.ts";
+import { registerEventReadRoutes } from "./routes/events.ts";
+import type { EventReadService } from "./events/service.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
   logger?: FastifyServerOptions["logger"];
   authentication?: AuthIntegration;
   tasks?: TaskService;
+  events?: EventReadService;
 }
 
 const standardMethods = new Set([
@@ -32,6 +35,7 @@ export function createApp({
   logger = false,
   authentication,
   tasks,
+  events,
 }: AppOptions) {
   const app = Fastify({
     requestIdHeader: false,
@@ -95,5 +99,7 @@ export function createApp({
   registerHealthRoutes(app, checkDatabase);
   if (authentication) registerAuthRoutes(app, authentication);
   if (authentication && tasks) registerTaskRoutes(app, authentication, tasks);
+  if (authentication && events)
+    registerEventReadRoutes(app, authentication, events);
   return app;
 }

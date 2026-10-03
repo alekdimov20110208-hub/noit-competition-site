@@ -2581,3 +2581,211 @@ Auth source has no browser-storage writes or console logging. Keyword matches
 for password/session variables are only implementation/test/documentation text,
 not real credentials. Locked page/service/history sources, lockfile and applied
 migration checksums are unchanged. Staged whitespace checks passed.
+
+## P1D.2A remote Tasks reads — 2026-10-03
+
+Implemented the explicitly requested read-only Tasks slice from
+`dca54ab5050ba956c4920ff78216b6e44c797145` on `main`. Fresh origin fetch matched
+the expected baseline, ahead/behind 0/0, with no tracked changes. The known
+untracked `docs/market-research/docs - Shortcut.lnk` remains excluded/untouched.
+The complete master prompt, supplied 30-page 2025–2026 regulations, approved
+backend contract, current Tasks/service/auth/semantic contracts and locked
+responsive tests were read before implementation. The request authorizes this
+stage; no new concept, MVP, schema, core workflow or visual redesign was added.
+
+The supplied rules confirm the 2025–2026 source/docs/user-guide/security/license/
+role-account obligations. Categories, dates, online availability, PDF format,
+GPLv3/eligibility and rubric remain year-specific and require official actual-year
+verification. The 15 September 2026 date is an internal project target.
+
+### Architecture and authorization evidence
+
+`RemoteWorkspaceService` owns authenticated, no-store GETs and DTO projection.
+`TaskReadController` owns coalescing, cancellation/revision checks and deliberate
+loading/ready/error state. `useRemoteTasks` enables that path only on Tasks and
+clears on leaving, logout or account change. React consumes application-facing
+models. The existing LocalDemoWorkspaceService boundary (`useWorkspace`, reducer,
+localStorage seed/persistence) remains unchanged for Dashboard and Team.
+
+New `GET /api/events` lists only the current session User's active,
+non-deactivated Event memberships and rechecks active User. It projects minimal
+Event calendar/timezone/current membership data, with no-store. Zero is valid
+empty, one auto-selects; multiple sort by earliest `startDate`, then UUID. This is
+a documented temporary policy without an Event switcher or persisted privileged
+ID. Archived Events stay readable under existing policy. Every subsequent task
+request still rechecks active membership and Event scope.
+
+Existing task-list reads now include scoped assignee IDs/names/operational-role
+text and existing `blockedBy`/`blocks` text. Summaries use assignee IDs captured in
+the authorized task result, preserving that snapshot's names if a later
+assignment changes. Historical inactive assignees remain named. Operational-role
+text is never authorization; access role comes from authenticated membership.
+No Team API, migration, new dependency or task-command behavior was added.
+
+Mapping preserves lifecycle/priority, DATE strings, assignment, acceptance
+boolean/actor/instant, server update instant and version. Only the nullable owner
+display field adapts to the old selector shape. Malformed/inconsistent responses
+fail closed. Real task clocks use the selected Event's calendar/timezone, with
+minute clock ticks and focus refresh; demo pages retain the fixed reference day.
+
+### Automated checks
+
+| Check                                        | Observed result                                                              |
+| -------------------------------------------- | ---------------------------------------------------------------------------- |
+| Baseline `pnpm.cmd test`                     | PASS: 106/106                                                                |
+| Baseline `pnpm.cmd server:test`              | PASS: 75; two opt-in database suite skips                                    |
+| `pnpm.cmd format` / `format:check`           | PASS                                                                         |
+| `pnpm.cmd lint` / `typecheck`                | PASS                                                                         |
+| `pnpm.cmd test`                              | PASS: 128/128; all prior tests retained                                      |
+| `pnpm.cmd build`                             | PASS                                                                         |
+| `pnpm.cmd server:test`                       | PASS: 78; three explicitly opt-in database suite skips                       |
+| `pnpm.cmd server:typecheck` / `server:build` | PASS                                                                         |
+| Opt-in `pnpm.cmd server:test:integration`    | PASS: 33/33, zero skips, real approved PostgreSQL                            |
+| `pnpm.cmd test:browser:tasks`                | PASS: real Organizer/Member sessions plus explicitly intercepted state tests |
+| `git diff --check`                           | PASS                                                                         |
+
+Frontend coverage includes DTO mapping, zero/one/multiple Event selection,
+Organizer/Member reads, cookie options, loading/coalescing, empty account/Event,
+500/network/malformed responses, retry, 401 vs 403/404, real Event-calendar date
+handling in positive/negative host offsets, no hardcoded development UUID,
+no storage/token/demo fallback, StrictMode cancellation and late-response
+rejection. Auth tests prove a task 401 clears identity and invalidates an older
+pending `/api/me` result. Backend tests prove parameterization, safe/no-store
+Event HTTP responses and captured-assignee scope.
+
+The new PostgreSQL read suite uses disposable fixtures inside a rollback-only
+transaction. It proves persisted Organizer/Member roles/shared Event, foreign and
+inactive denial, identical scoped tasks/assignee names, DATE and relationships
+under Honolulu timezone plus SQL/DMY DateStyle, historical assignee display,
+soft-deleted task/summary absence, and final fixture absence. Existing P1B/P1C
+constraint/transaction/concurrency tests still pass. No development workflow
+state was changed by browser verification or direct SQL evidence queries.
+
+### Real browser evidence and data distinction
+
+Executed with installed Edge/Chromium **154.0.4258.53**, Playwright from the
+existing verification runtime, real Better Auth and the approved PostgreSQL
+backend. Credentials were read only from ignored configuration. Sessions were
+independent, memory-only browser contexts; no cookie/session dumps, HAR, trace or
+storageState were saved. Reports/screenshots are ignored under
+`tmp/p1d2-evidence/`.
+
+Organizer signed in, discovered the real development Event, displayed its
+`Verify the two-user responsibility loop` task and retained it after refresh.
+The verifier directly queried PostgreSQL read-only and matched live row title,
+category, context, DATE, status, priority, assignment and version to HTTP DTOs,
+then matched rendered task titles. Browser-local demo tasks were deliberately
+renamed `P1D2_LOCAL_ONLY_SENTINEL`; that sentinel never appeared in remote Tasks.
+This is controlled fixture/data-source evidence, not a claim of user validation.
+
+Member independently signed in and received the same Event and identical task
+DTOs; authenticated membership supplied MEMBER rather than an email/name guess.
+Refresh passed. Real deep links opened the expected read-only drawer; acceptance
+and status controls were disabled. No task mutation request was issued, and the
+before/after remote task state was identical. Fictional Dashboard/Team task links
+show the safe invalid-task notice rather than opening any local demo drawer.
+
+An explicitly held real request showed loading with the existing header,
+register headings and toolbar, unknown counts and zero stale rows. Under
+StrictMode only one Event and one task request reached the transport. Empty
+Event and empty account, sanitized 500 plus explicit retry and 403 authorization
+denial were deliberately intercepted responses, clearly separate from live-data
+proof. 403 retained a valid `/api/me` identity. No fallback occurred.
+
+For expiry the verifier held a real task request, revoked only the Organizer's
+actual server session, then let the backend return real 401. Login displayed the
+session-ended state; shell/task data disappeared. Member's independent session
+remained valid. HttpOnly/SameSite=Lax cookie checks and browser storage checks
+passed; Member logout removed real task content. Zero application errors.
+
+### Visual regression and fresh review
+
+Before and after captures covered 1440/1024/768/390/320 px × BG/EN × light/dark,
+60 page cases per run. All 40 Dashboard/Team `.app-main` crops matched pixels
+exactly. Tasks' real-data captures were reviewed at desktop and narrow widths:
+same typography, summary, toolbar, register/four cells, compact reflow, and drawer
+composition; real task text, counts and dates differ as expected. No shared CSS,
+Dashboard, Team, local service/reducer/data or history contract changed.
+
+A separate **explicitly mocked** equivalent-content/time Tasks run remapped the
+old local fixture to valid remote IDs/DTOs solely for visual comparison. All 20
+image sizes matched; differences were confined to the top 60 px shell overlay
+containing the replaced data-mode notice. Below that overlay all 20 Tasks crops
+matched pixels exactly. These fixture screenshots prove composition, not real
+PostgreSQL reads. The real 20-case Tasks matrix and five-width browser layout
+checks had zero horizontal overflow. Drawer changes are limited to read-only
+label/disabled controls; no extra section, card or typography hierarchy was added.
+
+Intermediate browser attempts failed and are not counted as PASS evidence.
+The real browser exposed an incorrectly bound native fetch receiver; the adapter
+now calls the detached transport, with a regression test and passing reruns.
+The first equivalent-content visual fixture used randomized task ordering; its
+final comparator preserves original ID tie ordering so content is equivalent.
+
+A fresh read-only self-review covered the adapter, Event resolution, real/demo
+separation, date/clock semantics, auth/cancellation, UI lock and scope. It found
+the assignment-summary consistency issue and fixed only that confirmed issue;
+the focused test, PostgreSQL suite and real browser rerun passed. Filter
+validation waits for ready data so loading does not clear valid category filters;
+removed owner filters reset safely. Security review confirms parameterized Event
+and task scope, server-derived membership, cookie auth, no browser tokens, no
+hardcoded development IDs, no fallback/raw errors and clearing stale data.
+This is agent review, not human acceptance or security certification.
+
+Documentation updated: README, backend development, known limitations, user
+guide, this evidence and AI assistance log. Final commit and remote-sync results
+are reported after Git completion. Remaining limits:
+read-only task commands, demo Dashboard/Team and their fictional deep links,
+temporary multi-Event selection, full-list reads, no realtime/offline Task cache,
+production hosting/grants/recovery/restore work and actual-year NOIT verification.
+P1D.2B was not begun.
+
+### Final staged scope audit
+
+The staged audit passed for **33 intended files**. No environment/credential
+file, cookie jar, session dump, generated evidence or unrelated shortcut is
+staged. Exact loaded database/auth secrets and controlled account email/password
+values are absent from the full staged content/diff and built frontend bundle.
+The remote boundary contains no browser auth storage, logging, demo fallback or
+hardcoded development UUID. Locked CSS, Dashboard/Team source, local service/data,
+semantic/history contracts, dependency lockfile and schema/migrations are
+unchanged. Staged whitespace checks pass. Final checks separately captured each
+command's zero exit code, rather than relying on a chained shell's last result.
+
+Audited changed paths:
+
+```text
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/KNOWN_LIMITATIONS.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-task-reads-ui.mjs
+server/src/app.ts
+server/src/events/service.ts
+server/src/main.ts
+server/src/routes/events.ts
+server/src/routes/tasks.ts
+server/src/tasks/model.ts
+server/src/tasks/service.ts
+server/tests/events.test.ts
+server/tests/task-reads.integration.test.ts
+server/tests/tasks.test.ts
+src/App.tsx
+src/auth/state.test.ts
+src/auth/state.ts
+src/components/AppShell.tsx
+src/components/BudoSelect.tsx
+src/components/TaskDrawer.tsx
+src/hooks/useRemoteTasks.ts
+src/i18n/messages.ts
+src/i18n/taskReadMessages.ts
+src/i18n/useI18n.ts
+src/pages/TasksPage.tsx
+src/pages/tasks/helpers.ts
+src/services/RemoteWorkspaceService.ts
+src/services/taskReadState.ts
+src/services/taskReads.test.ts
+```

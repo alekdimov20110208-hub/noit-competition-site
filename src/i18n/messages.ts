@@ -2,6 +2,10 @@ import type { Language } from "../preferences/types.ts";
 import { DEMO_BG_MESSAGES, DEMO_EN_MESSAGES } from "./demoMessages.ts";
 import { TEAM_BG_MESSAGES, TEAM_EN_MESSAGES } from "./teamMessages.ts";
 import { AUTH_BG_MESSAGES, AUTH_EN_MESSAGES } from "./authMessages.ts";
+import {
+  TASK_READ_BG_MESSAGES,
+  TASK_READ_EN_MESSAGES,
+} from "./taskReadMessages.ts";
 
 const UI_EN_MESSAGES = {
   "meta.title": "BudoGraph organizer workspace",
@@ -327,6 +331,7 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...TASK_READ_EN_MESSAGES,
   ...AUTH_EN_MESSAGES,
   ...TEAM_EN_MESSAGES,
   ...UI_EN_MESSAGES,
@@ -664,6 +669,7 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...TASK_READ_BG_MESSAGES,
   ...AUTH_BG_MESSAGES,
   ...TEAM_BG_MESSAGES,
   ...UI_BG_MESSAGES,

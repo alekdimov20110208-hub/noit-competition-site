@@ -11,6 +11,8 @@ export interface TaskDto {
   title: string;
   category: string;
   context: string;
+  blockedBy: string;
+  blocks: string;
   deadline: string;
   status: TaskStatus;
   priority: "normal" | "important" | "critical";
@@ -27,6 +29,8 @@ export interface TaskRow {
   title: string;
   category: string;
   context: string;
+  blocked_by?: string;
+  blocks?: string;
   deadline: string;
   status: TaskStatus;
   priority: TaskDto["priority"];
@@ -39,7 +43,7 @@ export interface TaskRow {
 
 // DATE is formatted in SQL: pg's DATE-to-Date parsing and session DateStyle
 // never alter a calendar date or its canonical YYYY-MM-DD representation.
-export const taskColumns = `id, title, category, context, to_char(deadline, 'YYYY-MM-DD') AS deadline,
+export const taskColumns = `id, title, category, context, blocked_by, blocks, to_char(deadline, 'YYYY-MM-DD') AS deadline,
   status, priority, assigned_member_id, accepted_by_member_id, accepted_at, version, updated_at`;
 
 export function taskDto(row: TaskRow): TaskDto {
@@ -48,6 +52,8 @@ export function taskDto(row: TaskRow): TaskDto {
     title: row.title,
     category: row.category,
     context: row.context,
+    blockedBy: row.blocked_by ?? "",
+    blocks: row.blocks ?? "",
     deadline: row.deadline,
     status: row.status,
     priority: row.priority,

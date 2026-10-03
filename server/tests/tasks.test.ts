@@ -82,6 +82,11 @@ function harness(role = "MEMBER", overrides: Partial<TaskRow> = {}) {
             : [],
         };
       if (sql.includes("SELECT member.id"))
+        if (sql.includes("identity.name"))
+          return {
+            rows: [{ id: memberId, name: "Synthetic assignee", role: "Venue" }],
+          };
+      if (sql.includes("SELECT member.id"))
         return { rows: state.target ? [{ id: memberId }] : [] };
       if (sql.startsWith("SELECT id, title"))
         return { rows: state.task ? [{ ...row }] : [] };
@@ -374,6 +379,20 @@ test("reads parameterize Event scope, exclude deletion, expose only canonical DT
   )!;
   assert.match(actorQuery.sql, /identity.active = TRUE/);
   assert.match(actorQuery.sql, /FOR SHARE OF member, identity/);
+});
+
+test("assignment summaries use captured task assignees so a later assignment cannot remove an earlier snapshot name", async () => {
+  const h = harness();
+  const seen = await h.service.readForWorkspace(identity, eventId);
+  assert.deepEqual(seen.members, [
+    { id: memberId, name: "Synthetic assignee", role: "Venue" },
+  ]);
+  const query = h.calls.find(({ sql }) => sql.includes("identity.name"))!;
+  assert.deepEqual(query.values, [eventId, [memberId]]);
+  assert.match(
+    query.sql,
+    /member\.event_id = \$1 AND member\.id = ANY\(\$2::UUID\[\]\)/,
+  );
 });
 
 test("HTTP requires authentication/trusted origin, rejects forged fields and emits small 409", async (t) => {

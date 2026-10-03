@@ -27,10 +27,13 @@ const PREFERENCE_ERROR_KEYS = {
 
 interface AppShellProps {
   currentPath: AppPath;
-  event: Event;
+  event:
+    | (Pick<Event, "name" | "startDate" | "endDate"> & { location?: string })
+    | null;
   persistenceError: PersistenceError;
   onNavigate: (path: string) => void;
   children: ReactNode;
+  dataMode?: "demo" | "remote-tasks";
 }
 
 export function AppShell({
@@ -39,6 +42,7 @@ export function AppShell({
   persistenceError,
   onNavigate,
   children,
+  dataMode = "demo",
 }: AppShellProps) {
   const { t, formatDate, formatDateRange } = useI18n();
   const { storageError: preferenceStorageError } = usePreferences();
@@ -56,11 +60,15 @@ export function AppShell({
 
         <div className="sidebar__event" aria-label={t("shell.currentEvent")}>
           <div className="sidebar__event-label">{t("shell.currentEvent")}</div>
-          <strong>{event.name}</strong>
-          <span>{formatDateRange(event.startDate, event.endDate)}</span>
-          <span>
-            <MapPin size={13} aria-hidden="true" /> {event.location}
-          </span>
+          <strong>{event?.name ?? t("tasks.remote.context")}</strong>
+          {event && (
+            <span>{formatDateRange(event.startDate, event.endDate)}</span>
+          )}
+          {event?.location && (
+            <span>
+              <MapPin size={13} aria-hidden="true" /> {event.location}
+            </span>
+          )}
         </div>
 
         <nav className="sidebar__nav">
@@ -87,7 +95,7 @@ export function AppShell({
         <AccountControl />
         <div className="sidebar__footer">
           <span className="demo-dot" aria-hidden="true" />
-          {t("shell.demoNotice")}
+          {t(dataMode === "demo" ? "shell.demoNotice" : "tasks.remote.notice")}
         </div>
       </aside>
 
@@ -96,7 +104,7 @@ export function AppShell({
           <AccountControl mobile />
           <div className="app-header__event">
             <CalendarDays size={15} aria-hidden="true" />
-            <span>{event.name}</span>
+            <span>{event?.name ?? t("tasks.remote.context")}</span>
           </div>
         </div>
         <PreferencesControls />
@@ -104,8 +112,19 @@ export function AppShell({
 
       <main className="app-main" id="main-content" tabIndex={-1}>
         <p className="demo-snapshot">
-          {t("shell.demoSnapshot", { date: formatDate(DEMO_REFERENCE_DATE) })}
-          <span className="sr-only"> {t("shell.demoSnapshotExplanation")}</span>
+          {dataMode === "demo" ? (
+            <>
+              {t("shell.demoSnapshot", {
+                date: formatDate(DEMO_REFERENCE_DATE),
+              })}
+              <span className="sr-only">
+                {" "}
+                {t("shell.demoSnapshotExplanation")}
+              </span>
+            </>
+          ) : (
+            t("tasks.remote.split")
+          )}
         </p>
         {persistenceError && (
           <div className="notice notice--warning" role="status">

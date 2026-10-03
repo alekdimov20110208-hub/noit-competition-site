@@ -6,9 +6,10 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, the locked Phase 2B.1 Dashboard direction, and the Phase 2B.2 Tasks workspace redesign**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarified BudoGraph's visual identity and Dashboard reading order. Phase 2B.2 applies that identity to a dense operational task register, compact search and filtering, and a primary task detail/editing drawer without changing the approved product idea or adding production services.
 
-The repository also contains the Backend P1A/P1B/P1C foundation and P1D.1 browser
-authentication described below. Login uses real database-backed sessions; the
-workspace content still uses fictional local data. The application remains a technical prototype. These
+The repository also contains the Backend P1A/P1B/P1C foundation, P1D.1 browser
+authentication, and P1D.2A remote Tasks reads. Login and Tasks reads use the real
+PostgreSQL-backed backend; Dashboard and Team retain fictional local data.
+Tasks are read only until P1D.2B. The application remains a technical prototype. These
 phases do not prove product-market fit, commercial demand, adoption, willingness
 to pay, or usability.
 
@@ -185,9 +186,9 @@ history. An explicit development-only CLI creates a separate real Event with
 the controlled Organizer and Member. The real two-session responsibility loop
 is verified against development PostgreSQL; see the evidence below.
 
-The browser application continues to use fictional local demo data; Dashboard,
-Tasks, and Team remain locked. P1D.1 adds real Login and a protected shell. Remote
-workspace integration remains the next P1D.2 step.
+Dashboard, Tasks, and Team retain their locked visual composition. P1D.1 adds
+real Login and a protected shell. P1D.2A connects only Tasks reads to the real
+backend; Dashboard and Team keep the local demo service unchanged.
 
 Backend development requires Node.js **22.x from 22.18.0, or 24.0.0 and later**, and the repository's
 **pnpm 11.9.0**. From the repository root, copy `server/.env.example` to the ignored
@@ -251,15 +252,37 @@ redirects to the workspace. Logout is available in the desktop sidebar and the
 mobile BudoGraph wordmark menu. Focus, visibility, online and navigation events
 recheck the session without polling.
 
-Authentication identity and local demo task/team data are intentionally separate.
-Logging in as Member does not turn the fictional demo actions into authorized
-server task commands. P1D.2 will integrate the real responsibility workflow.
+Authentication identity and local demo Dashboard/Team data are intentionally
+separate. Tasks use authenticated Event-scoped reads through
+`RemoteWorkspaceService`. Task mutation controls are disabled until P1D.2B.
 
 `pnpm test:browser:auth` runs the real browser check when Playwright and a browser
 are available; see [backend development](docs/BACKEND_DEVELOPMENT.md) for runtime
 configuration and the stopped-backend test. Production must serve the frontend
 and `/api` at the same HTTPS origin, preserve History API routes, and proxy to
 Fastify. Hosting and production proxy verification remain separate work.
+
+## P1D.2A Tasks read integration
+
+`GET /api/events` returns only Events with the current user's active membership.
+Tasks select the sole Event automatically; if several exist, the earliest start
+date, then UUID, determines the temporary selection. There is no Event switcher
+or hardcoded development ID. The task endpoint rechecks authorization.
+
+Loading retains the Tasks header/register/toolbar; empty accounts and empty
+Events have explicit messages. Network/backend/authorization failures show safe
+errors with retry and clear old rows. There is no demo fallback. A task-read 401
+uses the existing Login/session-ended behavior. DATE deadlines remain calendar
+strings; server timestamps and deadline timing use the selected Event timezone.
+Remote state lives only in memory and clears on logout or leaving Tasks.
+
+Run `pnpm test:browser:tasks` with backend/Vite and controlled ignored account
+inputs available. The verifier compares real task DTOs and DOM to a read-only
+PostgreSQL query, tests independent Organizer/Member sessions and failure states,
+and sends no task mutation commands. Playwright/browser paths use the same
+environment options as the auth verifier. See
+[backend development](docs/BACKEND_DEVELOPMENT.md) and
+[test evidence](docs/TEST_EVIDENCE.md) for the precise boundary and results.
 
 ## Replaceable wordmark
 

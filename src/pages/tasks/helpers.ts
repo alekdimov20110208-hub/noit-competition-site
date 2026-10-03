@@ -36,7 +36,7 @@ export function compareOperationalTasks(
 
 export function filterTasks(
   tasks: readonly Task[],
-  members: readonly TeamMember[],
+  members: readonly Pick<TeamMember, "id" | "name">[],
   filters: TaskFilters,
   now = new Date(),
 ): Task[] {

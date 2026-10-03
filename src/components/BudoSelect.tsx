@@ -34,6 +34,7 @@ interface BudoSelectProps<Value extends string> {
   icon?: ReactNode;
   labelMode?: "visible" | "sr-only";
   popupMinWidth?: number;
+  disabled?: boolean;
 }
 
 type PopupStyle = CSSProperties & {
@@ -59,6 +60,7 @@ export function BudoSelect<Value extends string>({
   icon,
   labelMode = "visible",
   popupMinWidth = 180,
+  disabled = false,
 }: BudoSelectProps<Value>) {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -185,6 +187,7 @@ export function BudoSelect<Value extends string>({
   }
 
   function handleTriggerKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (disabled) return;
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       if (open) closeAndFocusTrigger();
@@ -217,6 +220,7 @@ export function BudoSelect<Value extends string>({
   }
 
   function handleTriggerClick() {
+    if (disabled) return;
     triggerPointerDownRef.current = false;
     if (open) closeAndFocusTrigger();
     else openListbox();
@@ -287,6 +291,7 @@ export function BudoSelect<Value extends string>({
       <div className="budo-select__control">
         <button
           ref={triggerRef}
+          disabled={disabled}
           id={`${id}-trigger`}
           className="budo-select__trigger"
           type="button"

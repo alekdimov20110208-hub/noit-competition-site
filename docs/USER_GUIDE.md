@@ -13,9 +13,19 @@ Successful logout ends the server session and returns to Login. If logout cannot
 be confirmed, retry it. A session that has ended returns to Login at the next
 session check. Server-unavailable errors show a safe retry message.
 
-Your account identity is real, but the Dashboard, Tasks and Team below remain
-the same fictional local demonstration. Demo edits do not update server tasks
-or establish real responsibility. P1D.2 will connect the responsibility workflow.
+Your account identity and Tasks reads are real. Dashboard and Team retain the
+fictional local demonstration. Open Tasks to view the accessible development
+Event and its PostgreSQL tasks. Loading, empty results and retryable errors are
+explicit; a server failure never replaces tasks with fictional data. If several
+Events are accessible, earliest start date then UUID chooses the temporary Event.
+There is no switcher yet. Task drawers show **Read only**; acceptance and status
+controls are disabled until P1D.2B. Dates use the Event calendar and real current
+day. An expired task-read session returns to Login.
+
+Demo Dashboard/Team links use fictional IDs and therefore show an unavailable
+task notice in remote Tasks. Return to the task list for real records. The local
+prototype workflow descriptions below remain historical for Tasks; they still
+describe the unchanged fictional Dashboard/Team data.
 
 Phase 2A established the localization, theme, responsive, and navigation
 foundation for the existing Phase 1 competition MVP. Phase 2B.1 refines its
@@ -31,10 +41,17 @@ server:
 
 ```sh
 pnpm install
+pnpm server:dev
+```
+
+In a second terminal:
+
+```sh
 pnpm dev
 ```
 
-Open the local URL printed by Vite. No account is required.
+Open `http://127.0.0.1:5173` and sign in using your controlled development account.
+The backend requires the ignored configuration described in the backend guide.
 
 ## Demonstration date
 

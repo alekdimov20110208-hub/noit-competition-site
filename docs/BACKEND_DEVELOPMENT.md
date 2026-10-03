@@ -1,4 +1,4 @@
-# Backend P1A/P1B/P1C and P1D.1 Development
+# Backend P1A/P1B/P1C and P1D Development
 
 P1A establishes the TypeScript/Fastify runtime, typed configuration, PostgreSQL
 pool, health checks, shutdown handling, and explicit SQL migration runner. P1B
@@ -9,9 +9,10 @@ authentication and Event authorization helpers under the approved
 
 P1C adds explicit development Event bootstrap, task reads, Organizer assignment,
 assignee acceptance/withdrawal, authorized status updates, optimistic concurrency
-and atomic immutable activity history. Dashboard, Tasks, and Team remain locked
-and continue to use the fictional local demo. P1D.1 connects browser
-authentication only; remote workspace integration remains unfinished. Verification results are in
+and atomic immutable activity history. P1D.1 connects browser authentication.
+P1D.2A connects Tasks reads to PostgreSQL; task commands remain disconnected.
+Dashboard and Team retain their locked fictional local data and visual output.
+Verification results are in
 [TEST_EVIDENCE.md](TEST_EVIDENCE.md); this guide is not a test report.
 
 ## Prerequisites and commands
@@ -217,10 +218,9 @@ errors fail closed. Revision guards stop an older check from restoring identity
 after logout. Login prevents duplicate submissions, supports normal autofill
 semantics and keyboard submit, and never displays raw backend errors.
 
-**Temporary intentional separation:** the safe signed-in identity is real, but
-Dashboard/Tasks/Team still use the existing local fictional workspace service
-implemented by `useWorkspace`. No backend task/member/Event calls are added.
-P1D.2 will integrate the responsibility workflow; it is not part of P1D.1.
+**Historical P1D.1 separation:** that stage connected identity only. P1D.2A,
+described below, now connects Tasks reads. Dashboard/Team still use the local
+fictional workspace implemented by `useWorkspace`.
 
 Run `pnpm test:browser:auth` with the existing ignored controlled account inputs,
 backend and Vite running. It uses Playwright from an existing verification
@@ -235,7 +235,69 @@ For the actual unavailable-backend check, stop only the development backend,
 leave Vite running, and run `pnpm test:browser:auth --backend-unavailable`, then
 restart the backend. That mode uses synthetic invalid form inputs and saves a
 separate report. PostgreSQL integration still requires explicit
-`RUN_DATABASE_INTEGRATION=1`; its default command can otherwise skip both suites.
+`RUN_DATABASE_INTEGRATION=1`; its default command otherwise skips database suites.
+
+## P1D.2A remote Tasks reads
+
+The deliberate data-mode split is:
+
+| Experience           | Current data path                                   |
+| -------------------- | --------------------------------------------------- |
+| Login/authentication | Real Better Auth / PostgreSQL                       |
+| Tasks reads          | Real `RemoteWorkspaceService` / HTTP / PostgreSQL   |
+| Dashboard            | Existing LocalDemoWorkspaceService (`useWorkspace`) |
+| Team                 | Existing LocalDemoWorkspaceService (`useWorkspace`) |
+
+No local data migration, whole-workspace replacement or demo fallback occurs.
+The legacy local hook/reducer/storage remain unchanged. `useRemoteTasks` mounts
+the independent read controller only on Tasks. It coalesces reads, aborts on
+leave/logout/account change, rejects stale responses, and clears rows while
+reloading or after a failure. Entry/refresh, focus/visibility, online and retry
+refetch server data; there is no realtime or server polling. Minute clock updates
+only update Event-calendar deadline timing.
+
+New `GET /api/events` returns `{ events: [{ id, name, startDate, endDate,
+timezone, membership: { id, accessRole } }] }`. Its parameterized query joins the
+session-derived active User to active, non-deactivated EventMember rows. Dates
+are formatted in SQL, and the response uses `Cache-Control: no-store`. No owner
+credentials, emails, session data, Event authoring or switcher are added.
+Zero Events is a valid empty result; one selects automatically. Multiple Events
+temporarily select earliest `startDate`, then UUID, independent of response order.
+Archived Events remain readable under the existing P1C policy. The chosen ID is
+neither persisted nor an authorization mechanism.
+
+Existing `GET /api/events/:eventId/tasks` additionally returns minimal `members`
+summaries `{ id, name, role }` for live-task assignees in the same Event transaction.
+Inactive historical assignees remain named. This is assignment display context,
+not a Team API or permission source. Task DTOs now also expose existing
+`blockedBy`/`blocks` text. Detail and mutation DTOs retain canonical metadata;
+mutation routes and workflow semantics are unchanged. No migration/dependency
+was added. Server authentication/active membership/task scope remains authoritative.
+
+The adapter projects server rows into existing Task fields: `ownerId` from
+`assignedMemberId` (empty display ID when null), `acknowledged` from `accepted`,
+unchanged lifecycle/priority/date strings, and server `updatedAt`. Its remote
+model also retains `assignedMemberId`, `acceptedByMemberId`, `acceptedAt` and
+integer `version` for P1D.2B. Names and operational roles come only from the scoped
+response; current access role comes only from authenticated Event membership.
+Malformed DTOs fail closed. React does not interpret raw database rows.
+
+Loading keeps the existing Tasks structure with unknown counts and no stale rows.
+Empty Event/account messages never show fake tasks. Errors are sanitized and
+retryable; 403/404 stay in the authenticated app. A 401 clears auth immediately
+through the existing P1D.1 boundary, invalidating outstanding identity checks and
+returning to Login with the session-ended notice. Remote drawer controls remain
+visibly disabled/read only. No assign/accept/status commands are connected.
+
+Run `pnpm test:browser:tasks` using the same Playwright/browser configuration as
+the auth verifier. It needs the ignored `server/.env` database configuration and
+controlled credentials in `server/.env.p1b.local`, backend and Vite. It uses
+independent browser contexts, read-only SQL comparison, and a deliberately
+different local task sentinel. Loading/empty/500/403 are explicitly intercepted
+test cases; expiry is an actual revoked backend session followed by a real 401.
+No task workflow mutation is sent; cleanup signs out only its own sessions.
+Ignored evidence is under `tmp/p1d2-evidence/`; no HAR/trace/storageState/cookie jar
+or session dump is saved. The PostgreSQL suite remains opt-in and rollback-only.
 
 ## Controlled development accounts
 
@@ -478,7 +540,7 @@ rejection, and activity persistence without dropping/resetting tables or importi
 fictional demo state. Migration-runner protocol doubles remain separate evidence.
 See test evidence for the exact executed results and limits.
 
-Frontend auth/data integration, Event/task authoring UI, production hosting,
+Task mutation/Dashboard/Team data integration, Event/task authoring UI, production hosting,
 recovery/verification workflows, distributed rate limiting, least-privilege grant
 audit, and backup/restore remain unfinished. Keep the
 [license register](THIRD_PARTY_NOTICES.md), [AI assistance log](AI_ASSISTANCE_LOG.md),

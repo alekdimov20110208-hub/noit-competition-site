@@ -22,7 +22,7 @@ export function registerTaskRoutes(
           authentication.auth,
           request,
         );
-        return { tasks: await service.read(user, request.params.eventId) };
+        return service.readForWorkspace(user, request.params.eventId);
       },
     );
     routes.get<{ Params: Params }>(
