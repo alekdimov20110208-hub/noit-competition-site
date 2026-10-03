@@ -37,7 +37,7 @@ const MILESTONE_STATUS_MESSAGE_KEYS = {
 
 interface PreparationTimelineProps {
   entries: PreparationTimelineEntry[];
-  members: Map<string, TeamMember>;
+  members: Map<string, Pick<TeamMember, "id" | "name" | "role">>;
   onNavigate: (path: string) => void;
   onOpenTask: (taskId: string) => void;
 }

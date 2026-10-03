@@ -11,7 +11,7 @@ import { getAttentionActionKey, getAttentionReason } from "./helpers.ts";
 
 interface OperationalFocusProps {
   tasks: Task[];
-  members: Map<string, TeamMember>;
+  members: Map<string, Pick<TeamMember, "id" | "name" | "role">>;
   now: Date;
   onOpenTask: (taskId: string) => void;
   expanded: boolean;

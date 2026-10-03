@@ -17,10 +17,11 @@ const CHANGE_PREVIEW_LIMIT = 1;
 interface ChangeImpactProps {
   changes: EventChange[];
   eventTasks: Task[];
-  members: Map<string, TeamMember>;
+  members: Map<string, Pick<TeamMember, "id" | "name" | "role">>;
   now: Date;
   onNavigate: (path: string) => void;
   onOpenTask: (taskId: string) => void;
+  recordsAvailable?: boolean;
 }
 
 export function ChangeImpact({
@@ -30,6 +31,7 @@ export function ChangeImpact({
   now,
   onNavigate,
   onOpenTask,
+  recordsAvailable = true,
 }: ChangeImpactProps) {
   const { t, plural, formatDate, formatDateTime, formatRelativeDate } =
     useI18n();
@@ -128,8 +130,16 @@ export function ChangeImpact({
       </header>
       {changes.length === 0 ? (
         <EmptyState
-          title={t("dashboard.changes.empty.title")}
-          description={t("dashboard.changes.empty.description")}
+          title={t(
+            recordsAvailable
+              ? "dashboard.changes.empty.title"
+              : "workspace.changes.title",
+          )}
+          description={t(
+            recordsAvailable
+              ? "dashboard.changes.empty.description"
+              : "workspace.changes.description",
+          )}
         />
       ) : (
         <div className="change-impact__list">

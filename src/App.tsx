@@ -4,18 +4,17 @@ import {
   readDashboardContext,
   withDashboardContext,
 } from "./dashboardNavigation.ts";
-import { getDemoReferenceNow } from "./data/demoTime.ts";
-import { useWorkspace } from "./hooks/useWorkspace.ts";
 import { useRemoteTasks } from "./hooks/useRemoteTasks.ts";
 import { useAuth } from "./auth/runtime.ts";
 import { eventCalendarNow } from "./services/taskReadState.ts";
-import { localizeWorkspace, useI18n } from "./i18n/index.ts";
-import { ChangesPage } from "./pages/ChangesPage.tsx";
+import { useI18n } from "./i18n/index.ts";
+import { toWorkspaceView } from "./services/workspaceViews.ts";
+import { WorkspaceReadNotice } from "./components/WorkspaceReadNotice.tsx";
+import { EmptyState } from "./components/EmptyState.tsx";
+import { PageHeader } from "./components/PageHeader.tsx";
 import { DashboardPage } from "./pages/DashboardPage.tsx";
 import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
-import { TemplatesPage } from "./pages/TemplatesPage.tsx";
-import { usePreferences } from "./preferences/index.ts";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
 import {
   createTaskDetailHistoryState,
@@ -39,9 +38,7 @@ interface PendingTaskFocus {
 }
 
 export default function App() {
-  const [now] = useState(getDemoReferenceNow);
   const [instant, setInstant] = useState(() => new Date());
-  const { language } = usePreferences();
   const { t } = useI18n();
   const [currentLocation, setCurrentLocation] = useState(() =>
     parseAppLocation(window.location.pathname, window.location.search),
@@ -56,15 +53,8 @@ export default function App() {
       ? { ...dashboardContext.origin, trigger: null }
       : null,
   );
-  const {
-    state,
-    persistenceError,
-    acknowledgeChange,
-    updateChangeStatus,
-    resetWorkspace,
-  } = useWorkspace();
   const identity = useAuth();
-  const remoteEnabled = currentLocation.path === "/tasks";
+  const remoteEnabled = Boolean(identity.user);
   const remoteTasks = useRemoteTasks(remoteEnabled, identity.user?.id ?? "");
   const remoteEvent = remoteTasks.workspace.events[0] ?? null;
   useEffect(() => {
@@ -78,10 +68,13 @@ export default function App() {
       window.removeEventListener("focus", refresh);
     };
   }, [remoteEnabled]);
-  const localizedState = useMemo(
-    () => localizeWorkspace(state, language),
-    [language, state],
+  const workspaceView = useMemo(
+    () => toWorkspaceView(remoteTasks.workspace),
+    [remoteTasks.workspace],
   );
+  const now = remoteEvent
+    ? eventCalendarNow(instant, remoteEvent.timezone)
+    : instant;
 
   useEffect(() => {
     function handlePopState() {
@@ -251,23 +244,6 @@ export default function App() {
     return () => window.cancelAnimationFrame(animationFrame);
   }, [currentLocation]);
 
-  const currentEvent =
-    localizedState.events.find(
-      (event) => event.id === localizedState.currentEventId,
-    ) ?? localizedState.events[0];
-
-  if (!currentEvent) {
-    return (
-      <main className="fatal-state">
-        <h1>{t("fatal.title")}</h1>
-        <p>{t("fatal.description")}</p>
-        <button className="button button--primary" onClick={resetWorkspace}>
-          {t("fatal.restore")}
-        </button>
-      </main>
-    );
-  }
-
   const taskLocation = resolveTaskLocation(
     currentLocation,
     remoteTasks.workspace.tasks,
@@ -292,7 +268,7 @@ export default function App() {
         setDashboardContext(context);
       }}
       now={now}
-      state={localizedState}
+      state={workspaceView}
       onNavigate={navigate}
       onOpenTask={openTask}
     />
@@ -301,11 +277,7 @@ export default function App() {
   if (currentLocation.path === "/tasks") {
     page = (
       <TasksPage
-        now={
-          remoteEvent
-            ? eventCalendarNow(instant, remoteEvent.timezone)
-            : instant
-        }
+        now={now}
         state={remoteTasks.workspace}
         selectedTaskId={selectedTaskId}
         invalidTaskId={invalidTaskId}
@@ -321,8 +293,8 @@ export default function App() {
   } else if (currentLocation.path === "/team") {
     page = (
       <TeamPage
-        key={`${localizedState.currentEventId}:${teamEntry}`}
-        state={localizedState}
+        key={`${workspaceView.currentEventId}:${teamEntry}`}
+        state={workspaceView}
         now={now}
         onOpenTask={openTask}
         onNavigate={navigate}
@@ -330,22 +302,66 @@ export default function App() {
     );
   } else if (currentLocation.path === "/changes") {
     page = (
-      <ChangesPage
-        state={localizedState}
-        onAcknowledge={acknowledgeChange}
-        onStatusChange={updateChangeStatus}
-      />
+      <div className="page">
+        <PageHeader
+          title={t("changes.title")}
+          description={t("workspace.changes.description")}
+        />
+        <EmptyState
+          title={t("workspace.changes.title")}
+          description={t("workspace.changes.description")}
+        />
+      </div>
     );
   } else if (currentLocation.path === "/templates") {
-    page = <TemplatesPage state={localizedState} onReset={resetWorkspace} />;
+    page = (
+      <div className="page">
+        <PageHeader
+          title={t("templates.title")}
+          description={t("workspace.templates.description")}
+        />
+        <EmptyState
+          title={t("workspace.templates.title")}
+          description={t("workspace.templates.description")}
+        />
+      </div>
+    );
+  }
+
+  if (currentLocation.path === "/" || currentLocation.path === "/team") {
+    if (remoteTasks.status !== "ready" || !remoteEvent) {
+      page = (
+        <WorkspaceReadNotice
+          state={remoteTasks}
+          team={currentLocation.path === "/team"}
+          onRetry={() => void remoteTasks.retry()}
+        />
+      );
+    } else if (remoteTasks.mutation?.needsRefresh) {
+      page = (
+        <>
+          <div className="notice" role="alert">
+            <span>{t("workspace.stale")}</span>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => void remoteTasks.retry()}
+            >
+              {t("tasks.remote.retry")}
+            </button>
+          </div>
+          {page}
+        </>
+      );
+    }
   }
 
   return (
     <AppShell
       currentPath={currentLocation.path}
-      event={remoteEnabled ? remoteEvent : currentEvent}
-      dataMode={remoteEnabled ? "remote-tasks" : "demo"}
-      persistenceError={remoteEnabled ? null : persistenceError}
+      event={remoteEvent}
+      dataMode="remote-workspace"
+      persistenceError={null}
       onNavigate={(href) => navigate(href)}
     >
       {page}

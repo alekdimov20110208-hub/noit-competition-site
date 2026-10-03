@@ -1,5 +1,29 @@
 # AI Assistance Log
 
+## P1D.3 real Dashboard and Team — 2026-10-03
+
+Codex implemented the explicitly requested, approved P1 read integration from
+`6566c25b3fd8021963bf6e85a50ecc7921961b7a`. Mandatory master prompt, supplied
+30-page 2025–2026 regulations, approved backend contract and locked UI were read.
+The regulation remains year-specific; no current-year compliance is inferred.
+
+Help covered the shared existing RemoteWorkspaceService/controller, active versus
+historical member context, safe presentation projection, unchanged selectors,
+real date boundaries, truthful unsupported Event/Change states, network states,
+controlled API/SQL/browser evidence, regression tests and documentation. No new
+dependency, asset, database migration, activity feed or P2/P3 feature was added.
+The authenticated application no longer initializes the local demo service.
+
+Fresh read-only self-review found potential stale Dashboard/Team summaries after
+a command refetch failure. It added the existing-style retry warning and extended
+the action browser regression to check both pages. No human review or acceptance
+is claimed: the author still needs to inspect, understand and defend the generated
+code. Tests use real controlled accounts and PostgreSQL where labelled; injected
+failure/visual fixtures are identified separately. Credentials remain in ignored
+configuration/memory. No cookies, HAR, trace, storageState or session dump was saved.
+Intermediate harness/server/capture failures are recorded in TEST_EVIDENCE.md and
+are not counted as passes. Product validation and formal certification remain unproven.
+
 This log records material AI assistance so the project author can review, understand, test, and explain the resulting work. It does not transfer authorship responsibility to the tool and it is not evidence that the work is correct or that tests passed.
 
 No personal author details are recorded here.

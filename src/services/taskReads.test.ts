@@ -152,7 +152,7 @@ for (const role of ["ORGANIZER", "MEMBER"] as const)
       [
         "/api/events",
         `/api/events/${event.id}/tasks`,
-        ...(role === "ORGANIZER" ? [`/api/events/${event.id}/members`] : []),
+        `/api/events/${event.id}/members`,
       ],
     );
     for (const call of calls) {

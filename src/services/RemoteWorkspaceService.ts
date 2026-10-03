@@ -19,6 +19,8 @@ export interface TasksWorkspace {
   teamMembers: TaskAssignee[];
   tasks: RemoteTask[];
   assignableMembers?: TaskAssignee[];
+  // Active roster only. Historical assignees remain in teamMembers for task names.
+  activeMembers?: TaskAssignee[];
 }
 export function emptyTasksWorkspace(): TasksWorkspace {
   return { currentEventId: "", events: [], teamMembers: [], tasks: [] };
@@ -272,7 +274,6 @@ export class RemoteWorkspaceService
       event,
       await this.get(`/api/events/${event.id}/tasks`, signal),
     );
-    if (event.membership.accessRole !== "ORGANIZER") return workspace;
     const members = array(
       record(await this.get(`/api/events/${event.id}/members`, signal)).members,
     ).map((value) => {
@@ -282,7 +283,9 @@ export class RemoteWorkspaceService
     uniqueIds(members);
     return {
       ...workspace,
-      assignableMembers: members,
+      activeMembers: members,
+      assignableMembers:
+        event.membership.accessRole === "ORGANIZER" ? members : [],
       teamMembers: [
         ...new Map(
           [...workspace.teamMembers, ...members].map((member) => [

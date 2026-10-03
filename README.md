@@ -7,15 +7,33 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, the locked Phase 2B.1 Dashboard direction, and the Phase 2B.2 Tasks workspace redesign**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarified BudoGraph's visual identity and Dashboard reading order. Phase 2B.2 applies that identity to a dense operational task register, compact search and filtering, and a primary task detail/editing drawer without changing the approved product idea or adding production services.
 
 The repository also contains the Backend P1A/P1B/P1C foundation, P1D.1 browser
-authentication, P1D.2A remote Tasks reads, and P1D.2B task responsibility actions.
-Login and Tasks use the real PostgreSQL-backed backend; Dashboard and Team retain
-fictional local data. The application remains a technical prototype. These
+authentication, P1D.2A remote Tasks reads, P1D.2B task responsibility actions, and
+P1D.3 real Dashboard/Team reads. Login, Dashboard, Tasks and Team use the real
+PostgreSQL-backed backend. Changes/Plan B persistence is **NOT YET IMPLEMENTED**;
+its authenticated view contains no fictional records. The application remains a technical prototype. These
 phases do not prove product-market fit, commercial demand, adoption, willingness
 to pay, or usability.
 
 The historical research and validation record remains under `docs/validation/` and `docs/market-research/`. Those files are preserved as evidence and are not rewritten to make the Phase 1 decision appear stronger than the evidence supports. The decision to build this prototype is a competition-project decision, not a commercial-validation conclusion.
 
-## Phase 1 scope
+## P1D.3 real workspace integration
+
+Dashboard, Tasks and Team share one authorized Event snapshot and real task IDs.
+Initial Event selection is earliest accessible start date, then UUID; navigation
+and refetch keep that Event pinned. A full browser reload resolves again. Team
+lists active Event members and derives its existing workload/responsibility views
+from scoped Tasks. Dashboard reuses existing completion/count/attention/pressure
+selectors and real Event calendar dates/timezone. Unsupported location/guest/status
+fields are identified honestly. Changes/Plan B persistence is **NOT YET IMPLEMENTED**
+until P3; Templates are also unconnected. Neither route imports demo records.
+
+Run `pnpm test:browser:workspace` for real controlled Organizer/Member verification,
+alongside existing auth/Tasks browser and PostgreSQL suites. See
+[test evidence](docs/TEST_EVIDENCE.md) for the acceptance results and limitations.
+**P1 CORE COMPLETE: YES.** P1D.3 acceptance and preserved auth/Tasks/backend/PostgreSQL
+regressions pass. This does not imply production readiness; P2 remains out of scope.
+
+## Phase 1 scope (historical local prototype)
 
 The approved Phase 1 slice covers:
 
@@ -188,7 +206,7 @@ is verified against development PostgreSQL; see the evidence below.
 
 Dashboard, Tasks, and Team retain their locked visual composition. P1D.1 adds
 real Login and a protected shell. P1D.2A connects Tasks reads and P1D.2B connects responsibility actions to the real
-backend; Dashboard and Team keep the local demo service unchanged.
+backend; P1D.3 also connects Dashboard and Team to that same real Event.
 
 Backend development requires Node.js **22.x from 22.18.0, or 24.0.0 and later**, and the repository's
 **pnpm 11.9.0**. From the repository root, copy `server/.env.example` to the ignored
@@ -252,9 +270,10 @@ redirects to the workspace. Logout is available in the desktop sidebar and the
 mobile BudoGraph wordmark menu. Focus, visibility, online and navigation events
 recheck the session without polling.
 
-Authentication identity and local demo Dashboard/Team data are intentionally
-separate. Tasks use authenticated Event-scoped reads through
+Dashboard, Tasks and Team share authenticated Event-scoped reads through
 `RemoteWorkspaceService`, including server-confirmed task responsibility commands.
+The normal application does not initialize `useWorkspace` or read/write the old
+local demo workspace. Demo factories/reducers remain isolated development/test fixtures.
 
 `pnpm test:browser:auth` runs the real browser check when Playwright and a browser
 are available; see [backend development](docs/BACKEND_DEVELOPMENT.md) for runtime

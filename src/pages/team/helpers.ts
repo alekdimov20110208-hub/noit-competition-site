@@ -40,7 +40,11 @@ export function partitionMemberTasks(tasks: readonly Task[], now: Date) {
   return { attention, upcoming, completed, other };
 }
 
-export function getMemberSummary(member: TeamMember, tasks: Task[], now: Date) {
+export function getMemberSummary(
+  member: Pick<TeamMember, "id" | "name" | "role">,
+  tasks: Task[],
+  now: Date,
+) {
   const owned = tasks.filter((task) => task.ownerId === member.id);
   const workload = getTeamWorkload([member], owned, now)[0];
   const sections = partitionMemberTasks(owned, now);
@@ -80,7 +84,9 @@ export function getMemberSummary(member: TeamMember, tasks: Task[], now: Date) {
 export type MemberSummary = ReturnType<typeof getMemberSummary>;
 
 export function getTeamRoster(
-  state: WorkspaceState,
+  state: Pick<WorkspaceState, "currentEventId" | "tasks"> & {
+    teamMembers: Pick<TeamMember, "id" | "name" | "role">[];
+  },
   now: Date,
 ): MemberSummary[] {
   const tasks = state.tasks.filter(

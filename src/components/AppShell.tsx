@@ -33,7 +33,7 @@ interface AppShellProps {
   persistenceError: PersistenceError;
   onNavigate: (path: string) => void;
   children: ReactNode;
-  dataMode?: "demo" | "remote-tasks";
+  dataMode?: "demo" | "remote-tasks" | "remote-workspace";
 }
 
 export function AppShell({
@@ -95,7 +95,7 @@ export function AppShell({
         <AccountControl />
         <div className="sidebar__footer">
           <span className="demo-dot" aria-hidden="true" />
-          {t(dataMode === "demo" ? "shell.demoNotice" : "tasks.remote.notice")}
+          {t(dataMode === "demo" ? "shell.demoNotice" : "workspace.notice")}
         </div>
       </aside>
 
@@ -123,7 +123,7 @@ export function AppShell({
               </span>
             </>
           ) : (
-            t("tasks.remote.split")
+            t("workspace.source")
           )}
         </p>
         {persistenceError && (

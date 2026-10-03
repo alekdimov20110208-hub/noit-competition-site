@@ -13,13 +13,29 @@ Successful logout ends the server session and returns to Login. If logout cannot
 be confirmed, retry it. A session that has ended returns to Login at the next
 session check. Server-unavailable errors show a safe retry message.
 
-Your account identity and Tasks reads are real. Dashboard and Team retain the
-fictional local demonstration. Open Tasks to view the accessible development
-Event and its PostgreSQL tasks. Loading, empty results and retryable errors are
-explicit; a server failure never replaces tasks with fictional data. If several
+Your account identity, Dashboard, Tasks and Team reads are real. All three pages
+share the same authorized Event and PostgreSQL tasks/members. Loading, empty results and retryable errors are
+explicit; a server failure never replaces records with fictional data. If several
 Events are accessible, earliest start date then UUID chooses the temporary Event.
 There is no switcher yet. Dates use the Event calendar and real current day.
-An expired task-read or action session returns to Login.
+An expired workspace-read or action session returns to Login.
+
+Dashboard shows the stored Event name, dates and timezone, existing task-completion
+and lifecycle totals, deterministic attention items, task deadlines and Event date
+boundaries, and the existing Team pressure flags. Location, guest and Event status
+are not stored; missing details are identified without invented values. Progress
+counts completed tasks; it does not certify Event readiness or safety.
+
+Team lists active Event participants with their descriptive operational roles.
+Select a person to inspect their real assigned tasks, acceptance and existing
+deadline/blocker signals. Role text does not grant permissions. Task links from
+Dashboard and Team open the same real Tasks drawer; closing it returns to the
+origin and preserves focus/history. Historical inactive assignees can remain named
+on Tasks without appearing as active Team members.
+
+Changes/Plan B persistence is **NOT YET IMPLEMENTED**. The region and Plan B page
+show a restrained absence of saved responses. Templates are also unconnected;
+neither page displays fictional records in the authenticated workspace.
 
 ## Real task responsibility actions (P1D.2B)
 
@@ -46,12 +62,11 @@ There is no realtime synchronization or polling. Refresh the browser, revisit
 Tasks, or refocus the page to see another user's changes. Archived Events remain
 readable without action controls. Keyboard users can Tab to the assignment select,
 use arrow keys for member choices, and use Enter/arrow/Home/End keys in the status
-listbox. Dashboard and Team continue to show the fictional demo.
+listbox. Dashboard and Team use the same refreshed server data.
 
-Demo Dashboard/Team links use fictional IDs and therefore show an unavailable
-task notice in remote Tasks. Return to the task list for real records. The local
-prototype workflow descriptions below remain historical for Tasks; they still
-describe the unchanged fictional Dashboard/Team data.
+An old bookmarked fictional task ID shows an unavailable-task notice. Use the
+current real links instead. The local prototype descriptions below are historical
+and apply only to explicitly isolated demo/test fixtures, not the authenticated application.
 
 Phase 2A established the localization, theme, responsive, and navigation
 foundation for the existing Phase 1 competition MVP. Phase 2B.1 refines its

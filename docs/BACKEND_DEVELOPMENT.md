@@ -11,7 +11,7 @@ P1C adds explicit development Event bootstrap, task reads, Organizer assignment,
 assignee acceptance/withdrawal, authorized status updates, optimistic concurrency
 and atomic immutable activity history. P1D.1 connects browser authentication.
 P1D.2A connects Tasks reads to PostgreSQL; P1D.2B connects task responsibility commands.
-Dashboard and Team retain their locked fictional local data and visual output.
+P1D.3 connects Dashboard and Team to the same real Event/member/task snapshot.
 Verification results are in
 [TEST_EVIDENCE.md](TEST_EVIDENCE.md); this guide is not a test report.
 
@@ -299,7 +299,7 @@ No task workflow mutation is sent; cleanup signs out only its own sessions.
 Ignored evidence is under `tmp/p1d2-evidence/`; no HAR/trace/storageState/cookie jar
 or session dump is saved. The PostgreSQL suite remains opt-in and rollback-only.
 
-## P1D.2B task responsibility UI
+## P1D.2B task responsibility UI (historical stage)
 
 The existing drawer now uses the unchanged P1C assignment, acceptance and status
 routes. `RemoteWorkspaceService` exposes `assignTask`, `acceptTask`,
@@ -347,6 +347,68 @@ Credentials come only from ignored configuration; no HAR, trace, storageState,
 cookie jars or session dumps are saved. Ignored evidence is in `tmp/p1d2b-evidence/`.
 There is no realtime/polling, activity UI, task authoring, migration or new dependency.
 Dashboard and Team keep their original demo data and visual output.
+
+## P1D.3 shared real Dashboard, Tasks and Team
+
+Authenticated workspace data mode is **Dashboard REAL / Tasks REAL / Team REAL**.
+`App` now mounts one existing `useRemoteTasks` controller for the authenticated
+workspace lifetime, not separately per route. `RemoteWorkspaceService` reuses
+`GET /api/events`, scoped tasks and scoped active members; the member endpoint is
+read for both Organizer and Member. Each logical snapshot reads each endpoint once.
+Core page navigation shares that snapshot; loading/refetch, cancellation, revision
+guards, 401 auth clearing and safe errors remain explicit. No second data layer,
+server endpoint, database table, migration or dependency was introduced.
+
+The service retains `teamMembers` as merged task-assignee name context, including
+historical inactive assignees, and adds `activeMembers` for Team/pressure/counts.
+Organizer assignment candidates use the same active result. Members receive no
+assignment affordance. Only ID/name/operational-role display fields are projected;
+role descriptions never infer authority. `workspaceViews.ts` maps the safe Event
+fields and real tasks to existing selectors; membership/access fields stay out of
+Dashboard/Team presentation models. Task DTO parsing continues to fail closed.
+
+The temporary initial selection is earliest accessible start date, then UUID.
+All pages use that one current Event. Focus/online/retry and command refetch keep
+its ID pinned and revalidate membership; if it disappears, the read fails rather
+than switching. A full browser refresh resolves again. No stored Event UUID,
+name/email inference, Event switcher or authoring was added. Archived Events remain
+readable under existing policy, with task writes disabled.
+
+Dashboard reuses task-completion, lifecycle counts, deterministic attention ordering
+and Team pressure selectors. Event Overview uses stored name/DATE values/timezone.
+Guest/location/status are unsupported in P1 and show restrained absence instead of
+fabricated status or fictional identity. Timeline reuses date-first rendering,
+real upcoming task deadlines and Event date boundaries (elapsed/current/future
+classification from the Event-local calendar). DATE strings never pass through UTC
+as instants. The minute clock only recalculates timing, not network reads.
+
+**Changes/Plan B persistence: NOT YET IMPLEMENTED until P3.** `toWorkspaceView`
+returns no Changes and marks their source unavailable. The existing ChangeImpact
+region shows absence of recorded responses; no ActivityEntry-derived fake Changes
+or activity-feed endpoint is added. The Plan B and Templates routes use truthful
+unconnected states so they cannot reintroduce fictional task links. Navigation and
+the locked core layouts remain intact. `useWorkspace`, demo factories, reducers and
+legacy fixture pages remain available to explicit tests/development tooling, while
+the normal authenticated application does not instantiate them or touch its old
+workspace localStorage key. Preferences remain separately browser-local.
+
+Dashboard/Team provide loading, no-Event, empty, safe retryable error and authorization
+states. 401 clears the existing auth boundary. A failed task command refetch retains
+confirmed content with an explicit stale-data warning on Dashboard/Team and the
+existing Tasks recovery controls. Successful refetch updates the shared snapshot.
+Generated cross-page links reference only loaded Event task IDs and retain existing
+drawer, disclosure, history, scroll and focus restoration behavior.
+
+Run `pnpm test:browser:workspace` with the same ignored controlled credentials,
+Playwright module/browser paths, backend and Vite used by existing verifiers.
+It compares real Organizer/Member reads and UI to safe read-only SQL, poisons the
+old local fixture, checks shared requests, links/history/focus, refresh, real revoked
+sessions, and explicitly labelled loading/empty/500/403 transports. No business
+mutation requests, cookie dumps, HAR, trace, storageState or credentials are saved.
+Ignored evidence is under `tmp/p1d3-evidence/`. Preserve the auth, Tasks read/action
+and opt-in rollback-only PostgreSQL suites. **P1D.3 REAL WORKSPACE: PASS; P1 CORE
+COMPLETE: YES.** All acceptance and preserved regressions passed; this does not
+imply P2/P3 or production readiness.
 
 ## Controlled development accounts
 
@@ -589,7 +651,7 @@ rejection, and activity persistence without dropping/resetting tables or importi
 fictional demo state. Migration-runner protocol doubles remain separate evidence.
 See test evidence for the exact executed results and limits.
 
-Dashboard/Team data integration, Event/task authoring UI, production hosting,
+Event/task authoring UI, production hosting,
 recovery/verification workflows, distributed rate limiting, least-privilege grant
 audit, and backup/restore remain unfinished. Keep the
 [license register](THIRD_PARTY_NOTICES.md), [AI assistance log](AI_ASSISTANCE_LOG.md),

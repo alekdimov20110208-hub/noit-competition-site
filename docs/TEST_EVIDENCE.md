@@ -1,5 +1,174 @@
 # BudoGraph Test Evidence
 
+## P1D.3 real Dashboard and Team — 2026-10-03
+
+Authorized baseline `6566c25b3fd8021963bf6e85a50ecc7921961b7a`, `main`, freshly
+fetched `origin/main`, ahead/behind 0/0, no tracked changes. The unrelated shortcut
+remains untouched. Mandatory master prompt, 30-page supplied 2025–2026 regulations,
+approved backend contract and locked UI were read before implementation. Actual-year
+eligibility, categories, dates, GPLv3, availability, role accounts, PDF format and
+rubric still need verification. This implements the explicitly authorized P1 slice.
+
+### Data, selectors and scope
+
+Authenticated data mode: **Dashboard REAL, Tasks REAL, Team REAL**. One existing
+RemoteWorkspaceService/controller owns the Event/member/task snapshot across routes.
+Both roles read active members. Task-assignee name context preserves historical
+inactive assignees separately from Team/counts/pressure. Operational roles never grant
+authority. Initial Event selection is earliest accessible start date then UUID;
+navigation and refetch pin it, scope loss fails closed, full reload resolves again.
+
+Event Overview uses stored name/date/timezone and existing completion/lifecycle
+counts. Unsupported guest/location/status are honestly absent. Operational Focus,
+Team summaries and pressure retain deterministic selectors. Timeline preserves real
+DATE strings and uses actual task deadlines and Event start/end boundaries, classified
+with the Event-local calendar. No invented milestones, scores or future tasks.
+**Changes/Plan B persistence: NOT YET IMPLEMENTED until P3.** The existing region
+contains no fictional responses. Plan B and Templates show truthful unconnected states.
+No activity feed, endpoint, migration, dependency, member mutation or P2/P3 work added.
+
+### Verification
+
+Before implementation: frontend **155/155**, backend offline **80/80** (its three
+opt-in roots skipped), and explicitly enabled PostgreSQL **34/34**, zero skips.
+The initial default integration skip was not counted as a database pass.
+
+Final frontend **165/165** includes mapping, active/historical relationship context,
+unsupported fields, real DATE/timezone, Dashboard/Team selectors, real IDs, foreign
+Event exclusion, empty data, malformed members, member endpoint 401/403/500, current
+Event pinning and lost membership. Existing navigation/auth/action tests remain.
+The old per-role request assertion now expects active-member reads for both roles.
+Final opt-in PostgreSQL regression: **34/34**, zero skips, against the approved
+development database, using rollback-only fixtures; server/schema source unchanged.
+
+`test:browser:workspace`: **9 grouped checks**, eight real viewport/page cases
+(1440/768/390/320), zero app errors, **zero business mutation requests**. Real
+independent controlled Organizer/Member sessions proved:
+
+- Event name/DATE/timezone, active member IDs/names/roles, task titles/status/priority/
+  deadline/assignment/acceptance member/version match authenticated API and targeted
+  read-only PostgreSQL queries. Dashboard counts/focus/pressure and Team roster order/
+  responsibility/acceptance facts match existing selectors over those real responses.
+- Member sees the same authorized Event and no Organizer assignment controls. Dashboard
+  and Team real task links open the real drawer. Escape, Back/Forward, exact focus and
+  scroll restoration pass. Core-page navigation adds zero Event/member/task requests.
+- Refresh preserves canonical data. Poisoned old local Event/member/task/Change/template
+  names never render; the old localStorage workspace stays untouched. Plan B/Templates
+  show no fictional records or task links.
+- Both pages handle loading, empty tasks/members, no Event, safe retryable 500/403.
+  These are **labelled transport interceptions**, not actual backend outages.
+  Real sign-out then protected read returns 401, clears Dashboard/Team shell/data and
+  returns to Login; the independent other session remains valid.
+
+Preserved auth browser regression: **15 grouped checks / 20 Login cases**. Preserved
+Tasks read browser regression: **13 grouped checks / five viewports**. Preserved
+action browser regression: **14 grouped checks / 40 role/language/theme/viewport
+drawer cases**, real responsibility/status/409/activity versions/actors/401 and safe
+errors. The recovery extension checks stale-summary warnings/retry on Dashboard/Team
+before retaining the original closing/switching drawer recovery checks. Intercepted
+errors and a read-only synthetic second row are separate test evidence. The action
+verifier intentionally appends development history and leaves the controlled task
+assigned to Member, unaccepted, `not-started`. No history is destroyed.
+
+### Visual lock and fresh review
+
+The exact Git archive of the baseline served equivalent-content comparisons with
+the same installed dependencies and a separate Vite cache. Safe synthetic auth,
+UUID-remapped local content, matching Event boundaries and no fictional Changes are
+**visual-only fixtures**, not PostgreSQL proof. Matrix: 1440/1024/768/390/320 × BG/EN ×
+light/dark. Real screenshots also cover four viewport widths on Dashboard/Team with
+zero overflow. Representative real and controlled narrow/desktop images were inspected.
+
+Team workspace, Tasks register and drawer each matched **20/20 pixels exactly**. All
+**140/140 region interiors** match after excluding the single capture-edge pixel.
+Dashboard
+Operational Focus, Timeline, Team Pressure and Overview metrics preserve content,
+ordering, geometry and composition. Regional screenshots normalize capture origin
+to exclude intended unsupported Event text and Change empty-state differences above
+them; tiny one-pixel crop-edge differences and earlier transient native drawer focus pixels are capture
+artifacts, not composition changes. Whole Dashboard content intentionally differs
+for real/missing fields and truthful Changes absence. All CSS, Tasks UI, navigation/
+focus/history source, lockfile and backend/schema source remain unchanged.
+
+A fresh read-only self-review covered real/demo separation, Event/member scope,
+authority, unsupported data, dates, links, loading/session/cancellation, lock preservation
+and scope creep. Confirmed finding: failed command refetch left Dashboard/Team stale
+summaries without Tasks' warning. Fixed with a safe warning/retry and extended recovery
+browser coverage. No other confirmed finding remained. Agent review is not human
+acceptance, product validation or formal security/accessibility certification.
+
+### Intermediate failures and remaining limits
+
+Bundled pypdf replaced an unavailable extractor import. First typecheck found fixture
+display-flag compatibility; display-only types were broadened without inventing real
+authority. An expanded browser run timed out after initial checks; a later attempt
+saw a refused Vite connection. A task-owned listener and full rerun passed. The archived
+visual harness initially had duplicate React/shared-cache behavior; isolated cache
+and deduplication fixed it. Fractional crop origins/fixed chrome caused screenshot
+differences which were isolated and inspected, not concealed or reported as passes.
+The recovery extension passed its original assertions but a later keyboard harness
+step sent End before the listbox focus animation frame. Explicit waits now require
+the listbox option and final option to have focus; no assertion was weakened and no
+product selection-control change was made.
+
+Ignored evidence/logs/screenshots: `tmp/p1d3-evidence/` and `tmp/p1d3-*.log`. No credential,
+cookie jar, session dump, HAR, trace or storageState is saved. Production hosting,
+onboarding/recovery/invitations, offline/backup demonstration, other browser engines/
+physical devices, actual-year rules and human validation remain outside P1D.3.
+No user feedback, survey result, certification or commercial outcome is invented.
+
+### Completion checks and staged audit
+
+All requested checks passed: `pnpm.cmd format`, `format:check`, `lint`, `typecheck`,
+`test` (165/165), `build`, `server:typecheck`, `server:test` (80 offline passes),
+`server:build`, opt-in `server:test:integration` (34/34, zero skips), both browser
+regressions plus workspace/auth browser checks, script formatting and `git diff --check`.
+The complete final action rerun passed all 14 checks and 40 drawer cases, including
+the new core-page stale warnings and explicit keyboard focus assertions.
+
+The staged audit checked exactly **28 intended files**, actual configured sensitive
+values privately against complete staged contents/diff/frontend bundle, and excluded
+environment/credential/shortcut/tmp/browser artifacts. No secrets or excluded files
+were found. Authenticated runtime source has no demo initialization/fallback, browser
+auth storage or hardcoded Event UUID. Locked CSS/Tasks/navigation, dependency lockfile,
+backend and schema files are unchanged. Staged whitespace passes.
+
+**P1D.3 REAL WORKSPACE: PASS. P1 CORE COMPLETE: YES.** P2 was not begun. This is the
+approved core completion, not production deployment or completed competition packaging.
+
+Changed files (28):
+
+```text
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/KNOWN_LIMITATIONS.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-task-actions-ui.mjs
+scripts/verify-workspace-ui.mjs
+src/App.tsx
+src/components/AppShell.tsx
+src/components/WorkspaceReadNotice.tsx
+src/domain/workspace.ts
+src/i18n/messages.ts
+src/i18n/workspaceMessages.ts
+src/pages/DashboardPage.tsx
+src/pages/TeamPage.tsx
+src/pages/dashboard/ChangeImpact.tsx
+src/pages/dashboard/EventOverview.tsx
+src/pages/dashboard/OperationalFocus.tsx
+src/pages/dashboard/PreparationTimeline.tsx
+src/pages/dashboard/helpers.ts
+src/pages/team/helpers.ts
+src/services/RemoteWorkspaceService.ts
+src/services/taskReadState.ts
+src/services/taskReads.test.ts
+src/services/workspaceViews.ts
+src/services/workspaceViews.test.ts
+```
+
 ## Phase 1 baseline — 2026-08-04
 
 Verified on 2026-08-04 in the local Windows workspace using Node.js

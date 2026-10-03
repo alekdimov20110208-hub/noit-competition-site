@@ -1,4 +1,8 @@
 import type { Language } from "../preferences/types.ts";
+import {
+  WORKSPACE_BG_MESSAGES,
+  WORKSPACE_EN_MESSAGES,
+} from "./workspaceMessages.ts";
 import { DEMO_BG_MESSAGES, DEMO_EN_MESSAGES } from "./demoMessages.ts";
 import { TEAM_BG_MESSAGES, TEAM_EN_MESSAGES } from "./teamMessages.ts";
 import { AUTH_BG_MESSAGES, AUTH_EN_MESSAGES } from "./authMessages.ts";
@@ -332,6 +336,7 @@ const UI_EN_MESSAGES = {
 
 export const EN_MESSAGES = {
   ...TASK_READ_EN_MESSAGES,
+  ...WORKSPACE_EN_MESSAGES,
   ...AUTH_EN_MESSAGES,
   ...TEAM_EN_MESSAGES,
   ...UI_EN_MESSAGES,
@@ -670,6 +675,7 @@ const UI_BG_MESSAGES = {
 
 export const BG_MESSAGES = {
   ...TASK_READ_BG_MESSAGES,
+  ...WORKSPACE_BG_MESSAGES,
   ...AUTH_BG_MESSAGES,
   ...TEAM_BG_MESSAGES,
   ...UI_BG_MESSAGES,

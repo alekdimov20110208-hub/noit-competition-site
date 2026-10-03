@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { WorkspaceState } from "../domain/types.ts";
+import type { WorkspaceView } from "../services/workspaceViews.ts";
 import { useI18n } from "../i18n/index.ts";
 import type { MessageKey } from "../i18n/messages.ts";
 import { isVisibleFocusTarget, revealFocusTarget } from "../navigationFocus.ts";
@@ -23,7 +23,7 @@ import "./team/team.css";
 
 interface TeamPageProps {
   now: Date;
-  state: WorkspaceState;
+  state: WorkspaceView;
   onOpenTask: (taskId: string) => void;
   onNavigate: (href: string) => void;
 }

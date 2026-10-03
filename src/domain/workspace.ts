@@ -312,7 +312,8 @@ export function getAttentionTasks(
 }
 
 export interface TeamWorkload {
-  member: TeamMember;
+  member: Pick<TeamMember, "id" | "name" | "role"> &
+    Partial<Pick<TeamMember, "isOrganizer">>;
   assigned: number;
   completed: number;
   active: number;
@@ -324,7 +325,8 @@ export interface TeamWorkload {
 export const HIGH_ACTIVE_LOAD_THRESHOLD = 4;
 
 export function getTeamWorkload(
-  members: TeamMember[],
+  members: (Pick<TeamMember, "id" | "name" | "role"> &
+    Partial<Pick<TeamMember, "isOrganizer">>)[],
   tasks: Task[],
   now = new Date(),
 ): TeamWorkload[] {

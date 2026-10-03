@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import type { Event } from "../../domain/types.ts";
+import type { OverviewEvent } from "../../services/workspaceViews.ts";
 import type { ReadinessSummary, TaskCounts } from "../../domain/workspace.ts";
 import { useI18n, type MessageKey } from "../../i18n/index.ts";
 
@@ -10,7 +11,7 @@ const EVENT_STATUS_MESSAGE_KEYS = {
 } satisfies Record<Event["status"], MessageKey>;
 
 interface EventOverviewProps {
-  event: Event;
+  event: OverviewEvent;
   readiness: ReadinessSummary;
   counts: TaskCounts;
   teamCount: number;
@@ -33,11 +34,21 @@ export function EventOverview({
           <h1 id="event-overview-title">{event.name}</h1>
           <div className="event-overview__supporting">
             <p className="event-overview__guest">
-              {t("dashboard.withGuest", { guest: event.guestInstructor })}
+              {event.guestInstructor
+                ? t("dashboard.withGuest", { guest: event.guestInstructor })
+                : event.timezone}
             </p>
             <div className="event-overview__state">
-              <span>{t(EVENT_STATUS_MESSAGE_KEYS[event.status])}</span>
-              <span>{t("dashboard.fictionalEvent")}</span>
+              {event.status && (
+                <span>{t(EVENT_STATUS_MESSAGE_KEYS[event.status])}</span>
+              )}
+              <span>
+                {t(
+                  event.timezone
+                    ? "workspace.event.detailsUnavailable"
+                    : "dashboard.fictionalEvent",
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -53,7 +64,9 @@ export function EventOverview({
 
       <div className="event-overview__facts">
         <span>{formatDateRange(event.startDate, event.endDate)}</span>
-        <span>{event.location}</span>
+        <span>
+          {event.location ?? t("workspace.event.locationUnavailable")}
+        </span>
         <span>
           {plural(teamCount, {
             one: "dashboard.teamCount.one",

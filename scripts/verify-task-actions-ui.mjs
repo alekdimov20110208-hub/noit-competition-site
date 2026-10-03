@@ -488,6 +488,16 @@ try {
   );
   await member.page.keyboard.press("Escape");
   await member.page.getByRole("dialog").waitFor({ state: "hidden" });
+  for (const href of ["/", "/team"]) {
+    await member.page.locator(`.sidebar__nav a[href="${href}"]`).click();
+    await member.page.getByRole("alert").waitFor();
+    assert.match(
+      await member.page.getByRole("alert").innerText(),
+      /latest workspace data could not be confirmed/,
+    );
+    await member.page.getByRole("button", { name: "Try again" }).waitFor();
+  }
+  await member.page.locator('.sidebar__nav a[href="/tasks"]').click();
   await member.page.getByRole("button", { name: "Refresh task" }).waitFor();
   const otherTask = member.page.locator(
     `.task-row__link:not([href$="${taskId}"])`,
@@ -539,7 +549,20 @@ try {
   );
   await member.page.locator(`#drawer-status-${taskId}-trigger`).focus();
   await member.page.keyboard.press("Enter");
+  await member.page.waitForFunction(
+    (id) =>
+      document.activeElement?.closest(`#drawer-status-${id}-listbox`) !== null,
+    taskId,
+  );
   await member.page.keyboard.press("End");
+  await member.page.waitForFunction(
+    (id) =>
+      document.activeElement ===
+      document.querySelector(
+        `#drawer-status-${id}-listbox [role="option"]:last-child`,
+      ),
+    taskId,
+  );
   const keyboardResponse = member.page.waitForResponse(
     (response) =>
       response.url().endsWith("/status") &&

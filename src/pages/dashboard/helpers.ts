@@ -12,6 +12,28 @@ import {
   isUpcomingTask,
 } from "../../domain/taskTiming.ts";
 import { TASK_STATUS_MESSAGE_KEYS } from "../../domain/labels.ts";
+import type { OverviewEvent } from "../../services/workspaceViews.ts";
+
+export function eventDateMilestones(
+  event: OverviewEvent,
+  now: Date,
+  startTitle: string,
+  endTitle: string,
+): EventMilestone[] {
+  if (event.milestones) return event.milestones;
+  return [
+    { id: `${event.id}:start`, title: startTitle, date: event.startDate },
+    { id: `${event.id}:end`, title: endTitle, date: event.endDate },
+  ].map((milestone) => ({
+    ...milestone,
+    status:
+      getDeadlineTiming(milestone.date, now) === "overdue"
+        ? "completed"
+        : getDeadlineTiming(milestone.date, now) === "today"
+          ? "current"
+          : "upcoming",
+  }));
+}
 
 export function getAttentionActionKey(
   task: Task,

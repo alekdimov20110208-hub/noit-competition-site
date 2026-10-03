@@ -5,7 +5,43 @@ P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases
 the current backend limitations are recorded below. Update this record when a
 limitation is removed or discovered.
 
-## Current P1D.2B task responsibility boundary — 2026-10-03
+## Current P1D.3 real workspace boundary — 2026-10-03
+
+**P1D.3 REAL WORKSPACE: PASS. P1 CORE COMPLETE: YES.** This closes the approved P1
+scope; it does not implement P2/P3 or establish production readiness.
+
+- Authenticated data mode: **Dashboard REAL, Tasks REAL, Team REAL**. One shared
+  cancellable controller owns Event/member/task reads and task commands. There is
+  no normal local demo workspace initialization, migration, or failure fallback.
+- Initial Event selection remains earliest accessible start date, then UUID. The
+  Event stays pinned across page navigation and refetch; removal fails explicitly
+  rather than selecting another Event. A full browser reload resolves again.
+  Multiple-Event navigation and Event authoring remain P2.
+- Team and Team Pressure use only active EventMembers of active Users. Historical
+  inactive assignees remain name context on real tasks. Operational role is only
+  descriptive; access role remains separate and the server authorizes every request.
+- Dashboard preserves existing count/attention/pressure semantics. Timeline uses
+  real task deadlines and Event start/end calendar boundaries, not fictional
+  milestones. Location, guest and operational Event status have no persisted fields
+  in P1; the readout identifies missing additional details rather than inventing them.
+- Changes/Plan B persistence is **NOT YET IMPLEMENTED** until P3. Dashboard retains
+  the ChangeImpact region with a truthful empty state. Plan B and Templates have
+  truthful unconnected states; their legacy fixture pages are not normal runtime sources.
+- No activity feed, member mutations, authoring, AI, budget, notifications, polling
+  or realtime was added. Failed command refetch labels stale summaries on all core
+  pages and requires refresh before further task commands.
+- Page navigation shares the loaded snapshot. Reload, focus/visibility, online and
+  explicit retry refetch the pinned Event. Clock updates once a minute only recalculate
+  Event-calendar timing; they do not poll. There is no offline remote cache.
+- Production hosting/proxy verification, recovery, invitations, least-privilege grant
+  audit and backup/restore remain outside this stage. Controlled accounts and development
+  fixtures do not constitute the final competition jury-account package.
+- Browser checks use Edge/Chromium emulation, not physical devices, other engines,
+  formal accessibility/security certification or user validation. The supplied NOIT
+  rules are for **2025–2026**; eligibility, categories, dates, GPLv3, online availability,
+  role accounts, documentation format and scoring need actual-year verification.
+
+## Historical P1D.2B task responsibility boundary — 2026-10-03
 
 - Real Login, server-backed logout, safe current-user bootstrap and a protected application shell are implemented. Authentication identity and the fictional local workspace remain deliberately separate. The historical P1C exclusions below describe that earlier stage.
 - Tasks use `RemoteWorkspaceService` for authorized Event/task reads. Dashboard and Team keep the existing LocalDemoWorkspaceService boundary (`useWorkspace`, local reducer/persistence) unchanged. This temporary split is explicit in the Tasks shell. Remote errors and empty results never fall back to fictional tasks or migrate local data.

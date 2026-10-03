@@ -1,4 +1,4 @@
-import type { WorkspaceState } from "../domain/types.ts";
+import type { WorkspaceView } from "../services/workspaceViews.ts";
 import {
   getAttentionTasks,
   getReadinessSummary,
@@ -11,6 +11,7 @@ import { EventOverview } from "./dashboard/EventOverview.tsx";
 import {
   buildPreparationTimeline,
   getActiveChanges,
+  eventDateMilestones,
 } from "./dashboard/helpers.ts";
 import { OperationalFocus } from "./dashboard/OperationalFocus.tsx";
 import { PreparationTimeline } from "./dashboard/PreparationTimeline.tsx";
@@ -18,7 +19,7 @@ import { TeamPressure } from "./dashboard/TeamPressure.tsx";
 
 interface DashboardPageProps {
   now: Date;
-  state: WorkspaceState;
+  state: WorkspaceView;
   onNavigate: (path: string) => void;
   onOpenTask: (taskId: string) => void;
   focusExpanded: boolean;
@@ -33,7 +34,7 @@ export function DashboardPage({
   focusExpanded,
   onFocusExpandedChange,
 }: DashboardPageProps) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const event =
     state.events.find((item) => item.id === state.currentEventId) ??
     state.events[0];
@@ -62,9 +63,19 @@ export function DashboardPage({
     },
   );
   const members = new Map(
-    state.teamMembers.map((member) => [member.id, member]),
+    (state.taskMembers ?? state.teamMembers).map((member) => [
+      member.id,
+      member,
+    ]),
   );
-  const milestones = [...event.milestones].sort(
+  const milestones = [
+    ...eventDateMilestones(
+      event,
+      now,
+      t("workspace.event.start"),
+      t("workspace.event.end"),
+    ),
+  ].sort(
     (first, second) =>
       first.date.localeCompare(second.date) ||
       first.id.localeCompare(second.id),
@@ -101,6 +112,7 @@ export function DashboardPage({
 
       <ChangeImpact
         changes={activeChanges}
+        recordsAvailable={state.changesPersisted}
         eventTasks={eventTasks}
         members={members}
         now={now}

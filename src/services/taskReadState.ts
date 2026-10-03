@@ -34,6 +34,7 @@ export class TaskReadController {
   private pending: Promise<void> | null = null;
   private cancellation: AbortController | null = null;
   private revision = 0;
+  private currentEventId = "";
   private service: TasksReadService & Partial<TasksMutationService>;
   private actionPending: Promise<void> | null = null;
   private onUnauthorized: () => void;
@@ -61,6 +62,7 @@ export class TaskReadController {
     this.cancellation = null;
     this.pending = null;
     this.actionPending = null;
+    this.currentEventId = "";
     this.publish({
       status: "loading",
       workspace: emptyTasksWorkspace(),
@@ -83,9 +85,17 @@ export class TaskReadController {
       .then(async () => {
         if (revision !== this.revision) return;
         try {
-          const workspace = await this.service.readTasks(cancellation.signal);
-          if (revision === this.revision)
+          const workspace =
+            this.currentEventId && this.service.refreshTasks
+              ? await this.service.refreshTasks(
+                  this.currentEventId,
+                  cancellation.signal,
+                )
+              : await this.service.readTasks(cancellation.signal);
+          if (revision === this.revision) {
+            this.currentEventId = workspace.currentEventId;
             this.publish({ status: "ready", workspace, error: null });
+          }
         } catch (error) {
           if (revision !== this.revision) return;
           const code =
