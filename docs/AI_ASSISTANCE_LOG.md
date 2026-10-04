@@ -823,3 +823,50 @@ check uses one clearly identified read-only synthetic transport row; no new real
 task is created or mutated. Failed verifier runs are documented separately.
 The staged 29-file audit checks actual ignored credentials privately, whole staged
 content and the frontend bundle; no secrets or excluded artifacts were found.
+
+## P2B - Real Task authoring - 2026-10-04
+
+Codex implemented the user's explicit P2B request from synchronized clean-tracked
+`main`/`origin/main` at `8c0642e68f7a99313a20add64dc2324029320bca`.
+The full master prompt, all 30 regulation pages and the approved backend contract
+were reviewed first. Existing concept/architecture approvals and the explicit
+implementation request authorize this stage. No subagent was used; fresh read-only
+self-review is not an external or human acceptance review.
+
+Assistance included Organizer-only scoped create/update commands, bounded
+whitelisted authoring input, optional active same-Event initial assignment,
+server-owned metadata/defaults, optimistic version checks, atomic task/history,
+canonical service/controller refresh and cancellation, focused existing-drawer
+forms, BG/EN feedback, tests, controlled real-account browser verification and docs.
+The established assignment/acceptance/status commands and locked page compositions
+remain intact. No migration, dependency, asset or license was introduced.
+
+Confirmed review/browser findings were corrected: focus/online reads could discard
+an open draft; those background reads now defer while authoring is open, with
+explicit recovery and Event switches preserved. New form dropdowns lacked adequate
+sizing, affecting assignee click selection; scoped sizing supplies 48px triggers
+and 44px options. Failed conflict refresh also must leave the explicit reload
+control usable while Save stays blocked. Affected verification is rerun.
+
+Intermediate failures are recorded in TEST_EVIDENCE.md and do not count as passes.
+The verifier distinguishes real commands from named transport failures, held
+responses and fixed-clock visual fixtures. It retains intentionally UI-created
+development Events/tasks, including earlier incomplete runs; no destructive
+cleanup is performed. Credentials/cookies remain in ignored configuration or
+memory; no auth dumps/HAR/traces are saved or committed.
+
+The author must review, understand and defend generated code. No survey findings,
+user validation, human acceptance, security/accessibility certification, production
+or backup readiness is fabricated. Task deletion, invitations, Event archive/delete,
+Changes/Plan B, dependencies and realtime remain unfinished. Supplied NOIT rules
+are for 2025-2026 and require actual-year verification. P2C is not started.
+Executed completion results and the complete changed-file manifest are in
+TEST_EVIDENCE.md; the exact commit/push/sync result is supplied in the final reply.
+
+Observed P2B completion evidence: 218 frontend tests, 106 offline backend tests
+(five database suites intentionally separate), all 51 enabled PostgreSQL checks,
+and 11 real-account authoring browser checks with 20 Create/Edit layout cases.
+Actual create/edit session expiry, canonical recovery, held-response Event isolation,
+responsibility semantics and simultaneous optimistic conflicts are covered.
+Named error/refresh/held-response fixtures remain explicitly marked. Preserved
+P1/P2A regression and staged safety results are recorded in TEST_EVIDENCE.md.

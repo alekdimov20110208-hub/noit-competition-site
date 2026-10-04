@@ -42,9 +42,35 @@ Run `pnpm test:browser:events` with the same ignored controlled accounts and bro
 runtime as P1. See [test evidence](docs/TEST_EVIDENCE.md) for executed results.
 No dependencies or migrations were added; applied SQL remains immutable.
 
-**TASK AUTHORING NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+**INVITATIONS NOT YET IMPLEMENTED.
 EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
 Templates, Budget, AI, membership management and production hardening remain outside P2A.
+
+## P2B real Task authoring
+
+An active **Organizer of the current Event** can use **Create task** on Tasks,
+then **Edit task details** in the existing drawer. Fields are title (1–200),
+optional free-text category (up to 100), optional context (up to 5000), required
+calendar deadline and existing normal/important/critical priority. Deadlines may
+precede the Event; they remain PostgreSQL DATE strings in its calendar context.
+Creation can assign an active same-Event member, starts `not-started` and unaccepted,
+and opens the existing `?task=...` deep link after canonical refresh. No bootstrap
+data is required to build a plan from a fresh Event.
+
+Assignment does not imply acceptance. Detail editing preserves current acceptance
+and lifecycle; reassignment remains the dedicated responsibility command and
+clears acceptance. Member acceptance/status permissions remain separate.
+Edits require `expectedVersion`: stale writes return 409, load current details,
+and require explicit review/save. Current no-ops preserve version/history.
+Task create/update and `task.created`/`task.updated` activity commit atomically.
+The shared Event snapshot drives Tasks, Dashboard and Team; cancellation prevents
+former-Event completions from rendering after switching.
+
+Run `pnpm test:browser:task-authoring` with the same ignored account configuration
+and external verification browser runtime. No migration or runtime dependency was
+added. **TASK DELETION NOT YET IMPLEMENTED; INVITATIONS NOT YET IMPLEMENTED;
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED; CHANGES/PLAN B NOT YET IMPLEMENTED;
+DEPENDENCIES NOT YET IMPLEMENTED; REALTIME NOT IMPLEMENTED.**
 
 ## P1D.3 real workspace integration (historical)
 

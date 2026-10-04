@@ -1,4 +1,49 @@
-# Backend P1 and P2A Development
+# Backend P1, P2A and P2B Development
+
+## P2B Task authoring — 2026-10-04
+
+`POST /api/events/:eventId/tasks` accepts `{ title, category?, context?, deadline,
+priority, assignedMemberId? }`, returns 201 `{ task }`, and requires active same-Event
+ORGANIZER membership. Omitted category/context default to empty text; omitted
+assignee defaults to null. `PATCH /api/events/:eventId/tasks/:taskId` accepts any
+subset of title/category/context/deadline/priority plus required `expectedVersion`,
+returning canonical 200 `{ task }`. Unknown fields are rejected. Assignment,
+acceptance, lifecycle, scope, actors, timestamps, IDs and raw version never become
+generic edit inputs. Existing dedicated commands remain authoritative.
+
+Text is trimmed, bounded (title 1–200/category 0–100/context 0–5000), and validated
+for NUL/lone surrogates. Category is free text, not a new enum. Context remains
+optional. Deadline is a strict real `YYYY-MM-DD` calendar string, years 0001–9999;
+preparation tasks may precede Event start. Priority is normal/important/critical.
+Invalid authoring fields or an unavailable/foreign/inactive initial assignee return
+safe 400 field codes. Missing session returns 401, Member authoring/archived writes
+403, foreign/missing scope 404, stale version 409. Cookie writes use the existing
+exact trusted-origin/Fetch Metadata guard and parameterized SQL.
+
+One existing transaction pins Event, active User/actor membership and initial
+assignee through commit. Server UUID/actor fields and schema defaults produce
+version 1, `not-started`, null acceptance and server instants. `task.created`
+records title/category/deadline/priority/initial assignee/taskVersion once; no
+duplicate assignment entry is added. Edits lock the Event-scoped Task, check
+version before no-op handling, update only authored columns, increment exactly
+once and append `task.updated` with changed-field before/after values and versions.
+Task/history commit or roll back together. Detail edits preserve acceptance;
+reassignment/unassignment alone retain the existing acceptance-clear semantics.
+
+RemoteWorkspaceService and the shared controller own authoring, cancellation,
+safe error mapping and canonical Event refresh. Form drafts retain their original
+version across background reads. 409 recovery loads latest details and requires
+explicit save; failed recovery blocks saving. A lost write response is refetched,
+never replayed automatically. Failed refresh marks the snapshot as needing
+explicit recovery. Confirmed response data may remain visible, marked for refresh.
+Same-Event navigation that cancels a pending form also requires recovery; changing
+Event/identity clears former data and cancels its requests. No demo fallback exists.
+
+`pnpm test:browser:task-authoring` runs real controlled Organizer/Member flows;
+`RUN_DATABASE_INTEGRATION=1` enables rollback-only PostgreSQL authoring fixtures.
+No migration, ORM or runtime dependency was added. No Task deletion, invitations,
+Event archive/delete, Changes/Plan B, dependencies, realtime, Templates/Budget/AI
+or membership management is implemented by P2B.
 
 ## Current P2A Event commands and navigation — 2026-10-03
 
@@ -49,8 +94,8 @@ session, permission, missing-resource and connection errors remain safe/localize
 `pnpm test:browser:events` runs the controlled real-account P2A verifier.
 Existing P1 browser verifiers preserve their checks with Event-scoped assertions.
 See TEST_EVIDENCE.md for executed results and intentional development Events.
-No migration or dependency was added. **TASK AUTHORING NOT YET IMPLEMENTED;
-INVITATIONS NOT YET IMPLEMENTED; EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED;
+No migration or dependency was added in P2A. Task authoring is now P2B above.
+**INVITATIONS NOT YET IMPLEMENTED; EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED;
 CHANGES/PLAN B NOT YET IMPLEMENTED.** Later descriptions are historical P1 scope.
 
 P1A establishes the TypeScript/Fastify runtime, typed configuration, PostgreSQL

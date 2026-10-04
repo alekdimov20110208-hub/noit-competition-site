@@ -35,6 +35,8 @@ interface BudoSelectProps<Value extends string> {
   labelMode?: "visible" | "sr-only";
   popupMinWidth?: number;
   disabled?: boolean;
+  invalid?: boolean;
+  describedBy?: string;
 }
 
 type PopupStyle = CSSProperties & {
@@ -61,6 +63,8 @@ export function BudoSelect<Value extends string>({
   labelMode = "visible",
   popupMinWidth = 180,
   disabled = false,
+  invalid,
+  describedBy,
 }: BudoSelectProps<Value>) {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -297,6 +301,8 @@ export function BudoSelect<Value extends string>({
           type="button"
           aria-haspopup="listbox"
           aria-expanded={open}
+          aria-invalid={invalid}
+          aria-describedby={describedBy}
           aria-controls={listboxId}
           aria-labelledby={`${labelId} ${valueId}`}
           onPointerDown={handleTriggerPointerDown}

@@ -1,5 +1,6 @@
 import { getCalendarDayNumber } from "../domain/taskTiming.ts";
 import type { Event, Task, TaskStatus, TeamMember } from "../domain/types.ts";
+import type { TaskFields, TaskFieldErrors } from "./taskAuthoring.ts";
 
 export type TaskAssignee = Pick<TeamMember, "id" | "name" | "role">;
 export type TaskEvent = Pick<Event, "id" | "name" | "startDate" | "endDate"> & {
@@ -225,6 +226,33 @@ export class TaskActionFailure extends Error {
     this.code = code;
   }
 }
+export class TaskAuthoringFailure extends TaskActionFailure {
+  readonly fields: TaskFieldErrors;
+  constructor(code: TaskActionError, fields: TaskFieldErrors = {}) {
+    super(code);
+    this.fields = fields;
+  }
+}
+export interface TaskAuthoringService {
+  createTask(
+    eventId: string,
+    fields: TaskFields,
+    assignedMemberId: string | null,
+    signal: AbortSignal,
+  ): Promise<RemoteTask>;
+  updateTaskDetails(
+    eventId: string,
+    taskId: string,
+    expectedVersion: number,
+    fields: TaskFields,
+    signal: AbortSignal,
+  ): Promise<RemoteTask>;
+  getTask(
+    eventId: string,
+    taskId: string,
+    signal: AbortSignal,
+  ): Promise<RemoteTask>;
+}
 export interface TasksMutationService {
   executeTaskAction(
     eventId: string,
@@ -279,7 +307,11 @@ export interface EventWorkspaceService {
 }
 
 export class RemoteWorkspaceService
-  implements TasksReadService, TasksMutationService, EventWorkspaceService
+  implements
+    TasksReadService,
+    TasksMutationService,
+    EventWorkspaceService,
+    TaskAuthoringService
 {
   private request: typeof fetch;
   constructor(request: typeof fetch = fetch) {
@@ -396,6 +428,138 @@ export class RemoteWorkspaceService
 
   createEvent(fields: EventFields, signal: AbortSignal): Promise<TaskEvent> {
     return this.eventCommand("/api/events", "POST", fields, signal);
+  }
+
+  async getTask(
+    eventId: string,
+    taskId: string,
+    signal: AbortSignal,
+  ): Promise<RemoteTask> {
+    const event = id(eventId),
+      task = id(taskId);
+    const result = mapRemoteTask(
+      event,
+      record(await this.get(`/api/events/${event}/tasks/${task}`, signal)).task,
+    );
+    if (result.id !== task) invalid();
+    signal.throwIfAborted();
+    return result;
+  }
+
+  createTask(
+    eventId: string,
+    fields: TaskFields,
+    assignedMemberId: string | null,
+    signal: AbortSignal,
+  ) {
+    return this.taskAuthoringCommand(eventId, fields, signal, {
+      assignedMemberId,
+    });
+  }
+
+  updateTaskDetails(
+    eventId: string,
+    taskId: string,
+    expectedVersion: number,
+    fields: TaskFields,
+    signal: AbortSignal,
+  ) {
+    return this.taskAuthoringCommand(eventId, fields, signal, {
+      taskId,
+      expectedVersion,
+    });
+  }
+
+  private async taskAuthoringCommand(
+    eventId: string,
+    fields: TaskFields,
+    signal: AbortSignal,
+    command:
+      | { assignedMemberId: string | null }
+      | { taskId: string; expectedVersion: number },
+  ): Promise<RemoteTask> {
+    const event = id(eventId);
+    const taskId = "taskId" in command ? id(command.taskId) : null;
+    const body = {
+      title: fields.title,
+      category: fields.category,
+      context: fields.context,
+      deadline: fields.deadline,
+      priority: fields.priority,
+      ...(taskId && "expectedVersion" in command
+        ? { expectedVersion: command.expectedVersion }
+        : {
+            assignedMemberId:
+              "assignedMemberId" in command ? command.assignedMemberId : null,
+          }),
+    };
+    let response: Response;
+    try {
+      const request = this.request;
+      response = await request(
+        `/api/events/${event}/tasks${taskId ? `/${taskId}` : ""}`,
+        {
+          method: taskId ? "PATCH" : "POST",
+          credentials: "same-origin",
+          cache: "no-store",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+          signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
+        },
+      );
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new TaskAuthoringFailure("unavailable");
+    }
+    if (!response.ok) {
+      const codes: Record<number, TaskActionError> = {
+        400: "invalid",
+        401: "unauthenticated",
+        403: "forbidden",
+        404: "not-found",
+        409: "conflict",
+      };
+      const fields: TaskFieldErrors = {};
+      if (response.status === 400) {
+        try {
+          const raw = record(record(await response.json()).fields);
+          const allowed = {
+            title: "INVALID_TEXT",
+            category: "INVALID_TEXT",
+            context: "INVALID_TEXT",
+            deadline: "INVALID_DATE",
+            priority: "INVALID_PRIORITY",
+            assignedMemberId: "INVALID_ASSIGNEE",
+            expectedVersion: "INVALID_VERSION",
+          };
+          for (const key of Object.keys(allowed) as (keyof typeof allowed)[])
+            if (raw[key] === allowed[key]) fields[key] = allowed[key];
+        } catch {
+          /* Only fixed field codes are shown. */
+        }
+      }
+      signal.throwIfAborted();
+      throw new TaskAuthoringFailure(
+        codes[response.status] ?? "unavailable",
+        fields,
+      );
+    }
+    try {
+      const result = mapRemoteTask(event, record(await response.json()).task);
+      if (taskId && result.id !== taskId) invalid();
+      if (
+        !taskId &&
+        (result.version !== 1 ||
+          result.status !== "not-started" ||
+          result.acknowledged)
+      )
+        invalid();
+      signal.throwIfAborted();
+      return result;
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new TaskAuthoringFailure("invalid");
+    }
   }
 
   updateEvent(

@@ -57,6 +57,35 @@ export function registerTaskRoutes(
     );
     const origin = new URL(authentication.baseURL).origin;
     const origins = new Set(authentication.taskMutationOrigins ?? [origin]);
+    for (const editing of [false, true]) {
+      routes.route<{ Params: Params }>({
+        method: editing ? "PATCH" : "POST",
+        url: editing
+          ? "/api/events/:eventId/tasks/:taskId"
+          : "/api/events/:eventId/tasks",
+        bodyLimit: 32768,
+        async handler(request, reply) {
+          const user = await requireAuthenticatedUser(
+            authentication.auth,
+            request,
+          );
+          if (
+            !origins.has(request.headers.origin ?? "") ||
+            request.headers["sec-fetch-site"] === "cross-site"
+          )
+            throw new TaskCommandError(403, "UNTRUSTED_ORIGIN");
+          const task = editing
+            ? await service.updateDetails(
+                user,
+                request.params.eventId,
+                request.params.taskId,
+                request.body,
+              )
+            : await service.create(user, request.params.eventId, request.body);
+          return reply.code(editing ? 200 : 201).send({ task });
+        },
+      });
+    }
     for (const [kind, method] of [
       ["assignment", "POST"],
       ["acceptance", "PUT"],

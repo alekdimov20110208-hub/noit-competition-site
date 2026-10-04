@@ -1,5 +1,190 @@
 # BudoGraph Test Evidence
 
+## P2B real Task authoring - 2026-10-04
+
+Preflight: clean tracked `main`, fetched `origin/main`, both at
+`8c0642e68f7a99313a20add64dc2324029320bca`, ahead/behind 0/0. The unrelated
+`docs/market-research/docs - Shortcut.lnk` stays untouched. Full mandatory master
+prompt, all 30 supplied regulation pages and approved architecture/backend contract
+were reviewed before implementation. Existing approvals and explicit P2B request
+authorize this stage. NOIT requirements supplied belong to 2025-2026 and require
+verification for the actual participation year; no current-year compliance claim.
+
+### Backend commands, validation and responsibility semantics
+
+- POST `/api/events/:eventId/tasks` returns canonical 201 `{ task }`; PATCH
+  `/api/events/:eventId/tasks/:taskId` returns canonical 200 `{ task }`.
+  Active current-Event Organizer membership is required. Member authoring is
+  denied 403; foreign/missing Event or Task is denied 404. Archived writes and
+  inactive identities/memberships are denied. Authenticated server membership
+  and route IDs control actor and scope; display names never grant authority.
+- Create requires trimmed title (1-200), real calendar DATE and existing priority.
+  Optional free-text category (0-100), context (0-5000) default to empty text.
+  Optional assignee is null or an active same-Event member with active identity.
+  Update whitelists only those five authored fields and required expectedVersion.
+  Unknown metadata/assignment/acceptance/status fields are rejected. Safe 400
+  field codes cover text, NUL/lone surrogates, dates, priority, assignee and version.
+- UUID, actor, creator/updater, scope and timestamps are server-controlled. New
+  Tasks start version 1, `not-started`, unaccepted, including initially assigned
+  Tasks. Detail edits preserve assignment, acceptance actor/time and lifecycle.
+  Existing reassignment/unassignment clears acceptance; assigning back requires
+  explicit reacceptance by the assignee. Dedicated responsibility commands remain.
+- Task and one `task.created`/`task.updated` ActivityEntry commit atomically.
+  Initial assignment belongs to the created payload, without redundant assigned
+  activity. Updates record only changed-field before/after values and version
+  metadata. Stale versions fail 409 before no-op handling; current no-ops preserve
+  version/timestamp/history. Meaningful edits increment once. Two simultaneous
+  same-version writes produce one 200, one 409 and exactly one new history record.
+- Strict `YYYY-MM-DD` DATE strings, years 0001-9999 and leap-day validation match
+  the existing calendar model. No instant/browser-local conversion is introduced.
+  Real browser timezone Pacific/Honolulu verifies November 1 preparation deadline
+  in a November 2 Event, unchanged SQL/DTO DATE, and edit to October 31.
+- Seven new offline backend tests and eight rollback-only PostgreSQL checks cover
+  server defaults/metadata, active/scoped roles and assignees, fresh Event zero to
+  one, accepted-task editing, no-op/stale versions, activity and actual constraint
+  failure rollback for both commands. Outer fixture rollback is verified. No
+  destructive database cleanup, schema change, migration or dependency was added.
+
+### UI, canonical state and real browser
+
+Quiet Create action in the existing Tasks header and contextual Edit details in
+the existing drawer reuse one focused BG/EN form. Fields have associated labels
+and errors, native DATE, existing priority control, creation-only optional active
+same-Event assignee. Member authoring controls are absent. Save/cancel/pending,
+first-invalid focus, Escape and focus restoration are verified. A new Task opens
+the existing `?task=...` deep link and survives full refresh. Tasks, Dashboard and
+Team continue deriving their existing views from the same canonical scoped data.
+
+RemoteWorkspaceService/controller own commands, safe errors and canonical Event
+refresh. Pending submissions block duplicates. Lost responses refetch, never
+replay automatically; failed workspace refresh blocks further writes. 409 loads
+latest fields/version and requires explicit review/save. Failed conflict refresh
+blocks Save while keeping explicit reload usable. Open drafts retain their original
+version across focus/online reads; Event/identity switches still abort/discard old
+requests, forms and completions. No presentation fetch or demo/local fallback.
+
+Final controlled real-account Edge run: **11 checks / 20 layout cases**,
+zero application errors, no failure field. Covers fresh real Event 0 to real Task,
+real Organizer create/edit/optional Member assignment, independent real Member
+acceptance/status, preserved acceptance on edit, unassign/assign-back/reaccept,
+real 403/404/foreign assignee/forged-fields denial, stale/no-op/explicit retry and
+simultaneous concurrency, focus/online draft retention, failed conflict recovery,
+A/B/A isolation and switching during held real create and edit, and actual expired
+create AND edit 401 with no database write. Initial persistence is compared to
+PostgreSQL server actor/default/version/date/history; details survive deep-link
+refresh and Dashboard/Team derive the new real task.
+
+**20/20** Create+Edit cases at 1440/1024/768/390/320, BG/EN, light/dark: actual html
+language/theme asserted, no horizontal overflow, 48px triggers/44px options and
+reachable 48px submit, associated native field labels, keyboard priority selection,
+viewport-contained popup and Escape. Representative desktop BG-light and narrow
+BG-dark forms are visually inspected. Evidence is Chromium behavior, not formal
+screen-reader, physical-device, Safari/Firefox or certification work.
+
+Named transport failures (400/403/404/500/network), failed refresh, held responses,
+and fixed-clock visual fixtures are explicit test doubles. They never stand in
+for live persistence/authorization/responsibility/concurrency. Intentional UI-created
+development Events/tasks remain, including incomplete earlier runs. No destructive
+cleanup, auth dumps, HAR, traces, cookie jars, storage-state or database exports.
+
+### Automated checks and preserved regressions
+
+- Frontend **218/218**, zero failures/skips, including 17 new authoring tests.
+- Offline backend **106 passed**, zero failures; five integration suites skipped
+  only in the offline command. Separately enabled PostgreSQL: **51/51**, zero
+  failures/skips, including all eight new authoring checks.
+- Format/format:check/lint/frontend typecheck/tests/build, backend
+  typecheck/tests/build, new verifier Prettier check and git diff --check: PASS.
+  No legitimate test baseline is removed or weakened.
+- Completed unchanged P1/P2A browser regressions: auth **15 checks / 20 layouts**; task reads **13 / 5**; responsibility actions **16 / 40**; workspace **11 / 8**; Event authoring **14 / 20**. Every suite has zero application errors and no failure field. Read/workspace suites issue zero Event/task business mutations. Actual sessions, responsibility activity, SQL/API/DOM derivation, scoped navigation, optimistic Event edits, refresh and expiry remain verified.
+- Locked visual comparisons: 80 before/after pairs across the same five widths,
+  BG/EN, light/dark for Dashboard/Team/Tasks/existing drawer. Only new authoring
+  controls are excluded from equivalent-content captures. Dashboard 19/20, Team
+  20/20, Tasks 20/20 and drawer 15/20 are exact. Remaining Dashboard difference:
+  262 dashed-border antialias pixels, max channel delta 11, identical geometry.
+  Each remaining drawer differs at one pixel by one channel level. A transient
+  skip-link capture was repeated with that unrelated overlay excluded. Representative
+  captures are visually inspected. Locked page/style/sidebar composition is preserved;
+  src/styles.css and Dashboard/Team product components are unchanged.
+- BG sidebar **24/24**: 1440/1080 x 900/740/720 x EN/BG x light/dark. Zero unwanted
+  travel (no 3px/23px recurrence), no clipping/overflow, unchanged text/control
+  dimensions and switcher height, >=44px targets, Tab reaches visible logout.
+  At 560px legitimate scrolling and logout/footer reachability remain. These are
+  explicitly synthetic read-only fixtures and use the historical sidebar baseline.
+
+### Fresh read-only review and intermediate failures
+
+Fresh read-only self-review covers permissions/server fields, transactions,
+expectedVersion, acceptance/dedicated assignment, Event/member scoping, DATE,
+ActivityEntry, stale responses, locked UI, P1/P2A and scope. Confirmed corrections:
+focus/online reads could discard/rebase a draft; new form dropdown sizing disrupted
+assignee selection; failed conflict refresh disabled explicit recovery. Affected
+unit and completed browser checks were rerun. No subagent/external reviewer or
+human acceptance is claimed.
+
+Incomplete runs are not PASS evidence. Initial harness failures counted native
+Event-switcher options as assignees, overlapped login with source-format HMR,
+and encountered POST 404 from an old non-watching backend (restarted with updated
+source). Later failures exposed the confirmed dropdown/draft issues; other runs
+reset language/theme through the initial preference script, then retained BG in
+an expiry step expecting EN. The verifier now asserts actual html language/theme.
+The first sidebar run completed layout assertions but lacked its historical
+baseline JSON; input was restored and the full comparison rerun. A documentation
+write hit Windows encoding and was restored/recreated as UTF-8. Only final completed
+runs count; harness corrections do not weaken authorization/concurrency assertions.
+
+### Security, documentation and remaining scope
+
+Server validation, parameterized SQL, same-origin cookie authorization, exact
+Origin/Fetch Metadata guard, body bounds and safe errors remain authoritative.
+No browser metadata grants permission and no secret-bearing AI call was added.
+Staged safety audit: exactly 28 intended files; no excluded environment/shortcut/temporary/auth artifacts. Six actual configured private values were checked privately against complete staged contents, staged diff and built frontend; no matches. No private values were printed. The final documentation is included in the repeated staged audit before commit.
+
+README, backend development, user guide, deployment/demo plan, known limitations,
+test evidence and AI assistance log are updated. No runtime/development dependency,
+asset, migration or schema change; GPLv3/license register remains unchanged.
+Exact commit/push/main equality/ahead-behind are reported in the final reply after
+all acceptance checks pass. The unrelated shortcut may remain untracked.
+
+**TASK DELETION NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.
+DEPENDENCIES NOT YET IMPLEMENTED. REALTIME NOT IMPLEMENTED.** Production,
+backup/restore/offline demonstration, actual-year regulations, physical-device
+checks and human usability acceptance remain separate. P2C is not begun.
+
+### Complete P2B changed-file manifest (28)
+
+```text
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/DEPLOYMENT_AND_DEMO_PLAN.md
+docs/KNOWN_LIMITATIONS.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-task-authoring-ui.mjs
+server/src/app.ts
+server/src/routes/tasks.ts
+server/src/tasks/model.ts
+server/src/tasks/service.ts
+server/tests/task-authoring.integration.test.ts
+server/tests/task-authoring.test.ts
+src/App.tsx
+src/components/BudoSelect.tsx
+src/components/TaskAuthoringForm.tsx
+src/components/TaskDrawer.tsx
+src/components/taskAuthoring.css
+src/hooks/useRemoteTasks.ts
+src/i18n/messages.ts
+src/i18n/taskAuthoringMessages.ts
+src/pages/TasksPage.tsx
+src/services/RemoteWorkspaceService.ts
+src/services/taskAuthoring.test.ts
+src/services/taskAuthoring.ts
+src/services/taskReadState.ts
+```
+
 ## P2A Bulgarian sidebar micro-scroll fix — 2026-10-03
 
 Baseline: synchronized `main`/`origin/main` at

@@ -8,6 +8,7 @@ import {
 } from "../db/transaction.ts";
 import {
   parseTaskCommand,
+  parseTaskAuthoring,
   TaskCommandError,
   taskColumns,
   taskDto,
@@ -15,6 +16,7 @@ import {
   type TaskCommand,
   type TaskDto,
   type TaskRow,
+  type TaskFields,
 } from "./model.ts";
 
 interface ActorMembership {
@@ -281,7 +283,139 @@ export function createTaskService(pool: TransactionPool) {
     });
   }
 
-  return { read, readForWorkspace, readAssignableMembers, mutate };
+  async function author(
+    user: AuthenticatedUser,
+    event: string,
+    input: unknown,
+    task?: string,
+  ): Promise<TaskDto> {
+    if (!user?.id) throw new UnauthorizedError();
+    const { eventId, taskId } = scopedIds(event, task);
+    const editing = taskId !== undefined;
+    const command = parseTaskAuthoring(input, editing);
+    return inTransaction(pool, async (database) => {
+      const actor = await authorizeEvent(database, eventId, user.id, true);
+      if (actor.access_role !== "ORGANIZER")
+        throw new TaskCommandError(403, "FORBIDDEN");
+      let after: TaskRow;
+      let payload: Record<string, unknown>;
+      const targetId = taskId ?? randomUUID();
+      if (editing) {
+        const result = await database.query(
+          `SELECT ${taskColumns} FROM public.task WHERE event_id = $1 AND id = $2 AND deleted_at IS NULL FOR UPDATE`,
+          [eventId, targetId],
+        );
+        const before = result.rows[0] as TaskRow | undefined;
+        if (!before) throw new TaskCommandError(404, "NOT_FOUND");
+        if (before.version !== command.expectedVersion)
+          throw new TaskCommandError(409, "TASK_VERSION_CONFLICT");
+        const changes: Record<string, { before: unknown; after: unknown }> = {};
+        const fields: TaskFields = {
+          title: command.title ?? before.title,
+          category: command.category ?? before.category,
+          context: command.context ?? before.context,
+          deadline: command.deadline ?? before.deadline,
+          priority: command.priority ?? before.priority,
+        };
+        for (const key of Object.keys(fields) as (keyof TaskFields)[]) {
+          if (fields[key] !== before[key])
+            changes[key] = { before: before[key], after: fields[key] };
+        }
+        if (!Object.keys(changes).length) return taskDto(before);
+        const updated = await database.query(
+          `UPDATE public.task SET title = $3, category = $4, context = $5, deadline = $6::DATE,
+             priority = $7, updated_by = $8, updated_at = clock_timestamp(), version = version + 1
+           WHERE event_id = $1 AND id = $2 AND deleted_at IS NULL AND version = $9 RETURNING ${taskColumns}`,
+          [
+            eventId,
+            targetId,
+            fields.title,
+            fields.category,
+            fields.context,
+            fields.deadline,
+            fields.priority,
+            actor.id,
+            command.expectedVersion,
+          ],
+        );
+        after = updated.rows[0] as TaskRow;
+        if (!after) throw new TaskCommandError(409, "TASK_VERSION_CONFLICT");
+        payload = {
+          changes,
+          previousVersion: before.version,
+          taskVersion: after.version,
+        };
+      } else {
+        if (command.assignedMemberId) {
+          try {
+            await requireAssignee(database, eventId, command.assignedMemberId);
+          } catch (error) {
+            if (
+              error instanceof TaskCommandError &&
+              error.code === "ASSIGNEE_NOT_FOUND"
+            )
+              throw new TaskCommandError(400, "INVALID_TASK_COMMAND", {
+                assignedMemberId: "INVALID_ASSIGNEE",
+              });
+            throw error;
+          }
+        }
+        const inserted = await database.query(
+          `INSERT INTO public.task (id, event_id, title, category, context, deadline, priority, assigned_member_id, created_by, updated_by)
+           VALUES ($1, $2, $3, $4, $5, $6::DATE, $7, $8, $9, $9) RETURNING ${taskColumns}`,
+          [
+            targetId,
+            eventId,
+            command.title,
+            command.category,
+            command.context,
+            command.deadline,
+            command.priority,
+            command.assignedMemberId,
+            actor.id,
+          ],
+        );
+        after = inserted.rows[0] as TaskRow;
+        payload = {
+          title: after.title,
+          category: after.category,
+          deadline: after.deadline,
+          priority: after.priority,
+          assignedMemberId: after.assigned_member_id,
+          taskVersion: after.version,
+        };
+      }
+      await database.query(
+        `INSERT INTO public.activity_entry (id, event_id, actor_user_id, actor_member_id, action_type, target_type, target_id, payload, created_at)
+         VALUES ($1, $2, $3, $4, $5, 'task', $6, $7::JSONB, clock_timestamp())`,
+        [
+          randomUUID(),
+          eventId,
+          user.id,
+          actor.id,
+          editing ? "task.updated" : "task.created",
+          targetId,
+          JSON.stringify(payload),
+        ],
+      );
+      return taskDto(after);
+    });
+  }
+
+  return {
+    read,
+    readForWorkspace,
+    readAssignableMembers,
+    mutate,
+    create: (user: AuthenticatedUser, event: string, input: unknown) =>
+      author(user, event, input),
+    updateDetails: (
+      user: AuthenticatedUser,
+      event: string,
+      task: string,
+      input: unknown,
+    ) => author(user, event, input, task),
+  };
 }
 
 export type TaskService = ReturnType<typeof createTaskService>;

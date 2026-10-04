@@ -1,5 +1,35 @@
 # BudoGraph User Guide
 
+## Create and edit Tasks (P2B)
+
+Open **Tasks** in an Event where you are an Organizer, then choose **Create task**.
+Enter a title, deadline and priority. Category and context are optional free text.
+The date belongs to the Event calendar and may be before its start. Optionally
+select one of this Event's active members; **Unassigned** is valid. Save opens the
+new real Task in the existing detail drawer without reloading the page. A fresh
+Event can therefore progress from zero Tasks to your own plan without bootstrap.
+
+New Tasks start **Not started**, with no acceptance. Assignment does not mean the
+assignee accepted responsibility: that person must use **Accept responsibility**.
+Organizers use **Edit task details** to change title/category/context/deadline/
+priority. Assignment and lifecycle remain in their separate drawer sections.
+Detail edits preserve existing acceptance. Reassignment/unassignment clears it;
+assigning back requires a new explicit acceptance. A Member cannot author Tasks
+but keeps existing assigned-task acceptance/status permissions.
+
+Cancel or Escape closes the form and restores focus; during save, form controls
+are disabled until confirmation/refetch completes. Event switching discards the
+draft and prevents its completion from entering another Event. If a Task changed
+elsewhere, latest details appear with an explanation. Review them before explicitly
+saving again. Failed conflict recovery blocks save; choose **Load latest details**.
+If the full workspace refresh fails, cancel the form and use **Refresh task** before
+another change. A lost response may still mean a committed create: review the task
+list before retrying. Errors never produce demo records.
+
+**TASK DELETION NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.
+DEPENDENCIES NOT YET IMPLEMENTED. REALTIME NOT IMPLEMENTED.**
+
 ## Create, switch and edit Events (P2A)
 
 After signing in, use **Create event** in the shell or the first-event empty state.
@@ -23,7 +53,7 @@ review them before choosing **Save event** again. Failed conflict refresh blocks
 saving; choose **Load latest details**. Errors preserve a safe retry path and never
 show fictional data. Switching away discards an unsaved form; no automatic save exists.
 
-**TASK AUTHORING NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+**INVITATIONS NOT YET IMPLEMENTED.
 EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
 No additional setup/bootstrap script is needed to create a normal Event. The P1
 development Event remains separate for existing task responsibility demonstrations.

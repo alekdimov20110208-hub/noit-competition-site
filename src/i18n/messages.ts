@@ -1,4 +1,8 @@
 import type { Language } from "../preferences/types.ts";
+import {
+  TASK_AUTHORING_EN_MESSAGES,
+  TASK_AUTHORING_BG_MESSAGES,
+} from "./taskAuthoringMessages.ts";
 import { EVENT_BG_MESSAGES, EVENT_EN_MESSAGES } from "./eventMessages.ts";
 import {
   WORKSPACE_BG_MESSAGES,
@@ -338,6 +342,7 @@ const UI_EN_MESSAGES = {
 export const EN_MESSAGES = {
   ...EVENT_EN_MESSAGES,
   ...TASK_READ_EN_MESSAGES,
+  ...TASK_AUTHORING_EN_MESSAGES,
   ...WORKSPACE_EN_MESSAGES,
   ...AUTH_EN_MESSAGES,
   ...TEAM_EN_MESSAGES,
@@ -678,6 +683,7 @@ const UI_BG_MESSAGES = {
 export const BG_MESSAGES = {
   ...EVENT_BG_MESSAGES,
   ...TASK_READ_BG_MESSAGES,
+  ...TASK_AUTHORING_BG_MESSAGES,
   ...WORKSPACE_BG_MESSAGES,
   ...AUTH_BG_MESSAGES,
   ...TEAM_BG_MESSAGES,

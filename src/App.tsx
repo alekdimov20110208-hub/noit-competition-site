@@ -336,6 +336,11 @@ export default function App() {
   if (currentLocation.path === "/tasks") {
     page = (
       <TasksPage
+        key={
+          remoteTasks.workspace.currentEventId ||
+          currentLocation.eventId ||
+          "loading"
+        }
         now={now}
         state={remoteTasks.workspace}
         selectedTaskId={selectedTaskId}
@@ -347,6 +352,24 @@ export default function App() {
         onTaskAction={(taskId, action) =>
           void remoteTasks.mutate(taskId, action)
         }
+        taskAuthoring={{
+          onSave: (fields, assignee, version, signal) =>
+            selectedTaskId && version !== null
+              ? remoteTasks.updateTaskDetails(
+                  selectedTaskId,
+                  version,
+                  fields,
+                  signal,
+                )
+              : remoteTasks.createTask(fields, assignee, signal),
+          onReload: (signal) =>
+            remoteTasks.getTask(
+              remoteTasks.workspace.currentEventId,
+              selectedTaskId!,
+              signal,
+            ),
+        }}
+        onAuthoringOpenChange={remoteTasks.setTaskAuthoringOpen}
       />
     );
   } else if (currentLocation.path === "/team") {

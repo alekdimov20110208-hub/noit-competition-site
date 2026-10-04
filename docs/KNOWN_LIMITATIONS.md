@@ -5,7 +5,31 @@ P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases
 the current backend limitations are recorded below. Update this record when a
 limitation is removed or discovered.
 
-## Current P2A boundary — 2026-10-03
+## Current P2B boundary — 2026-10-04
+
+Active current-Event Organizers can create and edit real Tasks using the existing
+drawer and Event snapshot. Fields are title, optional free-text category/context,
+calendar deadline, priority, and optional initial active same-Event assignee.
+New Tasks are `not-started` and unaccepted. Editing does not change assignment,
+acceptance or lifecycle; the existing responsibility commands remain separate.
+Expected-version conflicts require canonical reload and explicit reviewed save;
+failed reload disables save. Pending form controls prevent duplicate submission.
+Task create/update and append-only activity history are atomic.
+
+**TASK DELETION NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.
+DEPENDENCIES NOT YET IMPLEMENTED. REALTIME NOT IMPLEMENTED.**
+No task archive, duplication, bulk authoring, subtasks, comments, attachments,
+notifications, templates, Budget or AI was added. A network response can be lost
+after commit: the application refetches but never automatically repeats the write.
+Before retrying an uncertain create, review the task list to avoid duplicates.
+Production deployment, least-privilege grants, backup/restore, physical-device and
+Safari/Firefox verification, human usability acceptance and formal security/
+accessibility certification remain separate. NOIT rules supplied are 2025–2026;
+all year-dependent eligibility, licensing, deliverables, schedule, online period,
+document format and rubric require verification for actual-year participation.
+
+## Historical P2A boundary — 2026-10-03
 
 Event creation/basic editing and explicit Event-scoped navigation extend P1.
 Any authenticated active User can create an Event and become its owner/active

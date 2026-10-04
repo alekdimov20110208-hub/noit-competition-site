@@ -1,3 +1,5 @@
+import { validEventDate } from "../events/model.ts";
+
 export const taskStatuses = [
   "not-started",
   "in-progress",
@@ -69,12 +71,108 @@ export function taskDto(row: TaskRow): TaskDto {
 export class TaskCommandError extends Error {
   readonly statusCode: 400 | 403 | 404 | 409;
   readonly code: string;
-  constructor(statusCode: 400 | 403 | 404 | 409, code: string) {
+  readonly fields?: TaskFieldErrors;
+  constructor(
+    statusCode: 400 | 403 | 404 | 409,
+    code: string,
+    fields?: TaskFieldErrors,
+  ) {
     super(code);
     this.statusCode = statusCode;
     this.code = code;
+    this.fields = fields;
     this.name = "TaskCommandError";
   }
+}
+
+export interface TaskFields {
+  title: string;
+  category: string;
+  context: string;
+  deadline: string;
+  priority: TaskDto["priority"];
+}
+export type TaskFieldErrors = Partial<
+  Record<keyof TaskFields | "assignedMemberId" | "expectedVersion", string>
+>;
+export type TaskAuthoringCommand = Partial<TaskFields> & {
+  assignedMemberId?: string | null;
+  expectedVersion?: number;
+};
+
+// PATCH accepts only authored fields; assignment remains its dedicated command.
+export function parseTaskAuthoring(
+  input: unknown,
+  editing = false,
+): TaskAuthoringCommand {
+  if (!input || typeof input !== "object" || Array.isArray(input))
+    throw new TaskCommandError(400, "INVALID_TASK_COMMAND");
+  const body = input as Record<string, unknown>;
+  const allowed = [
+    "title",
+    "category",
+    "context",
+    "deadline",
+    "priority",
+    editing ? "expectedVersion" : "assignedMemberId",
+  ];
+  if (Object.keys(body).some((key) => !allowed.includes(key)))
+    throw new TaskCommandError(400, "INVALID_TASK_COMMAND");
+  const fields: TaskFieldErrors = {};
+  const result: TaskAuthoringCommand = {};
+  for (const [field, limit] of [
+    ["title", 200],
+    ["category", 100],
+    ["context", 5000],
+  ] as const) {
+    if (editing && !Object.hasOwn(body, field)) continue;
+    const raw =
+      body[field] ??
+      (field !== "title" && !Object.hasOwn(body, field) ? "" : undefined);
+    const value = typeof raw === "string" ? raw.trim() : "";
+    if (
+      typeof raw !== "string" ||
+      (field === "title" && !value) ||
+      value.length > limit ||
+      value.includes("\u0000") ||
+      /[\uD800-\uDFFF]/u.test(value)
+    )
+      fields[field] = "INVALID_TEXT";
+    result[field] = value;
+  }
+  if (!editing || Object.hasOwn(body, "deadline")) {
+    if (!validEventDate(body.deadline)) fields.deadline = "INVALID_DATE";
+    else result.deadline = body.deadline;
+  }
+  if (!editing || Object.hasOwn(body, "priority")) {
+    if (!["normal", "important", "critical"].includes(body.priority as string))
+      fields.priority = "INVALID_PRIORITY";
+    else result.priority = body.priority as TaskDto["priority"];
+  }
+  if (editing) {
+    if (
+      !Number.isSafeInteger(body.expectedVersion) ||
+      (body.expectedVersion as number) < 1 ||
+      (body.expectedVersion as number) >= 2147483647
+    )
+      fields.expectedVersion = "INVALID_VERSION";
+    else result.expectedVersion = body.expectedVersion as number;
+  } else {
+    const assignee = Object.hasOwn(body, "assignedMemberId")
+      ? body.assignedMemberId
+      : null;
+    if (
+      assignee !== null &&
+      (typeof assignee !== "string" || !uuidPattern.test(assignee))
+    )
+      fields.assignedMemberId = "INVALID_ASSIGNEE";
+    else
+      result.assignedMemberId =
+        typeof assignee === "string" ? assignee.toLowerCase() : null;
+  }
+  if (Object.keys(fields).length)
+    throw new TaskCommandError(400, "INVALID_TASK_COMMAND", fields);
+  return result;
 }
 
 export const uuidPattern =

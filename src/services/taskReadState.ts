@@ -13,7 +13,11 @@ import {
   type TaskEvent,
   EventActionFailure,
   selectAccessibleEvent,
+  TaskAuthoringFailure,
+  type TaskAuthoringService,
+  type RemoteTask,
 } from "./RemoteWorkspaceService.ts";
+import type { TaskFields } from "./taskAuthoring.ts";
 
 export interface TaskMutationState {
   taskId: string;
@@ -44,15 +48,21 @@ export class TaskReadController {
   private contextRevision = 0;
   private currentEventId = "";
   private service: TasksReadService &
-    Partial<TasksMutationService & EventWorkspaceService>;
+    Partial<
+      TasksMutationService & EventWorkspaceService & TaskAuthoringService
+    >;
   private actionPending: Promise<void> | null = null;
   private eventPending: Promise<TaskEvent> | null = null;
+  private authoringPending: Promise<RemoteTask> | null = null;
+  private authoringOpen = false;
   private eventCancellations = new Set<AbortController>();
   private selectedEventId: string | null = null;
   private onUnauthorized: () => void;
   constructor(
     service: TasksReadService &
-      Partial<TasksMutationService & EventWorkspaceService>,
+      Partial<
+        TasksMutationService & EventWorkspaceService & TaskAuthoringService
+      >,
     onUnauthorized: () => void,
   ) {
     this.service = service;
@@ -78,6 +88,8 @@ export class TaskReadController {
     this.pending = null;
     this.actionPending = null;
     this.eventPending = null;
+    this.authoringPending = null;
+    this.authoringOpen = false;
     for (const cancellation of this.eventCancellations) cancellation.abort();
     this.eventCancellations.clear();
     this.currentEventId = "";
@@ -98,6 +110,19 @@ export class TaskReadController {
     this.publish({ ...this.state, accessibleEvents });
   };
   load = (): Promise<void> => {
+    if (this.authoringPending)
+      return this.authoringPending.then(
+        () => {},
+        () => {},
+      );
+    // Focus/online reads must not unmount and silently rebase an open draft.
+    // Explicit conflict recovery and scoped switches still read canonical data.
+    if (
+      this.authoringOpen &&
+      this.state.status === "ready" &&
+      !this.state.mutation?.needsRefresh
+    )
+      return Promise.resolve();
     if (this.actionPending) return this.actionPending;
     if (this.eventPending)
       return this.eventPending.then(
@@ -196,6 +221,7 @@ export class TaskReadController {
     if (
       this.pending ||
       this.eventPending ||
+      this.authoringPending ||
       this.state.status !== "ready" ||
       this.state.mutation?.pending ||
       this.state.mutation?.needsRefresh
@@ -347,6 +373,7 @@ export class TaskReadController {
         );
       if (
         (error instanceof EventActionFailure ||
+          error instanceof TaskActionFailure ||
           error instanceof WorkspaceReadFailure) &&
         error.code === "unauthenticated"
       ) {
@@ -409,6 +436,205 @@ export class TaskReadController {
     }
     this.publish({ ...this.state, accessibleEvents: events });
   };
+
+  getTask = (
+    eventId: string,
+    taskId: string,
+    signal?: AbortSignal,
+  ): Promise<RemoteTask> => {
+    if (!this.service.getTask)
+      return Promise.reject(new TaskAuthoringFailure("unavailable"));
+    return this.eventRequest(async (cancellation) => {
+      const canonical = await this.service.getTask!(
+        eventId,
+        taskId,
+        cancellation,
+      );
+      cancellation.throwIfAborted();
+      if (
+        this.service.refreshTasks &&
+        this.state.workspace.currentEventId === eventId
+      ) {
+        const workspace = await this.service.refreshTasks(
+          eventId,
+          cancellation,
+        );
+        cancellation.throwIfAborted();
+        this.publish({
+          status: "ready",
+          workspace,
+          error: null,
+          accessibleEvents:
+            workspace.accessibleEvents ?? this.state.accessibleEvents,
+          mutation: null,
+        });
+      }
+      return canonical;
+    }, signal);
+  };
+
+  createTask = (
+    fields: TaskFields,
+    assignedMemberId: string | null,
+    signal: AbortSignal,
+  ) => this.authorTask(fields, signal, { assignedMemberId });
+
+  setTaskAuthoringOpen = (open: boolean) => {
+    this.authoringOpen = open;
+  };
+
+  updateTaskDetails = (
+    taskId: string,
+    expectedVersion: number,
+    fields: TaskFields,
+    signal: AbortSignal,
+  ) => this.authorTask(fields, signal, { taskId, expectedVersion });
+
+  private authorTask(
+    fields: TaskFields,
+    signal: AbortSignal,
+    command:
+      | { assignedMemberId: string | null }
+      | { taskId: string; expectedVersion: number },
+  ): Promise<RemoteTask> {
+    if (
+      this.authoringPending ||
+      this.pending ||
+      this.actionPending ||
+      this.eventPending ||
+      this.state.status !== "ready" ||
+      this.state.mutation?.needsRefresh ||
+      !this.service.refreshTasks ||
+      !this.service.createTask ||
+      !this.service.updateTaskDetails
+    )
+      return Promise.reject(new TaskAuthoringFailure("unavailable"));
+    const eventId = this.state.workspace.currentEventId;
+    const taskId = "taskId" in command ? command.taskId : "";
+    const mutation: TaskMutationState = {
+      taskId,
+      pending: true,
+      message: null,
+      needsRefresh: false,
+    };
+    this.publish({ ...this.state, mutation });
+    const request = this.eventRequest(async (cancellation) => {
+      let canonical: RemoteTask | undefined;
+      let failure: unknown;
+      try {
+        canonical =
+          "taskId" in command
+            ? await this.service.updateTaskDetails!(
+                eventId,
+                command.taskId,
+                command.expectedVersion,
+                fields,
+                cancellation,
+              )
+            : await this.service.createTask!(
+                eventId,
+                fields,
+                command.assignedMemberId,
+                cancellation,
+              );
+      } catch (error) {
+        failure = error;
+        if (
+          error instanceof TaskActionFailure &&
+          error.code === "unauthenticated"
+        )
+          throw error;
+      }
+      cancellation.throwIfAborted();
+      if (canonical) {
+        const tasks = this.state.workspace.tasks;
+        this.publish({
+          ...this.state,
+          workspace: {
+            ...this.state.workspace,
+            tasks: tasks.some((task) => task.id === canonical.id)
+              ? tasks.map((task) =>
+                  task.id === canonical.id ? canonical : task,
+                )
+              : [...tasks, canonical],
+          },
+          mutation,
+        });
+      }
+      // A lost response can still be committed. Refresh, never replay the write.
+      try {
+        const workspace = await this.service.refreshTasks!(
+          eventId,
+          cancellation,
+        );
+        cancellation.throwIfAborted();
+        this.publish({
+          status: "ready",
+          workspace,
+          error: null,
+          accessibleEvents:
+            workspace.accessibleEvents ?? this.state.accessibleEvents,
+          mutation: null,
+        });
+      } catch (error) {
+        cancellation.throwIfAborted();
+        if (
+          error instanceof WorkspaceReadFailure &&
+          ["unauthenticated", "forbidden", "not-found"].includes(error.code)
+        ) {
+          this.publish({
+            status: "error",
+            workspace: emptyTasksWorkspace(),
+            error: error.code,
+            accessibleEvents:
+              error.code === "unauthenticated"
+                ? []
+                : this.state.accessibleEvents.filter(
+                    (event) => event.id !== eventId,
+                  ),
+          });
+          throw error;
+        }
+        this.publish({
+          ...this.state,
+          mutation: {
+            ...mutation,
+            pending: false,
+            needsRefresh: true,
+            message:
+              failure instanceof TaskActionFailure &&
+              failure.code === "conflict"
+                ? "conflict-refresh-failed"
+                : "refresh-failed",
+          },
+        });
+        if (failure instanceof TaskActionFailure && failure.code === "conflict")
+          throw failure;
+        throw new TaskAuthoringFailure("unavailable");
+      }
+      if (failure) throw failure;
+      return canonical!;
+    }, signal);
+    this.authoringPending = request;
+    void request
+      .finally(() => {
+        if (this.authoringPending === request) {
+          this.authoringPending = null;
+          if (this.state.mutation?.pending)
+            this.publish({
+              ...this.state,
+              mutation: {
+                ...mutation,
+                pending: false,
+                needsRefresh: true,
+                message: "refresh-failed",
+              },
+            });
+        }
+      })
+      .catch(() => {});
+    return request;
+  }
 
   getEvent = async (
     eventId: string,

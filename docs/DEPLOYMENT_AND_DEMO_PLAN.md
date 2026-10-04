@@ -1,6 +1,6 @@
 # Installation, Deployment, and Demonstration Plan
 
-Current scope: Backend P1A/P1B/P1C, P1D.1/P1D.2A/P1D.2B/P1D.3 and P2A. Better Auth
+Current scope: Backend P1A/P1B/P1C, P1D.1/P1D.2A/P1D.2B/P1D.3, P2A and P2B. Better Auth
 login protects Event-scoped workspaces backed by the configured PostgreSQL
 (Supabase-hosted development) database. **Dashboard REAL, Tasks REAL, Team REAL.**
 They share the same authorized Event, tasks and members; no runtime demo fallback
@@ -9,6 +9,15 @@ Event creation/basic editing and switching.** The older frontend Phase 2A/2B
 names refer to historical UI work, not this backend authoring phase.
 
 ## P2A demonstration extension
+
+P2B extends the fresh Event demonstration: open Tasks, create a Task with a
+preparation deadline, refresh its canonical deep link, then edit its title/date/
+priority. Verify Dashboard and Team use that same real snapshot. In the controlled
+two-member Event, create assigned but unaccepted work, accept independently as the
+Member, edit a non-assignment field as Organizer, and demonstrate preserved
+acceptance. Reassignment clears acceptance; assigning back requires reacceptance.
+Prepare this real Event plan in advance for the backup video; authenticated offline
+sync is not implemented. Existing recorded/local backup guidance remains separate.
 
 Sign in, choose **Create event**, supply name/start/end/timezone and save. The new
 Event opens at `/events/:eventId/dashboard`, has no Tasks and contains the creator

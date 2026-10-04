@@ -71,5 +71,9 @@ export function useRemoteTasks(
     getEvent: controller.getEvent,
     createEvent: controller.createEvent,
     updateEvent: controller.updateEvent,
+    createTask: controller.createTask,
+    updateTaskDetails: controller.updateTaskDetails,
+    getTask: controller.getTask,
+    setTaskAuthoringOpen: controller.setTaskAuthoringOpen,
   };
 }

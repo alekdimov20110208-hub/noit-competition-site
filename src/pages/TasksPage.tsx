@@ -10,7 +10,12 @@ import {
   Tag,
   UserRound,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import {
+  TaskAuthoringForm,
+  type TaskAuthoringFormProps,
+} from "../components/TaskAuthoringForm.tsx";
+import { taskAuthoringAllowed } from "../services/taskAuthoring.ts";
 import { AppLink } from "../components/AppLink.tsx";
 import {
   BudoSelect,
@@ -64,6 +69,8 @@ interface TasksPageProps {
   readState?: TaskReadState;
   onRetry?: () => void;
   onTaskAction?: (taskId: string, action: TaskAction) => void;
+  taskAuthoring?: Pick<TaskAuthoringFormProps, "onSave" | "onReload">;
+  onAuthoringOpenChange?: (open: boolean) => void;
 }
 
 interface TaskListProps {
@@ -199,7 +206,38 @@ export function TasksPage({
   readState,
   onRetry,
   onTaskAction,
+  taskAuthoring,
+  onAuthoringOpenChange,
 }: TasksPageProps) {
+  const [authoring, setAuthoring] = useState<"create" | "edit" | null>(null);
+  const [authoringPending, setAuthoringPending] = useState(false);
+  const authoringTrigger = useRef<HTMLElement | null>(null);
+  const cancelAuthoring = useCallback(() => {
+    onAuthoringOpenChange?.(false);
+    setAuthoring(null);
+    setAuthoringPending(false);
+    requestAnimationFrame(() => {
+      if (authoringTrigger.current?.isConnected)
+        authoringTrigger.current.focus();
+    });
+  }, [onAuthoringOpenChange]);
+  useEffect(
+    () => () => onAuthoringOpenChange?.(false),
+    [onAuthoringOpenChange],
+  );
+  const closeDrawer = useCallback(() => {
+    if (authoringPending) return;
+    if (authoring) cancelAuthoring();
+    else onCloseTask();
+  }, [authoringPending, authoring, cancelAuthoring, onCloseTask]);
+  function startAuthoring(mode: "create" | "edit") {
+    onAuthoringOpenChange?.(true);
+    authoringTrigger.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    setAuthoring(mode);
+  }
   const timeZone = state.events.find(
     (event) => event.id === state.currentEventId,
   )?.timezone;
@@ -242,6 +280,10 @@ export function TasksPage({
   const remoteWorkspace = readState?.workspace;
   const remoteTask =
     remoteWorkspace?.tasks.find((task) => task.id === selectedTaskId) ?? null;
+  const canAuthor =
+    dataReady &&
+    taskAuthoring &&
+    taskAuthoringAllowed(remoteWorkspace?.events[0]);
   const affordances = taskAffordances(remoteWorkspace?.events[0], remoteTask);
   const mutation = readState?.mutation;
   const selectedMutation =
@@ -362,6 +404,18 @@ export function TasksPage({
           event
             ? t("tasks.description", { event: event.name })
             : t("tasks.remote.context")
+        }
+        actions={
+          canAuthor && (
+            <button
+              type="button"
+              className="button button--quiet"
+              disabled={Boolean(mutation?.pending || mutation?.needsRefresh)}
+              onClick={() => startAuthoring("create")}
+            >
+              {t("tasks.authoring.create")}
+            </button>
+          )
         }
       />
       <dl className="tasks-overview" aria-label={t("tasks.summary.label")}>
@@ -613,7 +667,29 @@ export function TasksPage({
         now={now}
         task={selectedTask}
         owner={selectedOwner}
-        onClose={onCloseTask}
+        onClose={closeDrawer}
+        onEditDetails={
+          canAuthor && remoteTask ? () => startAuthoring("edit") : undefined
+        }
+        authoring={
+          canAuthor && authoring && (authoring === "create" || remoteTask) ? (
+            <TaskAuthoringForm
+              key={`${state.currentEventId}:${authoring}:${authoring === "edit" ? remoteTask?.id : "new"}`}
+              task={authoring === "edit" ? remoteTask! : undefined}
+              members={remoteWorkspace?.assignableMembers ?? []}
+              blocked={Boolean(mutation?.needsRefresh)}
+              onSave={taskAuthoring.onSave}
+              onReload={taskAuthoring.onReload}
+              onCancel={cancelAuthoring}
+              onPending={setAuthoringPending}
+              onSuccess={(task) => {
+                clearFilters();
+                cancelAuthoring();
+                if (authoring === "create") onOpenTask(task.id);
+              }}
+            />
+          ) : undefined
+        }
         onStatusChange={
           onTaskAction
             ? (taskId, status) =>

@@ -9,7 +9,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import {
   TASK_PRIORITY_MESSAGE_KEYS,
   TASK_STATUS_MESSAGE_KEYS,
@@ -47,6 +47,8 @@ interface TaskDrawerProps {
   readOnly?: boolean;
   timeZone?: string;
   remoteControls?: RemoteTaskControls;
+  authoring?: ReactNode;
+  onEditDetails?: () => void;
 }
 
 export function TaskDrawer({
@@ -59,11 +61,17 @@ export function TaskDrawer({
   readOnly = false,
   timeZone,
   remoteControls,
+  authoring,
+  onEditDetails,
 }: TaskDrawerProps) {
   const { formatDate, formatDateTime, t } = useI18n(timeZone);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
-  const taskId = task?.id;
+  const closeHandler = useRef(onClose);
+  useEffect(() => {
+    closeHandler.current = onClose;
+  }, [onClose]);
+  const taskId = task?.id ?? (authoring ? "new-task" : undefined);
 
   useEffect(() => {
     if (!taskId) return;
@@ -74,7 +82,7 @@ export function TaskDrawer({
       if (event.defaultPrevented) return;
 
       if (event.key === "Escape") {
-        onClose();
+        closeHandler.current();
         return;
       }
 
@@ -123,18 +131,18 @@ export function TaskDrawer({
       document.body.classList.remove("drawer-open");
       previousActiveElement?.focus();
     };
-  }, [taskId, onClose]);
+  }, [taskId]);
 
-  if (!task) return null;
+  if (!task && !authoring) return null;
 
-  const overdue = isTaskOverdue(task, now);
+  const overdue = task ? isTaskOverdue(task, now) : false;
   const priorityTone =
-    task.priority === "critical"
+    task?.priority === "critical"
       ? "critical"
-      : task.priority === "important"
+      : task?.priority === "important"
         ? "warning"
         : "neutral";
-  const contextId = `task-drawer-context-${task.id}`;
+  const contextId = `task-drawer-context-${taskId}`;
   const pending = remoteControls?.mutation?.pending ?? false;
   const disabled = readOnly || pending || remoteControls?.disabled;
   const statusOptions: readonly BudoSelectOption<TaskStatus>[] =
@@ -157,7 +165,7 @@ export function TaskDrawer({
         role="dialog"
         aria-modal="true"
         aria-labelledby="task-drawer-title"
-        aria-describedby={contextId}
+        aria-describedby={authoring ? undefined : contextId}
         aria-description={readOnly ? t("tasks.remote.readOnly") : undefined}
       >
         <div className="task-drawer__topbar">
@@ -177,271 +185,297 @@ export function TaskDrawer({
         </div>
 
         <div className="task-drawer__content">
-          <header className="task-drawer__identity">
-            <span className="task-drawer__category">{task.category}</span>
-            <div className="task-drawer__badges">
-              <StatusBadge
-                tone={getTaskStatusTone(task.status)}
-                label={t(TASK_STATUS_MESSAGE_KEYS[task.status])}
-              />
-              {overdue && (
-                <StatusBadge tone="critical" label={t("taskDetails.overdue")} />
-              )}
-              <StatusBadge
-                tone={priorityTone}
-                label={t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
-              />
-            </div>
-            <h2 id="task-drawer-title">{task.title}</h2>
-            <p id={contextId}>{task.context}</p>
-          </header>
+          {authoring ??
+            (task && (
+              <>
+                <header className="task-drawer__identity">
+                  <span className="task-drawer__category">{task.category}</span>
+                  <div className="task-drawer__badges">
+                    <StatusBadge
+                      tone={getTaskStatusTone(task.status)}
+                      label={t(TASK_STATUS_MESSAGE_KEYS[task.status])}
+                    />
+                    {overdue && (
+                      <StatusBadge
+                        tone="critical"
+                        label={t("taskDetails.overdue")}
+                      />
+                    )}
+                    <StatusBadge
+                      tone={priorityTone}
+                      label={t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}
+                    />
+                  </div>
+                  <h2 id="task-drawer-title">{task.title}</h2>
+                  <p id={contextId}>{task.context}</p>
+                  {onEditDetails && (
+                    <button
+                      type="button"
+                      className="button button--quiet"
+                      disabled={disabled}
+                      onClick={onEditDetails}
+                    >
+                      {t("tasks.authoring.edit")}
+                    </button>
+                  )}
+                </header>
 
-          {remoteControls?.mutation &&
-            (pending || remoteControls.mutation.message) && (
-              <div
-                className="task-action-feedback"
-                role={pending ? "status" : "alert"}
-                aria-atomic="true"
-              >
-                <span>
-                  {pending
-                    ? t("tasks.actions.pending")
-                    : t(`tasks.actions.${remoteControls.mutation.message!}`)}
-                </span>
-                {remoteControls.mutation.needsRefresh && (
-                  <button
-                    type="button"
-                    className="button button--quiet"
-                    onClick={remoteControls.onRefresh}
-                  >
-                    {t("tasks.actions.refresh")}
-                  </button>
-                )}
-              </div>
-            )}
-
-          <section
-            className="task-drawer__section"
-            aria-labelledby="task-responsibility-heading"
-          >
-            <div className="task-drawer__section-heading">
-              <UserRound size={17} aria-hidden="true" />
-              <div>
-                <h3 id="task-responsibility-heading">
-                  {t("taskDetails.section.responsibility")}
-                </h3>
-              </div>
-            </div>
-
-            <div className="task-responsibility-panel">
-              <div className="task-drawer__owner">
-                <span className="avatar" aria-hidden="true">
-                  {owner ? getInitials(owner.name) : "—"}
-                </span>
-                <div>
-                  <span>{t("taskDetails.owner")}</span>
-                  <strong>{owner?.name ?? t("common.unassigned")}</strong>
-                  {owner && <small>{owner.role}</small>}
-                  {remoteControls?.assignment && (
-                    <div className="field-stack task-assignment-select">
-                      <label htmlFor={`drawer-assignment-${task.id}`}>
-                        {t("tasks.actions.assignment")}
-                      </label>
-                      <select
-                        id={`drawer-assignment-${task.id}`}
-                        value={task.ownerId}
-                        disabled={disabled}
-                        onChange={(event) =>
-                          remoteControls.onAssign(event.target.value || null)
-                        }
-                      >
-                        <option value="">{t("common.unassigned")}</option>
-                        {owner &&
-                          !remoteControls.members.some(
-                            (member) => member.id === owner.id,
-                          ) && (
-                            <option value={owner.id} disabled>
-                              {owner.name}
-                            </option>
-                          )}
-                        {remoteControls.members.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.name}
-                            {member.role ? ` · ${member.role}` : ""}
-                          </option>
-                        ))}
-                      </select>
+                {remoteControls?.mutation &&
+                  (pending || remoteControls.mutation.message) && (
+                    <div
+                      className="task-action-feedback"
+                      role={pending ? "status" : "alert"}
+                      aria-atomic="true"
+                    >
+                      <span>
+                        {pending
+                          ? t("tasks.actions.pending")
+                          : t(
+                              `tasks.actions.${remoteControls.mutation.message!}`,
+                            )}
+                      </span>
+                      {remoteControls.mutation.needsRefresh && (
+                        <button
+                          type="button"
+                          className="button button--quiet"
+                          onClick={remoteControls.onRefresh}
+                        >
+                          {t("tasks.actions.refresh")}
+                        </button>
+                      )}
                     </div>
                   )}
-                </div>
-              </div>
 
-              <div className="task-drawer__acceptance">
-                <div
-                  className={`task-drawer__acceptance-state ${task.acknowledged ? "task-drawer__acceptance-state--accepted" : ""}`}
+                <section
+                  className="task-drawer__section"
+                  aria-labelledby="task-responsibility-heading"
                 >
-                  {task.acknowledged ? (
-                    <CheckCircle2 size={18} aria-hidden="true" />
-                  ) : (
-                    <Circle size={17} aria-hidden="true" />
-                  )}
-                  <div>
-                    <strong>
-                      {task.acknowledged
-                        ? t("taskDetails.acknowledged")
-                        : t("taskDetails.acknowledgementNeeded")}
-                    </strong>
-                    <p>
-                      {task.acknowledged
-                        ? t("taskDetails.acknowledgedDescription")
-                        : t("taskDetails.acknowledgementNeededDescription")}
-                    </p>
+                  <div className="task-drawer__section-heading">
+                    <UserRound size={17} aria-hidden="true" />
+                    <div>
+                      <h3 id="task-responsibility-heading">
+                        {t("taskDetails.section.responsibility")}
+                      </h3>
+                    </div>
                   </div>
-                </div>
-                {(!remoteControls || remoteControls.acceptance) && (
-                  <button
-                    type="button"
-                    className="button button--secondary"
-                    disabled={disabled}
-                    onClick={() => onToggleAcknowledgement?.(task.id)}
-                  >
-                    {task.acknowledged ? (
-                      <>
-                        <X size={16} aria-hidden="true" />{" "}
-                        {t(
-                          remoteControls
-                            ? "tasks.actions.withdraw"
-                            : "taskDetails.markUnacknowledged",
+
+                  <div className="task-responsibility-panel">
+                    <div className="task-drawer__owner">
+                      <span className="avatar" aria-hidden="true">
+                        {owner ? getInitials(owner.name) : "—"}
+                      </span>
+                      <div>
+                        <span>{t("taskDetails.owner")}</span>
+                        <strong>{owner?.name ?? t("common.unassigned")}</strong>
+                        {owner && <small>{owner.role}</small>}
+                        {remoteControls?.assignment && (
+                          <div className="field-stack task-assignment-select">
+                            <label htmlFor={`drawer-assignment-${task.id}`}>
+                              {t("tasks.actions.assignment")}
+                            </label>
+                            <select
+                              id={`drawer-assignment-${task.id}`}
+                              value={task.ownerId}
+                              disabled={disabled}
+                              onChange={(event) =>
+                                remoteControls.onAssign(
+                                  event.target.value || null,
+                                )
+                              }
+                            >
+                              <option value="">{t("common.unassigned")}</option>
+                              {owner &&
+                                !remoteControls.members.some(
+                                  (member) => member.id === owner.id,
+                                ) && (
+                                  <option value={owner.id} disabled>
+                                    {owner.name}
+                                  </option>
+                                )}
+                              {remoteControls.members.map((member) => (
+                                <option key={member.id} value={member.id}>
+                                  {member.name}
+                                  {member.role ? ` · ${member.role}` : ""}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         )}
-                      </>
+                      </div>
+                    </div>
+
+                    <div className="task-drawer__acceptance">
+                      <div
+                        className={`task-drawer__acceptance-state ${task.acknowledged ? "task-drawer__acceptance-state--accepted" : ""}`}
+                      >
+                        {task.acknowledged ? (
+                          <CheckCircle2 size={18} aria-hidden="true" />
+                        ) : (
+                          <Circle size={17} aria-hidden="true" />
+                        )}
+                        <div>
+                          <strong>
+                            {task.acknowledged
+                              ? t("taskDetails.acknowledged")
+                              : t("taskDetails.acknowledgementNeeded")}
+                          </strong>
+                          <p>
+                            {task.acknowledged
+                              ? t("taskDetails.acknowledgedDescription")
+                              : t(
+                                  "taskDetails.acknowledgementNeededDescription",
+                                )}
+                          </p>
+                        </div>
+                      </div>
+                      {(!remoteControls || remoteControls.acceptance) && (
+                        <button
+                          type="button"
+                          className="button button--secondary"
+                          disabled={disabled}
+                          onClick={() => onToggleAcknowledgement?.(task.id)}
+                        >
+                          {task.acknowledged ? (
+                            <>
+                              <X size={16} aria-hidden="true" />{" "}
+                              {t(
+                                remoteControls
+                                  ? "tasks.actions.withdraw"
+                                  : "taskDetails.markUnacknowledged",
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <Check size={16} aria-hidden="true" />{" "}
+                              {t(
+                                remoteControls
+                                  ? "tasks.actions.accept"
+                                  : "taskDetails.acknowledge",
+                              )}
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
+                <section
+                  className="task-drawer__section"
+                  aria-labelledby="task-progress-heading"
+                >
+                  <div className="task-drawer__section-heading">
+                    <CircleDot size={17} aria-hidden="true" />
+                    <div>
+                      <h3 id="task-progress-heading">
+                        {t("taskDetails.section.progress")}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="task-progress-panel">
+                    {!remoteControls || remoteControls.status ? (
+                      <BudoSelect<TaskStatus>
+                        id={`drawer-status-${task.id}`}
+                        className="field-stack task-status-select"
+                        label={t("taskDetails.currentStatus")}
+                        value={task.status}
+                        options={statusOptions}
+                        disabled={disabled}
+                        onChange={(status) => onStatusChange?.(task.id, status)}
+                        popupMinWidth={220}
+                      />
                     ) : (
-                      <>
-                        <Check size={16} aria-hidden="true" />{" "}
-                        {t(
-                          remoteControls
-                            ? "tasks.actions.accept"
-                            : "taskDetails.acknowledge",
-                        )}
-                      </>
+                      <div className="field-stack task-status-readout">
+                        <span>{t("taskDetails.currentStatus")}</span>
+                        <strong>
+                          {t(TASK_STATUS_MESSAGE_KEYS[task.status])}
+                        </strong>
+                      </div>
                     )}
-                  </button>
-                )}
-              </div>
-            </div>
-          </section>
 
-          <section
-            className="task-drawer__section"
-            aria-labelledby="task-progress-heading"
-          >
-            <div className="task-drawer__section-heading">
-              <CircleDot size={17} aria-hidden="true" />
-              <div>
-                <h3 id="task-progress-heading">
-                  {t("taskDetails.section.progress")}
-                </h3>
-              </div>
-            </div>
-
-            <div className="task-progress-panel">
-              {!remoteControls || remoteControls.status ? (
-                <BudoSelect<TaskStatus>
-                  id={`drawer-status-${task.id}`}
-                  className="field-stack task-status-select"
-                  label={t("taskDetails.currentStatus")}
-                  value={task.status}
-                  options={statusOptions}
-                  disabled={disabled}
-                  onChange={(status) => onStatusChange?.(task.id, status)}
-                  popupMinWidth={220}
-                />
-              ) : (
-                <div className="field-stack task-status-readout">
-                  <span>{t("taskDetails.currentStatus")}</span>
-                  <strong>{t(TASK_STATUS_MESSAGE_KEYS[task.status])}</strong>
-                </div>
-              )}
-
-              <dl className="task-progress-meta">
-                <div>
-                  <dt>
-                    <CalendarDays size={15} aria-hidden="true" />{" "}
-                    {t("taskDetails.deadline")}
-                  </dt>
-                  <dd>
-                    <time dateTime={task.deadline}>
-                      {formatDate(task.deadline)}
-                    </time>
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t("taskDetails.priority")}</dt>
-                  <dd>{t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}</dd>
-                </div>
-              </dl>
-            </div>
-
-            {overdue && task.status !== "completed" && (
-              <div className="notice notice--warning task-drawer__warning">
-                <AlertTriangle size={18} aria-hidden="true" />
-                <span>{t("taskDetails.overdueNotice")}</span>
-              </div>
-            )}
-          </section>
-
-          {(task.blockedBy || task.blocks) && (
-            <section
-              className="task-drawer__section"
-              aria-labelledby="task-relationships-heading"
-            >
-              <div className="task-drawer__section-heading">
-                <Link2 size={17} aria-hidden="true" />
-                <div>
-                  <span>{t("taskDetails.relationships")}</span>
-                  <h3 id="task-relationships-heading">
-                    {t("taskDetails.operationalContext")}
-                  </h3>
-                </div>
-              </div>
-              <div className="relationship-card">
-                {task.blockedBy && (
-                  <div>
-                    <span>{t("taskDetails.blockedBy")}</span>
-                    <p>{task.blockedBy}</p>
+                    <dl className="task-progress-meta">
+                      <div>
+                        <dt>
+                          <CalendarDays size={15} aria-hidden="true" />{" "}
+                          {t("taskDetails.deadline")}
+                        </dt>
+                        <dd>
+                          <time dateTime={task.deadline}>
+                            {formatDate(task.deadline)}
+                          </time>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{t("taskDetails.priority")}</dt>
+                        <dd>{t(TASK_PRIORITY_MESSAGE_KEYS[task.priority])}</dd>
+                      </div>
+                    </dl>
                   </div>
-                )}
-                {task.blocks && (
-                  <div>
-                    <span>{t("taskDetails.whatThisBlocks")}</span>
-                    <p>{task.blocks}</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
 
-          <section
-            className="task-drawer__section task-drawer__section--metadata"
-            aria-labelledby="task-metadata-heading"
-          >
-            <div className="task-drawer__section-heading">
-              <div>
-                <h3 id="task-metadata-heading">
-                  {t("taskDetails.section.metadata")}
-                </h3>
-              </div>
-            </div>
-            <dl className="task-drawer__metadata">
-              <div>
-                <dt>{t("taskDetails.category")}</dt>
-                <dd>{task.category}</dd>
-              </div>
-              <div>
-                <dt>{t("taskDetails.lastUpdated")}</dt>
-                <dd>{formatDateTime(task.updatedAt)}</dd>
-              </div>
-            </dl>
-          </section>
+                  {overdue && task.status !== "completed" && (
+                    <div className="notice notice--warning task-drawer__warning">
+                      <AlertTriangle size={18} aria-hidden="true" />
+                      <span>{t("taskDetails.overdueNotice")}</span>
+                    </div>
+                  )}
+                </section>
+
+                {(task.blockedBy || task.blocks) && (
+                  <section
+                    className="task-drawer__section"
+                    aria-labelledby="task-relationships-heading"
+                  >
+                    <div className="task-drawer__section-heading">
+                      <Link2 size={17} aria-hidden="true" />
+                      <div>
+                        <span>{t("taskDetails.relationships")}</span>
+                        <h3 id="task-relationships-heading">
+                          {t("taskDetails.operationalContext")}
+                        </h3>
+                      </div>
+                    </div>
+                    <div className="relationship-card">
+                      {task.blockedBy && (
+                        <div>
+                          <span>{t("taskDetails.blockedBy")}</span>
+                          <p>{task.blockedBy}</p>
+                        </div>
+                      )}
+                      {task.blocks && (
+                        <div>
+                          <span>{t("taskDetails.whatThisBlocks")}</span>
+                          <p>{task.blocks}</p>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                )}
+
+                <section
+                  className="task-drawer__section task-drawer__section--metadata"
+                  aria-labelledby="task-metadata-heading"
+                >
+                  <div className="task-drawer__section-heading">
+                    <div>
+                      <h3 id="task-metadata-heading">
+                        {t("taskDetails.section.metadata")}
+                      </h3>
+                    </div>
+                  </div>
+                  <dl className="task-drawer__metadata">
+                    <div>
+                      <dt>{t("taskDetails.category")}</dt>
+                      <dd>{task.category}</dd>
+                    </div>
+                    <div>
+                      <dt>{t("taskDetails.lastUpdated")}</dt>
+                      <dd>{formatDateTime(task.updatedAt)}</dd>
+                    </div>
+                  </dl>
+                </section>
+              </>
+            ))}
         </div>
       </aside>
     </div>

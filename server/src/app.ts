@@ -84,9 +84,11 @@ export function createApp({
       });
     }
     if (error instanceof TaskCommandError) {
-      return reply
-        .code(error.statusCode)
-        .send({ status: "error", code: error.code });
+      return reply.code(error.statusCode).send({
+        status: "error",
+        code: error.code,
+        ...(error.fields ? { fields: error.fields } : {}),
+      });
     }
     const reportedStatus =
       typeof error === "object" && error !== null && "statusCode" in error
