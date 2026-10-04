@@ -1,5 +1,37 @@
 # BudoGraph User Guide
 
+## Invite and join an Event (P2C)
+
+As Organizer of the current Event, open **Team → Invite member**. Enter an email
+and choose **Create invitation**. The dialog lists pending invitations and expiry;
+use **Revoke** to cancel a pending invitation. Invites cannot grant Organizer access
+or reactivate an inactive membership. An existing active member or pending invitation
+returns a clear conflict instead of creating duplicates.
+
+No invitation email is sent in this environment. The success area explicitly says
+**Development invitation link — email delivery is not configured**. Copy the link
+and share it privately with the invited person. It appears only in that dialog after
+creation. Closing it discards the link; revoke and create a new invitation if you lose
+it. After an uncertain network response, refresh the pending list before retrying.
+
+Open the link in the recipient's browser. If you already have an account, choose
+**Sign in**; successful login returns to the same invitation. If you are new, choose
+**Create account**, enter name/password and use the fixed invited email. Better Auth
+creates the account and signs you in through the ordinary flow. Then choose **Join
+Event** explicitly. Registration alone does not add you to the Event. If account
+creation succeeds but joining fails, sign in and retry the still-valid invitation.
+
+Joining creates MEMBER access. The Event opens at Dashboard, appears in the Event
+switcher, and its Team contains your real membership. An Organizer can select you
+as a Task assignee. Assignment still requires your separate **Accept responsibility**
+action. You may be Member here and Organizer in another Event you create.
+
+If the signed-in email differs, **Sign out and use invited account** preserves the
+invitation so you can sign in correctly. Invalid, expired or revoked links cannot join;
+ask the Organizer for a new invitation. Invitations expire after seven days. An already
+accepted invitation can reopen the Event for the same active account without joining
+twice. Generic signup, member removal/promotion and password recovery are unavailable.
+
 ## Create and edit Tasks (P2B)
 
 Open **Tasks** in an Event where you are an Organizer, then choose **Create task**.
@@ -26,7 +58,8 @@ If the full workspace refresh fails, cancel the form and use **Refresh task** be
 another change. A lost response may still mean a committed create: review the task
 list before retrying. Errors never produce demo records.
 
-**TASK DELETION NOT YET IMPLEMENTED. INVITATIONS NOT YET IMPLEMENTED.
+Invitations are available through the P2C Team flow above.
+**TASK DELETION NOT YET IMPLEMENTED.
 EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.
 DEPENDENCIES NOT YET IMPLEMENTED. REALTIME NOT IMPLEMENTED.**
 
@@ -53,7 +86,7 @@ review them before choosing **Save event** again. Failed conflict refresh blocks
 saving; choose **Load latest details**. Errors preserve a safe retry path and never
 show fictional data. Switching away discards an unsaved form; no automatic save exists.
 
-**INVITATIONS NOT YET IMPLEMENTED.
+**Invitations are available through P2C above.
 EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
 No additional setup/bootstrap script is needed to create a normal Event. The P1
 development Event remains separate for existing task responsibility demonstrations.

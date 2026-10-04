@@ -1,5 +1,45 @@
 # AI Assistance Log
 
+## P2C Event invitations and invite-only onboarding — 2026-10-04/05
+
+Codex implemented the user's attached P2C contract from fetched, synchronized
+`beebb01226eef1e4af8bcb77c19f07229d15192d`. The complete master prompt and all
+30 supplied 2025–2026 regulation pages were reviewed. Existing approvals and the
+explicit implementation instruction authorize this stage; the core idea, approved
+architecture and locked Dashboard/Tasks/Team remain. No subagent was used.
+
+Assistance covers the immutable invitation migration, random hash-only bearer
+tokens, strict Organizer commands, public minimal lookup, private Better Auth
+registration, ordinary login and explicit MEMBER acceptance, atomic business history,
+localized invitation UI, cancelable transient controller and test/demo documentation.
+Official Better Auth email/password and server API documentation and pinned local
+1.7.7 source informed the private server API boundary. Better Auth account creation
+is separate from membership/consumption/history; no false cross-library atomicity
+claim is made. Public signup stays closed. No package, ORM, mail provider, asset,
+role/member management, archive/delete, dependency graph, Changes/Plan B or P3 work
+was added. Delivery is explicitly a development copy link; no email was sent.
+
+Agent-run verification uses real PostgreSQL rollback fixtures, separate real browser
+sessions and explicitly synthetic read-only visual fixtures. Browser-authored
+disposable development Events/tasks/accounts are intentionally retained, including
+intermediate attempts; no existing account/data reset or deletion is performed.
+Tokens, passwords and sessions stay in memory or ignored environment files; no
+credential dump, HAR, cookie jar or bearer URL is committed. Exact passing outcomes,
+intermediate failures and recovery are recorded in TEST_EVIDENCE.md.
+
+Fresh read-only review checks signup exposure, canonical identity, role hardcoding,
+transaction locks/rollback, expiry/revocation, races, privacy, URL/log/referrer handling,
+switcher/Team/assignment and scope. Review adds direct constraint and inactive/archived/
+matching-terminal-account coverage. The new dialog wraps Tab/Shift+Tab to prevent
+browser chrome from triggering a workspace focus-refetch that discarded the dialog.
+A real focus walk and affected frontend/browser reruns verify the fix. Visual review
+also fixes a long email squeezing the Revoke label; its width and single rendered
+text line are checked. The student must inspect and understand the implementation
+and evidence; automated checks do not invent human P2C acceptance,
+physical-device coverage or formal production/security/accessibility certification.
+The supplied NOIT requirements remain specific to 2025–2026 and require actual-year
+verification. The unrelated shortcut stays untouched.
+
 ## P2A Bulgarian sidebar micro-scroll fix — 2026-10-03
 
 Codex handled only the user's confirmed desktop sidebar overflow from synchronized

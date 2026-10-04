@@ -1,5 +1,9 @@
 import type { Language } from "../preferences/types.ts";
 import {
+  INVITATION_EN_MESSAGES,
+  INVITATION_BG_MESSAGES,
+} from "./invitationMessages.ts";
+import {
   TASK_AUTHORING_EN_MESSAGES,
   TASK_AUTHORING_BG_MESSAGES,
 } from "./taskAuthoringMessages.ts";
@@ -340,6 +344,7 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...INVITATION_EN_MESSAGES,
   ...EVENT_EN_MESSAGES,
   ...TASK_READ_EN_MESSAGES,
   ...TASK_AUTHORING_EN_MESSAGES,
@@ -681,6 +686,7 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...INVITATION_BG_MESSAGES,
   ...EVENT_BG_MESSAGES,
   ...TASK_READ_BG_MESSAGES,
   ...TASK_AUTHORING_BG_MESSAGES,

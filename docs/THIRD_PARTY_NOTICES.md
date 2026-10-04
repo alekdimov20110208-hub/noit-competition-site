@@ -1,5 +1,11 @@
 # Third-Party Notices and License Register
 
+P2C (2026-10-04) adds no runtime/development package or external asset and does not
+change `pnpm-lock.yaml`. It reuses Node built-in cryptography and the registered
+Better Auth/PostgreSQL stack. Browser verification uses an externally supplied
+Playwright/Edge runtime without adding it to the distributed project. Existing
+GPL-3.0-only source licensing and third-party notices remain applicable.
+
 ## Project license
 
 BudoGraph source code is distributed under the **GNU General Public License version 3 only** (`GPL-3.0-only`). The complete project license text is in the repository root at `LICENSE`.

@@ -2,7 +2,7 @@ export const AUTH_EN_MESSAGES = {
   "auth.context": "Event operations",
   "auth.contextDetail": "Preparation, responsibilities and the next decision.",
   "auth.title": "Sign in",
-  "auth.intro": "Enter your BudoGraph workspace with your assigned account.",
+  "auth.intro": "Sign in with your BudoGraph account.",
   "auth.email": "Email",
   "auth.password": "Password",
   "auth.submit": "Sign in",
@@ -23,8 +23,7 @@ export const AUTH_BG_MESSAGES = {
   "auth.context": "Организация на събития",
   "auth.contextDetail": "Подготовка, отговорности и следващото решение.",
   "auth.title": "Вход",
-  "auth.intro":
-    "Влезте в работното пространство на BudoGraph с предоставения ви акаунт.",
+  "auth.intro": "Влезте със своя акаунт в BudoGraph.",
   "auth.email": "Имейл",
   "auth.password": "Парола",
   "auth.submit": "Вход",

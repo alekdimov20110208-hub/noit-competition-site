@@ -1,5 +1,183 @@
 # BudoGraph Test Evidence
 
+## P2C Event invitations and invite-only onboarding — 2026-10-04/05
+
+Preflight: tracked-clean `main`, fetched `origin/main`, both exactly
+`beebb01226eef1e4af8bcb77c19f07229d15192d`, ahead/behind 0/0. The unrelated
+`docs/market-research/docs - Shortcut.lnk` is left untouched. The full mandatory
+master prompt, all 30 supplied regulation pages and approved product/backend
+contracts were read. The explicit P2C request authorizes implementation.
+Supplied competition rules concern 2025–2026 and require actual-year verification.
+
+### Implemented boundary and real PostgreSQL evidence
+
+- Immutable `0003_event_invitations.sql` is applied to the real development database:
+  first run **one applied/two already applied**; second run **zero applied/three
+  already applied**. No old migration changed and no database reset occurred.
+- Real invitation rows persist normalized email, correct Event/inviter, a unique
+  SHA-256 digest and seven-day expiry. Raw tokens do not occur in invitation rows
+  or ActivityEntry payloads. Crypto tests generate 100 distinct random 256-bit
+  tokens and verify the hash boundary. RLS and direct Supabase-role denial include
+  the new table; existing database grant boundaries are preserved.
+- Active same-Event Organizer create/list/revoke, Member/foreign/guessed denial,
+  active/inactive member conflicts, pending duplicates, expired/revoked replacement,
+  strict input whitelists, normalized canonical email, hash lookup and minimized
+  pending/terminal DTOs pass. Registration fixes email, rejects forged fields,
+  and neither creates membership nor consumes the invitation.
+- Matching acceptance creates one active MEMBER with neutral operational role,
+  consumes the invitation and writes one server-derived activity atomically.
+  Wrong canonical email and forged role fail. Same-recipient retry is idempotent.
+  Actual ActivityEntry constraint failures roll create/accept back; failed acceptance
+  leaves no phantom membership, and retry succeeds after the fixture is removed.
+- Fresh-review tests directly deny matching accounts using expired/revoked links,
+  inactive identity/membership and archived Events; inactive Organizer create/list/
+  revoke is denied. Real digest uniqueness/format, normalized email, acceptance
+  pairing, exclusive terminal state and same-Event accepted-membership FK constraints
+  are exercised. All integration fixtures roll back their outer transaction.
+- Concurrent real browser requests produce one membership/acceptance activity,
+  canonical repeat acceptance and one 201/one 409 duplicate invitation create.
+  Event-before-invitation locks serialize create/revoke/accept; final consumption
+  rechecks database-clock expiry and rolls membership back if the deadline passed.
+
+### Browser journeys and UI evidence
+
+The new `test:browser:invitations` verifier uses the actual application/backend,
+real PostgreSQL and separate Edge contexts. It verifies Organizer Team creation,
+truthful development-link delivery, hash-only storage, pending list, wrong-account
+denial, existing-account login return and direct invitation refresh, explicit join,
+Team/switcher membership, invite-only Better Auth registration with read-only email,
+normal session and a separate explicit join. Organizer assigns a real Task to the
+new Member; it remains unaccepted until that Member explicitly accepts, then the
+Organizer sees canonical acceptance. Member-in-A/Organizer-in-B authority stays
+scoped; a Member cannot see/manage invitations in A. Revocation, expiry, invalid
+tokens, forbidden signup, forged role/User, IDOR and missing Origin fail safely.
+
+Responsive recipient coverage uses widths 1440/1024/768/390/320 × EN/BG × light/dark,
+including a long email, labelled registration fields, visible autofocus, no horizontal
+overflow and 44px action targets. Native dialog Escape and trigger restoration are
+verified. Screenshots exclude bearer URLs/passwords/cookies; no HAR, trace or
+storageState is saved. Final loaded-dialog and clipboard-fallback checks are recorded
+in the release results below.
+
+Locked visual comparison uses identical read-only synthetic transport fixtures,
+fixed clock, same viewport/content/preferences and the actual baseline/current
+application on separate Vite ports. **80 pairs** (Dashboard, Tasks, Team roster/detail,
+Task drawer × five widths × both languages/themes) match dimensions and pixels:
+**zero changed pixels**. The permitted new Organizer Team action is outside the
+locked interior crop. No design-replacement claim is inferred from different data.
+
+The established Bulgarian sidebar fixture passes **24 before and 24 after cases**:
+1440/1080 widths, 900/740/720 heights, EN/BG and light/dark, actual language switching,
+unchanged text/control/switcher dimensions, zero scroll travel, no clipping/overflow,
+44px controls and keyboard logout with visible focus. The 560px fallback retains
+scrolling. Representative locked Team and recipient mobile images were visually
+inspected. Viewport emulation is not physical-device or Safari/Firefox verification.
+
+### Review, safety and intermediate failures
+
+Fresh read-only review checks public signup closure, private Better Auth handler
+exposure, canonical email, role hardcoding, token randomness/hashing/expiry, locks,
+revocation/idempotency, account/business atomicity boundary, privacy, switcher/Team/
+assignment integration, logging/referrer policy and locked UI/scope. It adds direct
+inactive/archived/terminal-account and database-constraint coverage. Backend safe
+log serializers omit URLs, headers, bodies and raw exceptions; library diagnostics
+are disabled and Vite proxy diagnostics redact bearer invitation path segments.
+Production proxy/access-log and shared-rate-limit review remain deployment work.
+
+Intermediate failures are retained as evidence boundaries, not counted as passes:
+an external Playwright import needed the documented runtime environment; sharing
+baseline/current Vite cache caused duplicate React and was fixed with an isolated
+baseline cache/current restart; form selector failures led to explicit submit types;
+an early matrix assertion waited on loading text and now waits for the real action.
+A task-action attempt overlapped frontend HMR; its stable rerun passes. An initial
+Event regression run timed out on its first Dashboard wait; isolated rerun results
+are recorded below. The full parallel PostgreSQL run exposed a stale two-migration
+expectation and overlapping table-lock failure fixtures. The schema assertions now
+include all three immutable migrations/new RLS table; integration files run serially.
+No existing check was removed or weakened to conceal failure.
+
+Better Auth account creation remains a separate library transaction. An account
+can remain after a later join failure and can sign in/retry a valid invitation;
+membership/consumption/history alone are one atomic business transaction. No
+outbound email provider was added: delivery is explicitly a development copy link.
+Initial deployment Organizer provisioning remains an infrastructure operation.
+
+Browser-created disposable Events/tasks/accounts from successful and intermediate
+attempts are intentionally retained with history. The final run's non-secret IDs
+are in ignored aggregate evidence; no existing user/data reset or destructive
+cleanup occurs. Actual credentials, bearer URLs, sessions, dumps and generated
+evidence are excluded from Git. P3 is not started. Human P2C acceptance and formal
+production/security/accessibility certification have not been invented.
+
+An expanded focus walk confirmed a real dialog issue: Edge moved sequential Tab
+focus into browser chrome; the return focus invoked the existing workspace refetch
+and unmounted the dialog. The new invitation dialog now wraps Tab/Shift+Tab at its
+first/last enabled control. No shared workspace/refetch behavior was changed.
+A 16-step real keyboard walk retains the modal and document focus throughout;
+affected lint/typecheck, all 224 frontend tests and production build pass again.
+The expanded invitation suite also checks both focus-wrap directions.
+
+Visual inspection of the loaded desktop dialog identified a long email squeezing
+the Revoke label onto multiple lines. The new dialog's revoke buttons now retain
+their natural width while the email wraps; the browser verifier checks a single
+rendered text line and at least 44px width. Manual-copy feedback also avoids an
+incorrect above/below direction. These changes are confined to invitation UI.
+One recheck still received the old CSS from Vite's in-memory module graph (confirmed
+by fetching the CSS module and inspecting its loaded style). Restarting the current
+Vite preview loads the changed rule. A real rendered recheck measures the desktop
+Revoke target at approximately 77×44px with one text line; focus remains contained.
+
+Two development backend watch managers were found competing for port 3001 and
+restarting while verification ran. Later invitation attempts timed out at login or
+the new Member task action; these attempts are not counted as passing. The verified
+backend watch managers/children were stopped and one non-watch backend started for
+the final run. Both live and database readiness checks return 200. The application
+remains runnable; the final invitation and full PostgreSQL suites run serially.
+
+### Release results
+
+Frontend lint/typecheck, **224/224 tests** and build pass after the final UI changes.
+Backend typecheck, **111 offline passes/six opt-in integration-file skips** and build
+pass. The final enabled full PostgreSQL suite passes **62/62, zero skips**, including
+**11 invitation checks**. Migration history/checksums and second-run idempotency pass.
+`pnpm.cmd format`, `format:check`, explicit formatting checks for the new standalone
+documentation/browser verifier and `git diff --check` pass. The final invitation
+rerun passes **seven grouped checks, 20 recipient cases and 20 loaded-dialog cases**
+with zero application errors. Clipboard fallback, both focus-wrap directions,
+single-line Revoke labels, long-email wrapping and all real onboarding/security flows
+pass against the refreshed frontend and one stable backend. Together with regressions,
+this is **87 grouped browser checks / 153 layout cases**. Separate locked-core and
+sidebar comparisons are reported above and are not added again to that count.
+
+Existing browser regressions all pass with zero application errors:
+
+| Suite                          | Grouped checks | Layout cases |
+| ------------------------------ | -------------: | -----------: |
+| Auth                           |             15 |           20 |
+| P1 responsibility actions      |             16 |           40 |
+| P2A Event authoring/navigation |             14 |           20 |
+| P2B Task authoring             |             11 |           20 |
+| Real Dashboard/Team workspace  |             11 |            8 |
+| Real Task reads                |             13 |            5 |
+| P2C invitations/onboarding     |              7 |           40 |
+
+Read-only workspace/task-read verifiers send zero business mutation requests.
+The responsibility suite verifies all six activity types and leaves the controlled
+task assigned to Member, unaccepted, `not-started`; it preserves history.
+
+The complete 38-file manifest is in `BUDOGRAPH_P2C.md`. Staging is restricted to
+that manifest. The final audit compares configured sensitive values against the
+staged diff without printing their values, checks for live invitation bearer paths
+and excluded artifacts, and confirms old migrations/lockfile are unchanged.
+The authorized commit/push identity and final sync state are reported in the final
+delivery message; a commit cannot embed its own hash in its contents.
+
+Staged audit result: **PASS, 38 files, exact manifest match**. Six configured
+sensitive environment values (plus the parsed database password) are checked without
+printing them; none occurs in the staged diff. No live invitation bearer path,
+excluded artifact, old-migration edit or lockfile change is staged. The known
+unrelated shortcut remains untracked and untouched. The staged whitespace check passes.
+
 ## Post-P2B Create Event copy correction - 2026-10-04
 
 Baseline: `58c3b20a6f3dc15279f20bf437165b1050ef124c`, synchronized

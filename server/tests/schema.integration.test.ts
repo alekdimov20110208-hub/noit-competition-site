@@ -118,7 +118,14 @@ test(
         0,
         "Run reviewed P1B migrations explicitly before enabling integration tests.",
       );
-      assert.equal(files.length, 2);
+      assert.deepEqual(
+        files.map((file) => file.name),
+        [
+          "0001_better_auth_core.sql",
+          "0002_budograph_core.sql",
+          "0003_event_invitations.sql",
+        ],
+      );
       client.release();
       client = undefined;
 
@@ -128,7 +135,7 @@ test(
           for (let index = 0; index < 2; index += 1) {
             assert.deepEqual(await runMigrations(pool, migrationDirectory), {
               applied: 0,
-              alreadyApplied: 2,
+              alreadyApplied: 3,
             });
           }
         },
@@ -214,10 +221,11 @@ test(
                 "event_member",
                 "task",
                 "activity_entry",
+                "event_invitation",
               ],
             ],
           );
-          assert.equal(rows.length, 8);
+          assert.equal(rows.length, 9);
           assert.ok(
             rows.every(
               (row) => row.row_security === true && row.policies === 0,
@@ -250,6 +258,7 @@ test(
               "public.event_member",
               "public.task",
               "public.activity_entry",
+              "public.event_invitation",
             ]) {
               await database.query("SAVEPOINT p1b_browser_role");
               let count: unknown;

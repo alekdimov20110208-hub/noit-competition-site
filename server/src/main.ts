@@ -7,6 +7,7 @@ import { createDatabasePool } from "./db/pool.ts";
 import { createShutdown } from "./shutdown.ts";
 import { createTaskService } from "./tasks/service.ts";
 import { createEventService } from "./events/service.ts";
+import { createInvitationService } from "./invitations/service.ts";
 
 async function main() {
   let app: FastifyInstance | undefined;
@@ -52,9 +53,15 @@ async function main() {
       );
     });
     const database = pool;
+    const registration = createAuth(database, config, {
+      invitationRegistration: true,
+    });
     app = createApp({
       tasks: createTaskService(database),
       events: createEventService(database),
+      invitations: createInvitationService(database, async (fields) => {
+        await registration.api.signUpEmail({ body: fields });
+      }),
       authentication: {
         auth: createAuth(database, config),
         baseURL: config.betterAuthUrl,

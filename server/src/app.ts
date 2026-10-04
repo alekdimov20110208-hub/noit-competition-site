@@ -12,6 +12,9 @@ import { TaskCommandError } from "./tasks/model.ts";
 import { registerEventReadRoutes } from "./routes/events.ts";
 import type { EventService } from "./events/service.ts";
 import { EventCommandError } from "./events/model.ts";
+import { InvitationError } from "./invitations/model.ts";
+import type { InvitationService } from "./invitations/service.ts";
+import { registerInvitationRoutes } from "./routes/invitations.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
@@ -19,6 +22,7 @@ export interface AppOptions {
   authentication?: AuthIntegration;
   tasks?: TaskService;
   events?: EventService;
+  invitations?: InvitationService;
 }
 
 const standardMethods = new Set([
@@ -37,6 +41,7 @@ export function createApp({
   authentication,
   tasks,
   events,
+  invitations,
 }: AppOptions) {
   const app = Fastify({
     requestIdHeader: false,
@@ -76,6 +81,11 @@ export function createApp({
     return reply.code(404).send({ status: "not_found" });
   });
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof InvitationError) {
+      return reply
+        .code(error.statusCode)
+        .send({ status: "error", code: error.code });
+    }
     if (error instanceof EventCommandError) {
       return reply.code(error.statusCode).send({
         status: "error",
@@ -111,5 +121,7 @@ export function createApp({
   if (authentication && tasks) registerTaskRoutes(app, authentication, tasks);
   if (authentication && events)
     registerEventReadRoutes(app, authentication, events);
+  if (authentication && invitations)
+    registerInvitationRoutes(app, authentication, invitations);
   return app;
 }

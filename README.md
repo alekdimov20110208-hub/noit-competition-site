@@ -4,6 +4,17 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 ## Project status and evidence boundary
 
+Current addition: **P2C Event invitations and invite-only onboarding**. A current-Event
+Organizer opens **Team → Invite member**, enters an email, and shares the explicit
+development invitation link. **No outbound invitation email is configured or sent.**
+An existing account signs in and explicitly joins; a new user creates an account
+only through a valid invitation, signs in through Better Auth, then explicitly joins.
+Joining creates active MEMBER membership, exposes the Event in the switcher and
+Team, and enables normal Task assignment and explicit responsibility acceptance.
+Public signup stays closed. Tokens expire after seven days and can be revoked before
+acceptance. Only SHA-256 hashes are stored. Links appear once and stay out of browser
+storage. See [P2C implementation and verification](docs/BUDOGRAPH_P2C.md).
+
 This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX foundation, the locked Phase 2B.1 Dashboard direction, and the Phase 2B.2 Tasks workspace redesign**. Phase 1 established the coherent, interactive vertical slice. Phase 2A strengthened localization, theming, responsive behavior, and task navigation. Phase 2B.1 clarified BudoGraph's visual identity and Dashboard reading order. Phase 2B.2 applies that identity to a dense operational task register, compact search and filtering, and a primary task detail/editing drawer without changing the approved product idea or adding production services.
 
 The repository also contains the Backend P1A/P1B/P1C foundation, P1D.1 browser
@@ -42,7 +53,7 @@ Run `pnpm test:browser:events` with the same ignored controlled accounts and bro
 runtime as P1. See [test evidence](docs/TEST_EVIDENCE.md) for executed results.
 No dependencies or migrations were added; applied SQL remains immutable.
 
-**INVITATIONS NOT YET IMPLEMENTED.
+**P2C adds invitations after P2A.
 EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
 Templates, Budget, AI, membership management and production hardening remain outside P2A.
 
@@ -68,7 +79,8 @@ former-Event completions from rendering after switching.
 
 Run `pnpm test:browser:task-authoring` with the same ignored account configuration
 and external verification browser runtime. No migration or runtime dependency was
-added. **TASK DELETION NOT YET IMPLEMENTED; INVITATIONS NOT YET IMPLEMENTED;
+added by P2B. Invitations are now implemented in P2C above.
+**TASK DELETION NOT YET IMPLEMENTED;
 EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED; CHANGES/PLAN B NOT YET IMPLEMENTED;
 DEPENDENCIES NOT YET IMPLEMENTED; REALTIME NOT IMPLEMENTED.**
 
@@ -312,7 +324,7 @@ deployment.
 ## P1D.1 authentication UI
 
 Start `pnpm server:dev` and `pnpm dev` in separate terminals, then open
-`http://127.0.0.1:5173/login`. Use the existing controlled development accounts;
+`http://127.0.0.1:5173/login`. Use an account created through an invitation or an existing controlled development account;
 credentials stay in ignored files or your process environment. Public signup
 remains closed. The official pinned Better Auth client handles sign-in/sign-out;
 `GET /api/me` resolves only `{ id, name, email }` for application state. No session

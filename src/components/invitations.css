@@ -1,0 +1,114 @@
+.team-page__heading {
+  position: relative;
+}
+.team-invite-action {
+  margin-top: 16px;
+}
+.invitation-dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.invitation-dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+.invitation-dialog h2,
+.invitation-dialog h3 {
+  margin: 0 0 20px;
+}
+.invitation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.invitation-dialog .button,
+.invite-entry .button {
+  min-height: 44px;
+}
+.invitation-pending,
+.invitation-delivery {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.invitation-pending ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.invitation-pending li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+}
+.invitation-pending li div {
+  min-width: 0;
+}
+.invitation-pending li > .button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.invitation-pending strong,
+.invitation-pending small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.invitation-pending small {
+  margin-top: 6px;
+}
+.invitation-delivery input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 12px 0;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.invite-workspace {
+  display: block;
+  max-width: 650px;
+}
+.invite-entry {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.invite-entry h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  margin-bottom: 20px;
+}
+.invite-entry form {
+  margin-top: 28px;
+}
+.invite-entry .login-field {
+  margin-top: 20px;
+}
+@media (min-width: 700px) {
+  .team-invite-action {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+  }
+  .team-page__heading:has(.team-invite-action) {
+    padding-right: 190px;
+  }
+}
+@media (max-width: 480px) {
+  .invitation-dialog {
+    padding: 20px;
+  }
+  .invitation-pending li {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}

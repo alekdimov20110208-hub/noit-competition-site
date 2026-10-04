@@ -380,6 +380,11 @@ export default function App() {
         now={now}
         onOpenTask={openTask}
         onNavigate={navigate}
+        invitationEvent={
+          remoteEvent?.membership.accessRole === "ORGANIZER"
+            ? { id: remoteEvent.id, archived: remoteEvent.archived }
+            : undefined
+        }
       />
     );
   } else if (currentLocation.path === "/changes") {

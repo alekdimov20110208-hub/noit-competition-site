@@ -1,12 +1,33 @@
 # Installation, Deployment, and Demonstration Plan
 
-Current scope: Backend P1A/P1B/P1C, P1D.1/P1D.2A/P1D.2B/P1D.3, P2A and P2B. Better Auth
+Current scope: Backend P1A/P1B/P1C, P1D.1/P1D.2A/P1D.2B/P1D.3, P2A, P2B and P2C. Better Auth
 login protects Event-scoped workspaces backed by the configured PostgreSQL
 (Supabase-hosted development) database. **Dashboard REAL, Tasks REAL, Team REAL.**
 They share the same authorized Event, tasks and members; no runtime demo fallback
 or local-demo reset exists in the authenticated application. **P2A implements
 Event creation/basic editing and switching.** The older frontend Phase 2A/2B
 names refer to historical UI work, not this backend authoring phase.
+
+P2C adds invitation-based MEMBER onboarding. Apply `pnpm db:migrate` before starting
+the updated backend; do not edit applied migrations or reset the database. Public
+signup remains blocked. The existing development bootstrap can establish the initial
+Organizer; ordinary new Members use Team invitations without CLI setup.
+
+Outbound mail is **not configured**. Demo with the labelled development link in an
+independent browser/profile: existing-user sign-in → explicit join, or new-account
+creation → normal sign-in → explicit join. Show the Member in Team/switcher, create
+and assign a real Task, and demonstrate explicit acceptance from the Member session.
+Do not publish invitation URLs, passwords or cookies in screenshots/evidence. Links
+are transient and expire after seven days; prepare fresh invitations before a demo.
+
+Offline backup remains a prepared local backend plus reachable PostgreSQL or a
+recorded/redacted demo; this application has no offline data fallback. Hosting must
+serve the SPA for direct `/invite/:token` and scoped Event URLs, preserve secure
+cookies/trusted origins, disable caching of auth/invitation responses and redact bearer
+paths from reverse-proxy/access logs. Do not add a mail provider without separate
+deployment configuration. Shared rate limiting, grant review and restore drills remain
+deployment work. Run write-verification suites one at a time; SQL constraint fixtures
+can lock tables. Browser-created disposable test records are intentionally retained.
 
 ## P2A demonstration extension
 
@@ -32,7 +53,7 @@ support `/events/new` and `/events/:eventId/{dashboard,tasks,team,edit}` while
 keeping all `/api` requests outside fallback and uncached. No hosting verification
 or offline authenticated package is implied by this local implementation.
 
-## Current P1D.3 development demonstration
+## Historical P1D.3 development demonstration
 
 Follow [backend development](BACKEND_DEVELOPMENT.md) for ignored local
 configuration, reviewed migrations, controlled development Organizer/Member

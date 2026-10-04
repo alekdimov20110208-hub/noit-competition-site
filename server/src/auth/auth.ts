@@ -9,6 +9,8 @@ export type AuthConfig = Pick<
 
 export interface AuthOptions {
   developmentProvisioning?: true;
+  // Private server API instance only; its handler is never attached to HTTP.
+  invitationRegistration?: true;
 }
 
 export function trustedApplicationOrigins(
@@ -25,7 +27,7 @@ export function trustedApplicationOrigins(
 export function createAuth(
   pool: Pool,
   config: AuthConfig,
-  { developmentProvisioning }: AuthOptions = {},
+  { developmentProvisioning, invitationRegistration }: AuthOptions = {},
 ) {
   if (developmentProvisioning && config.nodeEnv !== "development") {
     throw new Error("Account provisioning requires NODE_ENV=development.");
@@ -44,7 +46,7 @@ export function createAuth(
     disabledPaths: ["/sign-up/email"],
     emailAndPassword: {
       enabled: true,
-      disableSignUp: !developmentProvisioning,
+      disableSignUp: !developmentProvisioning && !invitationRegistration,
       autoSignIn: false,
       requireEmailVerification: false,
     },

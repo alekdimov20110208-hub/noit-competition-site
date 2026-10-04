@@ -20,12 +20,14 @@ import {
 import { MemberDetail } from "./team/MemberDetail.tsx";
 import { MemberSheet } from "./team/MemberSheet.tsx";
 import "./team/team.css";
+import { TeamInvitations } from "../components/TeamInvitations.tsx";
 
 interface TeamPageProps {
   now: Date;
   state: WorkspaceView;
   onOpenTask: (taskId: string) => void;
   onNavigate: (href: string) => void;
+  invitationEvent?: { id: string; archived: boolean };
 }
 
 export function TeamPage({
@@ -33,6 +35,7 @@ export function TeamPage({
   now,
   onOpenTask,
   onNavigate,
+  invitationEvent,
 }: TeamPageProps) {
   const { t, formatDate, formatNumber } = useI18n();
   const roster = useMemo(() => getTeamRoster(state, now), [state, now]);
@@ -273,6 +276,12 @@ export function TeamPage({
       <header className="team-page__heading">
         <h1>{t("team.title")}</h1>
         <p>{t("team.workspace.description")}</p>
+        {invitationEvent && (
+          <TeamInvitations
+            eventId={invitationEvent.id}
+            archived={invitationEvent.archived}
+          />
+        )}
       </header>
       <div className="team-workspace" data-compact={compact} ref={workspaceRef}>
         <section className="team-roster" aria-label={t("team.listLabel")}>

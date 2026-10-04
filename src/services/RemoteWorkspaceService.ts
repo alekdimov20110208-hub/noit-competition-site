@@ -1,6 +1,7 @@
 import { getCalendarDayNumber } from "../domain/taskTiming.ts";
 import type { Event, Task, TaskStatus, TeamMember } from "../domain/types.ts";
 import type { TaskFields, TaskFieldErrors } from "./taskAuthoring.ts";
+import { InvitationService } from "./invitations.ts";
 
 export type TaskAssignee = Pick<TeamMember, "id" | "name" | "role">;
 export type TaskEvent = Pick<Event, "id" | "name" | "startDate" | "endDate"> & {
@@ -314,8 +315,10 @@ export class RemoteWorkspaceService
     TaskAuthoringService
 {
   private request: typeof fetch;
+  readonly invitations: InvitationService;
   constructor(request: typeof fetch = fetch) {
     this.request = request;
+    this.invitations = new InvitationService(request);
   }
 
   private async get(path: string, signal: AbortSignal): Promise<unknown> {

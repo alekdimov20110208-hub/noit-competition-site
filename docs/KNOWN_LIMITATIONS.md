@@ -5,7 +5,40 @@ P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases
 the current backend limitations are recorded below. Update this record when a
 limitation is removed or discovered.
 
-## Current P2B boundary — 2026-10-04
+## Current P2C boundary — 2026-10-04
+
+Event-scoped Organizer invitations, pending reads/revocation, existing-account join,
+invite-only Better Auth registration and active MEMBER creation are implemented.
+Normal Member onboarding no longer needs CLI provisioning or precreated EventMember
+rows. Public registration remains closed. Account creation is separate from the
+atomic membership/invitation/history transaction; an account can remain after a join
+failure and sign in to retry a still-valid invitation.
+
+**OUTBOUND INVITATION EMAIL IMPLEMENTED: NO. DEVELOPMENT INVITE LINK IMPLEMENTED: YES.**
+Links are displayed once in a transient Organizer dialog, not persisted or recoverable
+from hashes. Lost-link recovery is revoke and recreate. Organizer bootstrapping for
+an initially empty deployment remains an explicit infrastructure operation.
+Possession of a shared invitation is not a general email-verification system.
+
+**MEMBER REMOVAL NOT YET IMPLEMENTED. ROLE EDITING NOT YET IMPLEMENTED.
+ORGANIZER INVITATION/PROMOTION NOT YET IMPLEMENTED. PASSWORD RECOVERY NOT YET IMPLEMENTED.
+GENERAL EMAIL VERIFICATION NOT YET IMPLEMENTED. EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED.
+TASK DELETE NOT YET IMPLEMENTED. DEPENDENCIES NOT YET IMPLEMENTED.
+CHANGES/PLAN B NOT YET IMPLEMENTED. REALTIME NOT IMPLEMENTED.**
+
+No inactive-member restoration, bulk invites, resend/reminder automation, social auth,
+MFA, notification center, Templates expansion, Budget or AI was added. Memory rate
+limiting needs shared storage before multiple server instances. Production mail,
+hosting/proxy/least-privilege grant review and backup/restore remain separate.
+Testing uses real Edge/Chromium and emulated viewport sizes; it does not establish
+Safari/Firefox/physical-device compatibility or formal accessibility/security certification.
+Human P2C product/visual acceptance is still a separate review.
+
+All supplied NOIT rules concern 2025–2026. Verify actual-year eligibility, directions,
+GPLv3/licensing, required deliverables, dates, online period, PDF format and rubric
+before registration; the internal September deadline is not an official NOIT date.
+
+## Historical P2B boundary — 2026-10-04
 
 Active current-Event Organizers can create and edit real Tasks using the existing
 drawer and Event snapshot. Fields are title, optional free-text category/context,

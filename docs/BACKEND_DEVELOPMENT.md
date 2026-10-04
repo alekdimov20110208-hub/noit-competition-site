@@ -1,4 +1,69 @@
-# Backend P1, P2A and P2B Development
+# Backend P1, P2A, P2B and P2C Development
+
+## P2C invitations and onboarding — 2026-10-04
+
+Apply the new immutable `0003_event_invitations.sql` using `pnpm db:migrate`.
+Existing applied migration files are unchanged. The table has Event/User foreign
+keys, unique SHA-256 token hashes, pending Event/email indexing, finite timestamps,
+paired acceptance fields, exclusive accepted/revoked states, an accepted-User
+membership FK and RLS without browser policies. It contains no raw bearer token.
+
+| Route                                                        | Boundary                                                                                                               |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/events/:eventId/invitations`                      | Active same-Event Organizer; only `{ email }`; 201 with safe invitation and one-time development path.                 |
+| `GET /api/events/:eventId/invitations`                       | Same-Event Organizer only; pending/expired safe DTOs; never tokens or hashes.                                          |
+| `POST /api/events/:eventId/invitations/:invitationId/revoke` | Same-Event Organizer; empty body; pending only. Repeat revocation is idempotent.                                       |
+| `GET /api/invitations/:token`                                | Minimized public bearer lookup; only valid context/email/expiry, otherwise terminal state or generic invalid response. |
+| `POST /api/invitations/:token/register`                      | Valid pending invitation, trusted Origin, logged out; only `{ name, password }`. Email comes from the locked row.      |
+| `POST /api/invitations/:token/accept`                        | Active authenticated matching canonical stored email; empty body; atomic membership/consumption/history.               |
+
+Email uses trim/lowercase and the ASCII syntax compatible with pinned Better Auth
+`z.email()`; provider aliases are preserved. Tokens use Node `randomBytes(32)` /
+base64url and SHA-256. Server lifetime is seven days, checked using PostgreSQL time,
+including again at consumption. Events lock before invitation rows; this serializes
+duplicate creation, acceptance and revocation. Existing inactive membership is never
+restored. Independent active membership is preserved, with no role changes. New rows
+hardcode MEMBER and the existing neutral empty operational role. Repeat acceptance
+by the same active identity returns the Event without duplicate membership/history.
+
+`invitation.created`, `invitation.revoked` and `invitation.accepted` use server
+actor/time and invitation IDs with empty payloads. Commands and activity commit or
+roll back together. Better Auth registration is a **separate auth transaction**:
+the private server API instance uses the same factory/schema, allows server-only
+`signUpEmail`, disables auto-sign-in, and never exposes its HTTP handler. The ordinary
+auth instance still disables signup; both instances block its HTTP path. Only the
+valid-invitation service calls the private API. An account may remain after joining
+fails, expires or is revoked; no false membership/acceptance is recorded. The user can
+sign in and retry if the invitation remains valid. Better Auth alone owns credentials.
+The registration response is generic and exposes no account-existence endpoint.
+
+Cookie/Origin/Fetch Metadata protections are preserved. New endpoints use no-store
+and no-referrer; HTML also suppresses referrers. Backend whitelist serializers and
+Vite proxy-log redaction omit bearer URLs. Proxy/access logging in deployment must
+likewise redact invitation paths. Rate limiting is bounded in memory (120 invitation
+requests/minute/IP, five registrations/minute/IP); scaling needs shared storage.
+
+`RemoteWorkspaceService.invitations` provides the domain transport. Transient Team
+controllers cancel stale Event/identity requests and discard links on close/switch/
+logout. Recipient routing bypasses the protected workspace and uses strictly
+allowlisted, query-free invitation return paths. Acceptance mounts the existing
+workspace at the joined Event, which reads accessible Events and the real roster.
+There is no polling, auth/token persistence, sample-task creation or demo fallback.
+
+Email delivery is not configured. `delivery: development_link` and the one-response
+relative path are explicitly labelled; no email-sent claim exists. If a create response
+is lost, refetch pending invitations; revoke/recreate if its link was lost. Links cannot
+be retrieved from their hashes. Run `pnpm test:browser:invitations` with the documented
+ignored auth inputs and Playwright/Edge paths. Database integration suites run serially
+because their rollback-only constraint fixtures take table locks. Run database and
+browser write verifiers separately. See [P2C evidence](BUDOGRAPH_P2C.md).
+
+Run only one backend on port 3001. For a stable verification run, stop any existing
+backend watch manager and use
+`node --env-file-if-exists=server/.env --env-file-if-exists=server/.env.p1b.local server/src/main.ts`
+without `--watch`; keep the Vite frontend running. Competing watch managers can
+restart the backend between login/session checks. Normal development can use the
+single `pnpm server:dev` watch process after verification.
 
 ## P2B Task authoring — 2026-10-04
 
@@ -95,7 +160,8 @@ session, permission, missing-resource and connection errors remain safe/localize
 Existing P1 browser verifiers preserve their checks with Event-scoped assertions.
 See TEST_EVIDENCE.md for executed results and intentional development Events.
 No migration or dependency was added in P2A. Task authoring is now P2B above.
-**INVITATIONS NOT YET IMPLEMENTED; EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED;
+Invitations are now implemented through P2C above.
+**EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED;
 CHANGES/PLAN B NOT YET IMPLEMENTED.** Later descriptions are historical P1 scope.
 
 P1A establishes the TypeScript/Fastify runtime, typed configuration, PostgreSQL
