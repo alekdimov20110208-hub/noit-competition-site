@@ -20,7 +20,7 @@ export const EVENT_EN_MESSAGES = {
   "events.save": "Save event",
   "events.pending": "Saving event…",
   "events.fresh":
-    "This event starts with your Organizer membership and no tasks. Task authoring is not yet available.",
+    "This event starts with your Organizer membership and no tasks. After creating it, add tasks from Tasks.",
   "events.validation.name": "Enter an event name of 1–200 characters.",
   "events.validation.date": "Enter a valid calendar date (YYYY-MM-DD).",
   "events.validation.dateOrder": "End date must be on or after the start date.",
@@ -64,7 +64,7 @@ export const EVENT_BG_MESSAGES = {
   "events.save": "Запазване на събитието",
   "events.pending": "Запазване на събитието…",
   "events.fresh":
-    "Новото събитие започва с вашето членство като организатор и без задачи. Създаването на задачи все още не е налично.",
+    "Новото събитие започва с вашето членство като организатор и без задачи. След създаването му можете да добавяте задачи от „Задачи“.",
   "events.validation.name": "Въведете име на събитието от 1 до 200 знака.",
   "events.validation.date": "Въведете валидна календарна дата (ГГГГ-ММ-ДД).",
   "events.validation.dateOrder":

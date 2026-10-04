@@ -1,5 +1,58 @@
 # BudoGraph Test Evidence
 
+## Post-P2B Create Event copy correction - 2026-10-04
+
+Baseline: `58c3b20a6f3dc15279f20bf437165b1050ef124c`, synchronized
+`main`/`origin/main`, clean tracked worktree. The user confirmed P2B automated
+verification and the complete requested human smoke flow passed. This correction
+changes only `events.fresh` in the EN/BG catalog plus directly associated evidence
+and assistance documentation. The unrelated shortcut remains untouched.
+
+- Old EN: "This event starts with your Organizer membership and no tasks. Task
+  authoring is not yet available."
+- New EN: "This event starts with your Organizer membership and no tasks. After
+  creating it, add tasks from Tasks."
+- Old BG: "Новото събитие започва с вашето членство като организатор и без задачи.
+  Създаването на задачи все още не е налично."
+- New BG: "Новото събитие започва с вашето членство като организатор и без задачи.
+  След създаването му можете да добавяте задачи от „Задачи“."
+
+Read-only date review confirms shared `Intl.DateTimeFormat` and the existing
+`en-GB`/`bg-BG` language mapping, including the Event header and page consumers.
+The same `2026-10-04` calendar date renders as `4 Oct 2026` and `4.10.2026 г.`
+respectively. No semantic inconsistency or independent hardcoded formatter was
+found in these paths. No date-formatting change is required or made.
+
+Focused Edge browser verification uses explicitly synthetic, intercepted read-only
+responses; it performs no Event, Task, auth or database writes. Before/after runs
+each pass **12 cases**: BG/EN, light/dark, widths 1440/390/320. Correct current copy,
+no horizontal overflow, reachable 48px submit controls, unchanged field geometry
+and unchanged desktop sidebar metrics pass with zero application errors.
+Representative EN desktop and BG 320px screenshots were visually reviewed.
+
+The existing sidebar/layout verifier passes **24 cases**: BG/EN, light/dark,
+1440/1080 widths and 900/740/720 heights. Sidebar scroll travel is zero, controls
+and footer remain visible, keyboard logout works, and 560px fallback scrolling
+remains available. Dashboard/Tasks/Team remain usable without horizontal overflow.
+All 72 captured locked-page dimensions match the P2B baseline; 71 images are
+pixel-identical. One Dashboard capture differs in 255 pixels around the existing
+empty-state dashed border; its dimensions and source are unchanged. This is not
+claimed as a 72-image pixel-identical pass.
+
+An initial pre-edit Create Event harness run failed an assumed zero-scroll assertion
+with a different synthetic Event fixture (3px travel). The focused verifier now
+checks preservation against its own baseline; the established sidebar fixture
+independently retains strict zero-scroll assertions and passes all 24 cases.
+No product code or styling was changed to accommodate the verifier.
+
+Executed frontend checks: `pnpm.cmd format`, `pnpm.cmd format:check`,
+`pnpm.cmd lint`, `pnpm.cmd typecheck`, `pnpm.cmd test` (**218/218**),
+`pnpm.cmd build`, and `git diff --check`: **PASS**. Current product source no longer
+contains the obsolete Task-authoring claim; historical evidence stays historical.
+No page/component/CSS, backend, database, auth, dependency or date logic changes.
+P2C is not started. Supplied competition requirements remain specific to 2025-2026
+and require verification for the actual participation year.
+
 ## P2B real Task authoring - 2026-10-04
 
 Preflight: clean tracked `main`, fetched `origin/main`, both at

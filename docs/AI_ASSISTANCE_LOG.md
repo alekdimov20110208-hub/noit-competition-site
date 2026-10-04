@@ -870,3 +870,23 @@ Actual create/edit session expiry, canonical recovery, held-response Event isola
 responsibility semantics and simultaneous optimistic conflicts are covered.
 Named error/refresh/held-response fixtures remain explicitly marked. Preserved
 P1/P2A regression and staged safety results are recorded in TEST_EVIDENCE.md.
+
+## Post-P2B Create Event copy correction - 2026-10-04
+
+At the user's explicit request, Codex replaced only the obsolete EN/BG
+`events.fresh` claim with guidance to add Tasks after creating the Event. Creator
+Organizer membership and zero initial Tasks remain stated. The baseline is
+`58c3b20a6f3dc15279f20bf437165b1050ef124c`; the user supplied the P2B automated
+and full human smoke-flow PASS confirmation.
+
+Assistance included read-only shared date-formatter review, 12 BG/EN Create Event
+browser cases, the existing 24-case sidebar/layout verification, screenshot review,
+all requested frontend checks (218 passing tests), and associated documentation.
+Browser responses are explicit read-only transport fixtures, not new human
+acceptance or backend-write evidence. Initial verifier limitations and the single
+dashed-border screenshot difference are recorded in TEST_EVIDENCE.md.
+
+The shared `en-GB`/`bg-BG` formatting intentionally differs for the same calendar
+date. No date, behavior, layout, backend, database, auth, dependency or license
+change was made. The unrelated shortcut stays untouched. No subagent was used.
+P2C is not started; supplied 2025-2026 rules require actual-year verification.
