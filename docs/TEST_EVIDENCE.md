@@ -1,5 +1,48 @@
 # BudoGraph Test Evidence
 
+## P2C Invite member feedback spacing — 2026-10-05
+
+User-authorized micro-polish from synchronized, tracked-clean `main` at
+`f9247ebca14ac3281d161c419ad0071398d5f70b`. The user reports P2C human
+functional acceptance. This change is confined to dialog feedback spacing.
+
+- Before editing, actual Edge rendering and computed rectangles confirmed that
+  `.team-page__heading p` supplies `margin: 10px 0 0` to the dialog error:
+  action-to-feedback **10px**, feedback-to-Retry **0px**. Email-to-action is
+  **22px**, action-row gap **12px**, Retry-to-pending-divider **28px**.
+  Bulgarian feedback wraps to two lines at 390px.
+- Only `.invitation-dialog > .login-error { margin: 24px 0 8px; }` was added
+  to `src/components/invitations.css`. Browser measurements confirm **24px / 8px**
+  in every error case; the other measured gaps remain unchanged. No container,
+  surface, typography, control, dialog width/max-height or behavior was changed.
+- Focused Edge verification uses explicitly synthetic, intercepted API responses
+  and a fixed clock, without database writes. **64 dialog cases** cover 1440/390px,
+  BG/EN, light/dark, no error/already-member/already-pending/safe server error,
+  each with empty and visible pending invitations. Long emails wrap in pending
+  rows; Bulgarian feedback wraps without collision. No horizontal overflow;
+  every button remains at least 44px in both dimensions. **Four 390×560 cases**
+  confirm legitimate dialog scrolling and keyboard access to the final control.
+- All 64 cases preserve Tab containment, forward/backward wrapping, Escape and
+  trigger focus restoration. Error cases preserve focused alert text, input
+  `aria-describedby`, and a named, operable Retry button. Retry reloads the list
+  and clears feedback without repeating the create POST. Zero application errors.
+- **40/40 before/after screenshot comparisons are pixel-identical**: 24 locked
+  Dashboard/Tasks/Team roster-detail interiors and 16 normal no-error dialogs.
+  Bulgarian sidebar has no extra scroll at the checked desktop size. All themes
+  and both languages were visually reviewed in the focused dialog captures.
+- Requested `format`, `format:check`, `lint`, `typecheck`, `test` (**224/224**),
+  `build` and `git diff --check` pass. Evidence and the disposable verifier are
+  ignored under `tmp/p2c-feedback-evidence` and `tmp/p2c-feedback.mjs`.
+- Initial verifier attempts exposed an omitted synthetic invitation `createdAt`
+  and a screenshot taken during workspace replacement. The fixture was corrected
+  and capture stabilized; the complete baseline and after runs pass. These were
+  verifier issues, not application failures or backend evidence.
+
+No backend/auth/onboarding, core page, shell, Event switcher or dependency changes.
+The unrelated shortcut remains untouched and untracked. Auth Experience Polish
+and P3 are not started. Supplied NOIT rules are for 2025–2026; actual competition
+year requirements still need separate verification.
+
 ## P2C Event invitations and invite-only onboarding — 2026-10-04/05
 
 Preflight: tracked-clean `main`, fetched `origin/main`, both exactly

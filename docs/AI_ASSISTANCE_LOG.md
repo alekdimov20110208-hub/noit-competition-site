@@ -1,5 +1,22 @@
 # AI Assistance Log
 
+## P2C Invite member feedback micro-polish — 2026-10-05
+
+At the user's explicit request, Codex measured the existing dialog in Edge before
+editing and added a single scoped CSS margin override. The inherited Team heading
+paragraph margin caused 10px above feedback and no space before Retry; the dialog
+now uses 24px above and 8px below feedback. Markup, semantics, behavior and locked
+designs are preserved. No subagent, dependency, backend or database change was used.
+
+Verification includes 64 synthetic-response browser cases, four short-mobile
+scroll cases, 40 pixel-identical locked/normal-state comparisons, screenshot review
+and all requested frontend checks with 224 passing tests. Synthetic fixtures and
+initial verifier corrections are recorded in TEST_EVIDENCE.md; these results do
+not represent new human acceptance or backend-write testing. The user supplied
+the existing P2C human functional PASS. The unrelated shortcut stays untouched.
+Auth Experience Polish and P3 remain outside scope. Supplied 2025–2026 competition
+requirements must be checked separately for the actual participation year.
+
 ## P2C Event invitations and invite-only onboarding — 2026-10-04/05
 
 Codex implemented the user's attached P2C contract from fetched, synchronized

@@ -31,6 +31,9 @@
 .invite-entry .button {
   min-height: 44px;
 }
+.invitation-dialog > .login-error {
+  margin: 24px 0 8px;
+}
 .invitation-pending,
 .invitation-delivery {
   margin-top: 28px;
