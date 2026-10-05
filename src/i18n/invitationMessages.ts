@@ -17,6 +17,16 @@ export const INVITATION_EN_MESSAGES = {
   "invite.cancel": "Cancel",
   "invite.retry": "Retry",
   "invite.title": "Event invitation",
+  "invite.memberContext": "You are invited to join as a Member.",
+  "invite.accountStep":
+    "Sign in or create an account through this invitation. Then join the Event.",
+  "invite.joinStep":
+    "Your account is ready. Join the Event to become a Member.",
+  "invite.heading.wrong": "Use the invited account",
+  "invite.heading.expired": "Invitation expired",
+  "invite.heading.revoked": "Invitation revoked",
+  "invite.heading.accepted": "Invitation already accepted",
+  "invite.heading.unavailable": "Invitation unavailable",
   "invite.join": "Join Event",
   "invite.joined": "Open joined Event",
   "invite.context": "Join {name} as a Member.",
@@ -75,6 +85,16 @@ export const INVITATION_BG_MESSAGES = {
   "invite.cancel": "Отказ",
   "invite.retry": "Опитай отново",
   "invite.title": "Покана за събитие",
+  "invite.memberContext": "Поканен си да се присъединиш като участник.",
+  "invite.accountStep":
+    "Влез или създай акаунт чрез тази покана. След това се присъедини към събитието.",
+  "invite.joinStep":
+    "Акаунтът ти е готов. Присъедини се към събитието като участник.",
+  "invite.heading.wrong": "Използвай поканения акаунт",
+  "invite.heading.expired": "Изтекла покана",
+  "invite.heading.revoked": "Отменена покана",
+  "invite.heading.accepted": "Вече приета покана",
+  "invite.heading.unavailable": "Недостъпна покана",
   "invite.join": "Присъедини се",
   "invite.joined": "Отвори събитието",
   "invite.context": "Присъедини се към {name} като участник.",

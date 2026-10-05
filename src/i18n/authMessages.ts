@@ -1,6 +1,13 @@
 export const AUTH_EN_MESSAGES = {
-  "auth.context": "Event operations",
-  "auth.contextDetail": "Preparation, responsibilities and the next decision.",
+  "auth.context": "Seminar coordination",
+  "auth.contextDetail":
+    "Martial-arts seminars. A shared picture of the preparation.",
+  "auth.event": "Event",
+  "auth.eventDetail": "The seminar, its dates and preparation.",
+  "auth.responsibility": "Responsibility",
+  "auth.responsibilityDetail": "Who takes it on, and by when.",
+  "auth.decision": "Next decision",
+  "auth.decisionDetail": "What needs attention when plans change.",
   "auth.title": "Sign in",
   "auth.intro": "Sign in with your BudoGraph account.",
   "auth.email": "Email",
@@ -20,8 +27,15 @@ export const AUTH_EN_MESSAGES = {
 } as const;
 
 export const AUTH_BG_MESSAGES = {
-  "auth.context": "Организация на събития",
-  "auth.contextDetail": "Подготовка, отговорности и следващото решение.",
+  "auth.context": "Координация на семинари",
+  "auth.contextDetail":
+    "Семинари по бойни изкуства. Обща картина на подготовката.",
+  "auth.event": "Събитие",
+  "auth.eventDetail": "Семинарът, датите и подготовката.",
+  "auth.responsibility": "Отговорност",
+  "auth.responsibilityDetail": "Кой я поема и до кога.",
+  "auth.decision": "Следващо решение",
+  "auth.decisionDetail": "Какво изисква внимание при промяна в плана.",
   "auth.title": "Вход",
   "auth.intro": "Влезте със своя акаунт в BudoGraph.",
   "auth.email": "Имейл",

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { LoginPage } from "../pages/LoginPage.tsx";
-import { BrandWordmark } from "../components/BrandWordmark.tsx";
-import { PreferencesControls } from "../components/PreferencesControls.tsx";
+import { AuthShell } from "./AuthShell.tsx";
 import { useI18n } from "../i18n/index.ts";
 import { auth, useAuth } from "./runtime.ts";
 import {
@@ -76,15 +75,11 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
     (state.status === "authenticated" && atLogin)
   ) {
     return (
-      <div className="auth-screen">
-        <header className="auth-header">
-          <BrandWordmark compact />
-          <PreferencesControls />
-        </header>
-        <main className="auth-check" role="status">
+      <AuthShell>
+        <div className="auth-check" role="status">
           <p>{t("auth.checking")}</p>
-        </main>
-      </div>
+        </div>
+      </AuthShell>
     );
   }
   if (atInvitation)

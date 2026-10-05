@@ -1,5 +1,171 @@
 # BudoGraph Test Evidence
 
+## Authentication experience polish — 2026-10-05
+
+### Approved boundary and preflight
+
+User-authorized visual/UX phase from tracked-clean `main` at
+`de9951e6b52d44604b23118796acc287c57ea3e4`, matching fetched `origin/main`.
+The complete master prompt and all 30 supplied 2025–2026 regulation pages were read.
+Existing product/flow/architecture/model/testing approvals and the explicit request
+authorize this polish. P1/P2A/P2B/P2C remain locked; P3 is not started. The unrelated
+`docs/market-research/docs - Shortcut.lnk` is left untouched and untracked.
+
+Before implementation, frontend **224/224**, offline backend **111 passed / six
+opt-in database suites skipped**, and enabled PostgreSQL **62/62 / zero skipped**
+passed. No critical failure was bypassed. Integration runs completed before live
+browser writes, so rollback constraints did not interfere with real workflows.
+
+### Presentation and scope
+
+Actual desktop Login inspection confirmed equal columns, disproportionately small
+context, wide inner gutters/gap and weak form anchoring. The final shell aligns
+header/content within 1080px and uses unequal context/action columns with a quiet
+divider. Seminar-specific context connects Event, responsibility/deadline and the
+next decision; it introduces no feature grid, image, external font, logo or palette.
+At 800px and below, the operational readout compresses into a short context and
+single-column form. At 540px and below, language/theme controls occupy a deliberate
+second header row; phone controls stay 44px or larger and the page scrolls normally.
+
+Pending invitations show only the already-authorized Event name, Member context,
+invited email and expiry beside the next action. Registration uses its own heading
+and removes the competing pre-form action row while open; Cancel restores focus
+to Create account. The invited email remains read-only, name/password constraints
+are unchanged, and account creation still precedes a separate explicit join.
+Wrong-account, expired, revoked, accepted and unavailable states have concise
+headings and existing safe explanations/actions. Loading uses the same shell.
+
+Only presentation/focus/copy changed. Source comparison confirms **no changes** to
+Better Auth configuration/controller/transport, return routing, invitation services,
+API routes, schema/migrations, authorization, role/member rules, password rules,
+dependencies/lockfile, global theme/styles or authenticated page/shell components.
+Public signup is neither exposed in normal Login nor enabled on the backend.
+
+### Automated and real workflow verification
+
+| Check                                                             | Verified result                                                                                |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `pnpm.cmd format`, `format:check`, `lint`, `typecheck`, `build`   | Pass; production build succeeds.                                                               |
+| `pnpm.cmd test`                                                   | 224/224 pass after implementation and focus correction.                                        |
+| `pnpm.cmd server:test`                                            | 111 pass; six opt-in database suites skipped in this offline command.                          |
+| `RUN_DATABASE_INTEGRATION=1` + `pnpm.cmd server:test:integration` | 62/62 pass, zero skipped, real PostgreSQL rollback fixtures. Backend source remains unchanged. |
+| `pnpm.cmd server:typecheck`, `server:build`                       | Pass.                                                                                          |
+| `pnpm.cmd test:browser:auth`                                      | 15 checks / 20 Login layout cases; zero application/console errors.                            |
+| `pnpm.cmd test:browser:events`                                    | 14 checks / 20 cases; zero application errors.                                                 |
+| `pnpm.cmd test:browser:task-authoring`                            | 11 checks / 20 cases; zero application errors.                                                 |
+| `pnpm.cmd test:browser:invitations`                               | Seven checks / 20 recipient + 20 dialog cases; zero application errors.                        |
+| `node scripts/verify-auth-experience-ui.mjs`                      | 182 presentation cases / 20 keyboard-focus combinations; zero application/console errors.      |
+| `git diff --check`                                                | Pass.                                                                                          |
+
+Real auth checks cover direct protected URLs, bootstrap, Organizer and Member
+login, safe invalid credentials, duplicate pending submission, refresh, logout,
+server-invalidated sessions, internal return restoration, external redirect denial,
+HttpOnly cookies and no auth tokens in browser storage. Existing named transport
+failures/malformed identities are explicit doubles, not actual outages.
+
+Real P2C checks cover existing account → sign in → return → explicit join; new
+invite-only Better Auth account → ordinary session → explicit join; no membership
+before joining; canonical MEMBER role and empty operational role; Event switcher/
+Team visibility; absent Organizer controls for Member; assignment followed by
+separate acceptance; multi-Event role isolation; concurrent/idempotent acceptance;
+wrong-account denial, actual revocation/expiry, invalid links, registration refusal,
+closed public signup, forged roles/identity and foreign scope denial. The expiry
+fixture changes only its newly created disposable invitation. Browser-created
+Events/tasks/accounts/history are retained; no existing database data is deleted/reset.
+
+### Visual/browser matrix and accessibility
+
+Edge/Chromium **154.0.4258.53**, widths **1440, 1080, 768, 390, 320 CSS px**,
+both **BG/EN × Light/Dark**. The read-only verifier labels synthetic identity and
+invitation responses explicitly and saves no bearer URL or auth artifacts. It
+captures Login, valid invitation, registration, wrong account, expired, revoked,
+accepted, unavailable and invalid surfaces: **180 cases**, plus **two Bulgarian
+phone registration-error cases**. Real recipient regression additionally tests
+long email wrapping across 20 configurations.
+
+Every presentation case has one primary heading, labelled inputs, no horizontal
+overflow, targets at least 44×44px and sampled text contrast meeting 4.5:1 for
+regular text / 3:1 for large text; minimum sampled ratio **4.61:1**. Keyboard checks
+verify route-entry heading focus, Login email → password → submit order, Escape
+leaving the nonmodal page intact, registration name focus, Cancel restoration,
+safe focused/associated registration errors, one pending submission and password
+discarding. A reduced 390×420 viewport checks focused-submit reachability through
+normal scrolling; this is viewport emulation, not a physical software keyboard.
+Background same-identity refresh preserves the focused wrong-account action in all
+20 configurations. The real dialog tests preserve Tab containment/Escape/restoration.
+
+Agent visual inspection includes the six required Login captures: **1440 EN Light,
+1440 BG Dark, 1080 BG Light, 390 EN Dark, 390 BG Light, 320 BG Dark**. Desktop EN
+invitation, desktop BG account creation, phone BG registration, wrong account and
+expired/revoked/invalid/accepted views were also inspected. They retain intentional
+whitespace, anchored actions, full copy wrapping, a compressed mobile context and
+calm state feedback. The concise seminar readout and Event-specific invitation
+context reduce generic appearance without adding product promises or decorative
+cards. This is agent review, not new human usability feedback.
+
+### Locked workspace and prior polish regressions
+
+- **60/60 pixel-identical** Dashboard/Tasks/Team content comparisons: three pages ×
+  five widths × two languages × two themes. Both sides use identical read-only
+  localized fixtures, fixed reference time and equivalent content. The baseline
+  is a `git archive` of the exact pre-polish HEAD, served separately on port 5187.
+  Sticky authenticated header/mobile-nav overlays are hidden only during content
+  captures; their product source/CSS is unchanged.
+- **24 sidebar cases** at widths 1440/1080, heights 900/740/720, BG/EN and both themes:
+  no micro-scroll, full labels, 44px controls, keyboard-visible logout and unchanged
+  switcher geometry. At 560px height, normal sidebar scrolling remains available.
+- **64 invitation-dialog feedback cases**, with/without pending rows, BG/EN and
+  both themes at 1440/390: 24px action-to-feedback and 8px feedback-to-Retry retained;
+  focus containment, association, Retry without re-submission and Escape restoration
+  pass. Four short phone cases preserve dialog scrolling. **16/16 normal-dialog
+  screenshots** match the prior micro-polish evidence pixel-for-pixel. Dialog CSS,
+  markup and localization keys used by it are unchanged.
+
+### Review, corrections and remaining limits
+
+Fresh read-only self-review covered generic appearance, whitespace/proportions,
+copy value, auth hierarchy, invitation/form coherence, BG/EN, phone density, focus,
+scope and locked pages. It found background identity object replacement could
+refocus the invitation heading. Focus now depends on signed-in state; the final
+presentation suite and affected frontend checks pass. No independent external
+reviewer/subagent, formal accessibility/security audit or human acceptance is claimed.
+
+Intermediate verifier/capture corrections are not PASS evidence: a 200/null synthetic
+identity incorrectly represented signed-out state and produced a safe unexpected
+error; the fixture now uses the real 401 contract and asserts no Login alert. Four
+initial locked images differed solely because sticky header overlays were captured
+at different scroll positions. Stable overlay-hidden captures against exact HEAD
+pass all 60 comparisons. Port 5174 was already occupied; the exact baseline was
+started on 5187, without stopping the existing service. No product/backend behavior
+was changed to satisfy these corrections.
+
+Safe screenshots/reports live under ignored `tmp/auth-polish-evidence`; existing
+real suites use their documented `tmp/p1d-evidence`, `tmp/p2a-evidence`,
+`tmp/p2b-evidence` and `tmp/p2c-evidence` directories. The new verifier accepts the
+same `BUDOGRAPH_PLAYWRIGHT_MODULE` / `BUDOGRAPH_BROWSER_EXECUTABLE` overrides;
+Playwright/Edge were supplied from the workstation, without a project dependency.
+Only this evidence and AI_ASSISTANCE_LOG.md are updated; architecture docs are not
+rewritten. Credentials, sessions, cookies, invite bearer URLs and database dumps are
+excluded from staging. Known P2C limitations remain: development-link delivery,
+no email delivery/recovery/general verification, no Member removal/role editing,
+no P3. Physical-device keyboards, Safari/Firefox and formal certification remain
+unverified. GPLv3 and the existing license register are unchanged. The supplied NOIT
+rules concern **2025–2026**; eligibility/categories, licensing, dates, online periods,
+document format and assessment require separate actual-year verification.
+
+### Exact changed files
+
+- `src/auth/AuthShell.tsx`
+- `src/auth/AuthBoundary.tsx`
+- `src/auth/auth.css`
+- `src/pages/LoginPage.tsx`
+- `src/pages/InvitationPage.tsx`
+- `src/i18n/authMessages.ts`
+- `src/i18n/invitationMessages.ts`
+- `scripts/verify-auth-experience-ui.mjs`
+- `docs/TEST_EVIDENCE.md`
+- `docs/AI_ASSISTANCE_LOG.md`
+
 ## P2C Invite member feedback spacing — 2026-10-05
 
 User-authorized micro-polish from synchronized, tracked-clean `main` at

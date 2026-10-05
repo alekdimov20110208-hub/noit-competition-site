@@ -1,5 +1,40 @@
 # AI Assistance Log
 
+## Authentication experience polish — 2026-10-05
+
+The user's pasted implementation request authorizes visual/UX polish from
+`de9951e6b52d44604b23118796acc287c57ea3e4`. Codex read the complete master
+prompt, all 30 supplied regulation pages, approved product/backend contracts,
+existing auth/invitation implementation, styling and evidence. Fetched `main`
+matched `origin/main`; tracked files were clean. The unrelated shortcut is untouched.
+
+Browser inspection confirmed the weak desktop context/form balance. Assistance
+adds a shared presentation-only AuthShell, aligned unequal columns, a concise
+seminar/responsibility/decision readout, compact phone context, Event/identity
+framing for invitations, a distinct invite-only account form and calm terminal
+headings. It retains the replaceable wordmark, existing tokens/fonts/controls and
+all auth/invitation commands, routing, password constraints and explicit joining.
+Public signup stays closed. No backend, schema, dependency, asset, authenticated
+workspace redesign or P3 work was added.
+
+Verification uses existing real auth/P2A/P2B/P2C browser regressions, 224 frontend
+tests, 111 offline backend tests and 62 opt-in PostgreSQL tests. A new read-only
+presentation verifier covers 182 surface cases and 20 keyboard/focus combinations.
+The final locked-content comparison is 60/60 pixel-identical; dialog feedback and
+Bulgarian sidebar regressions pass. See TEST_EVIDENCE.md for commands, fixtures,
+intermediate capture corrections and limits. Fresh self-review caught focus moving
+on background identity refresh; focus now depends on signed-in state, with a browser
+regression proving control focus remains. No subagent/external reviewer or new human
+acceptance is claimed. The student still needs to review and understand the changes.
+
+Only test evidence and this assistance log are updated. Screenshots/reports remain
+ignored; credentials, cookies, sessions and bearer URLs are not saved or staged.
+Real browser regression fixtures create disposable development records and retain
+their history; no existing data reset/deletion is performed. Supplied competition
+rules concern 2025–2026: actual-year eligibility, categories, GPLv3 requirements,
+dates, online availability, documentation format and assessment must be verified
+separately. Internal project deadlines are not official competition deadlines.
+
 ## P2C Invite member feedback micro-polish — 2026-10-05
 
 At the user's explicit request, Codex measured the existing dialog in Edge before
