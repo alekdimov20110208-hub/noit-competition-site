@@ -15,6 +15,8 @@ const out = "tmp/auth-polish-evidence/presentation";
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({
   headless: true,
+  // Exercise the layout with ordinary scrollbars rather than hiding them.
+  ignoreDefaultArgs: ["--hide-scrollbars"],
   ...(process.env.BUDOGRAPH_BROWSER_EXECUTABLE
     ? { executablePath: process.env.BUDOGRAPH_BROWSER_EXECUTABLE }
     : {}),
@@ -29,6 +31,98 @@ const report = {
 };
 
 async function inspect(page, surface, width, language, theme) {
+  const layout = await page.evaluate(async () => {
+    const root = document.documentElement;
+    const body = document.body;
+    const measure = () => ({
+      innerWidth,
+      clientWidth: root.clientWidth,
+      scrollWidth: root.scrollWidth,
+      bodyScrollWidth: body.scrollWidth,
+      scrollX,
+      visualViewport: {
+        width: visualViewport.width,
+        scale: visualViewport.scale,
+        offsetLeft: visualViewport.offsetLeft,
+      },
+      outside: [...document.querySelectorAll("*")].flatMap((node) => {
+        const rect = node.getBoundingClientRect();
+        return rect.width && (rect.left < 0 || rect.right > root.clientWidth)
+          ? [
+              {
+                tag: node.tagName,
+                className: node.className,
+                left: rect.left,
+                right: rect.right,
+              },
+            ]
+          : [];
+      }),
+      workspace: (() => {
+        const rect = document
+          .querySelector(".auth-workspace")
+          .getBoundingClientRect();
+        return { left: rect.left, right: rect.right, width: rect.width };
+      })(),
+    });
+    const rendered = measure();
+    const bodyStyle = body.getAttribute("style");
+    const rootStyle = root.getAttribute("style");
+    const y = scrollY;
+    let unclipped;
+    try {
+      // A passing test must not depend on the pre-existing global body clipping.
+      body.style.overflowX = "visible";
+      root.style.scrollBehavior = "auto";
+      scrollTo(0, y);
+      unclipped = measure();
+      scrollTo(10000, y);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      unclipped.panRight = scrollX;
+      scrollTo(-10000, y);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      unclipped.panLeft = scrollX;
+    } finally {
+      scrollTo(0, y);
+      if (bodyStyle === null) body.removeAttribute("style");
+      else body.setAttribute("style", bodyStyle);
+      if (rootStyle === null) root.removeAttribute("style");
+      else root.setAttribute("style", rootStyle);
+    }
+    return { rendered, unclipped };
+  });
+  await page.mouse.move(width / 2, 100);
+  await page.mouse.wheel(1000, 0);
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
+  const wheelPan = await page.evaluate(() => scrollX);
+  report.matrix.push({ surface, width, language, theme, layout, wheelPan });
+  for (const measurement of [layout.rendered, layout.unclipped]) {
+    assert.ok(
+      measurement.scrollWidth <= measurement.clientWidth,
+      `${surface}: document overflow`,
+    );
+    assert.ok(
+      measurement.bodyScrollWidth <= measurement.clientWidth,
+      `${surface}: body overflow`,
+    );
+    assert.deepEqual(measurement.outside, [], `${surface}: off-screen content`);
+    assert.equal(measurement.scrollX, 0);
+    assert.equal(measurement.visualViewport.scale, 1);
+    assert.equal(measurement.visualViewport.offsetLeft, 0);
+    const { left, right } = measurement.workspace;
+    assert.ok(
+      Math.abs(left - (measurement.clientWidth - right)) <= 1,
+      `${surface}: shell gutters`,
+    );
+  }
+  assert.equal(layout.unclipped.panRight, 0);
+  assert.equal(layout.unclipped.panLeft, 0);
+  assert.equal(wheelPan, 0);
   const metrics = await page.evaluate(() => {
     const main = document.querySelector("main");
     const visible = (node) => node.getClientRects().length > 0;
@@ -74,7 +168,9 @@ async function inspect(page, surface, width, language, theme) {
       };
     });
     return {
-      overflow: document.documentElement.scrollWidth > innerWidth,
+      overflow:
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
       headings: main.querySelectorAll("h1").length,
       targets: controls.map((node) => {
         const rect = node.getBoundingClientRect();
@@ -87,7 +183,7 @@ async function inspect(page, surface, width, language, theme) {
     };
   });
   assert.equal(metrics.overflow, false);
-  assert.equal(metrics.headings, 1);
+  assert.equal(metrics.headings, surface === "loading" ? 0 : 1);
   assert.equal(metrics.labelled, true);
   assert.ok(
     metrics.targets.every(
@@ -103,11 +199,7 @@ async function inspect(page, surface, width, language, theme) {
     ...Object.keys(sessionStorage),
   ]);
   assert.deepEqual(storage, ["budograph.preferences.v1"]);
-  report.matrix.push({
-    surface,
-    width,
-    language,
-    theme,
+  Object.assign(report.matrix.at(-1), {
     overflow: false,
     labelled: true,
     targets: true,
@@ -145,8 +237,13 @@ try {
           { language, theme },
         );
         let wrong = false;
-        await page.route("**/api/me", (route) =>
-          route.fulfill(
+        let releaseLoading;
+        const loading = new Promise((resolve) => {
+          releaseLoading = resolve;
+        });
+        await page.route("**/api/me", async (route) => {
+          await loading;
+          return route.fulfill(
             wrong
               ? {
                   json: {
@@ -158,9 +255,14 @@ try {
                   },
                 }
               : { status: 401, json: { code: "UNAUTHENTICATED" } },
-          ),
-        );
+          );
+        });
         await page.goto(origin + "/login");
+        await page
+          .locator(".auth-check [role=status], .auth-check[role=status]")
+          .waitFor();
+        await inspect(page, "loading", width, language, theme);
+        releaseLoading();
         await page.locator("#login-email").waitFor();
         await page.waitForFunction(
           () => document.activeElement?.id === "login-title",
@@ -313,6 +415,12 @@ try {
           );
           await inspect(page, "registration-error", width, language, theme);
         }
+        const originalEmail = invitation.email;
+        invitation.email = `${"i".repeat(64)}@${"d".repeat(63)}.${"e".repeat(63)}.invalid`;
+        await page.goto(origin + `/invite/${token}`);
+        await page.locator("#invitation-title").waitFor();
+        await inspect(page, "long-email", width, language, theme);
+        invitation.email = originalEmail;
         wrong = true;
         await page.goto(origin + `/invite/${token}`);
         await page.getByRole("alert").waitFor();

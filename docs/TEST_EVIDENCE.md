@@ -1,5 +1,134 @@
 # BudoGraph Test Evidence
 
+## Auth horizontal-pan investigation — 2026-10-05
+
+### Scope and acceptance status
+
+The user's report is investigated from fetched, tracked-clean `main` at
+`ee662e6de0c8a031a5c6f796cc981455a07d9302`, equal to `origin/main`.
+The previously completed mandatory master-prompt/regulations review applies.
+P1/P2A/P2B/P2C remain locked. The user reports a **PASS** human retest after
+resetting browser zoom to **100% with Ctrl+0**. Auth Experience Polish is accepted
+and locked with this test/documentation cleanup; P3 has not started.
+No production CSS, markup, copy, auth/invitation behavior, backend, schema or
+dependency is changed. The unrelated shortcut remains untouched.
+
+**A normal document-overflow regression has not been reproduced.** This is an
+investigation result, not evidence that the reported human symptom is imaginary,
+and not a claim that a layout defect has been fixed. No offending production
+DOM element/CSS property can honestly be identified in the requested normal matrix.
+No production fix was applied or is needed. The browser visual-viewport zoom/offset
+was the observed explanation; the subsequent human 100% zoom retest passed.
+The final cleanup preserves only regression-test/documentation hardening under
+`test(app): harden auth overflow verification`, not a production CSS fix commit.
+
+### Actual-browser observation and separate visual viewport
+
+Read-only inspection of the user's existing Brave `/login` tab found:
+
+| Measurement                                                                 | Observed value          |
+| --------------------------------------------------------------------------- | ----------------------- |
+| `innerWidth` / HTML `clientWidth` / HTML `scrollWidth` / body `scrollWidth` | 440 / 440 / 440 / 440px |
+| `scrollX`                                                                   | 0px                     |
+| Out-of-layout-viewport element rectangles                                   | None                    |
+| `visualViewport.width`                                                      | 421.602783203125px      |
+| `visualViewport.scale`                                                      | 1.0436363220214844      |
+| `visualViewport.offsetLeft`                                                 | 18.397212982177734px    |
+
+Thus the visible view is magnified and shifted within a correctly sized layout.
+This explains the measured tab's apparent left shift and permits visual-viewport
+panning independently of document scrolling. The user subsequently confirmed that
+resetting browser zoom to 100% with Ctrl+0 passed the human retest. That human
+confirmation is user-reported, not an additional automated measurement. Reloading retained
+that browser-controlled scale/offset. A horizontal wheel action did not change
+document `scrollX`; a native drag attempt timed out and is not counted as a pass.
+The existing tab's viewport state was preserved. Temporary testing overrides were
+removed and the original EN/system preference was restored.
+
+An isolated mobile-emulation browser test independently reproduced this mechanism:
+440/440px document widths and `scrollX=0` throughout; setting the observed scale
+reduced the visual width to 421.602783203125px; a touch drag moved its visual offset
+to 18px; restoring scale 1 restored visual width 440px and offset 0. This is a
+deliberate browser-emulation experiment, not a production CSS change or disabled
+zoom. No change to viewport metadata or accessibility zoom support is proposed.
+Evidence: ignored `tmp/auth-overflow-evidence/visual-viewport.json` and its two PNGs.
+
+### Normal viewport measurements
+
+Brave's isolated tab covers all five widths × BG/EN × light/dark: **20 cases**.
+At scale 1, all four recorded layout widths equal the requested width and
+`scrollX=0`, `visualViewport.offsetLeft=0`. At 390px, some outer rectangles measured
+390.3999938964844px, a subpixel rounding observation; integer document widths
+remain 390px with no horizontal scroll range. No content element exceeds the
+outer wrapper. This rounding is recorded rather than treated as a confirmed cause.
+
+Real-backend Edge Login checks on both already-running local origins (5173 and 5174) cover **40 cases**, each at 620px height, with horizontal wheel attempts and
+temporary removal of the existing body clipping: no document overflow or panning.
+Additional normal/unclipped Edge checks cover five widths × two languages ×
+900/620/420px heights. Exploratory injected CSS zoom is distinct from real browser
+zoom: at 320px and CSS zoom 1.5 it can overrun the unwrapped header preference row.
+That synthetic, smaller effective layout is not substituted for reproduction of
+the reported normal desktop defect; no production patch is based on it.
+
+The strengthened existing presentation verifier covers **222 cases** / **20
+keyboard combinations**, including Login, auth loading, pending invitation,
+invite-only registration, a 200-character email, wrong account, expired, revoked,
+accepted, unavailable, invalid and two BG mobile registration-error cases:
+
+| Requested width | Cases | `innerWidth` | HTML `clientWidth` = HTML `scrollWidth` = body `scrollWidth` |
+| --------------- | ----- | ------------ | ------------------------------------------------------------ |
+| 1440px          | 44    | 1440px       | 1440px                                                       |
+| 1080px          | 44    | 1080px       | 1080px                                                       |
+| 768px           | 44    | 768px        | 768px                                                        |
+| 390px           | 46    | 390px        | 390px; 375px when a vertical scrollbar is needed             |
+| 320px           | 44    | 320px        | 320px; 305px when a vertical scrollbar is needed             |
+
+Each case records the four widths, out-of-viewport rectangles, shell gutter
+coordinates, visual-viewport scale/offset and horizontal wheel result. It asserts
+`scrollWidth <= clientWidth` directly, also checks body width, and repeats the
+measurements with `body.style.overflowX="visible"` only inside the browser test.
+Both positive and negative `scrollTo` attempts and horizontal wheels produce zero
+document movement. Test-only inline overrides are restored before screenshots.
+Ordinary browser scrollbars remain enabled. All rectangles stay inside the layout
+viewport in this Edge matrix, fields remain visible, BG/long-email text wraps,
+controls remain at least 44px, vertical/short-keyboard scrolling is retained,
+contrast/focus assertions pass, and application/console errors are zero.
+
+The previous verifier compared against `innerWidth`, which can include a vertical
+scrollbar. That weaker assertion has been corrected, but **it was not demonstrated
+to have concealed an actual normal-layout failure on this baseline**.
+Equal outer gutters and screenshot review support the existing intended unequal
+columns at normal scale; no separate alignment defect or extra visual adjustment
+is established. The user-reported successful 100% browser zoom retest closes the
+investigation without a production layout change.
+
+### Regression and automated checks
+
+Cleanup reran `format`, `format:check`, `lint`, `typecheck`, the **224/224** frontend
+tests, `git diff --check`, the explicit verifier formatting check and the hardened
+auth presentation verifier (**222 cases / 20 keyboard combinations**, zero errors).
+All passed without removing or weakening assertions. The additional build,
+functional and locked-UI results below were verified during the investigation.
+
+| Check                                                              | Verified result                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm.cmd format`, `format:check`, `lint`, `typecheck`, `build`    | Pass; all production source remains unchanged.                                                                                                                                                                                      |
+| `pnpm.cmd test`                                                    | 224/224 pass, zero skipped.                                                                                                                                                                                                         |
+| `git diff --check`; explicit Prettier check of the `.mjs` verifier | Pass.                                                                                                                                                                                                                               |
+| Enhanced auth presentation verifier                                | 222 cases / 20 keyboard combinations, zero application/console errors; clipping-independent width/pan assertions pass.                                                                                                              |
+| `pnpm.cmd test:browser:auth`                                       | 15 checks / 20 layout cases, zero application/console errors; Organizer/Member login, invalid credentials, logout and protected return pass.                                                                                        |
+| `pnpm.cmd test:browser:invitations`                                | Seven workflow checks / 20 recipient cases / 20 dialog cases, zero application errors; sign-in return, invite-only creation/entry and wrong-account denial pass. The existing suite also exercises its deeper invitation workflows. |
+| Locked Dashboard/Tasks/Team captures                               | 60/60 pixel-identical to the saved captures from the exact auth-polish baseline. Identical localized fixtures/fixed time are used; sticky chrome is hidden only during content-region capture.                                      |
+| Sidebar/switcher                                                   | 24 cases; zero errors, Bulgarian micro-scroll fix preserved, full labels/44px controls and short-window vertical scrolling pass.                                                                                                    |
+| P2C Invite member dialog                                           | 64 feedback/state cases plus four short-mobile checks; zero errors, 24px/8px feedback spacing and keyboard/retry behavior preserved.                                                                                                |
+
+Only development test fixtures are created; no existing data reset/deletion occurs.
+Ignored reports/screenshots remain under `tmp/auth-overflow-evidence`,
+`tmp/auth-polish-evidence/presentation` and existing browser verifier evidence paths.
+Git source comparison confirms that every production file is identical to the
+baseline. Only the verifier and two evidence documents are included in the cleanup
+commit. The unrelated shortcut remains untouched and untracked.
+
 ## Authentication experience polish — 2026-10-05
 
 ### Approved boundary and preflight

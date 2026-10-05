@@ -1,5 +1,50 @@
 # AI Assistance Log
 
+## Auth horizontal-pan investigation — 2026-10-05
+
+The user authorizes one targeted overflow investigation/fix from
+`ee662e6de0c8a031a5c6f796cc981455a07d9302`. Fetched `main` matches
+`origin/main`; the prior full mandatory master-prompt/2025–2026 regulations review
+applies. The unrelated shortcut is untouched; locked product designs remain locked
+and P3 is not started.
+
+Codex measured Login independently in Edge and the user's actual Brave browser.
+Normal layout document widths fit at 1440/1080/768/390/320px in BG/EN and both themes,
+including visible-scrollbar/short-window checks and test-only removal of existing
+global body clipping. The actual open Brave tab instead has a 440px layout,
+421.602783203125px visual viewport, scale 1.0436363220214844 and horizontal visual
+offset 18.397212982177734px, with `scrollX=0` and no overflowing layout element.
+An isolated mobile-emulation scale/touch experiment reproduces that visual shift
+without document overflow and reverses it by restoring scale 1. This distinguishes
+browser visual-viewport panning from a CSS layout failure. Browser visual-viewport
+zoom/offset was the observed explanation; the user subsequently reported a **PASS**
+human retest after resetting browser zoom to **100% with Ctrl+0**. This human result
+is user-reported rather than independently repeated by Codex. Reloading
+retains the existing tab's browser scale. A timed-out native drag is not represented
+as successful verification. Temporary viewport/preferences are restored.
+
+Assistance strengthens the existing browser verifier to compare `scrollWidth` with
+`clientWidth`, record HTML/body widths and off-screen rectangles, exercise both
+horizontal scroll directions and wheel input, remove body clipping temporarily
+within the test, keep ordinary scrollbars enabled, and cover loading/long email.
+The 222 presentation cases and 20 keyboard combinations pass. No production CSS,
+markup, copy, business logic, auth/invitation services, backend, schema, dependencies
+or viewport metadata changes are made. An exploratory CSS-zoom-only header overrun
+is not presented as the normal desktop reproduction or used to justify a patch.
+
+Production document overflow was not reproduced, no CSS root cause was identified,
+and no production fix was applied or is needed. The successful user-reported human
+retest accepts and locks Auth Experience Polish with this cleanup. The user
+authorizes committing only the verifier and these two documents as
+`test(app): harden auth overflow verification` and pushing to `origin/main`.
+This commit preserves regression hardening; it does not claim a production CSS
+overflow bug was fixed. P3 remains unstarted. Cleanup reruns the required frontend
+checks and hardened auth verifier without weakening assertions; all pass.
+See TEST_EVIDENCE.md for exact metrics and final checks. No subagent was used.
+Evidence is ignored; credentials, sessions and bearer URLs are
+not stored/staged. Competition-year requirements remain subject to verification
+for years later than the supplied 2025–2026 rules.
+
 ## Authentication experience polish — 2026-10-05
 
 The user's pasted implementation request authorizes visual/UX polish from
