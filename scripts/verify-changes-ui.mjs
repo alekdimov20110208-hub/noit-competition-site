@@ -12,7 +12,7 @@ const { chromium } = await import(
 );
 const origin = "http://127.0.0.1:5173",
   readChecksOnly = process.argv.includes("--read-checks"),
-  out = `tmp/p3a-evidence/${readChecksOnly ? "read-checks" : "browser"}`,
+  out = `tmp/p3b-evidence/${readChecksOnly ? "read-checks" : "browser"}`,
   run = randomUUID().slice(0, 8);
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({
@@ -317,7 +317,9 @@ async function contrast(page) {
       },
     );
     const controls = [
-      ...document.querySelectorAll("#change-title,#change-context"),
+      ...document.querySelectorAll(
+        "#change-title,#change-context,#change-decision,#change-response,#change-planB",
+      ),
     ].map((node) => {
       const style = getComputedStyle(node),
         background = backgroundOf(node);
@@ -420,6 +422,9 @@ async function verifyReadChecks() {
   await form(organizer.page);
   const draft = "Unsaved transport failure draft";
   await organizer.page.locator("#change-title").fill(draft);
+  await organizer.page.locator("#change-decision").fill("Unsaved decision");
+  await organizer.page.locator("#change-response").fill("Unsaved response");
+  await organizer.page.locator("#change-planB").fill("Unsaved fallback");
   for (const status of [500, "network"]) {
     const path = `**${changePath(event.id)}`;
     const handler = (route) =>
@@ -438,6 +443,15 @@ async function verifyReadChecks() {
       await organizer.page.locator("#change-title").inputValue(),
       draft,
     );
+    for (const [key, value] of [
+      ["decision", "Unsaved decision"],
+      ["response", "Unsaved response"],
+      ["planB", "Unsaved fallback"],
+    ])
+      assert.equal(
+        await organizer.page.locator(`#change-${key}`).inputValue(),
+        value,
+      );
     assert.ok(
       !(await organizer.page.locator(".change-form").innerText()).includes(
         "PRIVATE_ERROR",
@@ -517,6 +531,18 @@ try {
     report.changes.push(zero.id);
     assert.equal(zero.impact.taskCount, 0);
     await organizer.page.locator(".change-detail").waitFor();
+    assert.equal(zero.decision, null);
+    assert.equal(zero.response, null);
+    assert.equal(zero.planB, null);
+    await organizer.page
+      .getByText("No decision recorded yet.", { exact: true })
+      .waitFor();
+    await organizer.page
+      .getByText("No response recorded yet.", { exact: true })
+      .waitFor();
+    await organizer.page
+      .getByText("No Plan B recorded.", { exact: true })
+      .waitFor();
     checked(
       "Organizer empty state, validation/focus/Escape and zero-Task Change creation",
     );
@@ -600,6 +626,118 @@ try {
       "Organizer creates real two-Task impact, keyboard selection, response owner and distinct people/deadlines",
     );
 
+    report.step = "P3B authoring and partial states";
+    const taskState = (await api(organizer, `/api/events/${event.id}/tasks`))
+      .tasks;
+    const p3b = {
+      decision: "Move pickup to 20:30 and postpone the welcome meeting.",
+      response:
+        "Driver and hotel informed. Revised arrival coordination is in place.",
+      planB:
+        "If the flight is cancelled, reserve one airport hotel night and welcome the instructor tomorrow.",
+    };
+    for (const key of ["decision", "response", "planB"]) {
+      await form(organizer.page, true);
+      await organizer.page.locator(`#change-${key}`).fill(p3b[key]);
+      const previous = change.version;
+      change = await save(organizer.page, event.id, change.id);
+      await organizer.page.locator(".change-detail").waitFor();
+      assert.equal(change.version, previous + 1);
+      await organizer.page.getByText(p3b[key], { exact: true }).waitFor();
+      assert.deepEqual(
+        (await api(organizer, `/api/events/${event.id}/tasks`)).tasks,
+        taskState,
+      );
+      if (key === "decision") {
+        assert.equal(change.decision.authoredBy.id, event.membership.id);
+        assert.equal(change.response, null);
+        assert.equal(change.planB, null);
+        await organizer.page
+          .getByText("No response recorded yet.", { exact: true })
+          .waitFor();
+      }
+      if (key === "response") {
+        assert.equal(change.planB, null);
+        await organizer.page
+          .getByText("No Plan B recorded.", { exact: true })
+          .waitFor();
+      }
+    }
+    await organizer.page.reload();
+    await organizer.page.locator(".change-detail").waitFor();
+    assert.deepEqual(
+      (await api(organizer, changePath(event.id, change.id))).change,
+      change,
+    );
+    const decisionCreatedAt = change.decision.createdAt;
+    await form(organizer.page, true);
+    await organizer.page
+      .locator("#change-decision")
+      .fill("Move pickup to 21:00. Hotel confirmed late check-in.");
+    change = await save(organizer.page, event.id, change.id);
+    await organizer.page.locator(".change-detail").waitFor();
+    assert.equal(change.decision.createdAt, decisionCreatedAt);
+    assert.equal(change.response, p3b.response);
+    assert.equal(change.planB, p3b.planB);
+    assert.deepEqual(
+      (await api(organizer, `/api/events/${event.id}/tasks`)).tasks,
+      taskState,
+    );
+    await form(organizer.page, true);
+    await organizer.page.locator("#change-decision").fill("   ");
+    await organizer.page.locator(".change-form button[type=submit]").click();
+    assert.equal(
+      await organizer.page
+        .locator("#change-decision")
+        .getAttribute("aria-invalid"),
+      "true",
+    );
+    assert.equal(
+      await organizer.page
+        .locator("#change-decision")
+        .getAttribute("aria-describedby"),
+      "change-decision-help change-error-decision",
+    );
+    assert.equal(
+      await organizer.page
+        .locator("#change-decision")
+        .evaluate((n) => n === document.activeElement),
+      true,
+    );
+    await organizer.page.keyboard.press("Escape");
+    const authoredState = () => ({
+      decision: change.decision,
+      response: change.response,
+      planB: change.planB,
+      version: change.version,
+    });
+    const restoreState = {
+      decision: change.decision.text,
+      response: change.response,
+      planB: change.planB,
+    };
+    await form(organizer.page, true);
+    for (const key of ["decision", "response", "planB"])
+      await organizer.page.locator(`#change-${key}`).fill("");
+    change = await save(organizer.page, event.id, change.id);
+    await organizer.page.locator(".change-detail").waitFor();
+    assert.equal(change.decision, null);
+    assert.equal(change.response, null);
+    assert.equal(change.planB, null);
+    await form(organizer.page, true);
+    for (const key of ["decision", "response", "planB"])
+      await organizer.page.locator(`#change-${key}`).fill(restoreState[key]);
+    change = await save(organizer.page, event.id, change.id);
+    await organizer.page.locator(".change-detail").waitFor();
+    assert.deepEqual(
+      (await api(organizer, `/api/events/${event.id}/tasks`)).tasks,
+      taskState,
+    );
+    const beforeTaskResponse = authoredState();
+    checked(
+      "P3B real Organizer Decision/Response/Plan B authoring, partial states, refresh, Decision edit, server provenance, whitespace validation and unchanged Tasks",
+    );
+
     report.step = "task deadline UI";
     await organizer.page
       .locator(".change-task-title")
@@ -647,6 +785,7 @@ try {
       .click();
     await organizer.page.locator(".change-detail").waitFor();
     change = (await api(organizer, changePath(event.id, change.id))).change;
+    assert.deepEqual(authoredState(), beforeTaskResponse);
     assert.equal(change.impact.people.length, 2);
     const back = (
       await api(
@@ -674,6 +813,59 @@ try {
     );
     checked(
       "Task deadline edited in UI and current reassignment/status refetched; assignment/acceptance and assign-back remain separate",
+    );
+
+    change = (await api(organizer, changePath(event.id, change.id))).change;
+    assert.deepEqual(authoredState(), beforeTaskResponse);
+    report.step = "P3B two-tab stale response draft";
+    await form(organizer.page, true);
+    const responseDraft = {
+      decision: "Local unsaved decision",
+      response: "Local unsaved response",
+      planB: "Local unsaved Plan B",
+    };
+    for (const key of ["decision", "response", "planB"])
+      await organizer.page.locator(`#change-${key}`).fill(responseDraft[key]);
+    const secondPage = await organizer.context.newPage();
+    secondPage.on("pageerror", () => report.applicationErrors++);
+    await open({ page: secondPage }, event.id, change.id);
+    await form(secondPage, true);
+    await secondPage
+      .locator("#change-decision")
+      .fill("Second tab canonical decision");
+    change = await save(secondPage, event.id, change.id);
+    await secondPage.locator(".change-detail").waitFor();
+    await save(organizer.page, event.id, change.id, 409);
+    await organizer.page.locator(".change-form [role=alert]").waitFor();
+    for (const key of ["decision", "response", "planB"])
+      assert.equal(
+        await organizer.page.locator(`#change-${key}`).inputValue(),
+        responseDraft[key],
+      );
+    assert.equal(
+      await organizer.page
+        .locator(".change-form button[type=submit]")
+        .isDisabled(),
+      true,
+    );
+    await organizer.page
+      .getByRole("button", { name: "Load latest version", exact: true })
+      .click();
+    await organizer.page
+      .getByText("Latest version loaded.", { exact: false })
+      .waitFor();
+    assert.equal(
+      await organizer.page.locator("#change-decision").inputValue(),
+      change.decision.text,
+    );
+    assert.equal(
+      await organizer.page.locator("#change-planB").inputValue(),
+      change.planB,
+    );
+    await organizer.page.keyboard.press("Escape");
+    await secondPage.close();
+    checked(
+      "P3B two real browser tabs: 409 retains all three drafts, blocks save, and explicit reload loads canonical response state without replay",
     );
 
     report.step = "409 and owner edit";
@@ -717,12 +909,25 @@ try {
     );
     const beforeOwner = (await api(organizer, `/api/events/${event.id}/tasks`))
       .tasks;
+    const responseBeforeOwner = {
+      decision: change.decision,
+      response: change.response,
+      planB: change.planB,
+    };
     await organizer.page.locator("#change-owner-trigger").click();
     await organizer.page
       .getByRole("option", { name: "Response unassigned", exact: true })
       .click();
     change = await save(organizer.page, event.id, change.id);
     await organizer.page.locator(".change-detail").waitFor();
+    assert.deepEqual(
+      {
+        decision: change.decision,
+        response: change.response,
+        planB: change.planB,
+      },
+      responseBeforeOwner,
+    );
     assert.deepEqual(
       (await api(organizer, `/api/events/${event.id}/tasks`)).tasks,
       beforeOwner,
@@ -732,7 +937,24 @@ try {
     );
 
     report.step = "member and navigation";
+    change = (
+      await api(organizer, changePath(event.id, change.id), "PATCH", {
+        expectedVersion: change.version,
+        responseOwnerMemberId: memberId,
+      })
+    ).change;
     await open(member, event.id, change.id);
+    for (const text of [change.decision.text, change.response, change.planB])
+      await member.page.getByText(text, { exact: true }).waitFor();
+    assert.equal(await member.page.locator(".change-form").count(), 0);
+    for (const key of ["decision", "response", "planB"])
+      await api(
+        member,
+        changePath(event.id, change.id),
+        "PATCH",
+        { expectedVersion: change.version, [key]: "Denied" },
+        403,
+      );
     assert.equal(
       await member.page
         .getByRole("button", { name: "Edit change", exact: true })
@@ -877,6 +1099,18 @@ try {
     const stress = structuredClone(change),
       name =
         "Много дълго име на отговорник за подготовката и транспорта ".repeat(4);
+    stress.decision.text =
+      "Отлагаме посрещането и координираме транспорта с хотела. "
+        .repeat(32)
+        .slice(0, 2000);
+    stress.response =
+      "Шофьорът и хотелът са уведомени за променения час на пристигане. ".repeat(
+        45,
+      );
+    stress.planB =
+      "Ако полетът бъде отменен, резервираме хотел до летището и преместваме официалното посрещане за следващата сутрин. ".repeat(
+        40,
+      );
     stress.title =
       "Промяна в пристигането на инструктора и организацията на транспорта "
         .repeat(3)

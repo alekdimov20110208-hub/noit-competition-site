@@ -4,12 +4,15 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 ## Project status and evidence boundary
 
-Current addition: **P3A Change records and impact mapping**. Open **Changes / Промени**
+Current addition: **P3B Decision, Response and Plan B**, extending locked P3A impact.
+Open **Changes / Промени**
 inside an Event. Organizers record/edit changes and explicitly link affected Tasks;
 active Members read them. Impact uses current Task assignees, deadlines and statuses.
 Response ownership is independent of Task responsibility and authorization. Edits
-use expectedVersion/409 and atomic history. P3B / Plan B is not implemented.
-See [P3A architecture, scope and verification](docs/BUDOGRAPH_P3A.md).
+use expectedVersion/409 and atomic history. Organizers author one current Decision,
+the operational Response and optional Plan B. Members read these, including when
+they own the response. Coordination text never changes Tasks or executes a fallback.
+See [P3B contract](docs/BUDOGRAPH_P3B.md) and [preserved P3A contract](docs/BUDOGRAPH_P3A.md).
 
 P2C adds **Event invitations and invite-only onboarding**. A current-Event
 Organizer opens **Team → Invite member**, enters an email, and shares the explicit
@@ -28,7 +31,7 @@ The repository also contains the Backend P1A/P1B/P1C foundation, P1D.1 browser
 authentication, P1D.2A remote Tasks reads, P1D.2B task responsibility actions, and
 P1D.3 real Dashboard/Team reads. Login, Dashboard, Tasks and Team use the real
 PostgreSQL-backed backend. P3A Changes now have their own persisted Event-scoped
-surface; Plan B remains unimplemented. The application remains a technical prototype. These
+surface, extended by P3B authored response state. The application remains a technical prototype. These
 phases do not prove product-market fit, commercial demand, adoption, willingness
 to pay, or usability.
 

@@ -125,6 +125,7 @@ test(
           "0002_budograph_core.sql",
           "0003_event_invitations.sql",
           "0004_event_changes.sql",
+          "0005_change_response.sql",
         ],
       );
       client.release();
@@ -136,7 +137,7 @@ test(
           for (let index = 0; index < 2; index += 1) {
             assert.deepEqual(await runMigrations(pool, migrationDirectory), {
               applied: 0,
-              alreadyApplied: 4,
+              alreadyApplied: 5,
             });
           }
         },

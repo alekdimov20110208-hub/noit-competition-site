@@ -3,7 +3,10 @@
 Date: 2026-10-05. Authorized continuation from locked baseline
 `3c28c20c36c8c69a75ebe6cbfa9bd3e0cd6abc15`. P1/P2A/P2B/P2C and Auth remain locked.
 The user's detailed P3A request approves this problem, scope, model, flows,
-architecture and verification strategy. P3B / Plan B is not implemented.
+architecture and verification strategy. This is the locked P3A contract;
+[P3B](BUDOGRAPH_P3B.md) adds authored Decision, Response and Plan B without changing
+P3A impact/authorization/Task semantics. Its additions supersede this document's
+historical P3B-not-implemented statements.
 
 ## Inspection and established contracts
 

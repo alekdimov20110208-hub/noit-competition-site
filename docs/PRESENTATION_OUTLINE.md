@@ -1,5 +1,24 @@
 # BudoGraph Phase 2B.2 Presentation Outline
 
+## Current P3A/P3B demonstration extension — 2026-10-05
+
+This addition supersedes historical local-prototype response behavior below.
+Use real backend/development data and separate Organizer/Member sessions. Show
+Change → current affected Tasks/people/deadlines → response owner → Decision →
+operational Response → optional Plan B. Explain that response owner is operational
+responsibility, while Organizer access role alone permits authoring.
+
+Demonstrate partial state without placeholders, save/refresh and explicit fallback
+text. Edit a linked Task deadline or assignee to show live impact while Decision,
+Response, Plan B and owner stay unchanged. Show a two-tab 409 that retains local
+drafts and requires explicit canonical reload. Members see readable state with no
+edit controls. Plan B never activates automatically; there is no AI or Task mutation
+caused by authored response text. Present executed test counts from TEST_EVIDENCE,
+and distinguish browser automation from human usability validation. The locked
+Dashboard is not connected to current Change records; use the Changes route.
+
+The following outline remains the historical Phase 2B.2 record.
+
 Phase 2A built on, and did not rewrite, the Phase 1 competition MVP. Phase 2B.1
 refined the same prototype's visual identity and Dashboard hierarchy. Phase
 2B.2 applies that approved visual system to the existing Tasks workspace as a

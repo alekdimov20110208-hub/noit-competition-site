@@ -32,6 +32,9 @@ const value: RemoteChange = {
   context: "Flight changed",
   reporter: { ...person, id: randomUUID() },
   responseOwner: null,
+  decision: null,
+  response: null,
+  planB: null,
   version: 2,
   createdAt: "2026-10-05T10:00:00Z",
   updatedAt: "2026-10-05T11:00:00Z",
@@ -105,6 +108,9 @@ test("canonical Change projection rejects foreign IDs, malformed impact, duplica
     context: value.context,
     responseOwnerMemberId: null,
     affectedTaskIds: [taskId],
+    decision: null,
+    response: null,
+    planB: null,
   });
   assert.deepEqual(validateChangeFields(authoredChange(value)), {});
   assert.equal(
@@ -260,4 +266,118 @@ test("complete BG/EN Change copy and shared event-local DATE formatting", () => 
       ),
       createI18n(language, { timeZone: "Asia/Tokyo" }).formatDate("2026-11-03"),
     );
+});
+test("P3B current Decision provenance, partial state and drafts map independently from live impact", () => {
+  const decision = {
+    text: "Move pickup to 20:30",
+    authoredBy: person,
+    createdAt: "2026-10-05T11:00:00Z",
+    updatedAt: "2026-10-05T11:00:00Z",
+  };
+  for (const state of [
+    { decision: null, response: null, planB: null },
+    { decision, response: null, planB: null },
+    { decision, response: "Driver and hotel informed", planB: null },
+    {
+      decision,
+      response: "Driver informed",
+      planB: "Airport hotel if flight cancelled",
+    },
+    { decision: null, response: "Driver contacted", planB: null },
+  ]) {
+    const current = { ...value, ...state };
+    assert.deepEqual(readRemoteChange(current, eventId, changeId), current);
+    assert.deepEqual(authoredChange(current), {
+      ...authoredChange(value),
+      decision: state.decision?.text ?? null,
+      response: state.response,
+      planB: state.planB,
+    });
+    assert.deepEqual(validateChangeFields(authoredChange(current)), {});
+  }
+  for (const malformed of [
+    { decision: { ...decision, text: " " } },
+    { decision: { ...decision, text: null } },
+    { decision: { ...decision, authoredBy: { ...person, id: "forged" } } },
+    { decision: { ...decision, updatedAt: "2026-10-04T11:00:00Z" } },
+    { decision: "unstructured" },
+    { decision: undefined },
+    { response: " " },
+    { planB: "x".repeat(5001) },
+    { planB: "bad\u0000" },
+  ])
+    assert.throws(
+      () => readRemoteChange({ ...value, ...malformed }, eventId),
+      failure("invalid"),
+    );
+  for (const key of ["decision", "response", "planB"] as const) {
+    assert.equal(
+      validateChangeFields({ ...authoredChange(value), [key]: " " })[key],
+      "INVALID_TEXT",
+    );
+    assert.equal(
+      validateChangeFields({ ...authoredChange(value), [key]: "\ud800" })[key],
+      "INVALID_TEXT",
+    );
+  }
+});
+test("P3B saves whitelist text/null, preserves draft on safe 409 and accepts explicit canonical refetch", async () => {
+  const draft = {
+    ...authoredChange(value),
+    decision: "Local decision",
+    response: "Local response",
+    planB: "Local fallback",
+  };
+  const original = structuredClone(draft);
+  let sent: Record<string, unknown> = {};
+  let conflict = true;
+  const canonical = {
+    ...value,
+    version: 3,
+    decision: {
+      text: "Newer decision",
+      authoredBy: person,
+      createdAt: value.updatedAt,
+      updatedAt: value.updatedAt,
+    },
+    response: null,
+    planB: null,
+  };
+  const service = new ChangeService(async (_input, options) => {
+    if (options?.method === "PATCH") {
+      sent = JSON.parse(options.body as string);
+      return conflict
+        ? Response.json({ private: "PRIVATE" }, { status: 409 })
+        : Response.json({ change: canonical });
+    }
+    return Response.json({ change: canonical });
+  });
+  await assert.rejects(
+    service.save(eventId, draft, signal(), {
+      id: changeId,
+      expectedVersion: 2,
+    }),
+    failure("conflict"),
+  );
+  assert.deepEqual(draft, original);
+  assert.deepEqual(sent, { ...draft, expectedVersion: 2 });
+  const reloaded = await service.get(eventId, changeId, signal());
+  assert.equal(reloaded.decision!.text, "Newer decision");
+  assert.equal(reloaded.version, 3);
+  assert.deepEqual(draft, original);
+  conflict = false;
+  await service.save(
+    eventId,
+    {
+      ...authoredChange(reloaded),
+      decision: null,
+      response: null,
+      planB: null,
+    },
+    signal(),
+    { id: changeId, expectedVersion: 3 },
+  );
+  assert.equal(sent.decision, null);
+  assert.equal(sent.response, null);
+  assert.equal(sent.planB, null);
 });

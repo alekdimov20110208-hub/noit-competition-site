@@ -23,6 +23,12 @@ interface ChangeRow {
   context: string;
   created_by: string;
   response_owner_member_id: string | null;
+  decision_text: string | null;
+  decision_author_member_id: string | null;
+  decision_created_at: Date | null;
+  decision_updated_at: Date | null;
+  response_text: string | null;
+  plan_b_text: string | null;
   version: number;
   created_at: Date;
   updated_at: Date;
@@ -31,6 +37,7 @@ interface ProjectionRow extends ChangeRow {
   reporter: ChangeMember;
   response_owner: ChangeMember | null;
   affected_tasks: AffectedTask[];
+  decision_author: ChangeMember | null;
 }
 
 // One SQL snapshot for the complete current impact. No duplicated assignments,
@@ -43,12 +50,15 @@ async function project(
   const result = await database.query(
     `SELECT change.*, jsonb_build_object('id', reporter.id, 'name', author.name, 'role', reporter.operational_role) AS reporter,
        CASE WHEN owner.id IS NULL THEN NULL ELSE jsonb_build_object('id', owner.id, 'name', responder.name, 'role', owner.operational_role) END AS response_owner,
+       CASE WHEN decision_author.id IS NULL THEN NULL ELSE jsonb_build_object('id', decision_author.id, 'name', decider.name, 'role', decision_author.operational_role) END AS decision_author,
        COALESCE(impact.tasks, '[]'::JSONB) AS affected_tasks
      FROM public.event_change AS change
      JOIN public.event_member AS reporter ON reporter.event_id = change.event_id AND reporter.id = change.created_by
      JOIN public."user" AS author ON author.id = reporter.user_id
      LEFT JOIN public.event_member AS owner ON owner.event_id = change.event_id AND owner.id = change.response_owner_member_id
      LEFT JOIN public."user" AS responder ON responder.id = owner.user_id
+     LEFT JOIN public.event_member AS decision_author ON decision_author.event_id = change.event_id AND decision_author.id = change.decision_author_member_id
+     LEFT JOIN public."user" AS decider ON decider.id = decision_author.user_id
      LEFT JOIN LATERAL (
        SELECT jsonb_agg(jsonb_build_object('id', task.id, 'title', task.title, 'status', task.status,
          'deadline', to_char(task.deadline, 'YYYY-MM-DD'),
@@ -73,6 +83,17 @@ async function project(
     context: row.context,
     reporter: row.reporter,
     responseOwner: row.response_owner,
+    decision:
+      row.decision_text === null
+        ? null
+        : {
+            text: row.decision_text,
+            authoredBy: row.decision_author!,
+            createdAt: row.decision_created_at!.toISOString(),
+            updatedAt: row.decision_updated_at!.toISOString(),
+          },
+    response: row.response_text,
+    planB: row.plan_b_text,
     version: row.version,
     createdAt: row.created_at.toISOString(),
     updatedAt: row.updated_at.toISOString(),
@@ -166,6 +187,15 @@ export function createChangeService(pool: TransactionPool) {
           ? command.responseOwnerMemberId!
           : before!.response_owner_member_id,
         affectedTaskIds: command.affectedTaskIds ?? previousTasks,
+        decision: Object.hasOwn(command, "decision")
+          ? command.decision!
+          : before!.decision_text,
+        response: Object.hasOwn(command, "response")
+          ? command.response!
+          : before!.response_text,
+        planB: Object.hasOwn(command, "planB")
+          ? command.planB!
+          : before!.plan_b_text,
       };
       if (command.responseOwnerMemberId) {
         const owners = await database.query(
@@ -198,17 +228,35 @@ export function createChangeService(pool: TransactionPool) {
           context: before.context,
           responseOwnerMemberId: before.response_owner_member_id,
           affectedTaskIds: previousTasks,
+          decision: before.decision_text,
+          response: before.response_text,
+          planB: before.plan_b_text,
         };
         for (const key of Object.keys(fields) as (keyof ChangeFields)[]) {
-          if (JSON.stringify(previous[key]) !== JSON.stringify(fields[key]))
-            changed[key] = { before: previous[key], after: fields[key] };
+          if (JSON.stringify(previous[key]) !== JSON.stringify(fields[key])) {
+            // Describe added/changed/cleared without copying coordination prose
+            // into history. The current Change remains authoritative.
+            const responseField = ["decision", "response", "planB"].includes(
+              key,
+            );
+            changed[key] = responseField
+              ? {
+                  before: previous[key] === null ? "absent" : "present",
+                  after: fields[key] === null ? "absent" : "present",
+                }
+              : { before: previous[key], after: fields[key] };
+          }
         }
         // Follow existing Task/Event behavior: check stale versions before no-op.
         if (!Object.keys(changed).length)
           return (await project(database, eventId, targetId))[0]!;
         const updated = await database.query(
           `UPDATE public.event_change SET title = $3, context = $4, response_owner_member_id = $5,
-             version = version + 1, updated_at = clock_timestamp()
+             decision_text = $7, response_text = $8, plan_b_text = $9,
+             decision_author_member_id = CASE WHEN $10::BOOLEAN THEN CASE WHEN $7::TEXT IS NULL THEN NULL ELSE $11::UUID END ELSE decision_author_member_id END,
+             decision_created_at = CASE WHEN $7::TEXT IS NULL THEN NULL ELSE COALESCE(decision_created_at, statement_timestamp()) END,
+             decision_updated_at = CASE WHEN $10::BOOLEAN THEN CASE WHEN $7::TEXT IS NULL THEN NULL ELSE statement_timestamp() END ELSE decision_updated_at END,
+             version = version + 1, updated_at = statement_timestamp()
            WHERE event_id = $1 AND id = $2 AND version = $6 RETURNING id`,
           [
             eventId,
@@ -217,14 +265,23 @@ export function createChangeService(pool: TransactionPool) {
             fields.context,
             fields.responseOwnerMemberId,
             command.expectedVersion,
+            fields.decision,
+            fields.response,
+            fields.planB,
+            Object.hasOwn(changed, "decision"),
+            actor.id,
           ],
         );
         if (!updated.rows.length)
           throw new ChangeCommandError(409, "CHANGE_VERSION_CONFLICT");
       } else {
         await database.query(
-          `INSERT INTO public.event_change (id, event_id, title, context, created_by, response_owner_member_id)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
+          `INSERT INTO public.event_change (id, event_id, title, context, created_by, response_owner_member_id,
+             decision_text, response_text, plan_b_text, decision_author_member_id, decision_created_at, decision_updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,
+             CASE WHEN $7::TEXT IS NULL THEN NULL ELSE $5::UUID END,
+             CASE WHEN $7::TEXT IS NULL THEN NULL ELSE statement_timestamp() END,
+             CASE WHEN $7::TEXT IS NULL THEN NULL ELSE statement_timestamp() END)`,
           [
             targetId,
             eventId,
@@ -232,6 +289,9 @@ export function createChangeService(pool: TransactionPool) {
             fields.context,
             actor.id,
             fields.responseOwnerMemberId,
+            fields.decision,
+            fields.response,
+            fields.planB,
           ],
         );
       }
@@ -263,7 +323,13 @@ export function createChangeService(pool: TransactionPool) {
                   previousVersion: before.version,
                   changeVersion: before.version + 1,
                 }
-              : { ...fields, changeVersion: 1 },
+              : {
+                  ...fields,
+                  decision: fields.decision === null ? "absent" : "present",
+                  response: fields.response === null ? "absent" : "present",
+                  planB: fields.planB === null ? "absent" : "present",
+                  changeVersion: 1,
+                },
           ),
         ],
       );

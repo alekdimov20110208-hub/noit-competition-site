@@ -246,9 +246,40 @@
 .page--changes .change-form .notice {
   margin-bottom: 22px;
 }
+.page--changes .change-coordination {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line-strong);
+}
+.page--changes .change-primary-response {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  margin-top: 24px;
+}
+.page--changes .change-authored-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.page--changes .change-fallback {
+  margin-top: 28px;
+  padding: 4px 0 4px 22px;
+  border-left: 3px solid var(--line-strong);
+}
+.page--changes .change-form .change-coordination-form {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.page--changes .change-coordination-form legend {
+  font-weight: 700;
+  padding-top: 24px;
+}
 @media (max-width: 900px) {
   .page--changes .change-register > li,
-  .page--changes .change-narrative {
+  .page--changes .change-narrative,
+  .page--changes .change-primary-response {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
   }

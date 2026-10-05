@@ -19,6 +19,14 @@ export interface ChangeDto {
   context: string;
   reporter: ChangeMember;
   responseOwner: ChangeMember | null;
+  decision: {
+    text: string;
+    authoredBy: ChangeMember;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  response: string | null;
+  planB: string | null;
   version: number;
   createdAt: string;
   updatedAt: string;
@@ -34,6 +42,9 @@ export interface ChangeFields {
   context: string;
   responseOwnerMemberId: string | null;
   affectedTaskIds: string[];
+  decision: string | null;
+  response: string | null;
+  planB: string | null;
 }
 export type ChangeFieldErrors = Partial<
   Record<keyof ChangeFields | "expectedVersion", string>
@@ -70,6 +81,9 @@ export function parseChangeCommand(
     "context",
     "responseOwnerMemberId",
     "affectedTaskIds",
+    "decision",
+    "response",
+    "planB",
     ...(editing ? ["expectedVersion"] : []),
   ];
   if (Object.keys(body).some((key) => !allowed.includes(key)))
@@ -90,6 +104,28 @@ export function parseChangeCommand(
     if (
       typeof raw !== "string" ||
       (field === "title" && !value) ||
+      value.length > limit ||
+      value.includes("\u0000") ||
+      /[\uD800-\uDFFF]/u.test(value)
+    )
+      errors[field] = "INVALID_TEXT";
+    result[field] = value;
+  }
+  for (const [field, limit] of [
+    ["decision", 2000],
+    ["response", 5000],
+    ["planB", 5000],
+  ] as const) {
+    if (editing && !Object.hasOwn(body, field)) continue;
+    const raw = Object.hasOwn(body, field) ? body[field] : null;
+    if (raw === null) {
+      result[field] = null;
+      continue;
+    }
+    const value = typeof raw === "string" ? raw.trim() : "";
+    if (
+      typeof raw !== "string" ||
+      !value ||
       value.length > limit ||
       value.includes("\u0000") ||
       /[\uD800-\uDFFF]/u.test(value)

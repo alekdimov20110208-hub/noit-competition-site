@@ -1,14 +1,16 @@
 # Known Limitations
 
-## Current P3A boundary — 2026-10-05
+## Current P3A + P3B boundary — 2026-10-05
 
 Event-scoped Change records, explicit affected Tasks, derived current assignees/dates/
 statuses, independent response ownership and Organizer create/edit are implemented.
-Members read only; expectedVersion and history are atomic. See BUDOGRAPH_P3A.md
+Decision, operational Response and optional Plan B are persisted on Change.
+Members read only, even as response owners; expectedVersion and history are atomic.
+See BUDOGRAPH_P3A.md and BUDOGRAPH_P3B.md
 and TEST_EVIDENCE.md for contracts and actual verification. Earlier phase descriptions
 below retain historical limitations superseded by this section.
 
-P3B / Plan B, decisions, resolutions, response-owner acceptance, Change deletion,
+Automatic fallback execution, resolved/closed lifecycle, response-owner acceptance, Change deletion,
 comments, notifications, realtime, polling and automatic impact inference are absent.
 Task deadlines remain required; DTO support for null dates does not add deadline-free
 Task authoring. The locked Dashboard is intentionally not connected to P3 records;
@@ -16,12 +18,18 @@ its historical unavailable-response copy remains unchanged. Changes are inspecte
 their dedicated route. Lists are unpaginated and authoring is bounded to 1000 Task IDs.
 Drafts live in memory; leaving a form discards them. After an uncertain create response,
 check the list before retrying to avoid a duplicate. No write replay is automatic.
+P3B activity records added/changed/cleared presence and server author/version;
+it does not archive historical full Decision/Response/Plan B prose. The current
+aggregate is authoritative. No Decision approvals/voting, independent Response
+assignment/status/deadline or fallback execution is provided.
 Historical inactive references remain readable; owner selection requires an active
 member when saving. Member management/deactivation remains outside this phase.
 
 Cross-browser/physical-device, formal accessibility/security and human usability
 validation remain separate. Existing production hosting, least-privilege grants,
 mail/recovery, backup/restore and competition-year verification limitations continue.
+The P3B production build passes with Vite's existing 500 kB chunk advisory:
+502.60 kB JavaScript, 141.15 kB gzip. Bundle splitting/performance work is separate.
 
 This document records the local prototype boundary and the separate backend
 P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases;

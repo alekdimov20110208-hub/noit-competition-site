@@ -4,8 +4,14 @@ P3A adds real Event-scoped Changes. Apply `pnpm db:migrate`, verify a no-op reru
 and restart the backend before demonstrating. Use Changes to record an arrival
 change, link two development Tasks, choose a response owner, then edit a Task's
 deadline/assignment and refresh Change detail. Use an independent Member session
-to show read-only access and switch Events to show isolation. P3B / Plan B is absent.
-Current P3A details are in BUDOGRAPH_P3A.md; subsequent earlier-phase boundaries
+to show read-only access and switch Events to show isolation. P3B adds authored
+Decision, Response and optional Plan B on the same detail. Apply migration 0005;
+show separate fields, partial states, refresh persistence and a real two-tab stale
+conflict. Change a linked Task deadline/assignee/status and refetch to show live
+impact while coordination state and response owner stay independent. Show Member
+read-only access even when selected as response owner. No fallback executes
+automatically; actual Task changes use existing commands. P3B adds no deployment.
+Current contracts are in BUDOGRAPH_P3A.md and BUDOGRAPH_P3B.md; earlier-phase boundaries
 are historical. Keep the existing local-backend/PostgreSQL and recorded-demo backup
 plan; no new offline remote cache or production deployment is claimed by P3A.
 

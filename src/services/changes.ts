@@ -16,6 +16,14 @@ export interface RemoteChange {
   context: string;
   reporter: TaskAssignee;
   responseOwner: TaskAssignee | null;
+  decision: {
+    text: string;
+    authoredBy: TaskAssignee;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  response: string | null;
+  planB: string | null;
   version: number;
   createdAt: string;
   updatedAt: string;
@@ -27,6 +35,9 @@ export interface ChangeFields {
   context: string;
   responseOwnerMemberId: string | null;
   affectedTaskIds: string[];
+  decision: string | null;
+  response: string | null;
+  planB: string | null;
 }
 export type ChangeFieldErrors = Partial<
   Record<keyof ChangeFields | "expectedVersion", string>
@@ -85,6 +96,18 @@ function instant(value: unknown): string {
 }
 function unique(values: readonly string[]) {
   if (new Set(values).size !== values.length) invalid();
+}
+function responseText(value: unknown, limit: number): string | null {
+  if (value === null) return null;
+  const result = text(value);
+  if (
+    !result.trim() ||
+    result.length > limit ||
+    result.includes("\u0000") ||
+    /[\uD800-\uDFFF]/u.test(result)
+  )
+    invalid();
+  return result;
 }
 export function readRemoteChange(
   value: unknown,
@@ -150,6 +173,20 @@ export function readRemoteChange(
   const title = text(row.title),
     context = text(row.context);
   if (!title.trim() || title.length > 200 || context.length > 5000) invalid();
+  let decision: RemoteChange["decision"] = null;
+  if (row.decision !== null) {
+    const current = record(row.decision);
+    const decisionText = responseText(current.text, 2000);
+    if (decisionText === null) invalid();
+    decision = {
+      text: decisionText,
+      authoredBy: member(current.authoredBy),
+      createdAt: instant(current.createdAt),
+      updatedAt: instant(current.updatedAt),
+    };
+    if (Date.parse(decision.updatedAt) < Date.parse(decision.createdAt))
+      invalid();
+  }
   return {
     id: change,
     eventId: event,
@@ -158,6 +195,9 @@ export function readRemoteChange(
     reporter: member(row.reporter),
     responseOwner:
       row.responseOwner === null ? null : member(row.responseOwner),
+    decision,
+    response: responseText(row.response, 5000),
+    planB: responseText(row.planB, 5000),
     version: row.version as number,
     createdAt: instant(row.createdAt),
     updatedAt: instant(row.updatedAt),
@@ -171,6 +211,9 @@ export function authoredChange(change: RemoteChange): ChangeFields {
     context: change.context,
     responseOwnerMemberId: change.responseOwner?.id ?? null,
     affectedTaskIds: change.affectedTasks.map((task) => task.id).sort(),
+    decision: change.decision?.text ?? null,
+    response: change.response,
+    planB: change.planB,
   };
 }
 export function validateChangeFields(fields: ChangeFields): ChangeFieldErrors {
@@ -185,6 +228,21 @@ export function validateChangeFields(fields: ChangeFields): ChangeFieldErrors {
       value.length > limit ||
       value.includes("\u0000") ||
       /[\uD800-\uDFFF]/u.test(value)
+    )
+      errors[key] = "INVALID_TEXT";
+  }
+  for (const [key, limit] of [
+    ["decision", 2000],
+    ["response", 5000],
+    ["planB", 5000],
+  ] as const) {
+    const value = fields[key];
+    if (
+      value !== null &&
+      (!value.trim() ||
+        value.trim().length > limit ||
+        value.includes("\u0000") ||
+        /[\uD800-\uDFFF]/u.test(value))
     )
       errors[key] = "INVALID_TEXT";
   }
@@ -246,6 +304,9 @@ export class ChangeService {
             responseOwnerMemberId: "INVALID_OWNER",
             affectedTaskIds: "INVALID_TASKS",
             expectedVersion: "INVALID_VERSION",
+            decision: "INVALID_TEXT",
+            response: "INVALID_TEXT",
+            planB: "INVALID_TEXT",
           };
           for (const key of Object.keys(allowed) as (keyof typeof allowed)[])
             if (raw[key] === allowed[key]) fields[key] = allowed[key];
@@ -302,6 +363,9 @@ export class ChangeService {
       context: fields.context.trim(),
       responseOwnerMemberId: fields.responseOwnerMemberId,
       affectedTaskIds: [...new Set(fields.affectedTaskIds)].sort(),
+      decision: fields.decision === null ? null : fields.decision.trim(),
+      response: fields.response === null ? null : fields.response.trim(),
+      planB: fields.planB === null ? null : fields.planB.trim(),
       ...(edit ? { expectedVersion: edit.expectedVersion } : {}),
     };
     const result = readRemoteChange(

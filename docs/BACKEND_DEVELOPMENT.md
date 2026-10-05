@@ -1,4 +1,23 @@
-# Backend P1, P2A, P2B, P2C and P3A Development
+# Backend P1, P2A, P2B, P2C, P3A and P3B Development
+
+## Current P3B response state — 2026-10-05
+
+Apply immutable `0005_change_response.sql` using `pnpm db:migrate`, then verify
+an unchanged rerun. Six nullable Change columns preserve existing P3A data/links/
+owners with safe empty response state. No new table or direct browser policy.
+Restart a nonwatch backend after updating source. The existing POST/PATCH accepts
+`decision` (text up to 2,000), `response` and `planB` (text up to 5,000), or null.
+Omission on PATCH preserves each field; supplied text must be nonblank after trim.
+Canonical responses include Decision author/server timestamps and Response/Plan B.
+
+Active Organizer alone authors; response-owner Member remains read-only. One
+required expectedVersion covers P3A and P3B together. State/version/history commit
+atomically; current no-op retains all, stale writes return 409. P3B activity uses
+presence before/after to describe add/change/clear without duplicating prose.
+Task state remains live in impact and unaffected by authored response edits.
+Two-connection concurrency and rollback tests are in `change-response.integration.test.ts`.
+Run the existing Changes browser verifier separately from DB integration suites.
+No AI, execution, email, polling or dependencies. See [P3B](BUDOGRAPH_P3B.md).
 
 ## Current P3A Changes — 2026-10-05
 
@@ -11,8 +30,8 @@ is registered; Vite reload alone cannot update a backend started without watch.
 The four Event-scoped Change list/detail/create/patch endpoints require active
 membership for reads and ORGANIZER authoring. ExpectedVersion, owner/Task validation,
 atomic activity and current-state impact follow [the P3A contract](BUDOGRAPH_P3A.md).
-No ORM, auth/session/origin change or new dependency is introduced. Plan B remains
-unimplemented. Subsequent historical descriptions retain their original phase scope.
+No ORM, auth/session/origin change or new dependency is introduced. P3B extends
+the response boundary as described above. Subsequent descriptions retain their phase scope.
 
 Run `pnpm test:browser:changes` with existing ignored development account inputs
 and external Playwright/browser paths. Run it separately from enabled PostgreSQL

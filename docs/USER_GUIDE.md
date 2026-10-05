@@ -1,6 +1,6 @@
 # BudoGraph User Guide
 
-## Record and inspect Changes (P3A)
+## Record and inspect Changes (P3A + P3B)
 
 Open **Changes / Промени** in the current Event. The list shows operational changes,
 response owners and affected Task counts. Open a title to inspect context/reporter,
@@ -14,11 +14,21 @@ its durable detail URL. **Edit change** changes the same authored fields and lin
 The response owner does not receive Task assignments or accept any Task automatically.
 Members may read all Changes in their Event but cannot create or edit them.
 
+The same form includes three optional fields: **Decision / Решение** is the agreed
+approach; **Response / Реакция** records coordination or action underway;
+**Plan B / План Б** records the fallback if the primary approach cannot proceed.
+Leave fields empty while deciding. Clear an existing field to remove it explicitly.
+Decision records show the author of its current revision and server update time.
+Plan B is a fallback and never activates automatically. Editing these fields never
+changes Task assignment, acceptance, deadline or status. Edit Tasks through their
+existing commands. A Member selected as response owner remains read-only.
+
 A conflict preserves your draft and blocks save. Choose **Load latest version**,
-review canonical details and save explicitly. Cancel/Escape returns to the page.
+review canonical details and save explicitly. Decision/Response/Plan B drafts are
+retained on conflict until explicit reload replaces them. Cancel/Escape returns to the page.
 After an uncertain network save, check latest records before retrying. Switching
 Events opens that Event's Changes list without carrying the former Change ID.
-No deletion, response lifecycle or Plan B functionality is available in P3A.
+No deletion, response status lifecycle or automatic Plan B execution is available.
 Historical sections below describe earlier phase behavior; this section supersedes
 their former "Changes not implemented" boundary.
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-05 — BudoGraph P3B
+
+- Extended Change with one current Decision, operational Response and optional Plan B.
+- Added immutable migration 0005 preserving P3A Changes, Task links and owners.
+- Preserved Organizer-only authoring, read-only Members and one expectedVersion boundary.
+- Added atomic presence-based activity for response add/edit/clear without prose duplication.
+- Extended localized detail/forms and retained stale drafts until explicit reload.
+- Added PostgreSQL/browser coverage for concurrency, rollback and live Task independence.
+- Preserved locked P1/P2/P3A designs; no AI, automatic execution or dependencies.
+
 ## 2026-10-05 — BudoGraph P3A
 
 - Added Event-scoped Change records and explicit affected Task links in migration 0004.

@@ -38,6 +38,9 @@ const fieldMessages = {
   responseOwnerMemberId: "change.validation.owner",
   affectedTaskIds: "change.validation.tasks",
   expectedVersion: "change.error.invalid",
+  decision: "change.validation.decision",
+  response: "change.validation.response",
+  planB: "change.validation.planB",
 } as const satisfies Record<keyof ChangeFieldErrors, MessageKey>;
 
 function ChangeForm({
@@ -62,6 +65,9 @@ function ChangeForm({
           context: "",
           responseOwnerMemberId: null,
           affectedTaskIds: [],
+          decision: null,
+          response: null,
+          planB: null,
         },
   );
   // A draft's version stays fixed until an explicit reload after a conflict.
@@ -306,6 +312,28 @@ function ChangeForm({
             </label>
           ))}
           {error("affectedTaskIds")}
+        </fieldset>
+        <fieldset className="change-coordination-form">
+          <legend>{t("change.coordination")}</legend>
+          <p className="change-help">{t("change.coordination.help")}</p>
+          {(["decision", "response", "planB"] as const).map((key) => (
+            <div className="change-field" key={key}>
+              <label htmlFor={`change-${key}`}>{t(`change.${key}`)}</label>
+              <small id={`change-${key}-help`}>{t(`change.${key}.help`)}</small>
+              <textarea
+                id={`change-${key}`}
+                rows={key === "decision" ? 3 : 4}
+                value={fields[key] ?? ""}
+                onChange={(e) =>
+                  set(key, e.target.value === "" ? null : e.target.value)
+                }
+                maxLength={key === "decision" ? 2000 : 5000}
+                aria-invalid={Boolean(errors[key])}
+                aria-describedby={`change-${key}-help${errors[key] ? ` change-error-${key}` : ""}`}
+              />
+              {error(key)}
+            </div>
+          ))}
         </fieldset>
       </fieldset>
       <div className="change-actions">
@@ -594,6 +622,65 @@ export function ChangesPage({
                 ))}
               </ul>
             )}
+          </section>
+          <section
+            className="change-coordination"
+            aria-labelledby="change-coordination-title"
+          >
+            <h2 id="change-coordination-title">{t("change.coordination")}</h2>
+            <p className="change-help">{t("change.coordination.help")}</p>
+            <div className="change-primary-response">
+              <section aria-labelledby="change-decision-title">
+                <h3 id="change-decision-title">{t("change.decision")}</h3>
+                <p
+                  className={
+                    selected.decision ? "change-authored-text" : "change-help"
+                  }
+                >
+                  {selected.decision?.text ?? t("change.decision.empty")}
+                </p>
+                {selected.decision && (
+                  <dl className="change-metadata">
+                    <div>
+                      <dt>{t("change.decision.author")}</dt>
+                      <dd>{selected.decision.authoredBy.name}</dd>
+                    </div>
+                    <div>
+                      <dt>{t("change.updated")}</dt>
+                      <dd>
+                        <time dateTime={selected.decision.updatedAt}>
+                          {formatDateTime(selected.decision.updatedAt)}
+                        </time>
+                      </dd>
+                    </div>
+                  </dl>
+                )}
+              </section>
+              <section aria-labelledby="change-response-title">
+                <h3 id="change-response-title">{t("change.response")}</h3>
+                <p
+                  className={
+                    selected.response ? "change-authored-text" : "change-help"
+                  }
+                >
+                  {selected.response ?? t("change.response.empty")}
+                </p>
+              </section>
+            </div>
+            <section
+              className="change-fallback"
+              aria-labelledby="change-planB-title"
+            >
+              <h3 id="change-planB-title">{t("change.planB")}</h3>
+              <p className="change-help">{t("change.planB.help")}</p>
+              <p
+                className={
+                  selected.planB ? "change-authored-text" : "change-help"
+                }
+              >
+                {selected.planB ?? t("change.planB.empty")}
+              </p>
+            </section>
           </section>
           {!authoring && <p className="change-help">{t("change.readOnly")}</p>}
         </article>

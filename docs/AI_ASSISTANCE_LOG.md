@@ -1,5 +1,26 @@
 # AI Assistance Log
 
+## P3B Decision, Response and Plan B — 2026-10-05
+
+User-authorized continuation from `112fe48300082d2963c22da0eb3ec2075cb33d7f`.
+Codex read the complete master prompt and supplied 30-page regulations, inspected
+the actual locked Change/Task/auth/migration/concurrency/UI/test contracts, and
+extended the existing Change aggregate/API/detail/form. One current Decision with
+session-derived author/server clocks, Response and Plan B share parent version.
+The explicit P3B Organizer-only rule supersedes an older roadmap response-owner
+permission; no Member escalation was added. No subagents, dependencies or AI feature.
+
+Migration preservation was checked with hashes of all existing P3A columns and
+links, including the human-created Change. Focused unit and real PostgreSQL tests
+verify partial state, add/edit/clear, authorization, Task independence, rollback
+and two independent database connections. Browser verification and full regression
+results are recorded only after execution in TEST_EVIDENCE. Human review,
+understanding of generated code, usability validation and acceptance remain the
+authors' responsibility; none is fabricated by automated browser verification.
+The initial full integration run caught an outdated four-migration inventory
+assertion. Codex added the fifth immutable migration to that test and its applied
+count, then reran the full suite. The failed attempt is not represented as a pass.
+
 ## P3A Change records and impact mapping — 2026-10-05
 
 User-authorized continuation from `3c28c20c36c8c69a75ebe6cbfa9bd3e0cd6abc15`.

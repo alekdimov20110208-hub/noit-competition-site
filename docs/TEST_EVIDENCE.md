@@ -1,5 +1,183 @@
 # BudoGraph Test Evidence
 
+## P3B Decision, Response and Plan B — 2026-10-05–06
+
+Authorized starting HEAD: `112fe48300082d2963c22da0eb3ec2075cb33d7f`.
+Fetched main matched origin/main, ahead/behind 0/0 before implementation. The
+complete master prompt and all 30 supplied regulation pages were read; the
+detailed request authorizes this narrow model, flows, architecture and tests.
+P1/P2/Auth and P3A contracts remain locked. See BUDOGRAPH_P3B.md for the current
+contract; later sections retain evidence from their named historical phases.
+Supplied 2025–2026 eligibility, schedule, category, availability, PDF, GPLv3 and
+scoring rules require verification for the actual participation year.
+
+### Executed automated and migration evidence
+
+| Command / scope                                                 | Executed result                                                                                                                                                                   |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm.cmd db:migrate`, then repeat                              | 1 applied / 4 already applied; repeat 0 applied / 5 already applied. Applied migration files unchanged.                                                                           |
+| `pnpm.cmd format`, `format:check`, `lint`, `typecheck`, `build` | PASS. Initial formatter attempt hit a transient Windows file-access error; retry completed successfully. Build emitted the 500 kB chunk advisory (502.60 kB JS / 141.15 kB gzip). |
+| `pnpm.cmd test`                                                 | 232 passed, 0 failed/skipped; eight Changes adapter tests retain all six P3A cases.                                                                                               |
+| `pnpm.cmd server:typecheck`, `server:build`                     | PASS.                                                                                                                                                                             |
+| `pnpm.cmd server:test`                                          | 115 passed, 0 failed; ten real-PostgreSQL entrypoints intentionally skipped without opt-in (125 total).                                                                           |
+| Focused P3B validation/adapter tests                            | 12 passed: four backend and eight frontend tests, included in totals above.                                                                                                       |
+| `RUN_DATABASE_INTEGRATION=1 pnpm.cmd server:test:integration`   | Final rerun: 84 passed, 0 failed/skipped, real PostgreSQL; includes 11 new P3B tests and all 73 P1/P2/P3A integration checks.                                                     |
+| `git diff --check`                                              | PASS.                                                                                                                                                                             |
+
+All seven real backend browser regressions completed successfully:
+
+| Command                                | Executed result                                                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `pnpm.cmd test:browser:auth`           | 15 checks, 20 layout cases; zero application/non-resource console errors.                              |
+| `pnpm.cmd test:browser:workspace`      | 11 checks, 8 layout cases; zero errors or writes. Dashboard/Tasks/Team and Event navigation preserved. |
+| `pnpm.cmd test:browser:tasks`          | 13 checks, 5 widths; zero application errors or writes.                                                |
+| `pnpm.cmd test:browser:events`         | 14 checks, 20 layout cases; zero application errors.                                                   |
+| `pnpm.cmd test:browser:task-authoring` | 11 checks, 20 Create/Edit layout cases; zero application errors.                                       |
+| `pnpm.cmd test:browser:task-actions`   | 16 checks, 40 Organizer/Member layout cases; zero application errors.                                  |
+| `pnpm.cmd test:browser:invitations`    | 7 workflow groups, 20 recipient and 20 dialog cases; zero application errors.                          |
+
+These retain the existing verifier assertions for real sessions, Event scope,
+Task ownership/acceptance/lifecycle, stale conflicts, pending/failure behavior,
+invite-only registration, token-hash storage, wrong-account/expired/revoked/guessed
+invites, closed public signup and Origin/forged-authority defenses. Transport
+doubles are explicitly labeled. P3A create/edit, current Task impact, owner,
+version and isolation are included in the extended Changes verifier above.
+
+The first full integration attempt reported 67 passes and one failure: the
+schema inventory assertion still listed four migrations and blocked its remaining
+schema subtests. That assertion and its already-applied count were updated to
+include `0005_change_response.sql`; all prior schema/security assertions remain.
+The initial attempt is not counted as a pass. The complete rerun passed all 84
+tests after this test-only correction; the earlier subset is not treated as complete.
+
+Read-only before/after SHA-256 fingerprints cover every existing P3A Change
+column and Task link, including the original human-created Change. Migration
+preserved every fingerprint and populated safe null P3B defaults. A later scoped
+SQL read confirms the human Change's original title, version, timestamps, owner
+and links still match its P3A evidence, with empty P3B state. No existing records
+were recreated, deleted or reset. Rollback-only fixtures are transient; synthetic
+concurrency/browser fixtures and their append-only activity are retained.
+
+Focused PostgreSQL checks verify optional/partial state, independent add/edit/clear
+of all three fields, one aggregate version/history entry per meaningful command,
+server Decision provenance, current no-op preservation and stale no-op 409,
+response-owner independence, Task deadline/reassignment/status independence,
+Member read-only even as response owner, inactive/foreign access denial, forged
+authority/provenance rejection, parameterized adversarial text, SQL bounds and
+same-Event author constraints. History insertion failure rolls back the complete
+create/edit. A second authorized Organizer becomes the current Decision revision
+author; unrelated edits retain provenance. No Task writes occur in the Change service.
+
+The concurrency fixture uses two independently pinned PostgreSQL connections with
+different backend process IDs. Simultaneous Decision vs Response/Plan B edits at
+one expectedVersion yield exactly one winner and one 409. Canonical state equals
+the winner; no partial response update or losing activity is persisted. Only
+creation plus one meaningful update exist. P3A concurrency tests remain intact.
+
+### Executed Changes browser, accessibility and visual evidence
+
+`pnpm.cmd test:browser:changes` passed **11 workflow groups**, **60 real cases**
+(list/detail/form × 1440/1080/768/390/320 × BG/EN × Light/Dark) and **four labeled
+long-text fixtures** (320/390 BG × both themes). Installed Edge/Chromium runs at
+100% scale with externally supplied Playwright. No browser dependency was added.
+
+Real authenticated backend/PostgreSQL workflows cover clean empty creation,
+linked impact, Decision → Response → Plan B, partial states, persisted refresh,
+Decision revision/provenance, associated whitespace validation, clearing/restoring
+all authored state, existing Task deadline UI and reassignment/status commands,
+unchanged response state/version after Task edits, unchanged Tasks after response
+or owner edits, and existing P3A title/context authoring. Two real browser tabs
+produce a 409: all three local drafts remain, save is blocked, conflict receives
+focus/announcement, and explicit reload replaces the draft with canonical data.
+Member response owners read all fields without edit controls and receive direct
+403 on each authored field. Event switching, foreign detail, refresh/back/forward,
+direct URLs and newly invited existing-Member read-only onboarding pass.
+
+Labeled transport doubles verify safe network/server errors, stale-content removal,
+explicit retry and no demo fallback. Long-text fixtures include bounded Decision,
+Response and Plan B prose and long BG Task/member/title content; these are not
+represented as database-authored data. HTML/body widths, off-screen rectangles,
+test-only removal of body clipping, both panning directions, visual viewport,
+44 px controls, wrapping and vertical reachability pass. Semantic headings,
+textarea labels/help/errors, keyboard selection, Escape/cancel and focus restoration
+are exercised. Application errors: **0**; non-resource console errors: **0**.
+Seven expected resource errors occur only in deliberate denied/conflict/failure cases.
+
+`pnpm.cmd test:browser:changes --read-checks` passed two additional groups and
+**12 BG/EN Light/Dark list/detail/form-error contrast cases**. Minimum measured
+text contrast is **5.10:1**; field-boundary/focus and associated validation checks
+pass, including all three new textareas. Labeled network/500 failed-save doubles
+retain title and all response drafts, announce safe errors and never replay writes.
+Application/non-resource errors: 0; three expected failed-resource messages.
+Desktop EN light detail, 320 BG dark detail and 320 BG light form screenshots were
+visually inspected. No human usability acceptance, physical-device coverage or
+formal accessibility certification is claimed.
+
+Sixty deterministic, labeled locked-page captures (Dashboard/Tasks/Team × all five
+widths × BG/EN × Light/Dark) match P3A pixel-for-pixel, **60/60**. The unchanged
+auth presentation verifier passed **222 layout cases** and 20 keyboard/focus
+checks using labeled read-only fixtures. Sidebar verification passed 24
+1440/1080 × 900/740/720 height × BG/EN/theme cases and short-height 560 px
+scroll/footer/logout reachability. Locked auth/shell/sidebar/Invite styles are unchanged.
+
+Ignored local evidence lives in `tmp/p3b-evidence/` (browser/read-check reports,
+migration fingerprints, scoped SQL result and pixel comparison). Credentials,
+cookies and invitation bearer paths remain in memory; no database dump or secret
+artifact is staged. Tests run here do not establish production deployment,
+least-privilege grant certification or current competition-year compliance.
+
+The security review confirms Event-scoped Change/response-state IDOR protection,
+active Organizer authority from database membership, active-Member reads, inactive
+denial, strict body whitelists, parameterized SQL, server clocks, small safe errors,
+unchanged trusted-Origin/Fetch Metadata checks and no-store responses. Response
+ownership and operational role grant no permissions. Activity payloads contain no
+session/cookie/bearer data. Source, diff, production bundle, logs and report JSON
+were audited against private environment values and private-key/JWT/database-
+credential patterns; saved logs/reports also exclude invitation bearer paths.
+The final staged audit checks the exact manifest and unchanged dependencies.
+
+### Exact P3B change manifest and boundaries
+
+The final scoped change contains these **25 files**:
+
+```text
+CHANGELOG.md
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/BUDOGRAPH_P3A.md
+docs/BUDOGRAPH_P3B.md
+docs/DEPLOYMENT_AND_DEMO_PLAN.md
+docs/KNOWN_LIMITATIONS.md
+docs/PRESENTATION_OUTLINE.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-changes-ui.mjs
+server/migrations/0005_change_response.sql
+server/migrations/README.md
+server/src/changes/model.ts
+server/src/changes/service.ts
+server/tests/change-response.integration.test.ts
+server/tests/changes.test.ts
+server/tests/schema.integration.test.ts
+src/i18n/changeMessages.ts
+src/pages/ChangesPage.tsx
+src/pages/changes/changes.css
+src/services/changes.test.ts
+src/services/changes.ts
+```
+
+No runtime/development dependencies, lockfile, external assets, auth/session code,
+locked Dashboard/Tasks/Team components, shared palette, sidebar/switcher, Invite
+dialog, previous migration, routes or RLS policy changed. package.json only adds
+the P3B contract document to the existing formatter scope. License register needs
+no new entries. Documentation covers state semantics, version/history, independent
+response ownership, independent live Tasks, setup/migration, guide, demo and presentation.
+No automatic Plan B execution, automatic Task mutation, AI, notifications, email,
+polling, realtime, Templates, Budget or deployment was added. The unrelated untracked
+`docs/market-research/docs - Shortcut.lnk` is left untouched.
+
 ## P3A Change records and impact mapping — 2026-10-05
 
 Authorized starting HEAD: `3c28c20c36c8c69a75ebe6cbfa9bd3e0cd6abc15`.

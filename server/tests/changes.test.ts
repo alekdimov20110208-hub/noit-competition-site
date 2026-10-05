@@ -20,6 +20,9 @@ test("Change whitelist, bounded Unicode, owner and canonical unique Task set", (
     context: "",
     responseOwnerMemberId: null,
     affectedTaskIds: [],
+    decision: null,
+    response: null,
+    planB: null,
   });
   assert.deepEqual(
     parseChangeCommand({
@@ -43,7 +46,6 @@ test("Change whitelist, bounded Unicode, owner and canonical unique Task set", (
     "version",
     "severity",
     "status",
-    "planB",
   ])
     assert.throws(
       () => parseChangeCommand({ title: "Arrival", [key]: "forged" }),
@@ -135,6 +137,9 @@ test("Change HTTP authentication, trusted origin, envelope, no-store and no dele
     context: "",
     reporter: { id: memberId, name: "Author", role: "" },
     responseOwner: null,
+    decision: null,
+    response: null,
+    planB: null,
     version: 1,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -251,4 +256,78 @@ test("Change HTTP authentication, trusted origin, envelope, no-store and no dele
   } finally {
     await app.close();
   }
+});
+test("P3B optional authored fields normalize, clear explicitly and reject forged provenance", () => {
+  assert.deepEqual(
+    parseChangeCommand(
+      {
+        expectedVersion: 3,
+        decision: "  Move pickup 🥋  ",
+        response: "Driver informed",
+        planB: null,
+      },
+      true,
+    ),
+    {
+      expectedVersion: 3,
+      decision: "Move pickup 🥋",
+      response: "Driver informed",
+      planB: null,
+    },
+  );
+  for (const [field, limit] of [
+    ["decision", 2000],
+    ["response", 5000],
+    ["planB", 5000],
+  ] as const) {
+    assert.equal(
+      parseChangeCommand({ expectedVersion: 3, [field]: null }, true)[field],
+      null,
+    );
+    assert.equal(
+      parseChangeCommand({ title: "Change", [field]: "x".repeat(limit) })[
+        field
+      ],
+      "x".repeat(limit),
+    );
+    for (const value of [
+      "",
+      " \n\t",
+      1,
+      {},
+      ["text"],
+      undefined,
+      "x".repeat(limit + 1),
+      "bad\u0000",
+      "\ud800",
+    ])
+      assert.throws(
+        () => parseChangeCommand({ expectedVersion: 3, [field]: value }, true),
+        denied(400),
+      );
+  }
+  for (const field of [
+    "decisionAuthorMemberId",
+    "decisionCreatedAt",
+    "decisionUpdatedAt",
+    "actorMemberId",
+    "history",
+    "responseStatus",
+    "planBActivated",
+  ])
+    assert.throws(
+      () => parseChangeCommand({ expectedVersion: 3, [field]: "forged" }, true),
+      denied(400),
+    );
+  assert.throws(
+    () =>
+      parseChangeCommand(
+        {
+          expectedVersion: 3,
+          decision: { text: "Forged", authoredBy: memberId },
+        },
+        true,
+      ),
+    denied(400),
+  );
 });

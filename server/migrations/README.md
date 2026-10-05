@@ -1,7 +1,13 @@
 # SQL migrations
 
 P1A created the migration runner and `public.schema_migrations` metadata boundary.
-The current set contains the original two reviewed P1B migrations, P2C and P3A additions.
+The current set contains the original two reviewed P1B migrations, P2C/P3A and P3B additions.
+
+P3B adds immutable `0005_change_response.sql`: six nullable columns on Change
+for one current Decision with scoped author/finite server provenance and optional
+Response/Plan B text. Bounds and all-or-none Decision constraints supplement the
+existing RLS boundary. Existing rows, owners, versions, timestamps and links are
+preserved. No Task mutation, new table or unrelated schema change.
 
 P3A adds immutable `0004_event_changes.sql`: Event-scoped Change records and
 explicit many-to-many Task links, bounded text, composite creator/owner/Task FKs,
@@ -21,6 +27,7 @@ verify the already-applied result. No migration resets or drops development data
 | `0002_budograph_core.sql`    | BudoGraph Event/EventMember/Task/ActivityEntry schema, scoped constraints/indexes, timezone validation, a narrow append-only history guard, and RLS without public policies on the eight auth/business tables. |
 | `0003_event_invitations.sql` | P2C Event invitations, hash-only tokens, expiry/acceptance/revocation constraints and scoped accepted membership; RLS without browser policies.                                                                |
 | `0004_event_changes.sql`     | P3A Event Changes and explicit affected Task links; scoped creator/owner/Task FKs, bounds, unique links, indexes and RLS without browser policies.                                                             |
+| `0005_change_response.sql`   | P3B current Decision, Response and Plan B within Change; bounded optional text, complete finite Decision provenance and same-Event author FK.                                                                  |
 
 Run `pnpm db:migrate` from the repository root after configuring the untracked
 `server/.env` using `server/.env.example`. The source and compiled CLI both read

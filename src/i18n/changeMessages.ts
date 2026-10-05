@@ -1,4 +1,26 @@
 export const CHANGE_EN_MESSAGES = {
+  "change.coordination": "Decision and response",
+  "change.coordination.help":
+    "Record the agreed approach and the coordination underway. Task changes are made separately.",
+  "change.decision": "Decision",
+  "change.decision.help":
+    "What have we decided to do? Optional; clear the field to remove it.",
+  "change.decision.empty": "No decision recorded yet.",
+  "change.decision.author": "Decision authored by",
+  "change.response": "Response",
+  "change.response.help":
+    "What operational action or coordination is being carried out? Optional; clear the field to remove it.",
+  "change.response.empty": "No response recorded yet.",
+  "change.planB": "Plan B",
+  "change.planB.help":
+    "Fallback if the primary response cannot proceed. Used only by explicit coordination.",
+  "change.planB.empty": "No Plan B recorded.",
+  "change.validation.decision":
+    "Enter 1–2,000 characters for the decision, or clear the field.",
+  "change.validation.response":
+    "Enter 1–5,000 characters for the response, or clear the field.",
+  "change.validation.planB":
+    "Enter 1–5,000 characters for Plan B, or clear the field.",
   "change.title": "Changes",
   "change.description": "What changed, and the work it affects in this event.",
   "change.record": "Record change",
@@ -10,7 +32,7 @@ export const CHANGE_EN_MESSAGES = {
   "change.empty.member":
     "Operational changes recorded for this event will appear here.",
   "change.readOnly":
-    "Organizers record and edit changes. You can read the current impact.",
+    "Organizers record and edit changes. You can read the current impact, decision, response and Plan B.",
   "change.owner": "Response owner",
   "change.noOwner": "Response unassigned",
   "change.owner.help":
@@ -68,6 +90,28 @@ export const CHANGE_EN_MESSAGES = {
   "change.status": "Status",
 } as const;
 export const CHANGE_BG_MESSAGES = {
+  "change.coordination": "Решение и реакция",
+  "change.coordination.help":
+    "Запишете уговореното решение и текущата координация. Задачите се променят отделно.",
+  "change.decision": "Решение",
+  "change.decision.help":
+    "Какво решихме да направим? Незадължително; изчистете полето, за да премахнете решението.",
+  "change.decision.empty": "Все още няма записано решение.",
+  "change.decision.author": "Решението е записано от",
+  "change.response": "Реакция",
+  "change.response.help":
+    "Какви действия или координация се извършват? Незадължително; изчистете полето, за да премахнете реакцията.",
+  "change.response.empty": "Все още няма записана реакция.",
+  "change.planB": "План Б",
+  "change.planB.help":
+    "Резервен вариант, ако основната реакция не може да се осъществи. Прилага се само след изрична координация.",
+  "change.planB.empty": "Няма записан План Б.",
+  "change.validation.decision":
+    "Въведете решение от 1 до 2 000 знака или изчистете полето.",
+  "change.validation.response":
+    "Въведете реакция от 1 до 5 000 знака или изчистете полето.",
+  "change.validation.planB":
+    "Въведете План Б от 1 до 5 000 знака или изчистете полето.",
   "change.title": "Промени",
   "change.description": "Какво се е променило и кои задачи в събитието засяга.",
   "change.record": "Регистрирай промяна",
@@ -79,7 +123,7 @@ export const CHANGE_BG_MESSAGES = {
   "change.empty.member":
     "Тук ще се показват оперативните промени, регистрирани за събитието.",
   "change.readOnly":
-    "Организаторите регистрират и редактират промените. Можете да преглеждате текущото им въздействие.",
+    "Организаторите регистрират и редактират промените. Можете да преглеждате текущото въздействие, решението, реакцията и План Б.",
   "change.owner": "Отговорник за реакцията",
   "change.noOwner": "Няма отговорник за реакцията",
   "change.owner.help":
