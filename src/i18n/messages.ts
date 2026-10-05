@@ -1,4 +1,5 @@
 import type { Language } from "../preferences/types.ts";
+import { CHANGE_EN_MESSAGES, CHANGE_BG_MESSAGES } from "./changeMessages.ts";
 import {
   INVITATION_EN_MESSAGES,
   INVITATION_BG_MESSAGES,
@@ -48,8 +49,8 @@ const UI_EN_MESSAGES = {
   "nav.dashboard.mobile": "Home",
   "nav.tasks": "Tasks",
   "nav.team": "Team",
-  "nav.changes": "Plan B",
-  "nav.changes.mobile": "Plan B",
+  "nav.changes": "Changes",
+  "nav.changes.mobile": "Changes",
   "nav.templates": "Templates",
   "shell.skipToContent": "Skip to main content",
   "shell.currentEvent": "Current event",
@@ -344,6 +345,7 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...CHANGE_EN_MESSAGES,
   ...INVITATION_EN_MESSAGES,
   ...EVENT_EN_MESSAGES,
   ...TASK_READ_EN_MESSAGES,
@@ -388,8 +390,8 @@ const UI_BG_MESSAGES = {
   "nav.dashboard.mobile": "Начало",
   "nav.tasks": "Задачи",
   "nav.team": "Екип",
-  "nav.changes": "План Б",
-  "nav.changes.mobile": "План Б",
+  "nav.changes": "Промени",
+  "nav.changes.mobile": "Промени",
   "nav.templates": "Шаблони",
   "shell.skipToContent": "Към основното съдържание",
   "shell.currentEvent": "Текущо събитие",
@@ -686,6 +688,7 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...CHANGE_BG_MESSAGES,
   ...INVITATION_BG_MESSAGES,
   ...EVENT_BG_MESSAGES,
   ...TASK_READ_BG_MESSAGES,

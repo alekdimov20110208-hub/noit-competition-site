@@ -1,5 +1,28 @@
 # Known Limitations
 
+## Current P3A boundary — 2026-10-05
+
+Event-scoped Change records, explicit affected Tasks, derived current assignees/dates/
+statuses, independent response ownership and Organizer create/edit are implemented.
+Members read only; expectedVersion and history are atomic. See BUDOGRAPH_P3A.md
+and TEST_EVIDENCE.md for contracts and actual verification. Earlier phase descriptions
+below retain historical limitations superseded by this section.
+
+P3B / Plan B, decisions, resolutions, response-owner acceptance, Change deletion,
+comments, notifications, realtime, polling and automatic impact inference are absent.
+Task deadlines remain required; DTO support for null dates does not add deadline-free
+Task authoring. The locked Dashboard is intentionally not connected to P3 records;
+its historical unavailable-response copy remains unchanged. Changes are inspected on
+their dedicated route. Lists are unpaginated and authoring is bounded to 1000 Task IDs.
+Drafts live in memory; leaving a form discards them. After an uncertain create response,
+check the list before retrying to avoid a duplicate. No write replay is automatic.
+Historical inactive references remain readable; owner selection requires an active
+member when saving. Member management/deactivation remains outside this phase.
+
+Cross-browser/physical-device, formal accessibility/security and human usability
+validation remain separate. Existing production hosting, least-privilege grants,
+mail/recovery, backup/restore and competition-year verification limitations continue.
+
 This document records the local prototype boundary and the separate backend
 P1A/P1B/P1C backend. Historical phase descriptions remain scoped to those phases;
 the current backend limitations are recorded below. Update this record when a

@@ -515,15 +515,34 @@ try {
       `${path}: real responsive layout plus labelled intercepted loading/empty/no-Event/500/403 states; sanitized retry, no demo fallback`,
     );
   }
-  for (const path of ["/changes", "/templates"]) {
-    await organizer.page.goto(
-      origin + `/events/${initial.event.id}/${path.slice(1)}`,
-    );
-    await organizer.page.locator(".empty-state").waitFor();
-    await safe(organizer.page);
-  }
+  // P3A replaces the former unconnected Changes placeholder with real data.
+  // Compare the complete scoped list instead of assuming this Event is empty.
+  const changes = await organizer.page.evaluate(async (eventId) => {
+    const response = await fetch(`/api/events/${eventId}/changes`);
+    if (!response.ok) throw new Error("Changes read failed");
+    return (await response.json()).changes;
+  }, initial.event.id);
+  await organizer.page.goto(origin + `/events/${initial.event.id}/changes`);
+  await organizer.page
+    .locator(".page--changes:not([aria-busy=true])")
+    .waitFor();
+  assert.deepEqual(
+    await organizer.page.locator(".change-register__title").allTextContents(),
+    changes.map((change) => change.title),
+  );
+  assert.deepEqual(
+    await organizer.page
+      .locator(".change-register__title")
+      .evaluateAll((links) => links.map((link) => new URL(link.href).pathname)),
+    changes.map((change) => `/events/${initial.event.id}/changes/${change.id}`),
+  );
+  if (!changes.length) await organizer.page.locator(".empty-state").waitFor();
+  await safe(organizer.page);
+  await organizer.page.goto(origin + `/events/${initial.event.id}/templates`);
+  await organizer.page.locator(".empty-state").waitFor();
+  await safe(organizer.page);
   checked(
-    "Changes/Plan B and Templates display truthful unconnected empty states; no fictional task links",
+    "Changes matches the real scoped API list and durable links; Templates retains its truthful unconnected empty state; no demo fallback",
   );
   await organizer.page.goto(origin + "/");
   await organizer.page.locator("#event-overview-title").waitFor();

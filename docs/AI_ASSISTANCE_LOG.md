@@ -1,5 +1,25 @@
 # AI Assistance Log
 
+## P3A Change records and impact mapping — 2026-10-05
+
+User-authorized continuation from `3c28c20c36c8c69a75ebe6cbfa9bd3e0cd6abc15`.
+Codex read the complete mandatory master prompt and 30-page supplied regulations,
+inspected actual Event/membership/Task/auth/concurrency/migration/view/test contracts,
+and implemented the narrow Change model, SQL/API, current impact projection and
+localized durable UI. No subagents or runtime dependencies were added. P3B is absent.
+
+Automated verification includes service/route/validation tests, real PostgreSQL
+rollback/constraint/history tests, real browser roles/invitation/Task interactions
+and scoped visual regression. Executed results and corrections belong in TEST_EVIDENCE.
+One early browser attempt used a stale nonwatch backend and failed; the backend was
+restarted. An initial pixel comparison caught a shared Dashboard CSS selector;
+new CSS was scoped entirely to Changes before repeating locked comparisons.
+The existing workspace verifier's former Changes-placeholder assertion was updated
+to compare real scoped API titles and durable links; prior workspace checks remain.
+Those attempts are not counted as passes. Human review, explanation of generated
+code and product acceptance remain the authors' responsibility; no human review
+or user-validation result is fabricated. Historical prototype models are preserved.
+
 ## Auth horizontal-pan investigation — 2026-10-05
 
 The user authorizes one targeted overflow investigation/fix from

@@ -1,5 +1,27 @@
 # BudoGraph User Guide
 
+## Record and inspect Changes (P3A)
+
+Open **Changes / Промени** in the current Event. The list shows operational changes,
+response owners and affected Task counts. Open a title to inspect context/reporter,
+current responsible people, deadlines and Task status. Task titles open the existing
+Task detail. Use **Refresh impact** after Task changes; dates stay Event-local.
+
+As Organizer choose **Record change**, enter title/context, optionally choose a
+response owner, and check affected Tasks. Each choice shows its current responsibility,
+deadline and status. An Event with no Tasks can still record a Change. Save opens
+its durable detail URL. **Edit change** changes the same authored fields and links.
+The response owner does not receive Task assignments or accept any Task automatically.
+Members may read all Changes in their Event but cannot create or edit them.
+
+A conflict preserves your draft and blocks save. Choose **Load latest version**,
+review canonical details and save explicitly. Cancel/Escape returns to the page.
+After an uncertain network save, check latest records before retrying. Switching
+Events opens that Event's Changes list without carrying the former Change ID.
+No deletion, response lifecycle or Plan B functionality is available in P3A.
+Historical sections below describe earlier phase behavior; this section supersedes
+their former "Changes not implemented" boundary.
+
 ## Invite and join an Event (P2C)
 
 As Organizer of the current Event, open **Team → Invite member**. Enter an email

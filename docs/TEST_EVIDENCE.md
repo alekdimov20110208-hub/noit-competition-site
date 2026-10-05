@@ -1,5 +1,219 @@
 # BudoGraph Test Evidence
 
+## P3A Change records and impact mapping — 2026-10-05
+
+Authorized starting HEAD: `3c28c20c36c8c69a75ebe6cbfa9bd3e0cd6abc15`.
+Fetched `main` matched `origin/main`, ahead/behind 0/0 before this change. The full
+master prompt and all 30 supplied regulation pages were read. The detailed request
+authorizes the P3A model, flows, architecture, test strategy and implementation.
+P1/P2A/P2B/P2C/Auth designs remain locked; P3B / Plan B is not implemented.
+2025–2026 eligibility, schedule, categories, availability, formatting, GPLv3/
+deliverable rules and scoring must be verified for the actual participation year.
+
+### Executed automated and migration evidence
+
+| Command / scope                                                 | Executed result                                                                                                                                                         |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm.cmd db:migrate`                                           | 1 migration applied, 3 already applied; repeat: 0 applied, 4 already applied. Previous migration files/checksums unchanged.                                             |
+| `pnpm.cmd format`, `format:check`, `lint`, `typecheck`, `build` | PASS. Vite production build completed.                                                                                                                                  |
+| `pnpm.cmd test`                                                 | 230 passed, 0 failed/skipped; includes six focused Changes adapter/route/localization tests.                                                                            |
+| `pnpm.cmd server:typecheck`, `server:build`                     | PASS.                                                                                                                                                                   |
+| `pnpm.cmd server:test`                                          | 114 passed, 0 failed; eight integration entrypoints intentionally skipped without their opt-in flag (122 total).                                                        |
+| `RUN_DATABASE_INTEGRATION=1 pnpm.cmd server:test:integration`   | 73 passed, 0 failed/skipped, against configured real development PostgreSQL; includes 11 P3A checks and existing P1/P2A/P2B/P2C regressions.                            |
+| Focused Change offline tests                                    | Three passed: authored whitelist/validation, deterministic derivation, and route authentication/origin/envelope/no-store behavior. Included in the offline total above. |
+| Additional formatter and whitespace checks                      | `prettier --check scripts/verify-changes-ui.mjs CHANGELOG.md` and `git diff --check` passed.                                                                            |
+
+The rollback-only P3A suite covers Organizer creation; Member read/denied writes;
+inactive identities/memberships; Change/Task/owner IDOR; duplicate canonical links;
+active owner selection; exact server actor/version/clock; owner/Task independence;
+authored fields and complete Task-set edits; stale writes and stale no-ops;
+current no-op preservation; current reassignment/assign-back/status/deadline reads;
+failed activity inserts rolling back the complete create/edit; empty Events;
+parameterized adversarial text; composite FKs, uniqueness and RLS. SQL DATE output
+is verified under Honolulu timezone and `SQL, DMY` DateStyle, without midnight conversion.
+The final rerun also verifies one Task linked to multiple Changes, canonical
+`CHANGE_CREATED` / `CHANGE_UPDATED` activity names, and anon/authenticated denial
+across all 11 application/auth tables including both new P3A tables.
+
+The additional concurrency test uses **two independent PostgreSQL connections**
+and simultaneous version-1 edits containing different titles, owners and Task sets.
+Exactly one edit wins with version 2, one returns 409, final canonical data equals
+the winner, and history contains only creation plus one meaningful update. Its
+synthetic committed fixture is intentionally retained so both connections can
+see it. Other new constraint/atomicity fixtures roll back; no existing business
+records are deleted or reset.
+
+### Real Changes browser and layout evidence
+
+`pnpm.cmd test:browser:changes` passed against the running Fastify/backend and real
+PostgreSQL, using externally supplied Playwright and installed Edge at 100% scale.
+Development Events, Tasks, Changes and append-only history created by this run are
+intentionally retained. Credentials, session cookies and invitation bearer paths
+stay in memory and are absent from saved evidence.
+
+Nine completed groups cover:
+
+1. Organizer empty state, associated title validation, initial focus/Escape and
+   zero-Task Change creation in a genuinely fresh Event.
+2. Organizer creation with two real Tasks, keyboard checkboxes, response owner,
+   current statuses, distinct assignees and Event-local dates.
+3. Task deadline editing through its existing UI; reassignment/status commands
+   through real API; Change refetch reflects current state. Reassignment clears
+   acceptance and assigning back does not restore it.
+4. Real stale 409 after another real command: focused/announced conflict, draft
+   retained, save blocked, explicit canonical reload, then review/save. Response
+   owner editing leaves Task assignment/status/acceptance/version/deadline intact.
+5. Member read-only detail and direct server 403 on create/edit; direct URL,
+   refresh/back/forward; Event switch drops the old Change ID; foreign detail
+   safely hides Change content.
+6. A newly invited existing Member joins a real fresh Event, sees its empty state
+   and subsequently created Change, and has no authoring controls.
+7. Explicitly mocked server/network read failures remove stale content, show
+   generic retry, omit injected private errors and never substitute demo data.
+8. **60 real list/detail/form cases**: 1440/1080/768/390/320 × BG/EN × Light/Dark.
+   Direct HTML/body `scrollWidth <= clientWidth`, out-of-viewport rectangles,
+   temporary removal of body clipping, positive/negative panning attempts,
+   visual viewport and 44px control/checkbox-label targets all pass. Ordinary
+   vertical scrollbars remain enabled; mobile detail reflows into sequential facts.
+9. Four **explicitly mocked** long Bulgarian detail cases: 390/320 × both themes,
+   200-character Change title, long Task titles and member names. They pass the
+   same overflow checks and are not represented as database-authored content.
+
+Application/uncaught errors: 0; non-resource console errors: 0. Six resource-error
+messages occur during deliberate denied/conflict/network scenarios and are counted
+separately. Desktop light and 320px BG dark detail, and 320px BG light form captures
+were visually inspected. No human acceptance, physical-device test or formal
+accessibility certification is claimed.
+
+Ignored local evidence: `tmp/p3a-evidence/browser/report.json`, its screenshots,
+`tmp/p3a-pg-final.log`, `tmp/p3a-final-*.log`. These are development evidence,
+not source artifacts to stage.
+
+### Existing browser regressions and additional accessibility checks
+
+All following commands were rerun successfully against real local backend/data,
+using the existing external Playwright/Edge runtime. Labeled transport interceptions
+remain distinct from real commands. No existing assertions were removed; only the
+obsolete Changes-placeholder expectation was replaced with a complete API comparison.
+
+| Command                                                               | Completed checks / layout cases                                                                                                                                                                                            |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm.cmd test:browser:auth`                                          | 15 checks / 20 Login cases; sessions, HttpOnly cookies, intended URLs, expired-session teardown, independent users and mobile logout.                                                                                      |
+| `pnpm.cmd test:browser:workspace`                                     | 11 checks / 8 Dashboard/Team cases; real API/SQL comparison, keyboard/task round-trip, switch/history/focus and safe empty/error/401 handling.                                                                             |
+| `pnpm.cmd test:browser:tasks`                                         | 13 checks / 5 Task-read widths; scope, real SQL/API data, no local fallback, safe failures and independent session teardown.                                                                                               |
+| `pnpm.cmd test:browser:events`                                        | 14 checks / 20 authoring cases; create/edit/switch, role/IDOR, held reads, same-user scoped roles, actual concurrent edits and stale UI recovery.                                                                          |
+| `pnpm.cmd test:browser:task-authoring`                                | 11 checks / 20 authoring cases; create/edit, lifecycle independence, IDOR, concurrency, held saves/switches, network errors and actual expired-session commands.                                                           |
+| `pnpm.cmd test:browser:task-actions`                                  | 16 checks / 40 Organizer/Member drawer cases; assignment, acceptance/withdrawal, all statuses, stale versions, owner impersonation denial, reassignment/assign-back, pending controls and recovery.                        |
+| `pnpm.cmd test:browser:invitations`                                   | 7 checks / 20 recipient + 20 loaded-dialog cases; hash-only storage, sign-in/join, invite-only registration, Task assignment/explicit acceptance, races/idempotency, revocation/expiry, IDOR/origin and focus containment. |
+| `scripts/verify-changes-ui.mjs --read-checks` with existing env files | Two checks / 12 BG/EN Light/Dark list/detail/form-error cases; text contrast, input border/focus contrast, associated validation focus and explicitly mocked failed-save draft retention/announcement.                     |
+
+All report application-error counts are zero. These browser totals are separate
+from Node test counts. Changes text contrast is at least **5.10:1** in the sampled
+states; input boundaries at least **3.39:1** and focused title outline at least
+**5.11:1**. New input boundaries reuse `--control-border`, preserving the existing
+theme palette. Failed POST response/network interceptions do not create business
+records and preserve the draft; injected private errors never appear in the UI.
+Evidence: the existing `tmp/p1d*`, `tmp/p2a`, `tmp/p2b`, `tmp/p2c` browser reports,
+`tmp/p3a-regression-*.log`, `tmp/p3a-evidence/read-checks/report.json` and
+`tmp/p3a-read-checks.log`. Formal accessibility certification is not claimed.
+
+### Locked designs and security review
+
+All **60 Dashboard/Tasks/Team content captures** are pixel-identical to the saved
+locked baseline, with the same labeled deterministic transport data, clock,
+language/theme and widths. The shell's authorized Changes label is excluded from
+content comparison. An initial shared `.change-impact` selector changed Dashboard;
+that failed comparison was corrected by scoping every new selector to Changes,
+then the entire comparison passed. Evidence:
+`tmp/p3a-evidence/locked-comparison.json` and
+`tmp/auth-overflow-evidence/locked/p3a-*.png`.
+
+The short-height sidebar verifier passed 24 labeled transport cases at
+1440/1080 × 900/740/720 × BG/EN × Light/Dark: no micro-scroll, no horizontal clipping,
+unchanged typography, 44px controls and keyboard-visible logout. Each context also
+checks 560px height: real vertical overflow remains scrollable and logout/footer
+can be reached. No production overflow hiding or shell spacing change was added.
+
+Explicit source/test review confirms: Event membership and identity are checked
+and locked server-side; active Organizer alone authors; operationalRole never
+authorizes; Change queries include Event scope; Task/owner references require that
+scope and current active/canonical constraints; version checks precede writes;
+all dynamic SQL values are parameters; actor IDs and timestamps come from session/
+server; client roles/actor/time fields are rejected; errors use fixed sanitized
+envelopes; protected responses are no-store; cookie writes preserve trusted Origin/
+Fetch Metadata rules. No new logger exposes bodies, database errors, credentials,
+sessions or invitation bearer URLs. New browser failures suppress raw diagnostics.
+Invitation/session implementations and existing locked auth verifier are unchanged.
+The working-file safety audit checks all 32 intended files, the full diff and the
+production frontend bundle against seven configured private-value forms, including
+the database password component. No private-value matches or excluded artifacts
+were found. Values are never printed; credentials and auth/browser evidence remain
+ignored. The staged audit also passed for the exact 32-file allowlist; the known
+shortcut, env files, credentials, cookies, sessions, invitation bearers, database
+dumps and browser auth artifacts are excluded. Staged whitespace checks passed.
+The first existing workspace browser run passed Dashboard/Team checks but failed
+its obsolete assertion that Changes must always be an unconnected empty placeholder.
+That assertion now compares the full real scoped API title/URL list, retaining
+the Templates empty-state and all prior auth/read/layout checks. The failed run
+is not counted as a pass.
+
+Preserved discrepancies: required Task DATE; current no-op preserves version/history;
+existing Changes placeholder renamed rather than adding a duplicate destination;
+locked Dashboard's historical unavailable-change/response copy is retained.
+The dedicated Changes route reads real P3A data. No new dependency or lockfile
+change; GPLv3 and the existing dependency/asset license register remain applicable.
+
+### Exact P3A file manifest
+
+Added:
+
+```text
+docs/BUDOGRAPH_P3A.md
+scripts/verify-changes-ui.mjs
+server/migrations/0004_event_changes.sql
+server/src/changes/model.ts
+server/src/changes/service.ts
+server/src/routes/changes.ts
+server/tests/changes-concurrency.integration.test.ts
+server/tests/changes.integration.test.ts
+server/tests/changes.test.ts
+src/i18n/changeMessages.ts
+src/pages/changes/changes.css
+src/services/changes.test.ts
+src/services/changes.ts
+```
+
+Modified:
+
+```text
+CHANGELOG.md
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/DEPLOYMENT_AND_DEMO_PLAN.md
+docs/KNOWN_LIMITATIONS.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-workspace-ui.mjs
+server/migrations/README.md
+server/src/app.ts
+server/src/main.ts
+server/tests/schema.integration.test.ts
+src/App.tsx
+src/auth/routing.ts
+src/i18n/messages.ts
+src/pages/ChangesPage.tsx
+src/routes.ts
+```
+
+P3A architecture/model/API/flows/security and remaining limitations are documented
+in `BUDOGRAPH_P3A.md`, setup/demo/user/limitation docs and the AI assistance log.
+Unpaginated lists/1000-ID bound, in-memory drafts and uncertain-create-response
+duplicate risk remain documented. Human usability/screen-reader, other browsers,
+physical devices, production grants/hosting and offline backup rehearsal remain
+separate work. The unrelated `docs/market-research/docs - Shortcut.lnk` is untouched.
+
 ## Auth horizontal-pan investigation — 2026-10-05
 
 ### Scope and acceptance status

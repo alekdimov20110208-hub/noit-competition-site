@@ -4,6 +4,7 @@ import {
   parseAppLocation,
   eventHref,
   eventEditHref,
+  changeHref,
 } from "../routes.ts";
 import { readInvitationToken } from "../services/invitations.ts";
 
@@ -23,6 +24,8 @@ export function safeReturnTo(value: string | null): string {
     const location = parseAppLocation(path, url.search);
     if (path === "/events/new") return path;
     if (location.eventId) {
+      if (location.changeId)
+        return changeHref(location.eventId, location.changeId);
       return location.eventMode === "edit"
         ? eventEditHref(location.eventId)
         : eventHref(location.eventId, location.path, location.taskId);

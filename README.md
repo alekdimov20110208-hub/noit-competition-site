@@ -4,7 +4,14 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 ## Project status and evidence boundary
 
-Current addition: **P2C Event invitations and invite-only onboarding**. A current-Event
+Current addition: **P3A Change records and impact mapping**. Open **Changes / Промени**
+inside an Event. Organizers record/edit changes and explicitly link affected Tasks;
+active Members read them. Impact uses current Task assignees, deadlines and statuses.
+Response ownership is independent of Task responsibility and authorization. Edits
+use expectedVersion/409 and atomic history. P3B / Plan B is not implemented.
+See [P3A architecture, scope and verification](docs/BUDOGRAPH_P3A.md).
+
+P2C adds **Event invitations and invite-only onboarding**. A current-Event
 Organizer opens **Team → Invite member**, enters an email, and shares the explicit
 development invitation link. **No outbound invitation email is configured or sent.**
 An existing account signs in and explicitly joins; a new user creates an account
@@ -20,8 +27,8 @@ This repository contains the **Phase 1 NOIT competition MVP, the Phase 2A UX fou
 The repository also contains the Backend P1A/P1B/P1C foundation, P1D.1 browser
 authentication, P1D.2A remote Tasks reads, P1D.2B task responsibility actions, and
 P1D.3 real Dashboard/Team reads. Login, Dashboard, Tasks and Team use the real
-PostgreSQL-backed backend. Changes/Plan B persistence is **NOT YET IMPLEMENTED**;
-its authenticated view contains no fictional records. The application remains a technical prototype. These
+PostgreSQL-backed backend. P3A Changes now have their own persisted Event-scoped
+surface; Plan B remains unimplemented. The application remains a technical prototype. These
 phases do not prove product-market fit, commercial demand, adoption, willingness
 to pay, or usability.
 
@@ -54,7 +61,7 @@ runtime as P1. See [test evidence](docs/TEST_EVIDENCE.md) for executed results.
 No dependencies or migrations were added; applied SQL remains immutable.
 
 **P2C adds invitations after P2A.
-EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. CHANGES/PLAN B NOT YET IMPLEMENTED.**
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED. PLAN B NOT YET IMPLEMENTED.**
 Templates, Budget, AI, membership management and production hardening remain outside P2A.
 
 ## P2B real Task authoring
@@ -81,7 +88,7 @@ Run `pnpm test:browser:task-authoring` with the same ignored account configurati
 and external verification browser runtime. No migration or runtime dependency was
 added by P2B. Invitations are now implemented in P2C above.
 **TASK DELETION NOT YET IMPLEMENTED;
-EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED; CHANGES/PLAN B NOT YET IMPLEMENTED;
+EVENT ARCHIVE/DELETE NOT YET IMPLEMENTED; PLAN B NOT YET IMPLEMENTED;
 DEPENDENCIES NOT YET IMPLEMENTED; REALTIME NOT IMPLEMENTED.**
 
 ## P1D.3 real workspace integration (historical)

@@ -124,6 +124,7 @@ test(
           "0001_better_auth_core.sql",
           "0002_budograph_core.sql",
           "0003_event_invitations.sql",
+          "0004_event_changes.sql",
         ],
       );
       client.release();
@@ -135,7 +136,7 @@ test(
           for (let index = 0; index < 2; index += 1) {
             assert.deepEqual(await runMigrations(pool, migrationDirectory), {
               applied: 0,
-              alreadyApplied: 3,
+              alreadyApplied: 4,
             });
           }
         },
@@ -222,10 +223,12 @@ test(
                 "task",
                 "activity_entry",
                 "event_invitation",
+                "event_change",
+                "change_task",
               ],
             ],
           );
-          assert.equal(rows.length, 9);
+          assert.equal(rows.length, 11);
           assert.ok(
             rows.every(
               (row) => row.row_security === true && row.policies === 0,
@@ -259,6 +262,8 @@ test(
               "public.task",
               "public.activity_entry",
               "public.event_invitation",
+              "public.event_change",
+              "public.change_task",
             ]) {
               await database.query("SAVEPOINT p1b_browser_role");
               let count: unknown;

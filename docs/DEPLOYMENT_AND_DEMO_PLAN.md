@@ -1,5 +1,14 @@
 # Installation, Deployment, and Demonstration Plan
 
+P3A adds real Event-scoped Changes. Apply `pnpm db:migrate`, verify a no-op rerun,
+and restart the backend before demonstrating. Use Changes to record an arrival
+change, link two development Tasks, choose a response owner, then edit a Task's
+deadline/assignment and refresh Change detail. Use an independent Member session
+to show read-only access and switch Events to show isolation. P3B / Plan B is absent.
+Current P3A details are in BUDOGRAPH_P3A.md; subsequent earlier-phase boundaries
+are historical. Keep the existing local-backend/PostgreSQL and recorded-demo backup
+plan; no new offline remote cache or production deployment is claimed by P3A.
+
 Current scope: Backend P1A/P1B/P1C, P1D.1/P1D.2A/P1D.2B/P1D.3, P2A, P2B and P2C. Better Auth
 login protects Event-scoped workspaces backed by the configured PostgreSQL
 (Supabase-hosted development) database. **Dashboard REAL, Tasks REAL, Team REAL.**

@@ -1,4 +1,24 @@
-# Backend P1, P2A, P2B and P2C Development
+# Backend P1, P2A, P2B, P2C and P3A Development
+
+## Current P3A Changes — 2026-10-05
+
+Apply immutable `0004_event_changes.sql` using `pnpm db:migrate`, then rerun to
+verify metadata recognition. New `event_change` and `change_task` tables retain
+existing composite Event FKs, indexes and RLS conventions. Never edit previous
+migrations or reset development data. Restart the backend so its Changes module
+is registered; Vite reload alone cannot update a backend started without watch.
+
+The four Event-scoped Change list/detail/create/patch endpoints require active
+membership for reads and ORGANIZER authoring. ExpectedVersion, owner/Task validation,
+atomic activity and current-state impact follow [the P3A contract](BUDOGRAPH_P3A.md).
+No ORM, auth/session/origin change or new dependency is introduced. Plan B remains
+unimplemented. Subsequent historical descriptions retain their original phase scope.
+
+Run `pnpm test:browser:changes` with existing ignored development account inputs
+and external Playwright/browser paths. Run it separately from enabled PostgreSQL
+integration suites. Real development browser records/history are intentionally
+retained; rollback-only database fixtures disappear. Current execution evidence
+belongs in TEST_EVIDENCE, not inferred from a script's existence.
 
 ## P2C invitations and onboarding — 2026-10-04
 

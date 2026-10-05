@@ -16,6 +16,7 @@ import { DashboardPage } from "./pages/DashboardPage.tsx";
 import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
 import { EventFormPage } from "./pages/EventFormPage.tsx";
+import { ChangesPage } from "./pages/ChangesPage.tsx";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
 import {
   createTaskDetailHistoryState,
@@ -388,18 +389,22 @@ export default function App() {
       />
     );
   } else if (currentLocation.path === "/changes") {
-    page = (
-      <div className="page">
-        <PageHeader
-          title={t("changes.title")}
-          description={t("workspace.changes.description")}
+    page =
+      remoteTasks.status === "ready" && remoteEvent ? (
+        <ChangesPage
+          key={`${remoteEvent.id}:${currentLocation.changeId ?? "list"}`}
+          event={remoteEvent}
+          changeId={currentLocation.changeId}
+          workspace={remoteTasks.workspace}
+          onNavigate={navigate}
         />
-        <EmptyState
-          title={t("workspace.changes.title")}
-          description={t("workspace.changes.description")}
+      ) : (
+        <WorkspaceReadNotice
+          state={remoteTasks}
+          team={false}
+          onRetry={() => void remoteTasks.retry()}
         />
-      </div>
-    );
+      );
   } else if (currentLocation.path === "/templates") {
     page = (
       <div className="page">

@@ -15,6 +15,9 @@ import { EventCommandError } from "./events/model.ts";
 import { InvitationError } from "./invitations/model.ts";
 import type { InvitationService } from "./invitations/service.ts";
 import { registerInvitationRoutes } from "./routes/invitations.ts";
+import { registerChangeRoutes } from "./routes/changes.ts";
+import { ChangeCommandError } from "./changes/model.ts";
+import type { ChangeService } from "./changes/service.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
@@ -23,6 +26,7 @@ export interface AppOptions {
   tasks?: TaskService;
   events?: EventService;
   invitations?: InvitationService;
+  changes?: ChangeService;
 }
 
 const standardMethods = new Set([
@@ -42,6 +46,7 @@ export function createApp({
   tasks,
   events,
   invitations,
+  changes,
 }: AppOptions) {
   const app = Fastify({
     requestIdHeader: false,
@@ -81,6 +86,13 @@ export function createApp({
     return reply.code(404).send({ status: "not_found" });
   });
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof ChangeCommandError) {
+      return reply.code(error.statusCode).send({
+        status: "error",
+        code: error.code,
+        ...(error.fields ? { fields: error.fields } : {}),
+      });
+    }
     if (error instanceof InvitationError) {
       return reply
         .code(error.statusCode)
@@ -117,6 +129,8 @@ export function createApp({
   });
 
   registerHealthRoutes(app, checkDatabase);
+  if (authentication && changes)
+    registerChangeRoutes(app, authentication, changes);
   if (authentication) registerAuthRoutes(app, authentication);
   if (authentication && tasks) registerTaskRoutes(app, authentication, tasks);
   if (authentication && events)

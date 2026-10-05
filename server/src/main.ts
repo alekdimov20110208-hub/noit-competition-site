@@ -8,6 +8,7 @@ import { createShutdown } from "./shutdown.ts";
 import { createTaskService } from "./tasks/service.ts";
 import { createEventService } from "./events/service.ts";
 import { createInvitationService } from "./invitations/service.ts";
+import { createChangeService } from "./changes/service.ts";
 
 async function main() {
   let app: FastifyInstance | undefined;
@@ -57,6 +58,7 @@ async function main() {
       invitationRegistration: true,
     });
     app = createApp({
+      changes: createChangeService(database),
       tasks: createTaskService(database),
       events: createEventService(database),
       invitations: createInvitationService(database, async (fields) => {

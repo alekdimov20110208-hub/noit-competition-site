@@ -22,6 +22,7 @@ export type AppLocation = (
 ) & {
   eventId: string | null;
   eventMode: "workspace" | "create" | "edit";
+  changeId?: string | null;
 };
 
 export interface AppRoute {
@@ -107,6 +108,19 @@ export function parseAppLocation(
   search: string,
 ): AppLocation {
   const normalized = pathname.replace(/\/+$/, "") || "/";
+  const changeDetail =
+    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/changes\/([^/]+)$/i.exec(
+      normalized,
+    );
+  if (changeDetail) {
+    return {
+      path: "/changes",
+      taskId: null,
+      eventId: changeDetail[1].toLowerCase(),
+      eventMode: "workspace",
+      changeId: changeDetail[2].toLowerCase(),
+    };
+  }
   if (normalized === "/events/new")
     return { path: "/", taskId: null, eventId: null, eventMode: "create" };
   const scoped =
@@ -147,6 +161,14 @@ export function eventHref(
 
 export function eventEditHref(eventId: string): string {
   return eventHref(eventId).replace(/\/dashboard$/, "/edit");
+}
+
+export function changeHref(eventId: string, changeId: string): string {
+  if (
+    !/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(changeId)
+  )
+    throw new Error("Invalid Change route.");
+  return `${eventHref(eventId, "/changes")}/${changeId.toLowerCase()}`;
 }
 
 export function createTaskHref(
