@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-06 — BudoGraph P3C
+
+- Connected existing Dashboard Operational Changes to canonical current-Event P3 reads and durable links.
+- Added deterministic personal Change attention with one reason per Change; missing Plan B alone is excluded and Task attention stays independent.
+- Clarified response coordination ownership and the Decision/Response/optional Plan B hierarchy in BG/EN.
+- Preserved Member read-only access and locked composition; no migration, dependency, AI, notification or realtime addition.
+- Added focused integration/browser coverage and current documentation.
+
 ## 2026-10-05 — BudoGraph P3B
 
 - Extended Change with one current Decision, operational Response and optional Plan B.

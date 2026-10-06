@@ -2,6 +2,12 @@ import { getCalendarDayNumber } from "../domain/taskTiming.ts";
 import type { Event, Task, TaskStatus, TeamMember } from "../domain/types.ts";
 import type { TaskFields, TaskFieldErrors } from "./taskAuthoring.ts";
 import { InvitationService } from "./invitations.ts";
+import {
+  ChangeService,
+  ChangeFailure,
+  type RemoteChange,
+  type ChangeError,
+} from "./changes.ts";
 
 export type TaskAssignee = Pick<TeamMember, "id" | "name" | "role">;
 export type TaskEvent = Pick<Event, "id" | "name" | "startDate" | "endDate"> & {
@@ -27,6 +33,8 @@ export interface TasksWorkspace {
   // Active roster only. Historical assignees remain in teamMembers for task names.
   activeMembers?: TaskAssignee[];
   accessibleEvents?: TaskEvent[];
+  changes?: RemoteChange[] | null;
+  changeReadError?: ChangeError | null;
 }
 export function emptyTasksWorkspace(): TasksWorkspace {
   return { currentEventId: "", events: [], teamMembers: [], tasks: [] };
@@ -316,9 +324,11 @@ export class RemoteWorkspaceService
 {
   private request: typeof fetch;
   readonly invitations: InvitationService;
+  private readonly changes: ChangeService;
   constructor(request: typeof fetch = fetch) {
     this.request = request;
     this.invitations = new InvitationService(request);
+    this.changes = new ChangeService(request);
   }
 
   private async get(path: string, signal: AbortSignal): Promise<unknown> {
@@ -398,9 +408,28 @@ export class RemoteWorkspaceService
       return { id: id(row.id), name: string(row.name), role: string(row.role) };
     });
     uniqueIds(members);
+    let changes: RemoteChange[] | null = null;
+    let changeReadError: ChangeError | null = null;
+    try {
+      changes = await this.changes.list(event.id, signal);
+    } catch (error) {
+      if (signal.aborted) throw signal.reason;
+      const code = error instanceof ChangeFailure ? error.code : "unavailable";
+      // Session/scope loss clears the entire protected snapshot. A Change-only
+      // availability/DTO failure stays explicit without disabling Task commands.
+      if (
+        code === "unauthenticated" ||
+        code === "forbidden" ||
+        code === "not-found"
+      )
+        throw new WorkspaceReadFailure(code);
+      changeReadError = code;
+    }
     signal.throwIfAborted();
     return {
       ...workspace,
+      changes,
+      changeReadError,
       activeMembers: members,
       assignableMembers:
         event.membership.accessRole === "ORGANIZER" ? members : [],

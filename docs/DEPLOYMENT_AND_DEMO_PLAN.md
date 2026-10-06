@@ -11,7 +11,13 @@ conflict. Change a linked Task deadline/assignee/status and refetch to show live
 impact while coordination state and response owner stay independent. Show Member
 read-only access even when selected as response owner. No fallback executes
 automatically; actual Task changes use existing commands. P3B adds no deployment.
-Current contracts are in BUDOGRAPH_P3A.md and BUDOGRAPH_P3B.md; earlier-phase boundaries
+P3C connects Dashboard Operational Changes with no additional migration. Start on
+Dashboard, open a real Change, then return after changing its owner, Decision and
+Response to show the corresponding personal attention reason progressing/clearing.
+Clear only Plan B to demonstrate that its absence alone does not create attention.
+Show the same read-only route as a Member response owner and switch Events. Keep
+Task attention/responsibility independent throughout this demonstration.
+Current contracts are in BUDOGRAPH_P3A.md, BUDOGRAPH_P3B.md and BUDOGRAPH_P3C.md; earlier-phase boundaries
 are historical. Keep the existing local-backend/PostgreSQL and recorded-demo backup
 plan; no new offline remote cache or production deployment is claimed by P3A.
 

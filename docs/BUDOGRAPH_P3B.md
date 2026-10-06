@@ -5,6 +5,10 @@ Date: 2026-10-05. Authorized continuation from locked HEAD
 problem, model, scope, flows, architecture and verification strategy. P1/P2/Auth
 and P3A contracts remain locked. Executed verification belongs in TEST_EVIDENCE.
 
+[P3C](BUDOGRAPH_P3C.md) adds canonical Dashboard reads and detail/list clarity. It
+supersedes the historical Dashboard snapshot boundary below; the P3B response,
+version, history, Task independence and Organizer-only permissions remain unchanged.
+
 ## Inspection and implementation contract
 
 The existing React/Vite/TypeScript and Fastify modular monolith, Better Auth

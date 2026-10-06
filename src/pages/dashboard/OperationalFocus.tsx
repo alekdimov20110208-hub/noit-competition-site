@@ -6,11 +6,20 @@ import type { Task, TeamMember } from "../../domain/types.ts";
 import { isTaskOverdue } from "../../domain/workspace.ts";
 import { useI18n } from "../../i18n/index.ts";
 import { createTaskHref } from "../../routes.ts";
+import { changeHref } from "../../routes.ts";
+import type { ChangeAttentionItem } from "../../domain/changeCoordination.ts";
+import type { ChangeError } from "../../services/changes.ts";
+import { ChangeReadNotice } from "./ChangeReadNotice.tsx";
 import { revealFocusTarget } from "../../navigationFocus.ts";
 import { getAttentionActionKey, getAttentionReason } from "./helpers.ts";
 
 interface OperationalFocusProps {
   tasks: Task[];
+  coordination: ChangeAttentionItem[];
+  changesAvailable: boolean;
+  changeReadError: ChangeError | null;
+  onRefresh: () => void;
+  onNavigate: (path: string) => void;
   members: Map<string, Pick<TeamMember, "id" | "name" | "role">>;
   now: Date;
   onOpenTask: (taskId: string) => void;
@@ -20,6 +29,11 @@ interface OperationalFocusProps {
 
 export function OperationalFocus({
   tasks,
+  coordination,
+  changesAvailable,
+  changeReadError,
+  onRefresh,
+  onNavigate,
   members,
   now,
   onOpenTask,
@@ -34,7 +48,11 @@ export function OperationalFocus({
     const button = disclosureRef.current;
     if (button && document.activeElement === button) revealFocusTarget(button);
   }, [expanded]);
-  const visibleTasks = expanded ? tasks : tasks.slice(0, 5);
+  const items = [
+    ...tasks.map((task) => ({ kind: "task" as const, task })),
+    ...coordination.map((item) => ({ kind: "change" as const, item })),
+  ];
+  const visibleItems = expanded ? items : items.slice(0, 5);
 
   return (
     <section className="operational-focus" aria-labelledby="focus-title">
@@ -44,21 +62,51 @@ export function OperationalFocus({
         </div>
       </header>
 
-      {tasks.length === 0 ? (
+      {!changesAvailable && (
+        <ChangeReadNotice error={changeReadError} onRetry={onRefresh} />
+      )}
+      {items.length === 0 && changesAvailable ? (
         <EmptyState
           title={t("dashboard.attention.empty.title")}
           description={t("dashboard.attention.empty.description")}
         />
       ) : (
         <ol className="focus-list" id={listId}>
-          {visibleTasks.map((task) => {
+          {visibleItems.map((item) => {
+            if (item.kind === "change") {
+              const { change, reason } = item.item;
+              return (
+                <li key={`change:${change.id}`}>
+                  <AppLink
+                    href={changeHref(change.eventId, change.id)}
+                    onNavigate={onNavigate}
+                    className="focus-item"
+                    data-change-attention-id={change.id}
+                  >
+                    <span className="focus-item__body">
+                      <strong>{change.title}</strong>
+                      <span className="focus-item__action">
+                        {t(`change.attention.${reason}`)}
+                      </span>
+                      <span className="focus-item__reason">
+                        {t(`change.attention.${reason}.help`)}
+                      </span>
+                      <span className="focus-item__meta">
+                        {t("change.attention.kind")}
+                      </span>
+                    </span>
+                  </AppLink>
+                </li>
+              );
+            }
+            const task = item.task;
             const overdue = isTaskOverdue(task, now);
             const owner = members.get(task.ownerId);
             const risk =
               task.status === "blocked" || overdue ? "critical" : "normal";
 
             return (
-              <li key={task.id}>
+              <li key={`task:${task.id}`}>
                 <AppLink
                   href={createTaskHref(task.id)}
                   onNavigate={() => onOpenTask(task.id)}
@@ -100,7 +148,7 @@ export function OperationalFocus({
           })}
         </ol>
       )}
-      {tasks.length > 5 && (
+      {items.length > 5 && (
         <button
           ref={disclosureRef}
           type="button"

@@ -1,4 +1,19 @@
-# Backend P1, P2A, P2B, P2C, P3A and P3B Development
+# Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
+
+## Current P3C Dashboard reads — 2026-10-06
+
+The client shared Event snapshot composes existing scoped Event, Task, member and
+Change reads. There is no new Dashboard endpoint or migration. The validated
+canonical Change DTO stays separate from Task/Team presentation adapters.
+Authorization/session failures clear the protected snapshot; unavailable or invalid
+Change reads leave Task/Team data usable with explicit P3 retry messaging, never
+a fabricated empty list. Existing cancellation/revision guards reject late reads
+from a previous Event. Dashboard reentry refreshes without polling.
+It does not automatically replace confirmed Task data while a failed command
+refresh requires the existing explicit recovery flow.
+
+Deterministic personal attention uses current membership and P3 authored presence,
+not authorization changes, Task mutation or stored lifecycle. See [P3C](BUDOGRAPH_P3C.md).
 
 ## Current P3B response state — 2026-10-05
 

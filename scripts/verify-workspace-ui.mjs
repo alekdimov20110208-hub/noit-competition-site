@@ -6,6 +6,10 @@ import { pathToFileURL } from "node:url";
 import { createDemoWorkspace } from "../src/data/demo.ts";
 import { mapTaskRead } from "../src/services/RemoteWorkspaceService.ts";
 import { toWorkspaceView } from "../src/services/workspaceViews.ts";
+import {
+  getEventChanges,
+  getPersonalChangeAttention,
+} from "../src/domain/changeCoordination.ts";
 import { eventCalendarNow } from "../src/services/taskReadState.ts";
 import {
   getTaskCounts,
@@ -108,7 +112,15 @@ async function read(page) {
     const active = await fetch(`/api/events/${event.id}/members`).then((r) =>
       r.json(),
     );
-    return { event, ...tasks, activeMembers: active.members };
+    const changes = await fetch(`/api/events/${event.id}/changes`).then((r) =>
+      r.json(),
+    );
+    return {
+      event,
+      ...tasks,
+      activeMembers: active.members,
+      changes: changes.changes,
+    };
   });
 }
 async function safe(page) {
@@ -151,7 +163,9 @@ async function verifyDashboard(page, data) {
     5,
   );
   assert.deepEqual(
-    await page.locator(".focus-item strong").allTextContents(),
+    await page
+      .locator(".focus-item[data-task-focus-key] strong")
+      .allTextContents(),
     focus.map((t) => t.title),
   );
   const links = await page
@@ -160,10 +174,34 @@ async function verifyDashboard(page, data) {
       nodes.map((node) => new URL(node.href).searchParams.get("task")),
     );
   assert.ok(links.every((id) => data.tasks.some((t) => t.id === id)));
-  assert.equal(await page.locator(".change-impact__entry").count(), 0);
-  assert.match(
-    await page.locator(".change-impact").innerText(),
-    /No recorded change responses/,
+  const changes = getEventChanges(data.changes, data.event.id);
+  assert.deepEqual(
+    await page
+      .locator(".change-impact__entry")
+      .evaluateAll((nodes) => nodes.map((node) => node.dataset.changeId)),
+    changes.map((change) => change.id),
+  );
+  if (!changes.length)
+    assert.match(
+      await page.locator(".change-impact").innerText(),
+      /No changes recorded/,
+    );
+  else
+    assert.deepEqual(
+      await page.locator(".change-impact__title-link").allTextContents(),
+      changes.map((change) => change.title),
+    );
+  const personal = getPersonalChangeAttention(changes, data.event).slice(
+    0,
+    Math.max(0, 5 - focus.length),
+  );
+  assert.deepEqual(
+    await page
+      .locator("[data-change-attention-id]")
+      .evaluateAll((nodes) =>
+        nodes.map((node) => node.dataset.changeAttentionId),
+      ),
+    personal.map((item) => item.change.id),
   );
   const workloads = getTeamWorkload(data.activeMembers, mapped.tasks, now);
   assert.equal(
@@ -252,6 +290,7 @@ async function dashboardRoundTrip(page, data, restoredData = data) {
   );
   const fixture = {
     ...data,
+    changes: [],
     tasks: [
       {
         ...data.tasks[0],
@@ -269,7 +308,9 @@ async function dashboardRoundTrip(page, data, restoredData = data) {
         members: fixture.members,
       },
     });
-  await page.route("**/api/events/*/tasks", transport, { times: 1 });
+  await page.route("**/api/events/*/tasks", transport);
+  const changeTransport = (route) => route.fulfill({ json: { changes: [] } });
+  await page.route("**/api/events/*/changes", changeTransport);
   try {
     await page.reload();
     await page.locator("#event-overview-title").waitFor();
@@ -277,6 +318,7 @@ async function dashboardRoundTrip(page, data, restoredData = data) {
     await roundTrip(page, selector, "/");
   } finally {
     await page.unroute("**/api/events/*/tasks", transport);
+    await page.unroute("**/api/events/*/changes", changeTransport);
     await page.reload();
     await page.locator("#event-overview-title").waitFor();
     await verifyDashboard(page, restoredData);
@@ -326,6 +368,7 @@ try {
   for (const status of ["in-progress", "completed"]) {
     const fixture = {
       ...initial,
+      changes: [],
       tasks: [
         {
           ...initial.tasks[0],
@@ -339,27 +382,34 @@ try {
       ],
       members: initial.activeMembers,
     };
-    await organizer.page.route(
-      "**/api/events/*/tasks",
-      (route) =>
-        route.fulfill({
-          json: { tasks: fixture.tasks, members: fixture.members },
-        }),
-      { times: 1 },
-    );
+    const fixtureTaskRead = (route) =>
+      route.fulfill({
+        json: { tasks: fixture.tasks, members: fixture.members },
+      });
+    await organizer.page.route("**/api/events/*/tasks", fixtureTaskRead);
+    // This isolated Task transport fixture also has an explicit empty Change read.
+    // Canonical Changes are checked separately against real API data above/below.
+    const fixtureChangeRead = (route) =>
+      route.fulfill({ json: { changes: [] } });
+    await organizer.page.route("**/api/events/*/changes", fixtureChangeRead);
     await organizer.page.reload();
     await organizer.page.locator("#event-overview-title").waitFor();
     await verifyDashboard(organizer.page, fixture);
-    assert.equal(await organizer.page.locator(".focus-item").count(), 0);
     assert.equal(
-      await dashboardRoundTrip(organizer.page, fixture, initial),
+      await organizer.page.locator(".focus-item[data-task-focus-key]").count(),
+      0,
+    );
+    assert.equal(
+      await dashboardRoundTrip(organizer.page, fixture),
       status === "completed" ? "isolated-transport" : "real-link",
     );
+    await organizer.page.unroute("**/api/events/*/tasks", fixtureTaskRead);
+    await organizer.page.unroute("**/api/events/*/changes", fixtureChangeRead);
     await organizer.page.reload();
     await organizer.page.locator("#event-overview-title").waitFor();
     await verifyDashboard(organizer.page, initial);
     checked(
-      `Labelled ${status} transport fixture: no attention items; meaningful task navigation without business mutations`,
+      `Labelled ${status} transport fixture: no Task attention items; canonical personal Change attention checked separately; meaningful task navigation without business mutations`,
     );
   }
   let readRequests = 0;
@@ -493,6 +543,9 @@ try {
     await organizer.page.route("**/api/events/*/members", (route) =>
       route.fulfill({ json: { members: [] } }),
     );
+    await organizer.page.route("**/api/events/*/changes", (route) =>
+      route.fulfill({ json: { changes: [] } }),
+    );
     await organizer.page.reload();
     await organizer.page
       .locator(path === "/" ? "#event-overview-title" : ".team-empty-copy")
@@ -505,6 +558,7 @@ try {
     await safe(organizer.page);
     await organizer.page.unroute("**/api/events/*/tasks");
     await organizer.page.unroute("**/api/events/*/members");
+    await organizer.page.unroute("**/api/events/*/changes");
     await organizer.page.route("**/api/events", (route) =>
       route.fulfill({ json: { events: [] } }),
     );

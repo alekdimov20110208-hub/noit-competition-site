@@ -73,7 +73,7 @@
 }
 .page--changes .change-narrative {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.48fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 40px;
   padding-bottom: 32px;
   border-bottom: 1px solid var(--line-strong);
@@ -96,6 +96,7 @@
 .page--changes .change-response {
   border-left: 3px solid var(--gold);
   padding-left: 22px;
+  margin-bottom: 32px;
 }
 .page--changes .change-response__name {
   font-size: 1.15rem;

@@ -1,6 +1,6 @@
 # BudoGraph Phase 2B.2 Presentation Outline
 
-## Current P3A/P3B demonstration extension — 2026-10-05
+## Current P3A/P3B/P3C demonstration extension — 2026-10-06
 
 This addition supersedes historical local-prototype response behavior below.
 Use real backend/development data and separate Organizer/Member sessions. Show
@@ -14,8 +14,11 @@ Response, Plan B and owner stay unchanged. Show a two-tab 409 that retains local
 drafts and requires explicit canonical reload. Members see readable state with no
 edit controls. Plan B never activates automatically; there is no AI or Task mutation
 caused by authored response text. Present executed test counts from TEST_EVIDENCE,
-and distinguish browser automation from human usability validation. The locked
-Dashboard is not connected to current Change records; use the Changes route.
+and distinguish browser automation from human usability validation. Dashboard now
+shows canonical Changes and separate personal coordination attention. Demonstrate
+unowned Organizer → own missing Decision → own Decision without Response; once
+Response exists, missing Plan B alone creates no attention. Open the durable detail
+from Dashboard and explain each section's role, including unchanged Task assignees.
 
 The following outline remains the historical Phase 2B.2 record.
 

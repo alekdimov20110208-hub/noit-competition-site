@@ -1,4 +1,10 @@
 import type { WorkspaceView } from "../services/workspaceViews.ts";
+import type { TaskEvent } from "../services/RemoteWorkspaceService.ts";
+import type { RemoteChange, ChangeError } from "../services/changes.ts";
+import {
+  getEventChanges,
+  getPersonalChangeAttention,
+} from "../domain/changeCoordination.ts";
 import {
   getAttentionTasks,
   getReadinessSummary,
@@ -10,16 +16,20 @@ import { ChangeImpact } from "./dashboard/ChangeImpact.tsx";
 import { EventOverview } from "./dashboard/EventOverview.tsx";
 import {
   buildPreparationTimeline,
-  getActiveChanges,
   eventDateMilestones,
 } from "./dashboard/helpers.ts";
 import { OperationalFocus } from "./dashboard/OperationalFocus.tsx";
 import { PreparationTimeline } from "./dashboard/PreparationTimeline.tsx";
 import { TeamPressure } from "./dashboard/TeamPressure.tsx";
+import "./dashboard/integration.css";
 
 interface DashboardPageProps {
   now: Date;
   state: WorkspaceView;
+  event: TaskEvent | null;
+  changes: RemoteChange[] | null;
+  changeReadError: ChangeError | null;
+  onRefresh: () => void;
   onNavigate: (path: string) => void;
   onOpenTask: (taskId: string) => void;
   focusExpanded: boolean;
@@ -29,6 +39,10 @@ interface DashboardPageProps {
 export function DashboardPage({
   now,
   state,
+  event: currentEvent,
+  changes,
+  changeReadError,
+  onRefresh,
   onNavigate,
   onOpenTask,
   focusExpanded,
@@ -39,16 +53,15 @@ export function DashboardPage({
     state.events.find((item) => item.id === state.currentEventId) ??
     state.events[0];
 
-  if (!event) return null;
+  if (!event || !currentEvent || currentEvent.id !== event.id) return null;
 
   const eventTasks = state.tasks.filter((task) => task.eventId === event.id);
-  const eventChanges = state.changes
-    .filter((change) => change.eventId === event.id)
-    .sort(
-      (first, second) =>
-        second.reportedAt.localeCompare(first.reportedAt) ||
-        first.id.localeCompare(second.id),
-    );
+  const eventChanges =
+    changes === null ? null : getEventChanges(changes, event.id);
+  const coordination = getPersonalChangeAttention(
+    eventChanges ?? [],
+    currentEvent,
+  );
   const readiness = getReadinessSummary(eventTasks);
   const counts = getTaskCounts(eventTasks, now);
   const attention = getAttentionTasks(eventTasks, now, eventTasks.length);
@@ -81,7 +94,6 @@ export function DashboardPage({
       first.id.localeCompare(second.id),
   );
   const timeline = buildPreparationTimeline(eventTasks, milestones, now);
-  const activeChanges = getActiveChanges(eventChanges);
 
   return (
     <div className="page page--dashboard">
@@ -98,6 +110,11 @@ export function DashboardPage({
           expanded={focusExpanded}
           onExpandedChange={onFocusExpandedChange}
           tasks={attention}
+          coordination={coordination}
+          changeReadError={changeReadError}
+          changesAvailable={eventChanges !== null}
+          onRefresh={onRefresh}
+          onNavigate={onNavigate}
           members={members}
           now={now}
           onOpenTask={onOpenTask}
@@ -111,10 +128,10 @@ export function DashboardPage({
       </div>
 
       <ChangeImpact
-        changes={activeChanges}
-        recordsAvailable={state.changesPersisted}
-        eventTasks={eventTasks}
-        members={members}
+        changes={eventChanges}
+        error={changeReadError}
+        event={currentEvent}
+        onRefresh={onRefresh}
         now={now}
         onNavigate={onNavigate}
         onOpenTask={onOpenTask}

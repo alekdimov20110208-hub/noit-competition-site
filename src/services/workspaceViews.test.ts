@@ -4,9 +4,11 @@ import { readFileSync } from "node:fs";
 import {
   RemoteWorkspaceService,
   WorkspaceReadFailure,
+  emptyTasksWorkspace,
   type TaskEvent,
 } from "./RemoteWorkspaceService.ts";
 import { toWorkspaceView } from "./workspaceViews.ts";
+import type { RemoteChange } from "./changes.ts";
 import { TaskReadController, eventCalendarNow } from "./taskReadState.ts";
 import {
   getAttentionTasks,
@@ -68,7 +70,9 @@ function service(tasks = [dto(4), dto(5, historical.id)]) {
                 },
               ],
             }
-          : { tasks, members: [active, historical] },
+          : String(url).endsWith("/changes")
+            ? { changes: [] }
+            : { tasks, members: [active, historical] },
     ),
   );
 }
@@ -88,8 +92,8 @@ test("real overview preserves DATE/timezone and omits unsupported Event fields, 
     },
   ]);
   assert.equal(view.currentEventId, remote.currentEventId);
-  assert.deepEqual(view.changes, []);
-  assert.equal(view.changesPersisted, false);
+  assert.equal("changes" in view, false);
+  assert.equal("changesPersisted" in view, false);
   assert.doesNotMatch(
     JSON.stringify(view),
     /AUTH_INTERNAL|private@example|accessRole|membership|guestInstructor|location|isOrganizer/,
@@ -272,5 +276,141 @@ test("shared refresh does not independently rediscover an earlier Event or retai
   assert.deepEqual(
     toWorkspaceView(controller.getSnapshot().workspace).teamMembers,
     [],
+  );
+});
+
+function canonicalChange(eventId = event.id, n = 30): RemoteChange {
+  return {
+    id: uid(n),
+    eventId,
+    title: "Canonical P3",
+    context: "",
+    reporter: active,
+    responseOwner: null,
+    decision: null,
+    response: null,
+    planB: null,
+    version: 1,
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt,
+    affectedTasks: [],
+    impact: { taskCount: 0, people: [], deadlines: [] },
+  };
+}
+function composed(
+  changeReply: (path: string, signal?: AbortSignal | null) => Promise<Response>,
+) {
+  return new RemoteWorkspaceService(async (url, options) => {
+    const path = String(url);
+    if (path.endsWith("/changes")) return changeReply(path, options?.signal);
+    return Response.json(
+      path === "/api/events"
+        ? { events: [event] }
+        : path.endsWith("/members")
+          ? { members: [active] }
+          : { tasks: [dto(4)], members: [active] },
+    );
+  });
+}
+test("shared workspace composes validated canonical Change DTOs with real Tasks; only successful zero reads mean empty Changes", async () => {
+  const value = canonicalChange();
+  let optionsSignal: AbortSignal | null | undefined;
+  const workspace = await composed(async (_path, signal) => {
+    optionsSignal = signal;
+    return Response.json({ changes: [value] });
+  }).readTasks(signal());
+  assert.deepEqual(workspace.changes, [value]);
+  assert.equal(workspace.changeReadError, null);
+  assert.ok(optionsSignal instanceof AbortSignal);
+  assert.equal(workspace.tasks[0]?.title, dto(4).title);
+  assert.deepEqual(
+    (
+      await composed(async () => Response.json({ changes: [] })).readTasks(
+        signal(),
+      )
+    ).changes,
+    [],
+  );
+  assert.equal("changes" in toWorkspaceView(workspace), false);
+});
+test("Change-only server/network/malformed/foreign DTO failures clear canonical Changes without pretending zero or replacing Task/Team data", async () => {
+  for (const reply of [
+    async () => new Response("PRIVATE_DATABASE_DETAIL", { status: 500 }),
+    async () => {
+      throw new Error("PRIVATE_NETWORK_DETAIL");
+    },
+    async () => Response.json({ changes: [canonicalChange(uid(99))] }),
+    async () =>
+      Response.json({ changes: [canonicalChange(), canonicalChange()] }),
+  ]) {
+    const workspace = await composed(reply).readTasks(signal());
+    assert.equal(workspace.changes, null);
+    assert.ok(
+      workspace.changeReadError === "unavailable" ||
+        workspace.changeReadError === "invalid",
+    );
+    assert.equal(workspace.tasks[0]?.title, dto(4).title);
+    assert.deepEqual(workspace.activeMembers, [active]);
+    assert.doesNotMatch(JSON.stringify(workspace), /PRIVATE_|demo/);
+  }
+});
+test("Change read session/scope loss clears the entire shared workspace and only 401 expires identity", async () => {
+  for (const [status, error] of [
+    [401, "unauthenticated"],
+    [403, "forbidden"],
+    [404, "not-found"],
+  ] as const) {
+    let expired = 0;
+    const controller = new TaskReadController(
+      composed(async () => new Response("PRIVATE", { status })),
+      () => expired++,
+    );
+    await controller.load();
+    assert.equal(controller.getSnapshot().error, error);
+    assert.deepEqual(controller.getSnapshot().workspace, emptyTasksWorkspace());
+    assert.equal(expired, status === 401 ? 1 : 0);
+  }
+});
+test("late old-Event Change response cannot publish into the new Event after switching, including transport that ignores cancellation", async () => {
+  const next = {
+    ...event,
+    id: uid(99),
+    membership: { ...event.membership, id: uid(98) },
+  };
+  let release!: () => void, entered!: () => void;
+  const held = new Promise<void>((resolve) => (release = resolve)),
+    waiting = new Promise<void>((resolve) => (entered = resolve));
+  const remote = new RemoteWorkspaceService(async (url) => {
+    const path = String(url);
+    if (path === "/api/events") return Response.json({ events: [event, next] });
+    if (path.endsWith("/changes")) {
+      const scope = path.includes(event.id) ? event.id : next.id;
+      if (scope === event.id) {
+        entered();
+        await held;
+      }
+      return Response.json({
+        changes: [canonicalChange(scope, scope === event.id ? 30 : 31)],
+      });
+    }
+    return Response.json(
+      path.endsWith("/members")
+        ? { members: [active] }
+        : { tasks: [dto(4)], members: [active] },
+    );
+  });
+  const controller = new TaskReadController(remote, () => {});
+  controller.selectEvent(event.id);
+  const old = controller.load();
+  await waiting;
+  controller.selectEvent(next.id);
+  assert.deepEqual(controller.getSnapshot().workspace, emptyTasksWorkspace());
+  await controller.load();
+  release();
+  await old;
+  assert.equal(controller.getSnapshot().workspace.currentEventId, next.id);
+  assert.deepEqual(
+    controller.getSnapshot().workspace.changes?.map((c) => c.eventId),
+    [next.id],
   );
 });

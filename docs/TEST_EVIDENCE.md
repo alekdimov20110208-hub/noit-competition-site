@@ -1,5 +1,171 @@
 # BudoGraph Test Evidence
 
+## P3C Dashboard integration and Change clarity — 2026-10-06
+
+Authorized baseline: `51a9b51c9044edd74609c64978a03643ab407cc1`; fetched main
+matched origin/main, 0/0 and tracked clean before work. The complete master prompt
+and all 30 supplied regulation pages were reread. All year-dependent 2025–2026
+eligibility, team/category, dates, online availability, PDF, GPLv3/deliverable and
+scoring requirements require actual-year verification. See BUDOGRAPH_P3C.md for
+the narrow approved contract. Historical evidence below keeps its original scope.
+
+### Implemented data and clarity
+
+The disconnect was the shared presentation adapter's hardcoded legacy empty
+Changes/false-persistence projection and the prototype-shaped Dashboard component.
+The existing client workspace now composes validated canonical current-Event
+`GET /api/events/:eventId/changes` DTOs separately from Task/Team view data. No new
+server endpoint, migration, stored status or copied impact model is introduced.
+
+Operational Changes orders by updatedAt descending then ID, keeps one collapsed
+preview with the existing continuation, and shows title, current affected Task
+count, response owner/unassigned, updated time and a durable detail link. One plain
+authored-presence label replaces prototype response semantics. Personal attention
+has at most one reason per Change: Organizer/unowned; otherwise own/no Decision;
+otherwise own/Decision without Response. Missing Plan B alone never qualifies.
+Automatic Dashboard reentry refresh is skipped while a Task command needs explicit
+recovery, preserving confirmed data, stale warnings and disabled Task writes.
+Task attention keeps its selector/order; P3 items append as separate coordination
+reasons. Response ownership and descriptive operational role grant no permissions.
+
+Detail reads Change/context → live impact → response owner → Decision → Response
+→ optional Plan B. Short associated BG/EN explanations distinguish ownership from
+Task assignment and describe the three authored fields. List state is plain text,
+not a badge, workflow or severity system. P3A/P3B state/version/history remain intact.
+
+### Executed checks
+
+| Command / scope                                                     | Result                                                                                                                                                                      |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm.cmd format`, `format:check`, `lint`, `typecheck`, `build`     | PASS. Build retains the existing 500 kB chunk advisory: 507.37 kB JS / 141.65 kB gzip.                                                                                      |
+| `pnpm.cmd test`                                                     | 242 passed; 0 failed/skipped. Six new coordination tests and four composition/isolation tests extend the existing 232 tests.                                                |
+| `pnpm.cmd server:typecheck`, `server:build`                         | PASS; server implementation is unchanged.                                                                                                                                   |
+| `pnpm.cmd server:test`                                              | 115 passed, 0 failed; 10 PostgreSQL entrypoints intentionally skipped without opt-in, 125 total.                                                                            |
+| `RUN_DATABASE_INTEGRATION=1 pnpm.cmd server:test:integration`       | PASS: 84 real PostgreSQL tests, 0 failed/skipped; all existing P1/P2/P3A/P3B schema, authorization, transaction, history and concurrency checks.                            |
+| `git diff --check` and supplemental script/Changelog Prettier check | PASS.                                                                                                                                                                       |
+| `pnpm.cmd test:browser:change-dashboard`                            | PASS: 8 workflow groups, 120 real layout cases, 24 real contrast cases, 4 labeled long-name fixtures; zero application/non-resource console errors.                         |
+| `pnpm.cmd test:browser:auth`                                        | PASS: 15 checks, 20 layout cases; zero errors.                                                                                                                              |
+| `pnpm.cmd test:browser:tasks`                                       | PASS: 13 checks, 5 widths; zero errors/writes.                                                                                                                              |
+| `pnpm.cmd test:browser:events`                                      | PASS: 14 checks, 20 layout cases; zero errors.                                                                                                                              |
+| `pnpm.cmd test:browser:task-authoring`                              | PASS: 11 checks, 20 Create/Edit layout cases; zero errors.                                                                                                                  |
+| `pnpm.cmd test:browser:task-actions`                                | PASS: 16 checks, 40 Organizer/Member layout cases, zero application errors; locked explicit Task recovery verified after the guard correction.                              |
+| `pnpm.cmd test:browser:invitations`                                 | PASS: 7 workflow groups, 20 recipient and 20 loaded-dialog cases; zero errors.                                                                                              |
+| `pnpm.cmd test:browser:changes`                                     | PASS: 11 P3A/P3B workflow groups, 60 real list/detail/form cases and 4 labeled long-BG fixtures; zero application/non-resource console errors.                              |
+| `pnpm.cmd test:browser:workspace`                                   | PASS: 11 checks, 8 layout cases; zero errors or business writes. Updated canonical Changes assertions and all prior Task/Team checks pass.                                  |
+| Existing `verify-changes-ui.mjs --read-checks`                      | PASS: 2 read/draft workflow groups, 12 real BG/EN Light/Dark text and field/focus contrast cases, associated validation focus and retained failed-save drafts; zero errors. |
+| Existing `verify-auth-experience-ui.mjs`                            | PASS: 222 labeled presentation states, 20 keyboard/focus cases, zero errors.                                                                                                |
+
+Focused real backend/role scenarios cover unowned Organizer, own missing Decision,
+own missing Response, Decision/Response without Plan B, prepared fallback, another
+owner, Member response owner with no authoring/direct 403, and independent Task
+attention. UI owner → Decision → Response → Plan B saves advance/clear attention
+without changing Task state or its attention. Current API counts, owner, update
+ordering, durable title and attention routes match rendered records. Refresh and
+Dashboard reentry use canonical reads; Back/Forward and Event switches preserve
+scope. Foreign reads fail closed; a labeled held former-Event Change read cannot
+publish under the new Event. Safe server/network failure mocks clear P3 content,
+retain Task signals, expose retry and never claim a false zero or use demo data.
+
+The 120 cases are Dashboard/detail/list × Organizer/Member × 1440/1080/768/390/320
+× BG/EN × Light/Dark, including expanded continuation and a real long BG title.
+Checks cover unclipped document/element overflow with body clipping temporarily
+disabled, horizontal panning, 44px links/controls, associated descriptions and
+read-only semantics. Twenty-four real text-contrast cases include all new P3 copy.
+The lowest measured text ratio is 5.34:1.
+Four separate mocked long BG/unbroken owner-name cases at 390/320 in both themes
+are explicitly presentation fixtures. Keyboard modality, visible focus, Enter
+navigation, durable Back and absence of nested interactive controls are checked.
+Fresh read-only semantic/visual review is Codex evidence; external human usability
+or product acceptance, physical-device coverage and formal certification are not claimed.
+
+### Locked presentation, preservation and failed attempts
+
+Frozen baseline UI was served with its unchanged source and a separate ignored Vite
+cache. Twenty Dashboard structural comparisons cover all five widths, languages
+and themes: section order, typography, surfaces, borders, padding/gaps, left/width,
+unchanged overview/focus/timeline geometry and unchanged Team Pressure dimensions
+and gap below dynamic Change content. New content changes Change height and the
+following section's absolute Y; full Dashboard pixel equality is not asserted.
+Forty Tasks/Team captures and twenty Auth captures are exactly pixel-identical.
+Sixty unaffected overview/focus/timeline section captures also match exactly.
+Twenty Team Pressure interiors match after outer-position normalization and
+excluding the one-pixel screenshot boundary; four normalized raw crops have only
+capture-edge differences. Unnormalized Pressure screenshots are not pixel-identical.
+Twenty-four sidebar geometry/style/control/keyboard comparisons pass, including
+short-height scrolling. Thirteen sidebar screenshots match exactly; eleven differ
+only in a one-pixel-wide strip beside the existing Event-context border. No shell,
+shared stylesheet, Tasks, Team or Auth implementation changed. Raw differences
+are retained rather than represented as exact pixel passes.
+
+A read-only SQL check confirms the original human-created P3A Change's title,
+version, timestamps, owner and Task links match its original evidence, with empty
+P3B state. Existing rows are not recreated or reset. Synthetic browser records
+are retained; opt-in integration fixtures follow their existing rollback/cleanup contract.
+
+Early frontend runs found obsolete projection assertions and a three-request
+expectation; these were updated for the canonical fourth read, then 242 tests passed.
+The first focused browser attempt used visible text on collapsed rows; DOM text
+checks retain the canonical assertions. Its second attempt passed the complete
+matrix but asserted focus-visible in pointer modality; the full final rerun passes
+with keyboard modality. Old workspace transport doubles mixed synthetic Tasks with
+unmocked real impact, or expired before Dashboard reentry; explicit consistent
+Change fixtures now persist until navigation checks finish. A concurrent workspace
+snapshot also observed a synthetic Task created by task authoring. An overlapping
+Auth attempt timed out; its subsequent isolated rerun passed. Failed attempts are
+not counted as complete passes; final shared-data checks run after write suites.
+The first responsibility run caught a real regression: automatic Dashboard
+reentry refresh cleared the existing Task conflict-recovery state. App now skips
+that automatic refresh while explicit Task recovery is required. The focused P3C
+verifier and affected quality/regression gates are rerun after this correction.
+The final serial browser sequence passes every suite, including the complete P3C
+matrix on the corrected guard and CSS restricted to P3 coordination rows. A prior
+overlapping post-correction run hit unavailable Change reads and a stale-state
+check failure; those attempts remain failures, not substituted for the serial pass.
+
+No dependencies, applied migration, secret files, infrastructure, AI, realtime,
+polling, notification, email, Templates or Budget changes are added. Source/diff/
+production-bundle/log/report and final staged-scope audits pass against five private
+environment values and the exact 32-file manifest. Locked source and dependencies
+remain unchanged. Browser
+artifacts and bearer URLs are not staged. The known unrelated shortcut remains untouched.
+
+### Exact P3C file manifest
+
+```text
+CHANGELOG.md
+README.md
+docs/AI_ASSISTANCE_LOG.md
+docs/BACKEND_DEVELOPMENT.md
+docs/BUDOGRAPH_P3A.md
+docs/BUDOGRAPH_P3B.md
+docs/BUDOGRAPH_P3C.md
+docs/DEPLOYMENT_AND_DEMO_PLAN.md
+docs/KNOWN_LIMITATIONS.md
+docs/PRESENTATION_OUTLINE.md
+docs/TEST_EVIDENCE.md
+docs/USER_GUIDE.md
+package.json
+scripts/verify-change-dashboard-ui.mjs
+scripts/verify-workspace-ui.mjs
+src/App.tsx
+src/domain/changeCoordination.test.ts
+src/domain/changeCoordination.ts
+src/i18n/changeMessages.ts
+src/i18n/messages.ts
+src/pages/ChangesPage.tsx
+src/pages/DashboardPage.tsx
+src/pages/changes/changes.css
+src/pages/dashboard/ChangeImpact.tsx
+src/pages/dashboard/ChangeReadNotice.tsx
+src/pages/dashboard/OperationalFocus.tsx
+src/pages/dashboard/integration.css
+src/services/RemoteWorkspaceService.ts
+src/services/eventActions.test.ts
+src/services/taskReads.test.ts
+src/services/workspaceViews.test.ts
+src/services/workspaceViews.ts
+```
+
 ## P3B Decision, Response and Plan B — 2026-10-05–06
 
 Authorized starting HEAD: `112fe48300082d2963c22da0eb3ec2075cb33d7f`.

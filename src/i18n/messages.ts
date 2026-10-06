@@ -156,7 +156,7 @@ const UI_EN_MESSAGES = {
   "dashboard.changes.title": "Operational changes",
   "dashboard.changes.description":
     "The active change, its operational effect, and the next decision point.",
-  "dashboard.changes.open": "Open Plan B",
+  "dashboard.changes.open": "Open changes",
   "dashboard.changes.empty.title": "No changes recorded",
   "dashboard.changes.empty.description":
     "There are no operational changes in the current event.",
@@ -497,7 +497,7 @@ const UI_BG_MESSAGES = {
   "dashboard.changes.title": "Оперативни промени",
   "dashboard.changes.description":
     "Активната промяна, оперативното ѝ отражение и следващата точка за решение.",
-  "dashboard.changes.open": "Отваряне на план Б",
+  "dashboard.changes.open": "Отвори промените",
   "dashboard.changes.empty.title": "Няма записани промени",
   "dashboard.changes.empty.description":
     "Няма оперативни промени за текущото събитие.",

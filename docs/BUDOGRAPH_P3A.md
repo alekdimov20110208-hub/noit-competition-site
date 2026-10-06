@@ -8,6 +8,10 @@ architecture and verification strategy. This is the locked P3A contract;
 P3A impact/authorization/Task semantics. Its additions supersede this document's
 historical P3B-not-implemented statements.
 
+[P3C](BUDOGRAPH_P3C.md) connects canonical Dashboard reads and clarifies the same
+Change detail/list. It supersedes the historical disconnected-Dashboard boundary
+below without changing this locked model, live impact or authorization contract.
+
 ## Inspection and established contracts
 
 React/Vite/TypeScript, BG/EN, existing theme tokens and BudoSelect are preserved.

@@ -2,107 +2,115 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { AppLink } from "../../components/AppLink.tsx";
 import { EmptyState } from "../../components/EmptyState.tsx";
-import {
-  CHANGE_SEVERITY_MESSAGE_KEYS,
-  CHANGE_STATUS_MESSAGE_KEYS,
-} from "../../domain/labels.ts";
-import type { EventChange, Task, TeamMember } from "../../domain/types.ts";
-import { getAffectedTasks } from "../../domain/workspace.ts";
+import { getChangeCoordinationState } from "../../domain/changeCoordination.ts";
+import { getDeadlineTiming } from "../../domain/taskTiming.ts";
 import { useI18n } from "../../i18n/index.ts";
-import { createTaskHref } from "../../routes.ts";
-import { getNextCheckpoint } from "./helpers.ts";
+import { changeHref, createTaskHref, eventHref } from "../../routes.ts";
+import type { RemoteChange, ChangeError } from "../../services/changes.ts";
+import type { TaskEvent } from "../../services/RemoteWorkspaceService.ts";
+import { ChangeReadNotice } from "./ChangeReadNotice.tsx";
 
 const CHANGE_PREVIEW_LIMIT = 1;
 
-interface ChangeImpactProps {
-  changes: EventChange[];
-  eventTasks: Task[];
-  members: Map<string, Pick<TeamMember, "id" | "name" | "role">>;
-  now: Date;
-  onNavigate: (path: string) => void;
-  onOpenTask: (taskId: string) => void;
-  recordsAvailable?: boolean;
-}
-
 export function ChangeImpact({
   changes,
-  eventTasks,
-  members,
+  error,
+  event,
   now,
   onNavigate,
   onOpenTask,
-  recordsAvailable = true,
-}: ChangeImpactProps) {
-  const { t, plural, formatDate, formatDateTime, formatRelativeDate } =
-    useI18n();
+  onRefresh,
+}: {
+  changes: RemoteChange[] | null;
+  error: ChangeError | null;
+  event: TaskEvent;
+  now: Date;
+  onNavigate: (path: string) => void;
+  onOpenTask: (taskId: string) => void;
+  onRefresh: () => void;
+}) {
+  const { t, plural, formatDate, formatDateTime, formatRelativeDate } = useI18n(
+    event.timezone,
+  );
   const [expanded, setExpanded] = useState(false);
-  const preview = changes.slice(0, CHANGE_PREVIEW_LIMIT);
-  const overflow = changes.slice(CHANGE_PREVIEW_LIMIT);
+  const preview = changes?.slice(0, CHANGE_PREVIEW_LIMIT) ?? [];
+  const overflow = changes?.slice(CHANGE_PREVIEW_LIMIT) ?? [];
 
-  function renderChange(change: EventChange) {
-    const owner = members.get(change.ownerId);
-    const affectedTasks = getAffectedTasks(change, eventTasks);
-    const checkpoint = getNextCheckpoint(affectedTasks, now);
-
+  function renderChange(change: RemoteChange) {
+    const datedTasks = change.affectedTasks.filter(
+      (task) => task.status !== "completed" && task.deadline !== null,
+    );
+    const checkpoint =
+      datedTasks.find(
+        (task) => getDeadlineTiming(task.deadline!, now) !== "overdue",
+      ) ?? datedTasks[0];
     return (
       <article
-        className={`change-impact__entry change-impact__entry--${change.severity}`}
+        className="change-impact__entry"
         key={change.id}
+        data-change-id={change.id}
       >
         <header>
           <div className="change-impact__identity">
-            <h3>{change.title}</h3>
-            <span>{t(CHANGE_SEVERITY_MESSAGE_KEYS[change.severity])}</span>
+            <h3>
+              <AppLink
+                className="change-impact__title-link"
+                href={changeHref(event.id, change.id)}
+                onNavigate={onNavigate}
+              >
+                {change.title}
+              </AppLink>
+            </h3>
+            <span>
+              {t(`change.state.${getChangeCoordinationState(change)}`)}
+            </span>
           </div>
-          <p>{change.description}</p>
+          {change.context && (
+            <p className="change-impact__excerpt">{change.context}</p>
+          )}
         </header>
-
         <div className="change-impact__details">
           <section>
             <strong>{t("changes.affectedWork")}</strong>
             <div className="change-impact__affected">
               <span>
-                {plural(affectedTasks.length, {
+                {plural(change.impact.taskCount, {
                   one: "dashboard.changes.affectedTasks.one",
                   other: "dashboard.changes.affectedTasks.other",
                 })}
               </span>
-              <ul>
-                {change.affectedAreas.map((area) => (
-                  <li key={area}>{area}</li>
-                ))}
-              </ul>
             </div>
           </section>
           <div className="change-impact__meta">
             <strong>
-              {t("changes.responseOwner", {
-                owner: owner?.name ?? t("common.unassigned"),
-              })}
+              {t("change.owner")}:{" "}
+              {change.responseOwner?.name ?? t("change.noOwner")}
             </strong>
-            <span>{t(CHANGE_STATUS_MESSAGE_KEYS[change.responseStatus])}</span>
             <span>
-              {t("changes.reported", {
-                date: formatDateTime(change.reportedAt),
-              })}
+              {t("change.updated")}:{" "}
+              <time dateTime={change.updatedAt}>
+                {formatDateTime(change.updatedAt)}
+              </time>
             </span>
           </div>
           <section>
-            <strong>{t("changes.currentResponse")}</strong>
+            <strong>{t("change.response")}</strong>
             <div className="change-impact__response">
-              <p>{change.response}</p>
+              <p className="change-impact__excerpt">
+                {change.response ?? t("change.response.empty")}
+              </p>
               {checkpoint && (
                 <AppLink
-                  href={createTaskHref(checkpoint.id)}
+                  href={createTaskHref(checkpoint.id, event.id)}
                   onNavigate={() => onOpenTask(checkpoint.id)}
                   className="change-impact__checkpoint"
                   data-task-focus-key={`change:${change.id}:checkpoint:${checkpoint.id}`}
                 >
                   <span>{t("dashboard.changes.nextCheckpoint")}</span>
                   <strong>{checkpoint.title}</strong>
-                  <time dateTime={checkpoint.deadline}>
-                    {formatRelativeDate(checkpoint.deadline, now)} ·{" "}
-                    {formatDate(checkpoint.deadline)}
+                  <time dateTime={checkpoint.deadline!}>
+                    {formatRelativeDate(checkpoint.deadline!, now)} ·{" "}
+                    {formatDate(checkpoint.deadline!)}
                   </time>
                 </AppLink>
               )}
@@ -112,9 +120,12 @@ export function ChangeImpact({
       </article>
     );
   }
-
   return (
-    <section className="change-impact" aria-labelledby="change-impact-title">
+    <section
+      className="change-impact"
+      aria-labelledby="change-impact-title"
+      aria-busy={(changes === null && !error) || undefined}
+    >
       <header className="dashboard-section-heading dashboard-section-heading--action">
         <div>
           <h2 id="change-impact-title">{t("dashboard.changes.title")}</h2>
@@ -122,24 +133,18 @@ export function ChangeImpact({
         <button
           className="text-button"
           type="button"
-          onClick={() => onNavigate("/changes")}
+          onClick={() => onNavigate(eventHref(event.id, "/changes"))}
         >
           {t("dashboard.changes.open")}
           <ArrowRight size={15} aria-hidden="true" />
         </button>
       </header>
-      {changes.length === 0 ? (
+      {error || changes === null ? (
+        <ChangeReadNotice error={error} onRetry={onRefresh} />
+      ) : !changes.length ? (
         <EmptyState
-          title={t(
-            recordsAvailable
-              ? "dashboard.changes.empty.title"
-              : "workspace.changes.title",
-          )}
-          description={t(
-            recordsAvailable
-              ? "dashboard.changes.empty.description"
-              : "workspace.changes.description",
-          )}
+          title={t("dashboard.changes.empty.title")}
+          description={t("dashboard.changes.empty.description")}
         />
       ) : (
         <div className="change-impact__list">

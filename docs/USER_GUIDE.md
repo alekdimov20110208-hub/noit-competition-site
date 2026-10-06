@@ -1,5 +1,33 @@
 # BudoGraph User Guide
 
+## Dashboard Changes and personal attention (P3C)
+
+**Operational Changes / Оперативни промени** shows real Changes in the current Event,
+ordered by latest update, then ID. Open a title to reach its durable detail. The
+existing collapsed preview and continuation keep long lists bounded. If Changes
+cannot be read, an explicit retry message replaces their content; it does not claim
+there are no Changes. Returning to Dashboard reloads the shared Event snapshot.
+If a Task command awaits conflict/failure recovery, its confirmed data and stale
+warning stay visible; use the existing explicit refresh before further Task writes.
+
+**Requires your attention** keeps existing Task reasons/order and adds separate
+Change coordination items. Each Change contributes at most one reason, in order:
+
+1. You are an Organizer and the Change has no response owner: coordinate an owner.
+2. You own the response and Decision is missing: coordinate a Decision.
+3. You own the response, Decision exists and Response is missing: coordinate a Response.
+
+Missing Plan B alone never creates attention. A Member response owner still reads
+only and coordinates with an Organizer; ownership does not grant editing permission.
+Affected Tasks do not gain Task attention merely because a Change links them.
+
+Read a detail in order: Change/context → current affected Tasks, people and deadlines
+→ response owner → Decision → Response → optional Plan B. The owner coordinates the
+response and does not replace Task assignees. Decision is the agreed approach,
+Response describes action/coordination, and Plan B is a fallback. A short list label
+summarizes authored presence (Decision pending, Decision recorded, or Plan B prepared);
+it is not a lifecycle, urgency score or completeness requirement.
+
 ## Record and inspect Changes (P3A + P3B)
 
 Open **Changes / Промени** in the current Event. The list shows operational changes,

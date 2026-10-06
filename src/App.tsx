@@ -65,6 +65,23 @@ export default function App() {
     currentLocation.eventId,
   );
   const remoteEvent = remoteTasks.workspace.events[0] ?? null;
+  const refreshWorkspace = remoteTasks.retry;
+  const taskRecoveryRequired = remoteTasks.mutation?.needsRefresh ?? false;
+  const previousPage = useRef(currentLocation.path);
+  useEffect(() => {
+    const enteredDashboard =
+      currentLocation.path === "/" && previousPage.current !== "/";
+    previousPage.current = currentLocation.path;
+    // Preserve confirmed Task data and the locked explicit-recovery flow after
+    // an uncertain/conflicting command whose canonical refresh failed.
+    if (enteredDashboard && remoteEnabled && !taskRecoveryRequired)
+      void refreshWorkspace();
+  }, [
+    currentLocation.path,
+    refreshWorkspace,
+    remoteEnabled,
+    taskRecoveryRequired,
+  ]);
   useEffect(() => {
     if (!remoteEnabled) return;
     const refresh = () => setInstant(new Date());
@@ -329,6 +346,10 @@ export default function App() {
       }}
       now={now}
       state={workspaceView}
+      event={remoteEvent}
+      changes={remoteTasks.workspace.changes ?? null}
+      changeReadError={remoteTasks.workspace.changeReadError ?? null}
+      onRefresh={() => void remoteTasks.retry()}
       onNavigate={navigate}
       onOpenTask={openTask}
     />

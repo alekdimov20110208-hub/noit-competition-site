@@ -227,7 +227,9 @@ test("explicit Event discovery reads only selected Tasks and Team and refuses fo
         ? { events: [event, next] }
         : String(url).endsWith("/members")
           ? { members: members(next) }
-          : { tasks: [], members: [] },
+          : String(url).endsWith("/changes")
+            ? { changes: [] }
+            : { tasks: [], members: [] },
     );
   });
   const result = await remote.readTasks(signal(), next.id);
@@ -239,6 +241,7 @@ test("explicit Event discovery reads only selected Tasks and Team and refuses fo
     "/api/events",
     `/api/events/${next.id}/tasks`,
     `/api/events/${next.id}/members`,
+    `/api/events/${next.id}/changes`,
   ]);
   const count = paths.length;
   await assert.rejects(

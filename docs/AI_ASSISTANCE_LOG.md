@@ -1,5 +1,31 @@
 # AI Assistance Log
 
+## P3C Dashboard integration and Change clarity — 2026-10-06
+
+User-authorized continuation from `51a9b51c9044edd74609c64978a03643ab407cc1`.
+Codex reread the complete master prompt and all 30 regulation pages, inspected the
+actual shared workspace read path and locked P3 contracts, then connected canonical
+Changes without a database or permission change. No subagents were used. The user's
+reported clarity concerns guided concise BG/EN ownership and response explanations.
+Automated read-only semantic/visual review is agent evidence; independent human
+understanding, acceptance and physical-device validation are not fabricated.
+
+Initial frontend assertions expected the former three-read workspace sequence;
+they were updated for the existing canonical Changes read and rerun. An initial
+browser assertion read only visible text from collapsed rows; it now checks DOM
+text without weakening canonical-data assertions. Unnormalized Dashboard Team
+Pressure captures differ in fractional vertical rasterization below dynamic Change
+content; measured geometry/styles and normalized visual comparison are recorded
+separately in TEST_EVIDENCE. A pointer-mode focus assertion was corrected to
+establish keyboard modality before testing the existing focus-visible style.
+Old Task-only browser doubles now explicitly provide consistent Change reads and
+remain active across the new Dashboard reentry refresh. One concurrent workspace
+snapshot check observed a synthetic Task created by the authoring verifier; final
+shared-data regression runs after write suites. Failed attempts are not counted as
+passing evidence. The responsibility regression caught automatic Dashboard reentry
+refresh clearing the locked Task conflict-recovery state. Codex guarded that
+refresh while a Task awaits explicit recovery and reran the affected checks.
+
 ## P3B Decision, Response and Plan B — 2026-10-05
 
 User-authorized continuation from `112fe48300082d2963c22da0eb3ec2075cb33d7f`.

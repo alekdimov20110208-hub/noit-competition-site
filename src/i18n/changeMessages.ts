@@ -1,4 +1,21 @@
 export const CHANGE_EN_MESSAGES = {
+  "change.state.decision-pending": "Decision pending",
+  "change.state.decision-recorded": "Decision recorded",
+  "change.state.plan-b-prepared": "Plan B prepared",
+  "change.attention.kind": "Change coordination",
+  "change.attention.needs-owner": "Assign a response owner",
+  "change.attention.needs-owner.help":
+    "This change has no one coordinating its response.",
+  "change.attention.needs-decision": "Coordinate a decision",
+  "change.attention.needs-decision.help":
+    "You coordinate this change; no decision is recorded yet.",
+  "change.attention.needs-response": "Coordinate the response",
+  "change.attention.needs-response.help":
+    "You coordinate this change; the operational response is not recorded yet.",
+  "change.decision.description": "What we decided.",
+  "change.response.description": "What we are doing based on the decision.",
+  "change.planB.description":
+    "Fallback if the primary response cannot proceed.",
   "change.coordination": "Decision and response",
   "change.coordination.help":
     "Record the agreed approach and the coordination underway. Task changes are made separately.",
@@ -36,7 +53,7 @@ export const CHANGE_EN_MESSAGES = {
   "change.owner": "Response owner",
   "change.noOwner": "Response unassigned",
   "change.owner.help":
-    "Owns the response to this change. Task responsibilities stay separate.",
+    "Coordinates the response to this change. Task ownership remains unchanged.",
   "change.reporter": "Recorded by",
   "change.created": "Recorded",
   "change.updated": "Updated",
@@ -90,6 +107,23 @@ export const CHANGE_EN_MESSAGES = {
   "change.status": "Status",
 } as const;
 export const CHANGE_BG_MESSAGES = {
+  "change.state.decision-pending": "Очаква решение",
+  "change.state.decision-recorded": "Има записано решение",
+  "change.state.plan-b-prepared": "Има подготвен План Б",
+  "change.attention.kind": "Координация на промяна",
+  "change.attention.needs-owner": "Определете отговорник за реакцията",
+  "change.attention.needs-owner.help":
+    "Все още няма човек, който да координира реакцията към тази промяна.",
+  "change.attention.needs-decision": "Координирайте решение",
+  "change.attention.needs-decision.help":
+    "Координирате тази промяна; все още няма записано решение.",
+  "change.attention.needs-response": "Координирайте реакцията",
+  "change.attention.needs-response.help":
+    "Координирате тази промяна; текущата реакция все още не е записана.",
+  "change.decision.description": "Какво решихме.",
+  "change.response.description": "Какво правим въз основа на решението.",
+  "change.planB.description":
+    "Резервен вариант, ако основната реакция не може да се осъществи.",
   "change.coordination": "Решение и реакция",
   "change.coordination.help":
     "Запишете уговореното решение и текущата координация. Задачите се променят отделно.",
@@ -127,7 +161,7 @@ export const CHANGE_BG_MESSAGES = {
   "change.owner": "Отговорник за реакцията",
   "change.noOwner": "Няма отговорник за реакцията",
   "change.owner.help":
-    "Отговаря за реакцията на тази промяна. Отговорностите по задачите остават отделни.",
+    "Координира реакцията към тази промяна. Отговорниците по задачите не се променят.",
   "change.reporter": "Регистрирана от",
   "change.created": "Регистрирана",
   "change.updated": "Обновена",

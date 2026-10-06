@@ -12,6 +12,7 @@ import { PageHeader } from "../components/PageHeader.tsx";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 import { TASK_STATUS_MESSAGE_KEYS } from "../domain/labels.ts";
 import { useI18n, type MessageKey } from "../i18n/index.ts";
+import { getChangeCoordinationState } from "../domain/changeCoordination.ts";
 import { auth } from "../auth/runtime.ts";
 import { changeHref, createTaskHref, eventHref } from "../routes.ts";
 import {
@@ -521,13 +522,6 @@ export function ChangesPage({
                 )}
               </dl>
             </div>
-            <div className="change-response">
-              <h2>{t("change.owner")}</h2>
-              <p className="change-response__name">
-                {selected.responseOwner?.name ?? t("change.noOwner")}
-              </p>
-              <p>{t("change.owner.help")}</p>
-            </div>
           </section>
           <section
             className="change-impact"
@@ -628,10 +622,27 @@ export function ChangesPage({
             aria-labelledby="change-coordination-title"
           >
             <h2 id="change-coordination-title">{t("change.coordination")}</h2>
+            <section
+              className="change-response"
+              aria-labelledby="change-owner-title"
+              aria-describedby="change-owner-description"
+            >
+              <h3 id="change-owner-title">{t("change.owner")}</h3>
+              <p className="change-response__name">
+                {selected.responseOwner?.name ?? t("change.noOwner")}
+              </p>
+              <p id="change-owner-description">{t("change.owner.help")}</p>
+            </section>
             <p className="change-help">{t("change.coordination.help")}</p>
             <div className="change-primary-response">
-              <section aria-labelledby="change-decision-title">
+              <section
+                aria-labelledby="change-decision-title"
+                aria-describedby="change-decision-description"
+              >
                 <h3 id="change-decision-title">{t("change.decision")}</h3>
+                <p className="change-help" id="change-decision-description">
+                  {t("change.decision.description")}
+                </p>
                 <p
                   className={
                     selected.decision ? "change-authored-text" : "change-help"
@@ -656,8 +667,14 @@ export function ChangesPage({
                   </dl>
                 )}
               </section>
-              <section aria-labelledby="change-response-title">
+              <section
+                aria-labelledby="change-response-title"
+                aria-describedby="change-response-description"
+              >
                 <h3 id="change-response-title">{t("change.response")}</h3>
+                <p className="change-help" id="change-response-description">
+                  {t("change.response.description")}
+                </p>
                 <p
                   className={
                     selected.response ? "change-authored-text" : "change-help"
@@ -670,9 +687,12 @@ export function ChangesPage({
             <section
               className="change-fallback"
               aria-labelledby="change-planB-title"
+              aria-describedby="change-planB-description"
             >
               <h3 id="change-planB-title">{t("change.planB")}</h3>
-              <p className="change-help">{t("change.planB.help")}</p>
+              <p className="change-help" id="change-planB-description">
+                {t("change.planB.description")}
+              </p>
               <p
                 className={
                   selected.planB ? "change-authored-text" : "change-help"
@@ -707,6 +727,9 @@ export function ChangesPage({
                 <time dateTime={change.createdAt}>
                   {formatDateTime(change.createdAt)}
                 </time>
+                <p className="change-register__state">
+                  {t(`change.state.${getChangeCoordinationState(change)}`)}
+                </p>
               </div>
               <dl className="change-register__impact">
                 <div>

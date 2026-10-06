@@ -4,7 +4,12 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 ## Project status and evidence boundary
 
-Current addition: **P3B Decision, Response and Plan B**, extending locked P3A impact.
+Current addition: **P3C Dashboard integration and Change clarity**, preserving P3A/P3B.
+Dashboard **Operational Changes** now reads canonical current-Event Changes, latest
+updated first with a stable ID tie-break and durable detail links. Personal Change
+attention is deterministic: Organizer/unowned, own/missing Decision, then own/Decision
+without Response; at most one reason per Change. Missing Plan B alone is not attention.
+Task attention remains independent. See [P3C contract](docs/BUDOGRAPH_P3C.md).
 Open **Changes / Промени**
 inside an Event. Organizers record/edit changes and explicitly link affected Tasks;
 active Members read them. Impact uses current Task assignees, deadlines and statuses.
@@ -31,7 +36,7 @@ The repository also contains the Backend P1A/P1B/P1C foundation, P1D.1 browser
 authentication, P1D.2A remote Tasks reads, P1D.2B task responsibility actions, and
 P1D.3 real Dashboard/Team reads. Login, Dashboard, Tasks and Team use the real
 PostgreSQL-backed backend. P3A Changes now have their own persisted Event-scoped
-surface, extended by P3B authored response state. The application remains a technical prototype. These
+surface, extended by P3B authored response state and P3C Dashboard reads. The application remains a technical prototype. These
 phases do not prove product-market fit, commercial demand, adoption, willingness
 to pay, or usability.
 

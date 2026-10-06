@@ -144,7 +144,9 @@ for (const role of ["ORGANIZER", "MEMBER"] as const)
                 },
               ],
             }
-          : body,
+          : String(input).endsWith("/changes")
+            ? { changes: [] }
+            : body,
       );
     });
     const result = await service.readTasks(new AbortController().signal);
@@ -156,6 +158,7 @@ for (const role of ["ORGANIZER", "MEMBER"] as const)
         "/api/events",
         `/api/events/${event.id}/tasks`,
         `/api/events/${event.id}/members`,
+        `/api/events/${event.id}/changes`,
       ],
     );
     for (const call of calls) {
@@ -164,6 +167,8 @@ for (const role of ["ORGANIZER", "MEMBER"] as const)
       assert.equal(call.options?.cache, "no-store");
       assert.ok(call.options?.signal instanceof AbortSignal);
     }
+    assert.deepEqual(result.changes, []);
+    assert.equal(result.changeReadError, null);
   });
 
 test("empty account does not issue task requests or return demo data", async () => {

@@ -1,4 +1,4 @@
-import type { Event, EventChange, Task, TeamMember } from "../domain/types.ts";
+import type { Event, Task, TeamMember } from "../domain/types.ts";
 import type { TasksWorkspace } from "./RemoteWorkspaceService.ts";
 
 export type DisplayMember = Pick<TeamMember, "id" | "name" | "role">;
@@ -16,13 +16,12 @@ export interface WorkspaceView {
   events: OverviewEvent[];
   teamMembers: DisplayMember[];
   tasks: Task[];
-  changes: EventChange[];
   taskMembers?: DisplayMember[];
-  changesPersisted?: boolean;
 }
 
 // Presentation projection: membership/access authority stays in the controller's
-// task workspace. Changes have no persisted read source until P3.
+// task workspace. Dashboard receives the canonical Change DTOs separately;
+// no legacy prototype Change projection or fabricated empty source is supplied.
 export function toWorkspaceView(workspace: TasksWorkspace): WorkspaceView {
   return {
     currentEventId: workspace.currentEventId,
@@ -38,7 +37,5 @@ export function toWorkspaceView(workspace: TasksWorkspace): WorkspaceView {
     teamMembers: workspace.activeMembers ?? [],
     taskMembers: workspace.teamMembers,
     tasks: workspace.tasks,
-    changes: [],
-    changesPersisted: false,
   };
 }
