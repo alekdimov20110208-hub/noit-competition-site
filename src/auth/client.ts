@@ -39,7 +39,11 @@ export const browserAuthTransport: AuthTransport = {
   async signIn(email, password) {
     try {
       const { error } = await client.signIn.email({ email, password });
-      if (error) throw commandFailure(error.status, true);
+      if (error) {
+        if (error.code === "EMAIL_NOT_VERIFIED")
+          throw new AuthFailure("verification");
+        throw commandFailure(error.status, true);
+      }
     } catch (error) {
       if (error instanceof AuthFailure) throw error;
       throw new AuthFailure("unavailable");

@@ -1,5 +1,13 @@
 # Installation, Deployment, and Demonstration Plan
 
+P4A adds production-capable email integration; **no deployment was performed**.
+Follow [BUDOGRAPH_P4A.md](BUDOGRAPH_P4A.md) for exact human domain/DNS/Resend setup and
+server variable names. Copy DNS values from the dashboard; store keys server-side
+only. Production requires a verified controlled sender and matching public/auth
+HTTPS origins. Existing unverified users prove inbox ownership; no blanket migration
+runs. Real inbox testing is NOT RUN. Offline/backup demos retain labelled development
+links or recorded evidence and cannot claim offline email delivery.
+
 P3A adds real Event-scoped Changes. Apply `pnpm db:migrate`, verify a no-op rerun,
 and restart the backend before demonstrating. Use Changes to record an arrival
 change, link two development Tasks, choose a response owner, then edit a Task's

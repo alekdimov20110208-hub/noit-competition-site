@@ -18,6 +18,7 @@ import { registerInvitationRoutes } from "./routes/invitations.ts";
 import { registerChangeRoutes } from "./routes/changes.ts";
 import { ChangeCommandError } from "./changes/model.ts";
 import type { ChangeService } from "./changes/service.ts";
+import type { TransactionalEmailService } from "./email/service.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
@@ -27,6 +28,7 @@ export interface AppOptions {
   events?: EventService;
   invitations?: InvitationService;
   changes?: ChangeService;
+  email?: TransactionalEmailService;
 }
 
 const standardMethods = new Set([
@@ -47,6 +49,7 @@ export function createApp({
   events,
   invitations,
   changes,
+  email,
 }: AppOptions) {
   const app = Fastify({
     requestIdHeader: false,
@@ -136,6 +139,6 @@ export function createApp({
   if (authentication && events)
     registerEventReadRoutes(app, authentication, events);
   if (authentication && invitations)
-    registerInvitationRoutes(app, authentication, invitations);
+    registerInvitationRoutes(app, authentication, invitations, email);
   return app;
 }

@@ -1,5 +1,11 @@
 # Third-Party Notices and License Register
 
+P4A (2026-10-06) adds **Resend as an external transactional delivery service** via
+native server HTTP. It adds no SDK/package, template framework or external asset;
+Better Auth 1.7.7 and `pnpm-lock.yaml` remain unchanged. Service account terms apply
+to infrastructure, separately from GPL-3.0-only project source. HTML/text templates
+are project-authored. [Resend API reference](https://resend.com/docs/api-reference/emails/send-email).
+
 P2C (2026-10-04) adds no runtime/development package or external asset and does not
 change `pnpm-lock.yaml`. It reuses Node built-in cryptography and the registered
 Better Auth/PostgreSQL stack. Browser verification uses an externally supplied

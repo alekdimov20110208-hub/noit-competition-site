@@ -1,5 +1,11 @@
 # BudoGraph
 
+P4A adds server-only Resend delivery, Better Auth email verification and recovery.
+Public signup remains closed; production invitation bearer links are hidden.
+Failed sends remain pending with Organizer resend. No dependency or migration is
+added. Real inbox delivery is **NOT RUN**. See [P4A architecture, setup and limits](docs/BUDOGRAPH_P4A.md)
+and [test evidence](docs/TEST_EVIDENCE.md). Earlier descriptions retain historical scope.
+
 BudoGraph is an organizer workspace for martial-arts seminars and events. It gives the organizer one current operational overview of preparation tasks, ownership, deadlines, risks, changes, and contingency responses while continuing to treat direct human communication as essential.
 
 ## Project status and evidence boundary

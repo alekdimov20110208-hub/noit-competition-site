@@ -8,8 +8,10 @@ import {
 } from "react";
 import { auth } from "../auth/runtime.ts";
 import { useI18n } from "../i18n/index.ts";
-import { InvitationController } from "../services/invitations.ts";
-import { RemoteWorkspaceService } from "../services/RemoteWorkspaceService.ts";
+import {
+  InvitationController,
+  InvitationService,
+} from "../services/invitations.ts";
 import "./invitations.css";
 
 export function TeamInvitations({
@@ -51,15 +53,15 @@ function InvitationDialog({
   onClose: () => void;
   formatDateTime: (value: string) => string;
 }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const controller = useMemo(
     () =>
       new InvitationController(
-        new RemoteWorkspaceService().invitations,
+        new InvitationService(fetch, () => language),
         eventId,
         auth.expireSession,
       ),
-    [eventId],
+    [eventId, language],
   );
   const state = useSyncExternalStore(
     controller.subscribe,
@@ -201,6 +203,12 @@ function InvitationDialog({
           {copy && <p role="status">{t(`invite.${copy}`)}</p>}
         </section>
       )}
+      {state.delivery === "sent" && (
+        <p role="status">{t("safety.invitationSent")}</p>
+      )}
+      {state.delivery === "failed" && (
+        <p role="alert">{t("safety.invitationFailed")}</p>
+      )}
       <section
         className="invitation-pending"
         aria-labelledby="pending-invitation-title"
@@ -222,6 +230,17 @@ function InvitationDialog({
                         })}
                   </small>
                 </div>
+                {invite.state === "pending" && (
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    disabled={state.busy}
+                    onClick={() => void controller.resend(invite.id)}
+                    aria-label={`${t("safety.resendInvitation")} ${invite.email}`}
+                  >
+                    {t("safety.resendInvitation")}
+                  </button>
+                )}
                 {invite.state === "pending" && (
                   <button
                     type="button"

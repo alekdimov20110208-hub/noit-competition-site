@@ -1,5 +1,24 @@
 # BudoGraph User Guide
 
+## Email and account safety (P4A)
+
+Organizers invite from the current Event's Team. The UI distinguishes provider
+acceptance from failed delivery. Failed invitations stay pending: use **Resend
+invitation / Изпратете поканата отново** on the same invitation. Old links then stop
+working, and expiry does not extend. Revoke remains available. Labelled development
+copy links are absent in production.
+
+Open an invitation, sign in or create its invite-only account, verify your inbox
+when prompted, then sign in and explicitly join. The invited email must match your
+account. Existing unverified users can request another verification message. Check
+spam and respect the displayed throttling delay. Public Create Account stays closed.
+
+Use **Forgot password? / Забравена парола?** at Login. The result is generic for
+eligible/missing addresses. Open the reset email within one hour, enter/confirm a
+new password and sign in again. Reset links work once and end all account sessions.
+Invalid/expired links offer another request. Local mail-disabled mode cannot send
+verification/recovery messages.
+
 ## Dashboard Changes and personal attention (P3C)
 
 **Operational Changes / Оперативни промени** shows real Changes in the current Event,

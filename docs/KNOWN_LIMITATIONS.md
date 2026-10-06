@@ -1,5 +1,22 @@
 # Known Limitations
 
+## P4A boundary — 2026-10-06
+
+Resend delivery, verification and recovery are implemented; actual inbox delivery
+is **NOT RUN** pending human domain/DNS/provider setup. Provider acceptance does not
+prove inbox arrival. Pending invitations have resend but no persisted delivery log;
+resend invalidates old links without extending expiry. Background auth work is not
+a durable queue. In-memory limits reset on restart, are per process and share peer
+quotas behind proxies. Mail-enabled environments reject unverified sessions;
+deliberate local disabled mode preserves controlled account testing. No inaccessible-
+inbox support policy, physical-device validation or formal accessibility audit is
+claimed. See BUDOGRAPH_P4A.md for complete limits and setup.
+
+The first new P4A test adapter committed a disposable synthetic fixture before its
+transaction mapping was corrected to savepoints. The fixture was retained without
+destructive cleanup; no existing account was modified. Subsequent P4A fixtures roll
+back. Existing browser/concurrency tests retain synthetic fixtures as documented.
+
 ## Current P3A + P3B + P3C boundary — 2026-10-06
 
 Event-scoped Change records, explicit affected Tasks, derived current assignees/dates/

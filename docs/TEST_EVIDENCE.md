@@ -1,5 +1,65 @@
 # BudoGraph Test Evidence
 
+## P4A production email and account safety — 2026-10-06
+
+Baseline `4b81543`. Complete mandatory sources read; 2025–2026 competition rules
+remain actual-year verification items. No dependency upgrades/additions, migrations,
+blanket emailVerified changes or real mail sends. Resend configuration was absent.
+
+- Frontend unit regression: **245/245 PASS**, zero skipped.
+- Backend standard test command: **124 PASS**, zero failures; **11 database suites
+  skipped** without opt-in. The separate real PostgreSQL run below covers them.
+- `pnpm server:test:integration` with database opt-in and ignored local config:
+  **90/90 PASS**, zero skipped, including real Better Auth 1.7.7 verification/reset
+  and P1/P2/P3 transactions/authorization/races. Log: `tmp/p4a-integration-final.log`.
+- Focused P4A database suite: **6/6 PASS**, fake mail; verification valid/invalid/
+  expired, required-email enforcement, matching explicit MEMBER join, wrong-account
+  denial, existing-user resend, generic known/unknown recovery, password changes,
+  old/new password behavior, reset expiry/replay and all-session revocation.
+- Provider/HTTP unit checks cover Resend acceptance/rejection/network/malformed
+  results, sanitized errors/logs, BG/EN HTML/plain text, escaped Event names, trusted
+  origins/callbacks, production bearer omission on success/failure, scoped resend,
+  configuration failures and deterministic IP/identity limits. No real provider used.
+- P4A browser fixtures: **180 state/language/theme/width cases PASS**, zero page
+  errors; BG/EN, light/dark/system, 1440/1080/768/390/320, labels, heading/state focus,
+  minimum 44px targets and no horizontal overflow. Recovery, verification-needed,
+  generic confirmation, mismatch/success, throttle feedback and no token storage
+  interactions PASS. Evidence: `tmp/p4a-evidence/browser/report.json` and screenshots.
+- Real existing Auth browser: **15 checks and 20 responsive cases PASS**, zero
+  application/console errors, closed signup, HttpOnly sessions and logout.
+- Real invitations browser: **7 grouped checks**, **20 recipient + 20 dialog cases
+  PASS**, zero application errors; onboarding, fixed email, explicit join, assignment/
+  acceptance, concurrency, membership isolation, revocation/expiry and spoofed inputs.
+- Existing Auth Experience presentation suite: **222 cases and 20 checks PASS**,
+  zero application/console errors. Mock presentation evidence is not real mail proof.
+- Real shared workspace regression PASS: Dashboard/Team reads and navigation,
+  Organizer/Member boundaries, zero business mutation requests and safe 401/errors.
+- Real P3 Dashboard regression PASS: **120 role/surface/language/theme/width cases**,
+  **24 text-contrast checks**, four labelled long-name fixtures and keyboard/Back
+  navigation; authoring, attention independence, stale reads, scope isolation and
+  safe failure recovery passed, with zero application/console errors.
+- Final `pnpm format`, `format:check`, `lint`, `typecheck`, `test`, `build`,
+  `server:typecheck`, `server:test`, `server:build` PASS. After final callback/copy
+  safeguards, focused real P4A database **6/6** and UI **180 cases** were rerun PASS.
+  `git diff --check` PASS. Source/frontend bundle secret audit PASS; no source maps,
+  dependency/migration changes or locked product surface changes found. The staged
+  audit is repeated before commit. Build succeeds with the existing >500kB chunk
+  warning (518.86kB JavaScript, 144.38kB gzip); code splitting is outside P4A scope.
+
+Representative new desktop and Bulgarian mobile screenshots were visually inspected.
+This is agent/browser evidence, not physical-device testing or formal certification.
+The first new database adapter committed a disposable fixture before savepoint
+mapping was corrected. No destructive cleanup was run. Its synthetic data is retained;
+subsequent P4A fixtures roll back. The initial expiry fixture depended on SQL SET
+evaluation timing and was corrected to a deterministic past expiry before the clean
+90-test run. Existing browser/concurrency fixtures are retained by design.
+
+REAL EMAIL HUMAN GATE: **NOT RUN**. Domain/DNS/verified sender/API key setup and
+tester-owned inbox invitation → verification → explicit join → recovery remain
+required. See BUDOGRAPH_P4A.md for instructions, exact files, security contracts and
+known process-memory/restart/proxy/provider limitations. Historical evidence below
+keeps its original scope.
+
 ## P3C Dashboard integration and Change clarity — 2026-10-06
 
 Authorized baseline: `51a9b51c9044edd74609c64978a03643ab407cc1`; fetched main

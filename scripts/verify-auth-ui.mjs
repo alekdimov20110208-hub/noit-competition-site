@@ -158,14 +158,13 @@ try {
     1,
   );
   assert.equal(
-    await page
-      .locator('a[href*="signup"], a[href*="sign-up"], a[href*="forgot"]')
-      .count(),
+    await page.locator('a[href*="signup"], a[href*="sign-up"]').count(),
     0,
   );
   checked(
     "unauthenticated direct task route redirects; Login semantics and scope",
   );
+  assert.equal(await page.locator('a[href="/forgot-password"]').count(), 1);
 
   await page.locator("#login-email").fill("unknown@example.invalid");
   await page.locator("#login-password").fill("synthetic-invalid-input");

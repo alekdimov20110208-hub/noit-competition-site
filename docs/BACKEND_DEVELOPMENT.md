@@ -1,5 +1,15 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## P4A email and account safety — 2026-10-06
+
+See [BUDOGRAPH_P4A.md](BUDOGRAPH_P4A.md) for environment names, human Resend/DNS setup,
+trusted origins, retries, existing-user transition and rate limits. Production
+requires Resend; deliberate mail-disabled development preserves controlled accounts.
+No migration or dependency change is needed. `pnpm server:test:integration` with
+the existing database opt-in verifies Better Auth/PostgreSQL using fake mail.
+`pnpm test:browser:account-safety` verifies UI fixtures using externally supplied
+Playwright. Automated tests must never send real mail or use real provider keys.
+
 ## Current P3C Dashboard reads — 2026-10-06
 
 The client shared Event snapshot composes existing scoped Event, Task, member and

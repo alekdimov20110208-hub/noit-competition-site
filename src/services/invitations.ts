@@ -99,8 +99,13 @@ const codes: Record<string, InviteError> = {
 };
 export class InvitationService {
   private request: typeof fetch;
-  constructor(request: typeof fetch = fetch) {
+  private locale: () => string;
+  constructor(
+    request: typeof fetch = fetch,
+    locale: () => string = () => "bg",
+  ) {
     this.request = request;
+    this.locale = locale;
   }
   private async command(path: string, signal: AbortSignal, body?: unknown) {
     let response: Response;
@@ -115,7 +120,10 @@ export class InvitationService {
         ...(body === undefined
           ? {}
           : {
-              headers: { "content-type": "application/json" },
+              headers: {
+                "content-type": "application/json",
+                "x-budograph-locale": this.locale(),
+              },
               body: JSON.stringify(body),
             }),
       });
@@ -168,12 +176,38 @@ export class InvitationService {
     const row = readPendingInvitation(data.invitation),
       path = data.developmentInvitePath;
     if (
-      data.delivery !== "development_link" ||
-      typeof path !== "string" ||
-      !readInvitationToken(path)
+      !["development_link", "sent", "failed"].includes(String(data.delivery)) ||
+      (path !== undefined &&
+        (typeof path !== "string" || !readInvitationToken(path)))
     )
       throw new InvitationFailure("invalid");
-    return { invitation: row, path };
+    return {
+      invitation: row,
+      path: typeof path === "string" ? path : null,
+      delivery: data.delivery as "development_link" | "sent" | "failed",
+    };
+  }
+  async resend(eventId: string, invitationId: string, signal: AbortSignal) {
+    const data = object(
+      await this.command(
+        `/api/events/${this.id(eventId)}/invitations/${this.id(invitationId)}/resend`,
+        signal,
+        {},
+      ),
+    );
+    if (!["development_link", "sent", "failed"].includes(String(data.delivery)))
+      throw new InvitationFailure("invalid");
+    const path = data.developmentInvitePath;
+    if (
+      path !== undefined &&
+      (typeof path !== "string" || !readInvitationToken(path))
+    )
+      throw new InvitationFailure("invalid");
+    return {
+      invitation: readPendingInvitation(data.invitation),
+      path: typeof path === "string" ? path : null,
+      delivery: data.delivery as "development_link" | "sent" | "failed",
+    };
   }
   async revoke(eventId: string, invitationId: string, signal: AbortSignal) {
     await this.command(
@@ -193,11 +227,19 @@ export class InvitationService {
     password: string,
     signal: AbortSignal,
   ) {
-    await this.command(
-      `/api/invitations/${this.token(token)}/register`,
-      signal,
-      { name, password },
+    const result = object(
+      await this.command(
+        `/api/invitations/${this.token(token)}/register`,
+        signal,
+        { name, password },
+      ),
     );
+    if (
+      result.status !== "verification_required" &&
+      result.status !== "sign_in_required"
+    )
+      throw new InvitationFailure("invalid");
+    return result.status;
   }
   async accept(token: string, signal: AbortSignal) {
     const data = object(
@@ -228,11 +270,13 @@ export interface InvitationManagementState {
   busy: boolean;
   error: InviteError | null;
   loaded: boolean;
+  delivery?: "development_link" | "sent" | "failed" | null;
 }
 // One store per Event/identity; dispose aborts requests and invalidates late results.
 // Bearer links exist only in this transient store, never browser persistence.
 export class InvitationController {
-  private service: Pick<InvitationService, "list" | "create" | "revoke">;
+  private service: Pick<InvitationService, "list" | "create" | "revoke"> &
+    Partial<Pick<InvitationService, "resend">>;
   private eventId: string;
   private expire: () => void;
   private state: InvitationManagementState = {
@@ -246,7 +290,8 @@ export class InvitationController {
   private request: AbortController | null = null;
   private disposed = false;
   constructor(
-    service: Pick<InvitationService, "list" | "create" | "revoke">,
+    service: Pick<InvitationService, "list" | "create" | "revoke"> &
+      Partial<Pick<InvitationService, "resend">>,
     eventId: string,
     expire: () => void,
   ) {
@@ -315,7 +360,21 @@ export class InvitationController {
       this.publish({
         ...this.state,
         invitations: [...this.state.invitations, created.invitation],
-        link: { id: created.invitation.id, path: created.path },
+        link: created.path
+          ? { id: created.invitation.id, path: created.path }
+          : null,
+        delivery: created.delivery,
+      });
+    });
+  resend = (id: string) =>
+    this.run(async (signal) => {
+      if (!this.service.resend) throw new InvitationFailure("unavailable");
+      const result = await this.service.resend(this.eventId, id, signal);
+      signal.throwIfAborted();
+      this.publish({
+        ...this.state,
+        link: result.path ? { id, path: result.path } : null,
+        delivery: result.delivery,
       });
     });
   revoke = (id: string) =>

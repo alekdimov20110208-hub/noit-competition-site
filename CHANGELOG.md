@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-06 — BudoGraph P4A
+
+- Add isolated server-only Resend HTTP delivery and BG/EN HTML/plain-text emails.
+- Hide production invitation bearer links; support pending-send failure and scoped,
+  rate-limited resend with token rotation and unchanged expiry.
+- Add Better Auth verification and recovery, closed public signup, verified-session
+  enforcement and session revocation after password reset.
+- Extend existing AuthShell with localized accessible recovery/verification states.
+- Add provider, real Better Auth/PostgreSQL and browser tests, setup/security docs.
+- No dependency or migration changes. Real inbox human gate NOT RUN.
+
 ## 2026-10-06 — BudoGraph P3C
 
 - Connected existing Dashboard Operational Changes to canonical current-Event P3 reads and durable links.

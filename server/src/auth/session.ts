@@ -8,12 +8,19 @@ export interface AuthenticatedUser {
 }
 
 export interface SessionAuth {
+  options?: { emailAndPassword?: { requireEmailVerification?: boolean } };
   api: {
     getSession(options: {
       headers: Headers;
       query?: { disableCookieCache?: boolean };
     }): Promise<{
-      user: { id: string; name: string; email: string; active: boolean };
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        active: boolean;
+        emailVerified?: boolean;
+      };
     } | null>;
   };
 }
@@ -36,6 +43,11 @@ export async function getAuthenticatedUser(
     query: { disableCookieCache: true },
   });
   if (!session || session.user.active !== true) return null;
+  if (
+    auth.options?.emailAndPassword?.requireEmailVerification &&
+    session.user.emailVerified !== true
+  )
+    return null;
   const { id, name, email } = session.user;
   return Object.freeze({ id, name, email });
 }

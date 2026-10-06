@@ -4,7 +4,8 @@ export interface CurrentUser {
   readonly email: string;
 }
 
-export type AuthError = "invalid" | "unavailable" | "unexpected";
+export type AuthError =
+  "invalid" | "unavailable" | "unexpected" | "verification";
 export class AuthFailure extends Error {
   readonly code: AuthError;
   constructor(code: AuthError) {

@@ -109,6 +109,27 @@ test("transport sends narrow commands; development link is one response only", a
   assert.equal(calls[0]!.input?.credentials, "same-origin");
   assert.equal(calls[0]!.input?.referrerPolicy, "no-referrer");
 });
+test("production delivery success/failure and resend keep canonical invitation with no bearer link", async () => {
+  for (const delivery of ["sent", "failed"] as const) {
+    const service = new InvitationService(
+      async () =>
+        new Response(JSON.stringify({ invitation: invite, delivery })),
+      () => "en",
+    );
+    const controller = new InvitationController(service, eventId, () =>
+      assert.fail(),
+    );
+    // Load is not used here: the send DTO is the canonical pending invitation.
+    await controller.create(invite.email);
+    assert.equal(controller.getSnapshot().link, null);
+    assert.equal(controller.getSnapshot().delivery, delivery);
+    assert.equal(controller.getSnapshot().invitations[0]?.id, invite.id);
+    await controller.resend(invite.id);
+    assert.equal(controller.getSnapshot().invitations.length, 1);
+    assert.equal(controller.getSnapshot().link, null);
+    assert.equal(controller.getSnapshot().delivery, delivery);
+  }
+});
 test("management controller creates, displays, revokes and clears bearer link", async () => {
   const token = randomBytes(32).toString("base64url");
   const controller = new InvitationController(
@@ -117,6 +138,7 @@ test("management controller creates, displays, revokes and clears bearer link", 
       create: async () => ({
         invitation: invite,
         path: invitationPath(token)!,
+        delivery: "development_link" as const,
       }),
       revoke: async () => {},
     },

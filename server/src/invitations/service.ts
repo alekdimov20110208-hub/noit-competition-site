@@ -22,11 +22,15 @@ import {
 } from "./model.ts";
 
 type Database = TransactionPool & AuthorizationDatabase;
-export type RegisterInvitedAccount = (fields: {
-  email: string;
-  name: string;
-  password: string;
-}) => Promise<void>;
+export type RegisterInvitedAccount = (
+  fields: {
+    email: string;
+    name: string;
+    password: string;
+  },
+  locale?: "bg" | "en",
+  returnTo?: string,
+) => Promise<void>;
 const columns = `id, event_id, invited_email, inviter_user_id, created_at, expires_at,
   accepted_at, accepted_user_id, revoked_at, expires_at <= clock_timestamp() AS expired`;
 function authenticated(user: AuthenticatedUser) {
@@ -92,6 +96,7 @@ function joinable(row: InvitationRow, archived: Date | null) {
 export function createInvitationService(
   database: Database,
   registerAccount?: RegisterInvitedAccount,
+  requireVerifiedEmail = false,
 ) {
   async function lockedToken<T>(
     token: string,
@@ -166,7 +171,7 @@ export function createInvitationService(
         const row = result.rows[0] as InvitationRow;
         await activity(tx, row, user, actor, "invitation.created");
         // One response only. No token retrieval, raw-token persistence or history.
-        return { invitation: invitationDto(row), token };
+        return { invitation: invitationDto(row), token, eventName: event.name };
       });
     },
     async list(user: AuthenticatedUser, scope: string) {
@@ -181,6 +186,35 @@ export function createInvitationService(
           [id],
         );
         return (result.rows as InvitationRow[]).map(invitationDto);
+      });
+    },
+    async resend(user: AuthenticatedUser, scope: string, invitationId: string) {
+      authenticated(user);
+      const id = eventId(scope),
+        invite = eventId(invitationId);
+      return inTransaction(database, async (tx) => {
+        const event = await lockEvent(tx, id);
+        await organizer(tx, id, user);
+        const result = await tx.query(
+          `SELECT ${columns} FROM public.event_invitation WHERE event_id=$1 AND id=$2 FOR UPDATE`,
+          [id, invite],
+        );
+        const row = result.rows[0] as InvitationRow | undefined;
+        if (!row) throw new InvitationError(404, "NOT_FOUND");
+        joinable(row, event.archived_at);
+        const members = await tx.query(
+          `SELECT member.id FROM public.event_member member JOIN public."user" identity ON identity.id=member.user_id WHERE member.event_id=$1 AND lower(btrim(identity.email))=$2 FOR SHARE OF member, identity`,
+          [id, row.invited_email],
+        );
+        if (members.rows.length)
+          throw new InvitationError(409, "ALREADY_MEMBER");
+        const token = generateInvitationToken();
+        await tx.query(
+          "UPDATE public.event_invitation SET token_hash=$2 WHERE id=$1",
+          [invite, hashInvitationToken(token)],
+        );
+        // Latest resend invalidates old links; original expiry and invitation ID remain.
+        return { invitation: invitationDto(row), token, eventName: event.name };
       });
     },
     async revoke(
@@ -236,7 +270,12 @@ export function createInvitationService(
         expiresAt: row.expires_at.toISOString(),
       };
     },
-    async register(token: string, input: unknown) {
+    async register(
+      token: string,
+      input: unknown,
+      locale?: "bg" | "en",
+      verificationRequired = false,
+    ) {
       const fields = exactInput(input, ["name", "password"]);
       if (
         typeof fields.name !== "string" ||
@@ -255,30 +294,40 @@ export function createInvitationService(
         // Better Auth owns a SEPARATE account transaction. A failed/expired join
         // may leave an account; no membership or consumption occurs here.
         try {
-          await registerAccount({
-            email: row.invited_email,
-            name: fields.name!.toString().trim(),
-            password: fields.password as string,
-          });
+          await registerAccount(
+            {
+              email: row.invited_email,
+              name: fields.name!.toString().trim(),
+              password: fields.password as string,
+            },
+            locale,
+            `/invite/${token}`,
+          );
         } catch {
           throw new InvitationError(400, "REGISTRATION_FAILED");
         }
       });
-      return { status: "sign_in_required" };
+      return {
+        status: verificationRequired
+          ? "verification_required"
+          : "sign_in_required",
+      };
     },
     async accept(user: AuthenticatedUser, token: string, input: unknown) {
       authenticated(user);
       exactInput(input ?? {}, []);
       return lockedToken(token, async (tx, row, event) => {
         const identities = await tx.query(
-          'SELECT id,email FROM public."user" WHERE id=$1 AND active=TRUE FOR SHARE',
+          'SELECT id,email,"emailVerified" FROM public."user" WHERE id=$1 AND active=TRUE FOR SHARE',
           [user.id],
         );
         const identity = identities.rows[0] as
-          { id: string; email: string } | undefined;
+          { id: string; email: string; emailVerified: boolean } | undefined;
         if (!identity) throw new UnauthorizedError();
         if (normalizeEmail(identity.email) !== row.invited_email)
           throw new InvitationError(403, "WRONG_ACCOUNT");
+        if (requireVerifiedEmail && !identity.emailVerified)
+          throw new InvitationError(403, "EMAIL_NOT_VERIFIED");
         const members = await tx.query(
           `SELECT id,access_role,active,deactivated_at FROM public.event_member
           WHERE event_id=$1 AND user_id=$2 FOR SHARE`,

@@ -9,7 +9,7 @@ export const INVITATION_EN_MESSAGES = {
   "invite.expires": "Expires {date}",
   "invite.expired": "Expired",
   "invite.development":
-    "Development invitation link — email delivery is not configured. Share this link with the invited person. It is shown once; keep it private.",
+    "Development invitation link — available only in development/test. Email delivery status is shown separately. Keep this link private.",
   "invite.copy": "Copy development invitation link",
   "invite.copied": "Link copied.",
   "invite.copyFailed": "Copy failed. Select and copy the link manually.",
@@ -77,7 +77,7 @@ export const INVITATION_BG_MESSAGES = {
   "invite.expires": "Изтича на {date}",
   "invite.expired": "Изтекла",
   "invite.development":
-    "Тестов линк за покана — изпращането по имейл не е настроено. Сподели линка с поканения човек. Показва се само веднъж; пази го поверителен.",
+    "Тестов линк за покана — достъпен само в тестова среда. Състоянието на изпращането по имейл се показва отделно. Пази линка поверителен.",
   "invite.copy": "Копирай тестовия линк за покана",
   "invite.copied": "Линкът е копиран.",
   "invite.copyFailed": "Копирането не успя. Маркирай и копирай линка ръчно.",

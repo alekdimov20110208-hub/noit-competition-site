@@ -1,5 +1,20 @@
 # AI Assistance Log
 
+## P4A production email and account safety — 2026-10-06
+
+User-authorized implementation from `4b81543`. Codex read the complete master
+prompt/regulations, inspected pinned Better Auth APIs, existing flows/schema and
+local user-state counts without exposing identities, and checked official provider
+sources. No subagents, dependency upgrades or schema changes. Tests use fake mail;
+real inbox delivery is NOT RUN. Human code understanding/review remains required.
+
+The first new database adapter accidentally ended the outer test transaction; its
+synthetic fixture was retained and the adapter fixed to savepoints. A timing-dependent
+expiry fixture was corrected to a fixed past instant. Server-only signup carries
+locale in the trusted callback because Better Auth has no HTTP Request there.
+Browser assertions now permit the authorized recovery link; forms have explicit
+submit semantics. No human feedback, inbox result or certification is fabricated.
+
 ## P3C Dashboard integration and Change clarity — 2026-10-06
 
 User-authorized continuation from `51a9b51c9044edd74609c64978a03643ab407cc1`.

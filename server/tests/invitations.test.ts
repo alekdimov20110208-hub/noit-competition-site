@@ -123,10 +123,14 @@ test("HTTP auth/origin/body limits protect invitations; minimal errors and token
           expiresAt: new Date().toISOString(),
         },
         token,
+        eventName: "Synthetic Event",
       };
     },
     revoke: async () => {
       throw new InvitationError(409, "INVITATION_ACCEPTED");
+    },
+    resend: async () => {
+      throw new InvitationError(410, "INVITATION_EXPIRED");
     },
     lookup: async () => {
       throw new InvitationError(404, "NOT_FOUND");
@@ -143,6 +147,7 @@ test("HTTP auth/origin/body limits protect invitations; minimal errors and token
     checkDatabase: async () => {},
     logger: { stream: { write: (line) => logs.push(line) } },
     authentication: {
+      developmentInviteLinks: true,
       baseURL: "http://127.0.0.1:3001",
       auth: {
         api: {

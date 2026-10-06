@@ -1,4 +1,8 @@
 import type { Language } from "../preferences/types.ts";
+import {
+  SAFETY_EN_MESSAGES,
+  SAFETY_BG_MESSAGES,
+} from "./accountSafetyMessages.ts";
 import { CHANGE_EN_MESSAGES, CHANGE_BG_MESSAGES } from "./changeMessages.ts";
 import {
   INVITATION_EN_MESSAGES,
@@ -352,6 +356,7 @@ export const EN_MESSAGES = {
   ...TASK_AUTHORING_EN_MESSAGES,
   ...WORKSPACE_EN_MESSAGES,
   ...AUTH_EN_MESSAGES,
+  ...SAFETY_EN_MESSAGES,
   ...TEAM_EN_MESSAGES,
   ...UI_EN_MESSAGES,
   ...DEMO_EN_MESSAGES,
@@ -695,6 +700,7 @@ export const BG_MESSAGES = {
   ...TASK_AUTHORING_BG_MESSAGES,
   ...WORKSPACE_BG_MESSAGES,
   ...AUTH_BG_MESSAGES,
+  ...SAFETY_BG_MESSAGES,
   ...TEAM_BG_MESSAGES,
   ...UI_BG_MESSAGES,
   ...DEMO_BG_MESSAGES,

@@ -124,6 +124,8 @@ test("auth-capable runtime requires its secret and explicit URL", () => {
     databaseUrl,
     betterAuthSecret: secret,
     betterAuthUrl: "http://127.0.0.1:3001",
+    publicAppUrl: "http://127.0.0.1:3001",
+    emailMode: "disabled",
   });
   assert.ok(Object.isFrozen(config));
   assert.equal(
@@ -132,6 +134,8 @@ test("auth-capable runtime requires its secret and explicit URL", () => {
       DATABASE_URL: databaseUrl,
       BETTER_AUTH_SECRET: secret,
       BETTER_AUTH_URL: "https://auth.example.invalid",
+      EMAIL_FROM: "BudoGraph <no-reply@example.invalid>",
+      RESEND_API_KEY: `re_${randomBytes(20).toString("hex")}`,
     }).betterAuthUrl,
     "https://auth.example.invalid",
   );

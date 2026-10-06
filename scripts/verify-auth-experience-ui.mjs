@@ -291,9 +291,7 @@ try {
         await page.keyboard.press("Escape");
         assert.equal(new URL(page.url()).pathname, "/login");
         assert.equal(
-          await page
-            .locator('a[href*="signup"], a[href*="forgot"], #invite-name')
-            .count(),
+          await page.locator('a[href*="signup"], #invite-name').count(),
           0,
         );
         await page.locator("#login-title").focus();

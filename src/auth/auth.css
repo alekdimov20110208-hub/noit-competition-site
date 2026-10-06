@@ -1,6 +1,17 @@
 .auth-screen {
   min-height: 100dvh;
 }
+.auth-secondary-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 12px;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+  text-decoration: underline;
+}
 .auth-header {
   display: flex;
   align-items: center;

@@ -6,12 +6,55 @@ import {
 import type { AuthIntegration } from "./auth.ts";
 import type { InvitationService } from "../invitations/service.ts";
 import { InvitationError } from "../invitations/model.ts";
+import {
+  emailLocale,
+  type TransactionalEmailService,
+} from "../email/service.ts";
+import { createEmailThrottle } from "../email/throttle.ts";
 
 export function registerInvitationRoutes(
   app: FastifyInstance,
   authentication: AuthIntegration,
   service: InvitationService,
+  email?: TransactionalEmailService,
 ) {
+  const throttleEmail = createEmailThrottle(Date.now, {
+    identity: 30,
+    ip: 60,
+    global: 100,
+  });
+  async function delivery(
+    result: Awaited<ReturnType<InvitationService["create"]>>,
+    locale: unknown,
+  ) {
+    const development = authentication.developmentInviteLinks ?? false;
+    let status = "development_link";
+    if (email?.enabled) {
+      try {
+        await email.send({
+          kind: "invitation",
+          to: result.invitation.email,
+          url: new URL(
+            `/invite/${result.token}`,
+            authentication.publicAppUrl ?? authentication.baseURL,
+          ).href,
+          locale: emailLocale(locale),
+          eventName: result.eventName,
+          expiresAt: result.invitation.expiresAt,
+        });
+        status = "sent";
+      } catch {
+        status = "failed";
+      }
+    } else if (!development) status = "failed";
+    return {
+      invitation: result.invitation,
+      delivery: status,
+      ...(development
+        ? { developmentInvitePath: `/invite/${result.token}` }
+        : {}),
+    };
+  }
   const origins = new Set(
     authentication.taskMutationOrigins ?? [
       new URL(authentication.baseURL).origin,
@@ -67,17 +110,38 @@ export function registerInvitationRoutes(
       "/api/events/:eventId/invitations",
       { bodyLimit: 1024 },
       async (request, reply) => {
+        const user = await actor(request, true);
+        if (!throttleEmail(request.ip, user.id))
+          throw new InvitationError(429, "RATE_LIMITED");
         const result = await service.create(
-          await actor(request, true),
+          user,
           request.params.eventId,
           request.body,
         );
-        // Relative route uses the application's current origin, never an untrusted Host.
-        return reply.code(201).send({
-          invitation: result.invitation,
-          developmentInvitePath: `/invite/${result.token}`,
-          delivery: "development_link",
-        });
+        const response = await delivery(
+          result,
+          request.headers["x-budograph-locale"],
+        );
+        return reply.code(201).send(response);
+      },
+    );
+    routes.post<{ Params: Scoped }>(
+      "/api/events/:eventId/invitations/:invitationId/resend",
+      { bodyLimit: 1024 },
+      async (request) => {
+        const user = await actor(request, true);
+        if (!throttleEmail(request.ip, user.id))
+          throw new InvitationError(429, "RATE_LIMITED");
+        if (request.body && Object.keys(request.body).length)
+          throw new InvitationError(400, "INVALID_INPUT");
+        return delivery(
+          await service.resend(
+            user,
+            request.params.eventId,
+            request.params.invitationId,
+          ),
+          request.headers["x-budograph-locale"],
+        );
       },
     );
     routes.post<{ Params: Scoped }>(
@@ -103,7 +167,12 @@ export function registerInvitationRoutes(
         limit(request, true);
         if (await getAuthenticatedUser(authentication.auth, request))
           throw new InvitationError(403, "SIGN_OUT_REQUIRED");
-        return service.register(request.params.token, request.body);
+        return service.register(
+          request.params.token,
+          request.body,
+          emailLocale(request.headers["x-budograph-locale"]),
+          email?.enabled === true,
+        );
       },
     );
     routes.post<{ Params: Token }>(

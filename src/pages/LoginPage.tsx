@@ -3,6 +3,8 @@ import { AuthShell } from "../auth/AuthShell.tsx";
 import { useI18n } from "../i18n/index.ts";
 import { auth } from "../auth/runtime.ts";
 import type { AuthError } from "../auth/state.ts";
+import { setPendingVerification } from "../auth/accountSafety.ts";
+import { replaceAuthLocation, safeReturnTo } from "../auth/routing.ts";
 
 export function LoginPage({
   bootstrapError,
@@ -42,6 +44,13 @@ export function LoginPage({
     setError(failure);
     setSubmitting(false);
     busy.current = false;
+    if (failure === "verification") {
+      const returnTo = safeReturnTo(
+        new URLSearchParams(window.location.search).get("returnTo"),
+      );
+      setPendingVerification(String(data.get("email") ?? ""), returnTo);
+      replaceAuthLocation("/verify-email?pending=1");
+    }
   }
 
   const visibleError = error ?? bootstrapError;
@@ -131,6 +140,9 @@ export function LoginPage({
             {t(submitting ? "auth.submitting" : "auth.submit")}
           </button>
         </form>
+        <a className="auth-secondary-link" href="/forgot-password">
+          {t("safety.forgot")}
+        </a>
       </section>
     </AuthShell>
   );

@@ -12,6 +12,7 @@ import {
 import "./auth.css";
 import { InvitationPage } from "../pages/InvitationPage.tsx";
 import { readInvitationToken } from "../services/invitations.ts";
+import { AccountSafetyPage } from "../pages/AccountSafetyPage.tsx";
 
 export function AuthBoundary({ children }: { children: ReactNode }) {
   const state = useAuth();
@@ -21,6 +22,14 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
   const url = new URL(location);
   const atLogin = isLoginPath(url.pathname);
   const atInvitation = url.pathname.startsWith("/invite/");
+  const safety =
+    url.pathname === "/forgot-password"
+      ? "forgot"
+      : url.pathname === "/reset-password"
+        ? "reset"
+        : url.pathname === "/verify-email"
+          ? "verify"
+          : null;
   const returnTo = safeReturnTo(url.searchParams.get("returnTo"));
 
   useEffect(() => {
@@ -58,7 +67,8 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
     } else if (
       state.status === "unauthenticated" &&
       !atLogin &&
-      !atInvitation
+      !atInvitation &&
+      !safety
     ) {
       replaceAuthLocation(
         loginHref(
@@ -68,7 +78,7 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
       );
       hadSession.current = false;
     }
-  }, [state.status, atLogin, atInvitation, returnTo, location]);
+  }, [state.status, atLogin, atInvitation, returnTo, location, safety]);
 
   if (
     state.status === "loading" ||
@@ -82,6 +92,8 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
       </AuthShell>
     );
   }
+  if (safety)
+    return <AccountSafetyPage key={url.pathname + url.search} mode={safety} />;
   if (atInvitation)
     return (
       <InvitationPage

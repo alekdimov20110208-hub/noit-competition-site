@@ -10,6 +10,10 @@ export interface DatabaseConfig {
 export interface ServerConfig extends DatabaseConfig {
   readonly betterAuthSecret: string;
   readonly betterAuthUrl: string;
+  readonly emailMode: "disabled" | "resend";
+  readonly publicAppUrl: string;
+  readonly emailFrom?: string;
+  readonly resendApiKey?: string;
 }
 
 export class EnvironmentError extends Error {
@@ -117,12 +121,63 @@ export function readServerEnv(
     ) {
       throw new Error("Invalid auth URL");
     }
+    const publicAppUrl = environment.PUBLIC_APP_URL ?? url.origin;
+    const app = new URL(publicAppUrl);
+    if (
+      app.origin !== publicAppUrl.replace(/\/$/, "") ||
+      app.username ||
+      app.password ||
+      (database.nodeEnv === "production" &&
+        (app.protocol !== "https:" ||
+          /(?:^|\.)localhost\.?$/i.test(app.hostname) ||
+          isIP(app.hostname.replace(/^\[|\]$/g, "")) !== 0))
+    )
+      throw new EnvironmentError(
+        "PUBLIC_APP_URL must be a trusted HTTP(S) origin; production requires a public HTTPS origin.",
+      );
+    if (
+      !["http:", "https:"].includes(app.protocol) ||
+      (database.nodeEnv === "production" && app.origin !== url.origin)
+    )
+      throw new EnvironmentError(
+        "Production PUBLIC_APP_URL must match BETTER_AUTH_URL (same-origin deployment).",
+      );
+    const emailMode =
+      environment.EMAIL_MODE ??
+      (database.nodeEnv === "production" ? "resend" : "disabled");
+    if (
+      !["disabled", "resend"].includes(emailMode) ||
+      (database.nodeEnv === "production" && emailMode !== "resend")
+    )
+      throw new EnvironmentError(
+        "EMAIL_MODE must be disabled or resend; production requires resend.",
+      );
+    const emailFrom = environment.EMAIL_FROM;
+    const resendApiKey = environment.RESEND_API_KEY;
+    if (
+      emailMode === "resend" &&
+      (!emailFrom ||
+        !/^(?:BudoGraph <[a-z\d._+-]+@[a-z\d.-]+\.[a-z]{2,}>|[a-z\d._+-]+@[a-z\d.-]+\.[a-z]{2,})$/i.test(
+          emailFrom,
+        ) ||
+        /[\r\n]|REPLACE_|resend\.dev/i.test(emailFrom) ||
+        !resendApiKey ||
+        !/^re_[a-z\d_-]{10,}$/i.test(resendApiKey) ||
+        /REPLACE_/i.test(resendApiKey))
+    )
+      throw new EnvironmentError(
+        "Resend mode requires valid EMAIL_FROM and RESEND_API_KEY; replace placeholders and verify the sending domain.",
+      );
     return Object.freeze({
       ...database,
       betterAuthSecret,
       betterAuthUrl: url.origin,
+      publicAppUrl: app.origin,
+      emailMode: emailMode as ServerConfig["emailMode"],
+      ...(emailMode === "resend" ? { emailFrom, resendApiKey } : {}),
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof EnvironmentError) throw error;
     throw new EnvironmentError(
       "BETTER_AUTH_URL must be an explicit HTTP(S) origin without credentials, query, fragment or path; production requires HTTPS.",
     );

@@ -9,13 +9,17 @@ import {
   type InvitationSummary,
   type InviteError,
 } from "../services/invitations.ts";
-import { RemoteWorkspaceService } from "../services/RemoteWorkspaceService.ts";
 import "../components/invitations.css";
+import { InvitationService } from "../services/invitations.ts";
+import { setPendingVerification } from "../auth/accountSafety.ts";
 
 export function InvitationPage({ token }: { token: string | null }) {
-  const { t, formatDateTime } = useI18n(),
+  const { t, formatDateTime, language } = useI18n(),
     identity = useAuth();
-  const service = useMemo(() => new RemoteWorkspaceService().invitations, []);
+  const service = useMemo(
+    () => new InvitationService(fetch, () => language),
+    [language],
+  );
   const [summary, setSummary] = useState<InvitationSummary | null>(null),
     [error, setError] = useState<InviteError | null>(null),
     [busy, setBusy] = useState(false),
@@ -101,13 +105,18 @@ export function InvitationPage({ token }: { token: string | null }) {
     await command(async (signal) => {
       const password = String(data.get("password") ?? "");
       try {
-        await service.register(
+        const result = await service.register(
           token!,
           String(data.get("name") ?? ""),
           password,
           signal,
         );
         signal.throwIfAborted();
+        if (result === "verification_required") {
+          setPendingVerification(summary.email, window.location.pathname);
+          replaceAuthLocation("/verify-email?pending=1");
+          return;
+        }
         const failure = await auth.signIn(summary.email, password);
         if (failure) throw new InvitationFailure("registration");
         setRegister(false);

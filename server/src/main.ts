@@ -9,15 +9,22 @@ import { createTaskService } from "./tasks/service.ts";
 import { createEventService } from "./events/service.ts";
 import { createInvitationService } from "./invitations/service.ts";
 import { createChangeService } from "./changes/service.ts";
+import {
+  createEmailTasks,
+  createTransactionalEmailService,
+} from "./email/service.ts";
+import { verificationCallback } from "./routes/auth.ts";
 
 async function main() {
   let app: FastifyInstance | undefined;
   let pool: Pool | undefined;
   let stopping = false;
+  const emailTasks = createEmailTasks();
 
   const shutdown = createShutdown({
     closeApp: async () => {
       await app?.close();
+      await emailTasks.drain();
     },
     closeDatabase: async () => {
       await pool?.end();
@@ -54,20 +61,43 @@ async function main() {
       );
     });
     const database = pool;
+    const email = createTransactionalEmailService(config, (kind) =>
+      app?.log.warn({ kind }, "Transactional email delivery failed"),
+    );
     const registration = createAuth(database, config, {
       invitationRegistration: true,
+      email,
+      emailTasks,
     });
     app = createApp({
+      email,
       changes: createChangeService(database),
       tasks: createTaskService(database),
       events: createEventService(database),
-      invitations: createInvitationService(database, async (fields) => {
-        await registration.api.signUpEmail({ body: fields });
-      }),
+      invitations: createInvitationService(
+        database,
+        async (fields, locale, returnTo) => {
+          await registration.api.signUpEmail({
+            body: {
+              ...fields,
+              callbackURL: verificationCallback(
+                config.publicAppUrl,
+                returnTo,
+                locale ?? "bg",
+              ),
+            },
+            headers: new Headers({ "x-budograph-locale": locale ?? "bg" }),
+          });
+        },
+        email.enabled,
+      ),
       authentication: {
-        auth: createAuth(database, config),
+        auth: createAuth(database, config, { email, emailTasks }),
         baseURL: config.betterAuthUrl,
         taskMutationOrigins: trustedApplicationOrigins(config),
+        publicAppUrl: config.publicAppUrl,
+        emailEnabled: email.enabled,
+        developmentInviteLinks: config.nodeEnv !== "production",
       },
       checkDatabase: async () => {
         // pg supports per-query timeouts; @types/pg omits this config field.

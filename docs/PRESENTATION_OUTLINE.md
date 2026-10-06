@@ -1,5 +1,15 @@
 # BudoGraph Phase 2B.2 Presentation Outline
 
+## P4A evidence boundary
+
+Explain invitation delivery, inbox ownership verification and password recovery
+using BUDOGRAPH_P4A.md and TEST_EVIDENCE.md. Show failed-send/resend behavior and
+closed public signup. Production hides developer links; local offline links remain
+labelled. Provider fakes and browser fixtures are implementation evidence, not
+actual inbox delivery: the domain/DNS/provider human gate is NOT RUN. Once configured,
+use only tester-owned inboxes to demonstrate invitation → verification → explicit
+Member join → recovery and reset.
+
 ## Current P3A/P3B/P3C demonstration extension — 2026-10-06
 
 This addition supersedes historical local-prototype response behavior below.
