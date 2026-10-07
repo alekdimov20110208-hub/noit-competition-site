@@ -553,6 +553,7 @@ try {
       context: "Controlled P3A development verification",
       priority: "normal",
       deadline: "2026-11-02",
+      deadlineTime: null,
       assignedMemberId: memberId,
     };
     const taskA = (
@@ -566,6 +567,7 @@ try {
         ...taskFields,
         title: `Hotel check-in P3A ${run}`,
         deadline: "2026-11-03",
+        deadlineTime: null,
       })
     ).task;
     report.tasks.push(taskA.id, taskB.id);

@@ -237,6 +237,7 @@ test(
           task = await tasks.updateDetails(organizer, f.eventId, task.id, {
             expectedVersion: task.version,
             deadline: "2026-12-01",
+            deadlineTime: null,
           });
           task = await tasks.mutate(
             organizer,

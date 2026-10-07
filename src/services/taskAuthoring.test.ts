@@ -37,6 +37,7 @@ const fields = {
   category: "Venue",
   context: "Details",
   deadline: "2026-11-01",
+  deadlineTime: null,
   priority: "important" as const,
 };
 const dto = {
@@ -66,6 +67,60 @@ const task = workspace(event, [dto]).tasks[0]!;
 const signal = () => new AbortController().signal;
 const fails = (code: string) => (error: unknown) =>
   error instanceof TaskAuthoringFailure && error.code === code;
+
+test("optional due time validates exact minute boundaries and survives authoring projection", async () => {
+  for (const deadlineTime of [
+    null,
+    "00:00",
+    "00:01",
+    "08:00",
+    "12:30",
+    "23:59",
+  ]) {
+    assert.deepEqual(validateTaskFields({ ...fields, deadlineTime }), {});
+    const service = new RemoteWorkspaceService(async (_url, options) => {
+      assert.equal(
+        JSON.parse(options!.body as string).deadlineTime,
+        deadlineTime,
+      );
+      return Response.json({ task: { ...dto, deadlineTime, version: 2 } });
+    });
+    const updated = await service.updateTaskDetails(
+      event.id,
+      dto.id,
+      1,
+      { ...fields, deadlineTime },
+      signal(),
+    );
+    assert.equal(updated.deadlineTime, deadlineTime);
+    assert.equal(authoredFields(updated).deadlineTime, deadlineTime);
+  }
+  for (const deadlineTime of [
+    "25:00",
+    "12:75",
+    "abc",
+    "9pm",
+    "8:00",
+    "08:00:00",
+    "24:00",
+    " 08:00",
+    "",
+  ]) {
+    assert.equal(
+      validateTaskFields({ ...fields, deadlineTime }).deadlineTime,
+      "INVALID_TIME",
+    );
+    assert.throws(
+      () => mapTaskRead(event, { tasks: [{ ...dto, deadlineTime }], members }),
+      WorkspaceReadFailure,
+    );
+  }
+  assert.equal(
+    validateTaskFields({ ...fields, deadline: "", deadlineTime: "08:00" })
+      .deadline,
+    "INVALID_DATE",
+  );
+});
 
 test("authoring affordances and validation preserve schema free-text/optional/calendar semantics", () => {
   assert.equal(taskAuthoringAllowed(event), true);

@@ -40,6 +40,7 @@ export interface Task {
   category: string;
   ownerId: string;
   deadline: string;
+  deadlineTime: string | null;
   status: TaskStatus;
   priority: TaskPriority;
   context: string;

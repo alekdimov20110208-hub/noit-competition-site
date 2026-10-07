@@ -6,6 +6,13 @@ export const TASK_AUTHORING_EN_MESSAGES = {
   "tasks.authoring.category": "Category (optional)",
   "tasks.authoring.context": "Context (optional)",
   "tasks.authoring.deadline": "Deadline",
+  "tasks.authoring.time": "Time (optional)",
+  "tasks.authoring.addTime": "Add time",
+  "tasks.authoring.removeTime": "Remove time",
+  "tasks.authoring.timeHelp":
+    "24-hour time in the event timezone. This is a deadline, not a reminder.",
+  "tasks.authoring.timeError":
+    "Enter a valid time in HH:mm format (00:00–23:59).",
   "tasks.authoring.priority": "Priority",
   "tasks.authoring.assignee": "Assignee (optional)",
   "tasks.authoring.help":
@@ -34,6 +41,13 @@ export const TASK_AUTHORING_BG_MESSAGES = {
   "tasks.authoring.category": "Категория (незадължително)",
   "tasks.authoring.context": "Контекст (незадължително)",
   "tasks.authoring.deadline": "Краен срок",
+  "tasks.authoring.time": "Час (незадължително)",
+  "tasks.authoring.addTime": "Добавяне на час",
+  "tasks.authoring.removeTime": "Премахване на часа",
+  "tasks.authoring.timeHelp":
+    "24-часов формат в часовата зона на събитието. Това е краен срок, а не напомняне.",
+  "tasks.authoring.timeError":
+    "Въведете валиден час във формат HH:mm (00:00–23:59).",
   "tasks.authoring.priority": "Приоритет",
   "tasks.authoring.assignee": "Отговорник (незадължително)",
   "tasks.authoring.help":

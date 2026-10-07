@@ -49,6 +49,7 @@ const fields = (task) => ({
   category: task.category,
   context: task.context,
   deadline: task.deadline,
+  deadlineTime: task.deadlineTime,
   priority: task.priority,
 });
 async function make(label) {
@@ -323,7 +324,8 @@ try {
   assert.equal((await read(organizer, fresh.id)).tasks.length, 1);
   const row = (
     await pool.query(
-      "SELECT event_id,created_by,version,status,priority,assigned_member_id,accepted_by_member_id,accepted_at,to_char(deadline,'YYYY-MM-DD') AS deadline FROM public.task WHERE id=$1",
+      `SELECT event_id,created_by,version,status,priority,assigned_member_id,accepted_by_member_id,accepted_at,to_char(deadline,'YYYY-MM-DD') AS deadline,
+        to_char(deadline_time,'HH24:MI') AS "deadlineTime" FROM public.task WHERE id=$1`,
       [freshTask.id],
     )
   ).rows[0];
@@ -337,6 +339,7 @@ try {
     accepted_by_member_id: null,
     accepted_at: null,
     deadline: "2026-11-01",
+    deadlineTime: null,
   });
   assert.equal((await activity(freshTask.id)).length, 1);
   await organizer.page.reload();

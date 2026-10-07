@@ -11,6 +11,7 @@ export interface AffectedTask {
   status: TaskStatus;
   assignedMember: ChangeMember | null;
   deadline: string | null;
+  deadlineTime: string | null;
 }
 export interface ChangeDto {
   id: string;

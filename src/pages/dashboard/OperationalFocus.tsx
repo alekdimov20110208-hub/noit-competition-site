@@ -41,7 +41,7 @@ export function OperationalFocus({
   onExpandedChange,
 }: OperationalFocusProps) {
   const i18n = useI18n();
-  const { t, formatDate } = i18n;
+  const { t, formatTaskDeadline } = i18n;
   const listId = useId();
   const disclosureRef = useRef<HTMLButtonElement>(null);
   useLayoutEffect(() => {
@@ -131,7 +131,12 @@ export function OperationalFocus({
                           overdue
                             ? "dashboard.attention.wasDue"
                             : "dashboard.attention.due",
-                          { date: formatDate(task.deadline) },
+                          {
+                            date: formatTaskDeadline(
+                              task.deadline,
+                              task.deadlineTime,
+                            ),
+                          },
                         )}
                       </time>
                       <span

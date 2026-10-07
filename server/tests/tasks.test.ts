@@ -30,6 +30,7 @@ function harness(role = "MEMBER", overrides: Partial<TaskRow> = {}) {
     category: "development",
     context: "",
     deadline: "2026-10-04",
+    deadlineTime: null,
     status: "not-started",
     priority: "normal",
     assigned_member_id: memberId,

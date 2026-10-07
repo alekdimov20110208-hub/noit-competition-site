@@ -1,5 +1,16 @@
 # Installation, Deployment, and Demonstration Plan
 
+Optional Task due time requires additive migration `0006_task_deadline_time.sql`
+before starting the updated backend. Use the existing reviewed migration runner;
+no default/backfill, deadline rewrite or destructive operation is needed. The
+configured development database is migrated and verified; production application
+is a separate deployment action. Date-only existing Tasks remain valid. Demonstrate
+Add time → change → remove and linked Change current impact using controlled
+accounts. The existing offline/backup plan remains; a failed server save must retain
+confirmed data and report the failure. No reminder/notification scheduling is
+available. See [feature contract](BUDOGRAPH_TASK_DUE_TIME.md). P4A's external human
+gate remains PARTIAL and has not been run in this phase.
+
 P4A adds production-capable email integration; **no deployment was performed**.
 Follow [BUDOGRAPH_P4A.md](BUDOGRAPH_P4A.md) for exact human domain/DNS/Resend setup and
 server variable names. Copy DNS values from the dashboard; store keys server-side

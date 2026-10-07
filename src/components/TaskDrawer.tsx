@@ -64,7 +64,7 @@ export function TaskDrawer({
   authoring,
   onEditDetails,
 }: TaskDrawerProps) {
-  const { formatDate, formatDateTime, t } = useI18n(timeZone);
+  const { formatTaskDeadline, formatDateTime, t } = useI18n(timeZone);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const closeHandler = useRef(onClose);
@@ -402,7 +402,10 @@ export function TaskDrawer({
                         </dt>
                         <dd>
                           <time dateTime={task.deadline}>
-                            {formatDate(task.deadline)}
+                            {formatTaskDeadline(
+                              task.deadline,
+                              task.deadlineTime,
+                            )}
                           </time>
                         </dd>
                       </div>

@@ -46,6 +46,16 @@ export function formatShortDate(language: Language, value: DateInput): string {
   });
 }
 
+// Keep the established calendar-date formatter; wall-clock time is appended
+// unchanged, without parsing it as a Date or converting between timezones.
+export function formatTaskDeadline(
+  language: Language,
+  date: string,
+  time: string | null,
+): string {
+  return `${formatDate(language, date)}${time === null ? "" : ` · ${time}`}`;
+}
+
 export function formatDateTime(
   language: Language,
   value: DateInput,

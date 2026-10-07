@@ -1,5 +1,20 @@
 # AI Assistance Log
 
+## Optional Task due time — 2026-10-08
+
+User-authorized implementation from `bfc405aafb955ddb9c50bf35bb40a9bb4cc3f9eb`.
+Codex read the complete mandatory master prompt and 30-page supplied regulations,
+inspected the required DATE, canonical Event timezone, migrations, authoring,
+history, responsibility, live impact, urgency and ordering contracts. Added one
+immutable nullable TIME column, strict minute-level API/server/client validation,
+restrained optional HH:mm controls, shared display and live affected-Task time.
+No subagents, new dependencies, reminders/notifications or P4A external setup.
+Added boundary/atomicity/conflict/acceptance/live-impact tests and authenticated
+browser verification; retained synthetic browser fixtures are documented. Automated
+review/testing and visual inspection do not replace the student's human code
+understanding/review, which remains pending. Competition rules from 2025–2026 must
+be checked for later participation. Executed evidence is in TEST_EVIDENCE.md.
+
 ## P4A production email and account safety — 2026-10-06
 
 User-authorized implementation from `4b81543`. Codex read the complete master

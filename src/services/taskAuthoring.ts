@@ -1,4 +1,5 @@
 import { getCalendarDayNumber } from "../domain/taskTiming.ts";
+import { isTaskDeadlineTime } from "../domain/taskDeadlineTime.ts";
 import type { Task } from "../domain/types.ts";
 import type { TaskEvent } from "./RemoteWorkspaceService.ts";
 
@@ -7,6 +8,7 @@ export interface TaskFields {
   category: string;
   context: string;
   deadline: string;
+  deadlineTime: string | null;
   priority: Task["priority"];
 }
 export type TaskFieldErrors = Partial<
@@ -23,6 +25,7 @@ export function authoredFields(task: Task): TaskFields {
     category: task.category,
     context: task.context,
     deadline: task.deadline,
+    deadlineTime: task.deadlineTime,
     priority: task.priority,
   };
 }
@@ -47,6 +50,8 @@ export function validateTaskFields(fields: TaskFields): TaskFieldErrors {
     fields.deadline.startsWith("0000-")
   )
     errors.deadline = "INVALID_DATE";
+  if (fields.deadlineTime !== null && !isTaskDeadlineTime(fields.deadlineTime))
+    errors.deadlineTime = "INVALID_TIME";
   if (!["normal", "important", "critical"].includes(fields.priority))
     errors.priority = "INVALID_PRIORITY";
   return errors;

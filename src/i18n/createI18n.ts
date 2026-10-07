@@ -7,6 +7,7 @@ import {
   formatPercent,
   formatRelativeDate,
   formatShortDate,
+  formatTaskDeadline,
   LANGUAGE_LOCALES,
   type DateInput,
 } from "./formatters.ts";
@@ -45,6 +46,7 @@ export interface I18nApi {
     values?: MessageValues,
   ) => string;
   formatDate: (value: DateInput) => string;
+  formatTaskDeadline: (date: string, time: string | null) => string;
   formatShortDate: (value: DateInput) => string;
   formatDateTime: (value: DateInput) => string;
   formatDateRange: (start: DateInput, end: DateInput) => string;
@@ -77,6 +79,8 @@ export function createI18n(
     plural,
     count: plural,
     formatDate: (value) => formatDate(language, value),
+    formatTaskDeadline: (date, time) =>
+      formatTaskDeadline(language, date, time),
     formatShortDate: (value) => formatShortDate(language, value),
     formatDateTime: (value) =>
       formatDateTime(language, value, options.timeZone),

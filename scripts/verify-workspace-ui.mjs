@@ -374,6 +374,7 @@ try {
           ...initial.tasks[0],
           status,
           deadline: "9999-12-31",
+          deadlineTime: null,
           assignedMemberId: initial.event.membership.id,
           accepted: true,
           acceptedByMemberId: initial.event.membership.id,

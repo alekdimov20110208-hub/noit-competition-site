@@ -44,6 +44,7 @@ const dto = (n: number, assignedMemberId = active.id) => ({
   category: "Venue",
   context: "",
   deadline: "2026-10-04",
+  deadlineTime: null,
   status: "not-started",
   priority: "critical",
   assignedMemberId,

@@ -1,5 +1,19 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Optional Task due time — 2026-10-08
+
+Apply immutable additive `0006_task_deadline_time.sql` before starting this backend.
+It preserves required deadline DATE values and adds nullable local `TIME(0)`;
+there is no default/backfill. Canonical Task/Change affected-work reads return
+`deadlineTime` as strict `HH:mm` or null. POST omission means null; PATCH omission
+preserves time and explicit null removes it. Authoring validates on the server,
+retains Organizer-only authority, expectedVersion/no-op/409, one atomic history row
+and acceptance/status. Event timezone already exists; day-based urgency/order stay
+unchanged. Task time changes derive into live Change impact without Change writes.
+See [feature contract](BUDOGRAPH_TASK_DUE_TIME.md), rollback-only PostgreSQL coverage
+in `task-deadline-time.integration.test.ts`, and real authenticated
+`pnpm.cmd test:browser:task-deadline-time`. P4A external setup remains out of scope.
+
 ## P4A email and account safety — 2026-10-06
 
 See [BUDOGRAPH_P4A.md](BUDOGRAPH_P4A.md) for environment names, human Resend/DNS setup,

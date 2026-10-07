@@ -57,7 +57,7 @@ function ChangeForm({
   onSuccess: (change: RemoteChange) => void;
   onCancel: () => void;
 }) {
-  const { t, formatDate } = useI18n();
+  const { t, formatTaskDeadline } = useI18n();
   const [fields, setFields] = useState<ChangeFields>(() =>
     change
       ? authoredChange(change)
@@ -305,7 +305,7 @@ function ChangeForm({
                     (person) => person.id === task.assignedMemberId,
                   )?.name ?? t("common.unassigned")}
                   <span aria-hidden="true"> · </span>
-                  {formatDate(task.deadline)}
+                  {formatTaskDeadline(task.deadline, task.deadlineTime)}
                   <span aria-hidden="true"> · </span>
                   {t(TASK_STATUS_MESSAGE_KEYS[task.status])}
                 </span>
@@ -369,7 +369,7 @@ export function ChangesPage({
   workspace: TasksWorkspace;
   onNavigate: (href: string) => void;
 }) {
-  const { t, formatDate, formatDateTime, formatNumber } = useI18n(
+  const { t, formatTaskDeadline, formatDateTime, formatNumber } = useI18n(
     event.timezone,
   );
   const [data, setData] = useState<RemoteChange[] | null>(null);
@@ -555,13 +555,25 @@ export function ChangesPage({
                 <dd>
                   {selected.impact.deadlines.length ? (
                     <ul>
-                      {selected.impact.deadlines.map((deadline) => (
-                        <li key={deadline}>
-                          <time dateTime={deadline}>
-                            {formatDate(deadline)}
-                          </time>
-                        </li>
-                      ))}
+                      {selected.impact.deadlines.flatMap((deadline) =>
+                        [
+                          ...new Set(
+                            selected.affectedTasks
+                              .filter((task) => task.deadline === deadline)
+                              .map((task) => task.deadlineTime),
+                          ),
+                        ].map((time) => (
+                          <li key={`${deadline}:${time}`}>
+                            <time
+                              dateTime={
+                                time === null ? deadline : `${deadline}T${time}`
+                              }
+                            >
+                              {formatTaskDeadline(deadline, time)}
+                            </time>
+                          </li>
+                        )),
+                      )}
                     </ul>
                   ) : (
                     t("change.deadlines.empty")
@@ -595,7 +607,10 @@ export function ChangesPage({
                         <dd>
                           {task.deadline ? (
                             <time dateTime={task.deadline}>
-                              {formatDate(task.deadline)}
+                              {formatTaskDeadline(
+                                task.deadline,
+                                task.deadlineTime,
+                              )}
                             </time>
                           ) : (
                             t("change.noDeadline")

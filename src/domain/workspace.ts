@@ -1,3 +1,4 @@
+import { isTaskDeadlineTime } from "./taskDeadlineTime.ts";
 import { createDemoWorkspace } from "../data/demo.ts";
 import type {
   ChangeResponseStatus,
@@ -148,6 +149,9 @@ function isTask(value: unknown): value is Task {
     isString(value.category) &&
     isString(value.ownerId) &&
     isDateOnly(value.deadline) &&
+    (value.deadlineTime === undefined ||
+      value.deadlineTime === null ||
+      isTaskDeadlineTime(value.deadlineTime)) &&
     isAllowedValue(value.status, TASK_STATUSES) &&
     isAllowedValue(value.priority, TASK_PRIORITIES) &&
     isString(value.context) &&
@@ -229,7 +233,15 @@ export function deserializeWorkspace(
 
   try {
     const parsed: unknown = JSON.parse(serialized);
-    return isWorkspaceState(parsed) ? parsed : createDemoWorkspace();
+    return isWorkspaceState(parsed)
+      ? {
+          ...parsed,
+          tasks: parsed.tasks.map((task) => ({
+            ...task,
+            deadlineTime: task.deadlineTime ?? null,
+          })),
+        }
+      : createDemoWorkspace();
   } catch {
     return createDemoWorkspace();
   }

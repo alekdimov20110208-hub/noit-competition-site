@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   formatDate,
+  formatTaskDeadline,
   formatDateRange,
   formatDateTime,
   formatNumber,
@@ -16,6 +17,30 @@ import {
   type MessageKey,
 } from "./messages.ts";
 import { createI18n, selectPluralMessage } from "./createI18n.ts";
+
+test("Task deadline formatting appends unchanged 24-hour time to the locked BG/EN date", () => {
+  for (const language of ["en", "bg"] as const) {
+    const day = language === "en" ? "4 Oct 2026" : "4.10.2026 г.";
+    assert.equal(formatTaskDeadline(language, "2026-10-04", null), day);
+    for (const time of ["00:00", "00:01", "08:00", "12:30", "23:59"])
+      assert.equal(
+        formatTaskDeadline(language, "2026-10-04", time),
+        `${day} · ${time}`,
+      );
+    for (const timeZone of [
+      "Europe/Sofia",
+      "Pacific/Honolulu",
+      "Pacific/Kiritimati",
+    ])
+      assert.equal(
+        createI18n(language, { timeZone }).formatTaskDeadline(
+          "2026-10-04",
+          "17:30",
+        ),
+        `${day} · 17:30`,
+      );
+  }
+});
 
 test("English and Bulgarian catalogs expose exactly the same typed keys", () => {
   const englishKeys = Object.keys(EN_MESSAGES).sort();

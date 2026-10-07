@@ -315,6 +315,9 @@ export function createTaskService(pool: TransactionPool) {
           category: command.category ?? before.category,
           context: command.context ?? before.context,
           deadline: command.deadline ?? before.deadline,
+          deadlineTime: Object.hasOwn(command, "deadlineTime")
+            ? command.deadlineTime!
+            : before.deadlineTime,
           priority: command.priority ?? before.priority,
         };
         for (const key of Object.keys(fields) as (keyof TaskFields)[]) {
@@ -324,7 +327,8 @@ export function createTaskService(pool: TransactionPool) {
         if (!Object.keys(changes).length) return taskDto(before);
         const updated = await database.query(
           `UPDATE public.task SET title = $3, category = $4, context = $5, deadline = $6::DATE,
-             priority = $7, updated_by = $8, updated_at = clock_timestamp(), version = version + 1
+             priority = $7, updated_by = $8, updated_at = clock_timestamp(), version = version + 1,
+             deadline_time = $10::TIME
            WHERE event_id = $1 AND id = $2 AND deleted_at IS NULL AND version = $9 RETURNING ${taskColumns}`,
           [
             eventId,
@@ -336,6 +340,7 @@ export function createTaskService(pool: TransactionPool) {
             fields.priority,
             actor.id,
             command.expectedVersion,
+            fields.deadlineTime,
           ],
         );
         after = updated.rows[0] as TaskRow;
@@ -361,8 +366,8 @@ export function createTaskService(pool: TransactionPool) {
           }
         }
         const inserted = await database.query(
-          `INSERT INTO public.task (id, event_id, title, category, context, deadline, priority, assigned_member_id, created_by, updated_by)
-           VALUES ($1, $2, $3, $4, $5, $6::DATE, $7, $8, $9, $9) RETURNING ${taskColumns}`,
+          `INSERT INTO public.task (id, event_id, title, category, context, deadline, priority, assigned_member_id, created_by, updated_by, deadline_time)
+           VALUES ($1, $2, $3, $4, $5, $6::DATE, $7, $8, $9, $9, $10::TIME) RETURNING ${taskColumns}`,
           [
             targetId,
             eventId,
@@ -373,6 +378,7 @@ export function createTaskService(pool: TransactionPool) {
             command.priority,
             command.assignedMemberId,
             actor.id,
+            command.deadlineTime,
           ],
         );
         after = inserted.rows[0] as TaskRow;
@@ -380,6 +386,7 @@ export function createTaskService(pool: TransactionPool) {
           title: after.title,
           category: after.category,
           deadline: after.deadline,
+          deadlineTime: after.deadlineTime,
           priority: after.priority,
           assignedMemberId: after.assigned_member_id,
           taskVersion: after.version,

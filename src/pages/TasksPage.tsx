@@ -90,7 +90,7 @@ function TaskList({
   now,
   timeZone,
 }: TaskListProps) {
-  const { formatDate, formatDateTime, t } = useI18n(timeZone);
+  const { formatTaskDeadline, formatDateTime, t } = useI18n(timeZone);
   const memberById = new Map(members.map((member) => [member.id, member]));
 
   return (
@@ -164,7 +164,9 @@ function TaskList({
             </div>
 
             <div className="task-deadline" role="cell">
-              <time dateTime={task.deadline}>{formatDate(task.deadline)}</time>
+              <time dateTime={task.deadline}>
+                {formatTaskDeadline(task.deadline, task.deadlineTime)}
+              </time>
               <small className={overdue ? "task-deadline__overdue" : undefined}>
                 {overdue
                   ? t("taskDetails.overdue")

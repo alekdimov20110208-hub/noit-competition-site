@@ -30,6 +30,7 @@ function task(values: Partial<Task> = {}): Task {
     category: "Transport",
     ownerId: member.id,
     deadline: "2026-09-20",
+    deadlineTime: null,
     status: "not-started",
     priority: "normal",
     acknowledged: true,
@@ -52,6 +53,7 @@ test("Team reuses canonical attention eligibility and ordering with deterministi
       id: "done",
       status: "completed",
       deadline: "2026-09-01",
+      deadlineTime: null,
       acknowledged: false,
     }),
   ];
@@ -75,6 +77,7 @@ test("factual counts count blocked/overdue union once and exclude completed ackn
       id: "both",
       status: "blocked",
       deadline: "2026-09-01",
+      deadlineTime: null,
       acknowledged: false,
     }),
     task({ id: "late", deadline: "2026-09-06" }),
@@ -85,6 +88,7 @@ test("factual counts count blocked/overdue union once and exclude completed ackn
       id: "completed",
       status: "completed",
       deadline: "2026-09-01",
+      deadlineTime: null,
       acknowledged: false,
     }),
   ];
@@ -163,6 +167,7 @@ test("roster groups operational failures, other attention, dated open work, then
       ownerId: "done",
       status: "completed",
       deadline: "2026-01-01",
+      deadlineTime: null,
     }),
     task({ id: "later", ownerId: "later" }),
     task({ id: "soon", ownerId: "soon", deadline: "2026-09-08" }),
@@ -172,6 +177,7 @@ test("roster groups operational failures, other attention, dated open work, then
       ownerId: "critical",
       priority: "critical",
       deadline: "2026-09-07",
+      deadlineTime: null,
     }),
     task({ id: "blocked", ownerId: "blocked", status: "blocked" }),
     task({ id: "overdue", ownerId: "overdue", deadline: "2026-09-01" }),
@@ -201,6 +207,7 @@ test("representative is strongest canonical task, not a sum of assignments or re
       status: "blocked",
       acknowledged: false,
       deadline: "2026-09-02",
+      deadlineTime: null,
     }),
   ];
   assert.equal(

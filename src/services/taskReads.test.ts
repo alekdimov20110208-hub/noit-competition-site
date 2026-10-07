@@ -34,6 +34,7 @@ const task = {
   category: "Venue",
   context: "Scoped task",
   deadline: "2026-10-04",
+  deadlineTime: null,
   status: "in-progress",
   priority: "important",
   assignedMemberId: member.id,

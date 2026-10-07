@@ -24,6 +24,7 @@ const fields = {
   category: "  Venue  ",
   context: " Details ",
   deadline: "2026-09-01",
+  deadlineTime: null,
   priority: "important",
 };
 const denied = (status: number) => (error: unknown) =>
@@ -45,6 +46,7 @@ function harness(role = "ORGANIZER") {
     category: "Venue",
     context: "Details",
     deadline: fields.deadline,
+    deadlineTime: null,
     priority: "important",
     status: "in-progress",
     assigned_member_id: memberId,
@@ -90,6 +92,7 @@ function harness(role = "ORGANIZER") {
               category: values![3],
               context: values![4],
               deadline: values![5],
+              deadlineTime: values![9],
               priority: values![6],
               assigned_member_id: values![7],
               accepted_by_member_id: null,
@@ -110,6 +113,7 @@ function harness(role = "ORGANIZER") {
                   category: values![3],
                   context: values![4],
                   deadline: values![5],
+                  deadlineTime: values![9],
                   priority: values![6],
                   version: row.version + 1,
                 },
@@ -125,6 +129,127 @@ function harness(role = "ORGANIZER") {
     row,
   };
 }
+
+test("optional time is exact HH:mm/null and date remains required; PATCH omission preserves time", () => {
+  for (const deadlineTime of [
+    null,
+    "00:00",
+    "00:01",
+    "08:00",
+    "12:30",
+    "23:59",
+  ])
+    assert.equal(
+      parseTaskAuthoring({ ...fields, deadlineTime }).deadlineTime,
+      deadlineTime,
+    );
+  assert.equal(
+    parseTaskAuthoring({
+      title: "Task",
+      deadline: fields.deadline,
+      priority: "normal",
+    }).deadlineTime,
+    null,
+  );
+  assert.equal(
+    Object.hasOwn(
+      parseTaskAuthoring({ expectedVersion: 4 }, true),
+      "deadlineTime",
+    ),
+    false,
+  );
+  for (const deadlineTime of [
+    "25:00",
+    "12:75",
+    "abc",
+    "9pm",
+    "8:00",
+    "08:00:00",
+    "24:00",
+    " 08:00",
+    "",
+    800,
+    {},
+    undefined,
+  ]) {
+    for (const editing of [false, true])
+      assert.throws(
+        () =>
+          parseTaskAuthoring(
+            { ...(editing ? { expectedVersion: 4 } : fields), deadlineTime },
+            editing,
+          ),
+        (error) =>
+          error instanceof TaskCommandError &&
+          error.fields?.deadlineTime === "INVALID_TIME",
+      );
+  }
+  for (const deadline of [null, undefined, ""])
+    assert.throws(
+      () => parseTaskAuthoring({ ...fields, deadline, deadlineTime: "08:00" }),
+      denied(400),
+    );
+});
+
+test("time edit uses one update/history/version, preserves acceptance and supports null/no-op/stale", async () => {
+  for (const deadlineTime of ["16:00", "18:30", "23:59", null]) {
+    const h = harness();
+    h.row.deadlineTime = "08:00";
+    const after = await h.service.updateDetails(user, eventId, taskId, {
+      deadlineTime,
+      expectedVersion: 4,
+    });
+    assert.equal(after.deadlineTime, deadlineTime);
+    assert.equal(after.version, 5);
+    assert.equal(after.acceptedAt, h.row.accepted_at!.toISOString());
+    assert.equal(after.assignedMemberId, memberId);
+    assert.equal(after.status, h.row.status);
+    const updates = h.calls.filter((call) =>
+      call.sql.startsWith("UPDATE public.task"),
+    );
+    const history = h.calls.filter((call) =>
+      call.sql.startsWith("INSERT INTO public.activity_entry"),
+    );
+    assert.equal(updates.length, 1);
+    assert.equal(history.length, 1);
+    assert.equal(history[0]!.values![4], "task.updated");
+    assert.deepEqual(JSON.parse(history[0]!.values![6] as string).changes, {
+      deadlineTime: { before: "08:00", after: deadlineTime },
+    });
+  }
+  const h = harness();
+  h.row.deadlineTime = "16:00";
+  assert.equal(
+    (
+      await h.service.updateDetails(user, eventId, taskId, {
+        deadline: "2026-11-10",
+        expectedVersion: 4,
+      })
+    ).deadlineTime,
+    "16:00",
+  );
+  const noop = harness();
+  assert.equal(
+    (
+      await noop.service.updateDetails(user, eventId, taskId, {
+        deadlineTime: null,
+        expectedVersion: 4,
+      })
+    ).version,
+    4,
+  );
+  assert.equal(
+    noop.calls.filter((call) => call.sql.startsWith("UPDATE")).length,
+    0,
+  );
+  await assert.rejects(
+    noop.service.updateDetails(user, eventId, taskId, {
+      deadlineTime: "16:00",
+      expectedVersion: 3,
+    }),
+    denied(409),
+  );
+});
 
 test("create/edit whitelist rejects forged actors, scope, status, acceptance, assignment edits and version", () => {
   for (const field of [
@@ -209,6 +334,7 @@ test("strict bounded Unicode/free text, real calendar dates, enums and versions"
     parseTaskAuthoring({
       title: "Preparation",
       deadline: "0001-01-01",
+      deadlineTime: null,
       priority: "normal",
     }).category,
     "",
@@ -246,6 +372,7 @@ test("Organizer create: scoped server ID/actor/defaults and one atomic task.crea
         title: "Setup 🥋",
         category: "Venue",
         deadline: fields.deadline,
+        deadlineTime: null,
         priority: "important",
         assignedMemberId: assignee,
         taskVersion: 1,
@@ -294,6 +421,7 @@ test("all authored fields update once, only meaningful changes recorded, accepta
     category: "",
     context: "More",
     deadline: "2026-09-02",
+    deadlineTime: null,
     priority: "critical",
     expectedVersion: 4,
   });

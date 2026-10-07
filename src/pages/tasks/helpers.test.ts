@@ -33,6 +33,7 @@ function makeTask(id: string, overrides: Partial<Task> = {}): Task {
     category: "Venue",
     ownerId: "member-mira",
     deadline: "2026-08-20",
+    deadlineTime: null,
     status: "not-started",
     priority: "normal",
     context: "Operational preparation context",
@@ -134,6 +135,7 @@ test("operational ordering puts overdue work first, then blockers, then deadline
     makeTask("later", { deadline: "2026-08-22" }),
     makeTask("blocked", {
       deadline: "2026-08-30",
+      deadlineTime: null,
       status: "blocked",
     }),
     makeTask("overdue-b", { deadline: "2026-08-10" }),

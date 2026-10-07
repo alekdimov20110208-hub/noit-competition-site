@@ -115,6 +115,11 @@ twice. Generic signup, member removal/promotion and password recovery are unavai
 
 Open **Tasks** in an Event where you are an Organizer, then choose **Create task**.
 Enter a title, deadline and priority. Category and context are optional free text.
+The deadline time is optional. Use **Add time / Добавяне на час** for a minute-level
+time in the Event's timezone, displayed in 24-hour format, for example
+**10 Nov 2026 · 16:00 / 10.11.2026 г. · 16:00**. It means when work should be
+finished on that day. It does not schedule a reminder or notification. Date-only
+Tasks remain valid and keep their existing date display.
 The date belongs to the Event calendar and may be before its start. Optionally
 select one of this Event's active members; **Unassigned** is valid. Save opens the
 new real Task in the existing detail drawer without reloading the page. A fresh
@@ -124,6 +129,12 @@ New Tasks start **Not started**, with no acceptance. Assignment does not mean th
 assignee accepted responsibility: that person must use **Accept responsibility**.
 Organizers use **Edit task details** to change title/category/context/deadline/
 priority. Assignment and lifecycle remain in their separate drawer sections.
+Organizers can add/change a time or use **Remove time / Премахване на часа**;
+clearing the time input also removes it. Changing the date keeps an explicit time
+unless you remove it. Time edits preserve assignment, status and acceptance. Task,
+Dashboard, Team and linked Change deadlines show the current value. Existing Change
+version/history is unaffected by a Task time edit. Urgency and ordering continue to
+follow the calendar date; precise time-of-day lateness is not calculated.
 Detail edits preserve existing acceptance. Reassignment/unassignment clears it;
 assigning back requires a new explicit acceptance. A Member cannot author Tasks
 but keeps existing assigned-task acceptance/status permissions.

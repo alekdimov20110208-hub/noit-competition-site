@@ -40,6 +40,7 @@ test(
         category: "Venue",
         context: "Preparation",
         deadline: "2026-09-30",
+        deadlineTime: null,
         priority: "important",
       };
       const denied = (status: number) => (error: unknown) =>
@@ -193,6 +194,7 @@ test(
               category: "Logistics",
               context: "Changed",
               deadline: "2026-11-01",
+              deadlineTime: null,
               priority: "critical",
               expectedVersion: accepted.version,
             },

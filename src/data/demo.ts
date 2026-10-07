@@ -88,6 +88,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Venue",
         ownerId: "member-mira-velin",
         deadline: "2026-07-10",
+        deadlineTime: null,
         status: "completed",
         priority: "critical",
         context:
@@ -103,6 +104,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Equipment",
         ownerId: "member-lina-moreva",
         deadline: "2026-07-22",
+        deadlineTime: null,
         status: "completed",
         priority: "important",
         context:
@@ -117,6 +119,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Travel",
         ownerId: "member-anton-ravin",
         deadline: "2026-09-07",
+        deadlineTime: null,
         status: "blocked",
         priority: "critical",
         context:
@@ -133,6 +136,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Travel",
         ownerId: "member-daria-kamen",
         deadline: "2026-09-08",
+        deadlineTime: null,
         status: "in-progress",
         priority: "critical",
         context:
@@ -149,6 +153,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Accommodation",
         ownerId: "member-anton-ravin",
         deadline: "2026-09-09",
+        deadlineTime: null,
         status: "in-progress",
         priority: "important",
         context:
@@ -163,6 +168,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Registration",
         ownerId: "member-petar-zoren",
         deadline: "2026-07-28",
+        deadlineTime: null,
         status: "completed",
         priority: "important",
         context:
@@ -177,6 +183,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Venue",
         ownerId: "member-lina-moreva",
         deadline: "2026-09-05",
+        deadlineTime: null,
         status: "not-started",
         priority: "important",
         context:
@@ -192,6 +199,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Safety",
         ownerId: "member-daria-kamen",
         deadline: "2026-09-10",
+        deadlineTime: null,
         status: "not-started",
         priority: "critical",
         context:
@@ -207,6 +215,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Schedule",
         ownerId: "member-mira-velin",
         deadline: "2026-09-09",
+        deadlineTime: null,
         status: "in-progress",
         priority: "important",
         context:
@@ -223,6 +232,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Hospitality",
         ownerId: "member-lina-moreva",
         deadline: "2026-09-12",
+        deadlineTime: null,
         status: "not-started",
         priority: "normal",
         context:
@@ -237,6 +247,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Team",
         ownerId: "member-daria-kamen",
         deadline: "2026-09-11",
+        deadlineTime: null,
         status: "not-started",
         priority: "important",
         context:
@@ -252,6 +263,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Communication",
         ownerId: "member-petar-zoren",
         deadline: "2026-09-14",
+        deadlineTime: null,
         status: "not-started",
         priority: "important",
         context:
@@ -268,6 +280,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Registration",
         ownerId: "member-petar-zoren",
         deadline: "2026-09-15",
+        deadlineTime: null,
         status: "not-started",
         priority: "normal",
         context:
@@ -282,6 +295,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Communication",
         ownerId: "member-petar-zoren",
         deadline: "2026-09-16",
+        deadlineTime: null,
         status: "not-started",
         priority: "normal",
         context:
@@ -296,6 +310,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Venue",
         ownerId: "member-lina-moreva",
         deadline: "2026-09-16",
+        deadlineTime: null,
         status: "not-started",
         priority: "important",
         context:
@@ -310,6 +325,7 @@ export function createDemoWorkspace(): WorkspaceState {
         category: "Contingency",
         ownerId: "member-mira-velin",
         deadline: "2026-09-17",
+        deadlineTime: null,
         status: "not-started",
         priority: "critical",
         context:

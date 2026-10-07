@@ -62,6 +62,7 @@ async function project(
      LEFT JOIN LATERAL (
        SELECT jsonb_agg(jsonb_build_object('id', task.id, 'title', task.title, 'status', task.status,
          'deadline', to_char(task.deadline, 'YYYY-MM-DD'),
+         'deadlineTime', to_char(task.deadline_time, 'HH24:MI'),
          'assignedMember', CASE WHEN assignee.id IS NULL THEN NULL ELSE jsonb_build_object('id', assignee.id, 'name', identity.name, 'role', assignee.operational_role) END)
          ORDER BY task.deadline, task.id) AS tasks
        FROM public.change_task AS link

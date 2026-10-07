@@ -37,7 +37,7 @@ export function TeamPage({
   onNavigate,
   invitationEvent,
 }: TeamPageProps) {
-  const { t, formatDate, formatNumber } = useI18n();
+  const { t, formatTaskDeadline, formatNumber } = useI18n();
   const roster = useMemo(() => getTeamRoster(state, now), [state, now]);
   const [context, setContext] = useState(() => {
     const saved = readTeamContext(window.history.state, state.currentEventId);
@@ -318,7 +318,10 @@ export function TeamPage({
                     {summary.attention.length === 0 && summary.upcoming[0] && (
                       <span className="team-roster__deadline">
                         {t("team.workspace.nextDeadline", {
-                          date: formatDate(summary.upcoming[0].deadline),
+                          date: formatTaskDeadline(
+                            summary.upcoming[0].deadline,
+                            summary.upcoming[0].deadlineTime,
+                          ),
                         })}
                       </span>
                     )}

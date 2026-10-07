@@ -1,4 +1,5 @@
 import { getCalendarDayNumber } from "../domain/taskTiming.ts";
+import { isTaskDeadlineTime } from "../domain/taskDeadlineTime.ts";
 import type { TaskStatus } from "../domain/types.ts";
 import type { TaskAssignee } from "./RemoteWorkspaceService.ts";
 
@@ -8,6 +9,7 @@ export interface ChangeImpactTask {
   status: TaskStatus;
   assignedMember: TaskAssignee | null;
   deadline: string | null;
+  deadlineTime: string | null;
 }
 export interface RemoteChange {
   id: string;
@@ -128,6 +130,11 @@ export function readRemoteChange(
     (value): ChangeImpactTask => {
       const task = record(value);
       if (
+        task.deadlineTime !== null &&
+        (!isTaskDeadlineTime(task.deadlineTime) || task.deadline === null)
+      )
+        invalid();
+      if (
         !["not-started", "in-progress", "blocked", "completed"].includes(
           task.status as string,
         )
@@ -140,6 +147,7 @@ export function readRemoteChange(
         assignedMember:
           task.assignedMember === null ? null : member(task.assignedMember),
         deadline: task.deadline === null ? null : date(task.deadline),
+        deadlineTime: task.deadlineTime as string | null,
       };
     },
   );

@@ -52,10 +52,14 @@ export function TaskAuthoringForm({
           category: "",
           context: "",
           deadline: "",
+          deadlineTime: null,
           priority: "normal",
         },
   );
   const [version, setVersion] = useState(task?.version ?? null);
+  const [timeEnabled, setTimeEnabled] = useState(
+    task?.deadlineTime !== null && task?.deadlineTime !== undefined,
+  );
   const [assignee, setAssignee] = useState("");
   const [errors, setErrors] = useState<TaskFieldErrors>({});
   const [message, setMessage] = useState<MessageKey | null>(null);
@@ -86,6 +90,7 @@ export function TaskAuthoringForm({
     const latest = await onReload(signal);
     signal.throwIfAborted();
     setFields(authoredFields(latest));
+    setTimeEnabled(latest.deadlineTime !== null);
     setVersion(latest.version);
     setErrors({});
     setNeedsReload(false);
@@ -169,13 +174,15 @@ export function TaskAuthoringForm({
     void run(false);
   }
   const errorKey = (field: keyof TaskFieldErrors): MessageKey =>
-    field === "deadline"
-      ? "tasks.authoring.dateError"
-      : field === "assignedMemberId"
-        ? "tasks.authoring.assigneeError"
-        : field === "priority"
-          ? "tasks.authoring.priorityError"
-          : "tasks.authoring.textError";
+    field === "deadlineTime"
+      ? "tasks.authoring.timeError"
+      : field === "deadline"
+        ? "tasks.authoring.dateError"
+        : field === "assignedMemberId"
+          ? "tasks.authoring.assigneeError"
+          : field === "priority"
+            ? "tasks.authoring.priorityError"
+            : "tasks.authoring.textError";
   return (
     <form
       ref={form}
@@ -256,9 +263,69 @@ export function TaskAuthoringForm({
                 </span>
               )}
               {field === "deadline" && (
-                <small id="task-author-date-help">
-                  {t("tasks.authoring.dateHelp")}
-                </small>
+                <>
+                  <small id="task-author-date-help">
+                    {t("tasks.authoring.dateHelp")}
+                  </small>
+                  <button
+                    className="text-button task-authoring-time-toggle"
+                    type="button"
+                    aria-expanded={timeEnabled}
+                    aria-controls="task-author-time-control"
+                    onClick={() => {
+                      change("deadlineTime", null);
+                      setTimeEnabled(!timeEnabled);
+                      if (!timeEnabled)
+                        requestAnimationFrame(() =>
+                          form.current
+                            ?.querySelector<HTMLInputElement>(
+                              "#task-author-deadlineTime",
+                            )
+                            ?.focus(),
+                        );
+                    }}
+                  >
+                    {t(
+                      timeEnabled
+                        ? "tasks.authoring.removeTime"
+                        : "tasks.authoring.addTime",
+                    )}
+                  </button>
+                  {timeEnabled && (
+                    <div
+                      className="task-authoring-time"
+                      id="task-author-time-control"
+                    >
+                      <label htmlFor="task-author-deadlineTime">
+                        {t("tasks.authoring.time")}
+                      </label>
+                      <input
+                        id="task-author-deadlineTime"
+                        type="text"
+                        inputMode="text"
+                        autoComplete="off"
+                        placeholder="HH:mm"
+                        value={fields.deadlineTime ?? ""}
+                        aria-invalid={Boolean(errors.deadlineTime)}
+                        aria-describedby={`task-author-time-help${errors.deadlineTime ? " task-author-deadlineTime-error" : ""}`}
+                        onChange={(event) =>
+                          change("deadlineTime", event.target.value || null)
+                        }
+                      />
+                      <small id="task-author-time-help">
+                        {t("tasks.authoring.timeHelp")}
+                      </small>
+                      {errors.deadlineTime && (
+                        <span
+                          className="task-authoring-error"
+                          id="task-author-deadlineTime-error"
+                        >
+                          {t(errorKey("deadlineTime"))}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ),

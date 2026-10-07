@@ -37,6 +37,7 @@ function task(values: Partial<Task> & Pick<Task, "id" | "deadline">): Task {
     title: `Task ${values.id}`,
     category: "Test",
     ownerId: "member-test",
+    deadlineTime: null,
     status: "not-started",
     priority: "normal",
     context: "Test context",

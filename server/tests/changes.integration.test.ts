@@ -73,6 +73,7 @@ test(
         category: "",
         context: "",
         deadline: "2026-10-06",
+        deadlineTime: null,
         priority: "normal",
         assignedMemberId: f.memberId,
       });
@@ -335,6 +336,7 @@ test(
           task = await tasks.updateDetails(organizer, f.eventId, task.id, {
             expectedVersion: task.version,
             deadline: "2026-11-03",
+            deadlineTime: null,
           });
           task = await tasks.mutate(member, f.eventId, task.id, "status", {
             expectedVersion: task.version,

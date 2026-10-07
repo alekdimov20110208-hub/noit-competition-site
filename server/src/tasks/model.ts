@@ -16,6 +16,7 @@ export interface TaskDto {
   blockedBy: string;
   blocks: string;
   deadline: string;
+  deadlineTime: string | null;
   status: TaskStatus;
   priority: "normal" | "important" | "critical";
   assignedMemberId: string | null;
@@ -34,6 +35,7 @@ export interface TaskRow {
   blocked_by?: string;
   blocks?: string;
   deadline: string;
+  deadlineTime: string | null;
   status: TaskStatus;
   priority: TaskDto["priority"];
   assigned_member_id: string | null;
@@ -46,6 +48,7 @@ export interface TaskRow {
 // DATE is formatted in SQL: pg's DATE-to-Date parsing and session DateStyle
 // never alter a calendar date or its canonical YYYY-MM-DD representation.
 export const taskColumns = `id, title, category, context, blocked_by, blocks, to_char(deadline, 'YYYY-MM-DD') AS deadline,
+  to_char(deadline_time, 'HH24:MI') AS "deadlineTime",
   status, priority, assigned_member_id, accepted_by_member_id, accepted_at, version, updated_at`;
 
 export function taskDto(row: TaskRow): TaskDto {
@@ -57,6 +60,7 @@ export function taskDto(row: TaskRow): TaskDto {
     blockedBy: row.blocked_by ?? "",
     blocks: row.blocks ?? "",
     deadline: row.deadline,
+    deadlineTime: row.deadlineTime,
     status: row.status,
     priority: row.priority,
     assignedMemberId: row.assigned_member_id,
@@ -90,6 +94,7 @@ export interface TaskFields {
   category: string;
   context: string;
   deadline: string;
+  deadlineTime: string | null;
   priority: TaskDto["priority"];
 }
 export type TaskFieldErrors = Partial<
@@ -113,6 +118,7 @@ export function parseTaskAuthoring(
     "category",
     "context",
     "deadline",
+    "deadlineTime",
     "priority",
     editing ? "expectedVersion" : "assignedMemberId",
   ];
@@ -143,6 +149,17 @@ export function parseTaskAuthoring(
   if (!editing || Object.hasOwn(body, "deadline")) {
     if (!validEventDate(body.deadline)) fields.deadline = "INVALID_DATE";
     else result.deadline = body.deadline;
+  }
+  if (!editing || Object.hasOwn(body, "deadlineTime")) {
+    const value = Object.hasOwn(body, "deadlineTime")
+      ? body.deadlineTime
+      : null;
+    if (
+      value !== null &&
+      (typeof value !== "string" || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value))
+    )
+      fields.deadlineTime = "INVALID_TIME";
+    else result.deadlineTime = value;
   }
   if (!editing || Object.hasOwn(body, "priority")) {
     if (!["normal", "important", "critical"].includes(body.priority as string))

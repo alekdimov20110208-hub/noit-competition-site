@@ -1,4 +1,5 @@
 import { getCalendarDayNumber } from "../domain/taskTiming.ts";
+import { isTaskDeadlineTime } from "../domain/taskDeadlineTime.ts";
 import type { Event, Task, TaskStatus, TeamMember } from "../domain/types.ts";
 import type { TaskFields, TaskFieldErrors } from "./taskAuthoring.ts";
 import { InvitationService } from "./invitations.ts";
@@ -168,6 +169,8 @@ export function mapTaskRead(event: TaskEvent, value: unknown): TasksWorkspace {
 
 export function mapRemoteTask(eventId: string, value: unknown): RemoteTask {
   const row = record(value);
+  if (row.deadlineTime !== null && !isTaskDeadlineTime(row.deadlineTime))
+    invalid();
   const status = row.status,
     priority = row.priority;
   if (
@@ -203,6 +206,7 @@ export function mapRemoteTask(eventId: string, value: unknown): RemoteTask {
     category: string(row.category),
     context: string(row.context),
     deadline: date(row.deadline),
+    deadlineTime: row.deadlineTime as string | null,
     status,
     priority,
     ownerId: assignedMemberId ?? "",
@@ -517,6 +521,7 @@ export class RemoteWorkspaceService
       category: fields.category,
       context: fields.context,
       deadline: fields.deadline,
+      deadlineTime: fields.deadlineTime,
       priority: fields.priority,
       ...(taskId && "expectedVersion" in command
         ? { expectedVersion: command.expectedVersion }
@@ -560,6 +565,7 @@ export class RemoteWorkspaceService
             category: "INVALID_TEXT",
             context: "INVALID_TEXT",
             deadline: "INVALID_DATE",
+            deadlineTime: "INVALID_TIME",
             priority: "INVALID_PRIORITY",
             assignedMemberId: "INVALID_ASSIGNEE",
             expectedVersion: "INVALID_VERSION",

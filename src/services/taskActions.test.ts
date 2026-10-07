@@ -33,6 +33,7 @@ const dto = {
   category: "Venue",
   context: "",
   deadline: "2026-10-04",
+  deadlineTime: null,
   status: "not-started",
   priority: "normal",
   assignedMemberId: member.id,

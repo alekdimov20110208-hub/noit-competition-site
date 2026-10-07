@@ -102,6 +102,7 @@ test("current assignees deduplicate and optional deadlines remain date-only", ()
         status: "not-started",
         assignedMember: person,
         deadline: "2026-10-05",
+        deadlineTime: null,
       },
       {
         id: randomUUID(),
@@ -109,6 +110,7 @@ test("current assignees deduplicate and optional deadlines remain date-only", ()
         status: "completed",
         assignedMember: person,
         deadline: "2026-10-05",
+        deadlineTime: null,
       },
       {
         id: randomUUID(),
@@ -116,6 +118,7 @@ test("current assignees deduplicate and optional deadlines remain date-only", ()
         status: "blocked",
         assignedMember: null,
         deadline: null,
+        deadlineTime: null,
       },
     ]),
     { taskCount: 3, people: [person], deadlines: ["2026-10-05"] },

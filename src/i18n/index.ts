@@ -1,5 +1,6 @@
 export {
   formatDate,
+  formatTaskDeadline,
   formatDateRange,
   formatDateTime,
   formatNumber,

@@ -34,7 +34,7 @@ export function MemberDetail({
   onEngage,
 }: Props) {
   const i18n = useI18n();
-  const { t, formatDate, formatNumber } = i18n;
+  const { t, formatTaskDeadline, formatNumber } = i18n;
   const limits = getPreviewLimits(
     summary.attention.length,
     summary.upcoming.length,
@@ -60,7 +60,9 @@ export function MemberDetail({
           {timing === "invalid" ? (
             <span>{t("team.workspace.invalid")}</span>
           ) : (
-            <time dateTime={task.deadline}>{formatDate(task.deadline)}</time>
+            <time dateTime={task.deadline}>
+              {formatTaskDeadline(task.deadline, task.deadlineTime)}
+            </time>
           )}
           {section === "upcoming" &&
             (timing === "today" || timing === "near" || timing === "later") && (

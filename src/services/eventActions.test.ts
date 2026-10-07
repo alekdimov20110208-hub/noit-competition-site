@@ -65,6 +65,7 @@ const scopedWorkspace: TasksWorkspace = {
         category: "Venue",
         context: "Preserved through Event edit",
         deadline: next.startDate,
+        deadlineTime: null,
         status: "not-started",
         priority: "normal",
         assignedMemberId: null,

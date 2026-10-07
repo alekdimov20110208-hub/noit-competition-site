@@ -126,6 +126,7 @@ test(
           "0003_event_invitations.sql",
           "0004_event_changes.sql",
           "0005_change_response.sql",
+          "0006_task_deadline_time.sql",
         ],
       );
       client.release();
@@ -137,7 +138,7 @@ test(
           for (let index = 0; index < 2; index += 1) {
             assert.deepEqual(await runMigrations(pool, migrationDirectory), {
               applied: 0,
-              alreadyApplied: 5,
+              alreadyApplied: 6,
             });
           }
         },
@@ -488,6 +489,7 @@ test(
         async () => {
           const { rows } = await database.query(
             `SELECT task.deadline::TEXT AS deadline, pg_typeof(task.deadline)::TEXT AS type,
+                  to_char(task.deadline_time, 'HH24:MI') AS "deadlineTime",
                   event.start_date::TEXT AS start_date, event.end_date::TEXT AS end_date
            FROM public.task AS task JOIN public.event AS event ON event.id = task.event_id
            WHERE task.event_id = $1 AND task.id = $2`,
@@ -495,6 +497,7 @@ test(
           );
           assert.deepEqual(rows[0], {
             deadline: "2026-10-04",
+            deadlineTime: null,
             type: "date",
             start_date: "2026-10-03",
             end_date: "2026-10-04",

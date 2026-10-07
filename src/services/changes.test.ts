@@ -44,6 +44,7 @@ const value: RemoteChange = {
       title: "Airport pickup",
       status: "blocked",
       deadline: "2026-11-03",
+      deadlineTime: null,
       assignedMember: person,
     },
   ],
@@ -52,6 +53,37 @@ const value: RemoteChange = {
 const signal = () => new AbortController().signal;
 const failure = (code: string) => (error: unknown) =>
   error instanceof ChangeFailure && error.code === code;
+test("live affected Task time is canonical current data; invalid time/date pairs fail closed", () => {
+  for (const deadlineTime of [null, "16:00", "18:30", "23:59"]) {
+    const current = {
+      ...value,
+      affectedTasks: value.affectedTasks.map((task) => ({
+        ...task,
+        deadlineTime,
+      })),
+    };
+    const change = readRemoteChange(current, eventId);
+    assert.equal(change.affectedTasks[0]!.deadlineTime, deadlineTime);
+    assert.equal(change.version, value.version);
+    assert.deepEqual(change.impact.deadlines, value.impact.deadlines);
+  }
+  for (const patch of [
+    { deadlineTime: "25:00" },
+    { deadlineTime: "08:00:00" },
+    { deadline: null, deadlineTime: "08:00" },
+  ])
+    assert.throws(
+      () =>
+        readRemoteChange(
+          {
+            ...value,
+            affectedTasks: [{ ...value.affectedTasks[0], ...patch }],
+          },
+          eventId,
+        ),
+      failure("invalid"),
+    );
+});
 test("Changes navigation and durable detail preserve scoped login return; Event switch drops former Change ID", () => {
   const href = changeHref(eventId, changeId);
   const location = parseAppLocation(href, "?token=discard");
@@ -139,6 +171,7 @@ test("server refetch reflects current people/date/status; writes whitelist field
         ...current.affectedTasks[0]!,
         assignedMember: replacement,
         deadline: "2026-12-01",
+        deadlineTime: null,
         status: "completed",
       },
     ],

@@ -1,5 +1,12 @@
 # BudoGraph
 
+Tasks support an optional deadline time in the Event's timezone, for example
+**10 Nov 2026 · 16:00**. The required calendar date, acceptance, urgency and ordering
+contracts are preserved. This adds no reminder or notification scheduling. Apply
+additive migration `0006_task_deadline_time.sql` before running the updated backend.
+See [optional due-time contract](docs/BUDOGRAPH_TASK_DUE_TIME.md) and
+[user guide](docs/USER_GUIDE.md).
+
 P4A adds server-only Resend delivery, Better Auth email verification and recovery.
 Public signup remains closed; production invitation bearer links are hidden.
 Failed sends remain pending with Organizer resend. No dependency or migration is

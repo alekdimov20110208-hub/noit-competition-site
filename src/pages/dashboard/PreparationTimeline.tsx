@@ -48,12 +48,23 @@ export function PreparationTimeline({
   onNavigate,
   onOpenTask,
 }: PreparationTimelineProps) {
-  const { t, formatDate, formatShortDate, plural } = useI18n();
+  const { t, formatDate, formatTaskDeadline, formatShortDate, plural } =
+    useI18n();
 
   function renderEntry(entry: PreparationTimelineEntry) {
     const date = (
-      <time dateTime={entry.date} title={formatDate(entry.date)}>
+      <time
+        dateTime={entry.date}
+        title={
+          entry.kind === "task"
+            ? formatTaskDeadline(entry.date, entry.task.deadlineTime)
+            : formatDate(entry.date)
+        }
+      >
         {formatShortDate(entry.date)}
+        {entry.kind === "task" && entry.task.deadlineTime !== null
+          ? ` · ${entry.task.deadlineTime}`
+          : ""}
       </time>
     );
 

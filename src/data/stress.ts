@@ -98,6 +98,7 @@ function createAdditionalStressTasks(
           : "Измислен резервен сценарий",
       ownerId,
       deadline: formatStressDate(2026, 7, 1 + index * 2),
+      deadlineTime: null,
       status,
       priority,
       context:

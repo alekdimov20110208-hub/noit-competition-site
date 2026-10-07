@@ -1,5 +1,51 @@
 # BudoGraph Test Evidence
 
+## Optional Task due time — 2026-10-08
+
+Baseline: `bfc405aafb955ddb9c50bf35bb40a9bb4cc3f9eb` (`fix(app): refine operational
+visual hierarchy`). This extends required Event-local Task DATE with optional
+minute-level wall-clock time. Event has a validated canonical timezone. Urgency,
+attention, ordering, assignment/acceptance and Change authoring remain unchanged.
+
+| Verification                        | Executed result                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migration                           | PASS: immutable additive 0006 applied once; second run applied 0, recognized 6. All 100 pre-existing Task rows retained dates, versions and update metadata, with NULL times.                                                                                                                                                                                              |
+| Frontend tests                      | PASS: 250 tests, 0 failed/skipped. Includes strict boundaries, malformed values, API mapping, BG/EN formatting, date-based urgency/order, current live impact and legacy date-only demo normalization.                                                                                                                                                                     |
+| Backend tests                       | PASS: 126 non-integration tests; 12 opt-in integration parents skipped by default, exercised by the separate database run.                                                                                                                                                                                                                                                 |
+| PostgreSQL integration              | PASS: 96 checks, 0 failed/skipped with RUN_DATABASE_INTEGRATION=1. Includes migration fixture/actual types, NULL/time persistence, add/change/remove, atomic date+time, conflicts, isolation, authority, acceptance and unchanged live Change version/history.                                                                                                             |
+| Authenticated due-time browser flow | PASS: UI date-only create → 16:00 → 18:30 → remove → 23:59; refresh persistence; midnight create; clearing saves NULL; accepted responsibility preserved; one version/history row per edit; current no-op; real two-tab stale 409; Change current time without Change writes; malformed text/API rejection; Member denial; network failure; field error/focus association. |
+| Responsive feature matrix           | PASS: 20 combinations of 1440/1080/768/390/320 × BG/EN × Light/Dark, covering create/edit/removal, Task list/details, date-only Tasks, Dashboard and Change impact. No horizontal overflow or application errors.                                                                                                                                                          |
+| Visual Refinement V1                | PASS: 32 exact baseline/current PNG pairs (Tasks, Dashboard, Changes, Team at 1440/320 × BG/EN × Light/Dark); 32 pixel-identical, 0 differences. Global styles are byte-unchanged. Timed metadata and forms inspected visually at desktop and 320px.                                                                                                                       |
+| Auth experience                     | PASS: existing 222 presentation cases and 20 interaction checks; 0 application/console errors.                                                                                                                                                                                                                                                                             |
+| P4A browser behavior                | PASS: existing 180 mocked presentation/account-safety cases. Real Better Auth/PostgreSQL fake-mail behavior passed within the database suite. External Resend/domain/DNS gate NOT RUN; P4A remains PARTIAL.                                                                                                                                                                |
+| Locked browser regression suites    | PASS: all nine existing authenticated suites: Auth, Task reads, responsibility/actions, workspace, Events, Task authoring, invitations, Changes and Change Dashboard. Includes 60 Change presentation and 120 Dashboard role/surface cases, four long-name stress fixtures and keyboard checks.                                                                            |
+| Standard quality                    | format, format:check, lint, typecheck, test, build, server:typecheck, server:test, server:build and server:test:integration have passed. git diff --check also passes; staged secret audit is recorded separately below.                                                                                                                                                   |
+| Secret/dependency audit             | Unstaged and staged audits PASS: source/frontend bundle exclude configured private values and bearer URLs; no new dependency, historical migration edit, P4A implementation edit or global-style edit. Staged diff reviewed; shortcut, local configuration and temporary evidence excluded.                                                                                |
+
+Evidence lives in ignored `tmp/task-due-time-evidence`, `tmp/due-time-*.log`.
+Browser data is clearly synthetic and intentionally retained; credentials/cookies
+stay in memory. Early verifier attempts included a selector mismatch and a run
+interrupted by the development backend's restart during formatting; the full stable
+due-time run subsequently passed. An existing schema/read SQL test projection was
+extended to select the new field rather than weakening its assertions. The initially
+native time control displayed browser-locale AM/PM; visual review led to the final
+plain HH:mm input with direct malformed keyboard-entry coverage. Screenshots and
+temporary baseline sources are not committed. Two initial Dashboard regression
+attempts did not complete: one real GET /api/events HTTP 500, and one Changes-list
+timeout with the captured unavailable sign-in state during a development backend
+process restart. Fresh diagnostics passed 60 authenticated API reads and 20 direct
+PostgreSQL Event reads across both roles, with healthy readiness. The same backend
+and configuration were temporarily run without file watching; the entire unchanged
+Dashboard suite then passed all 120 matrix cases with read-only request diagnostics,
+and the dedicated due-time suite passed again. Development watch mode was restored
+after verification. The first isolated HTTP 500 was not reproduced and its underlying
+cause was not established. No assertion was relaxed to obtain the pass.
+No physical-device validation or
+formal accessibility certification is claimed. The existing Vite >500 kB chunk
+warning remains; builds succeed. Production migration/deployment and the separate
+P4A external gate are not claimed. 2025–2026 competition rules require later-year
+verification before participation.
+
 ## P4A production email and account safety — 2026-10-06
 
 Baseline `4b81543`. Complete mandatory sources read; 2025–2026 competition rules

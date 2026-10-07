@@ -4,6 +4,7 @@ import { createDemoWorkspace } from "../data/demo.ts";
 import { getDemoReferenceNow } from "../data/demoTime.ts";
 import { createStressWorkspace } from "../data/stress.ts";
 import type { Task, TeamMember } from "./types.ts";
+
 import {
   deserializeWorkspace,
   getAffectedTasks,
@@ -18,6 +19,17 @@ import {
   workspaceReducer,
 } from "./workspace.ts";
 
+test("legacy date-only demo snapshots retain their data and normalize missing optional time to null", () => {
+  const snapshot = createDemoWorkspace();
+  const legacy = JSON.parse(JSON.stringify(snapshot));
+  for (const task of legacy.tasks) delete task.deadlineTime;
+  legacy.tasks[0].title = "Legacy user edit retained";
+  const restored = deserializeWorkspace(JSON.stringify(legacy));
+  assert.equal(restored.tasks[0]!.title, "Legacy user edit retained");
+  assert.ok(restored.tasks.every((task) => task.deadlineTime === null));
+  assert.deepEqual(restored.events, snapshot.events);
+});
+
 function makeTask(overrides: Partial<Task> = {}): Task {
   return {
     id: "task-default",
@@ -26,6 +38,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     category: "Test",
     ownerId: "member-one",
     deadline: "2026-08-10",
+    deadlineTime: null,
     status: "not-started",
     priority: "normal",
     context: "Synthetic test fixture",
@@ -43,16 +56,19 @@ test("readiness and task counts reflect task status and injected time", () => {
       id: "task-complete",
       status: "completed",
       deadline: "2026-08-01",
+      deadlineTime: null,
     }),
     makeTask({
       id: "task-progress",
       status: "in-progress",
       deadline: "2026-08-03",
+      deadlineTime: null,
     }),
     makeTask({
       id: "task-blocked",
       status: "blocked",
       deadline: "2026-08-02",
+      deadlineTime: null,
     }),
     makeTask({ id: "task-not-started", deadline: "2026-08-10" }),
   ];
@@ -99,22 +115,26 @@ test("upcoming and attention selectors return bounded operational queues", () =>
     makeTask({
       id: "task-overdue",
       deadline: "2026-08-01",
+      deadlineTime: null,
       acknowledged: true,
     }),
     makeTask({
       id: "task-next",
       deadline: "2026-08-05",
+      deadlineTime: null,
       acknowledged: true,
     }),
     makeTask({
       id: "task-critical",
       deadline: "2026-08-06",
+      deadlineTime: null,
       priority: "critical",
       acknowledged: false,
     }),
     makeTask({
       id: "task-completed",
       deadline: "2026-08-05",
+      deadlineTime: null,
       status: "completed",
       priority: "critical",
       acknowledged: false,
@@ -155,6 +175,7 @@ test("team workload counts assigned, completed, active, and at-risk work", () =>
       ownerId: "member-two",
       status: "blocked",
       deadline: "2026-08-01",
+      deadlineTime: null,
     }),
   ];
 

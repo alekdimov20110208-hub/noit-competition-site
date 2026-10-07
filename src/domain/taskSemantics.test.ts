@@ -27,6 +27,28 @@ import {
 import { compareOperationalTasks } from "../pages/tasks/helpers.ts";
 import { createI18n } from "../i18n/createI18n.ts";
 
+test("due time alone does not change calendar urgency, attention or established ordering", () => {
+  const now = new Date(2026, 9, 4, 18, 30);
+  const dateOnly = task({ deadline: "2026-10-04", acknowledged: true });
+  for (const deadlineTime of ["00:00", "08:00", "23:59"]) {
+    const timed = { ...dateOnly, deadlineTime };
+    assert.equal(isTaskOverdue(timed, now), false);
+    assert.deepEqual(
+      getAttentionReasons(timed, now),
+      getAttentionReasons(dateOnly, now),
+    );
+    assert.equal(compareOperationalTasks(dateOnly, timed, now), 0);
+    assert.deepEqual(
+      getUpcomingTasks([dateOnly], now).map((t) => t.id),
+      getUpcomingTasks([timed], now).map((t) => t.id),
+    );
+    assert.equal(
+      buildPreparationTimeline([timed], [], now)[0]!.window,
+      "today",
+    );
+  }
+});
+
 function task(values: Partial<Task> = {}): Task {
   return {
     id: "test",
@@ -35,6 +57,7 @@ function task(values: Partial<Task> = {}): Task {
     category: "Test",
     ownerId: "owner",
     deadline: "2026-08-20",
+    deadlineTime: null,
     status: "not-started",
     priority: "normal",
     context: "Test",
@@ -62,6 +85,7 @@ test("attention eligibility is explicit, open-only, and independent of dependenc
         priority: "critical",
         acknowledged: false,
         deadline: "2026-08-11",
+        deadlineTime: null,
       },
       [],
     ],
@@ -93,6 +117,7 @@ test("attention classes share failure precedence, then deadline, reasons, accept
       id: "middle-blocked-overdue",
       status: "blocked",
       deadline: "2026-08-02",
+      deadlineTime: null,
     }),
     task({ id: "later-overdue", deadline: "2026-08-03" }),
     task({ id: "future-blocked", status: "blocked", deadline: "2026-09-01" }),
@@ -100,6 +125,7 @@ test("attention classes share failure precedence, then deadline, reasons, accept
       id: "unaccepted-later",
       acknowledged: false,
       deadline: "2026-08-20",
+      deadlineTime: null,
     }),
   ];
   const expected = [
@@ -126,6 +152,7 @@ test("attention classes share failure precedence, then deadline, reasons, accept
       status: "blocked",
       acknowledged: false,
       deadline: "2026-08-01",
+      deadlineTime: null,
     }),
     task({ id: "z-normal", deadline: "2026-08-01" }),
     task({ id: "a-normal", deadline: "2026-08-01" }),
@@ -199,6 +226,7 @@ test("all timing consumers agree at local calendar boundaries in positive and ne
           id: "blocker",
           status: "blocked",
           deadline: "2026-08-14",
+          deadlineTime: null,
         });
         assert.equal(
           Math.sign(compareOperationalTasks(subject, blocker, now)),
@@ -251,6 +279,7 @@ test("reason presentation retains every reason in EN and BG without inventing bl
     const subject = task({
       status: "blocked",
       deadline: "2026-08-11",
+      deadlineTime: null,
       acknowledged: false,
       blockedBy: "Dependency detail",
     });
@@ -266,6 +295,7 @@ test("reason presentation retains every reason in EN and BG without inventing bl
       task({
         priority: "critical",
         deadline: "2026-08-19",
+        deadlineTime: null,
         acknowledged: false,
       }),
       NOW,

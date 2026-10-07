@@ -29,9 +29,8 @@ export function ChangeImpact({
   onOpenTask: (taskId: string) => void;
   onRefresh: () => void;
 }) {
-  const { t, plural, formatDate, formatDateTime, formatRelativeDate } = useI18n(
-    event.timezone,
-  );
+  const { t, plural, formatTaskDeadline, formatDateTime, formatRelativeDate } =
+    useI18n(event.timezone);
   const [expanded, setExpanded] = useState(false);
   const preview = changes?.slice(0, CHANGE_PREVIEW_LIMIT) ?? [];
   const overflow = changes?.slice(CHANGE_PREVIEW_LIMIT) ?? [];
@@ -110,7 +109,10 @@ export function ChangeImpact({
                   <strong>{checkpoint.title}</strong>
                   <time dateTime={checkpoint.deadline!}>
                     {formatRelativeDate(checkpoint.deadline!, now)} ·{" "}
-                    {formatDate(checkpoint.deadline!)}
+                    {formatTaskDeadline(
+                      checkpoint.deadline!,
+                      checkpoint.deadlineTime,
+                    )}
                   </time>
                 </AppLink>
               )}

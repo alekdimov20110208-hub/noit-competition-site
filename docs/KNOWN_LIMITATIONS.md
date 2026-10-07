@@ -1,5 +1,14 @@
 # Known Limitations
 
+## Optional Task due time — 2026-10-08
+
+Task deadlines support optional minute-level Event-local wall-clock time. Events
+have a canonical timezone; no conversion to an instant is performed. Urgency,
+overdue/attention and ordering remain date-based, so an earlier time today does not
+make a Task overdue. There are no reminders, notifications, recurrence or calendar
+integrations. Physical-device behavior and formal accessibility certification have
+not been claimed. See [feature contract](BUDOGRAPH_TASK_DUE_TIME.md).
+
 ## P4A boundary — 2026-10-06
 
 Resend delivery, verification and recovery are implemented; actual inbox delivery

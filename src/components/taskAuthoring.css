@@ -1,6 +1,17 @@
 .task-authoring-form {
   min-width: 0;
 }
+.task-authoring-time-toggle {
+  justify-self: start;
+  min-height: 44px;
+  white-space: normal;
+  text-align: left;
+}
+.task-authoring-time {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
 .task-authoring-form h2 {
   margin: 0 0 24px;
   font-size: 1.4rem;
