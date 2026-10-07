@@ -18,7 +18,7 @@ export const TEAM_EN_MESSAGES = {
   "team.workspace.summaryNote":
     "Attention reasons may overlap. Open tasks include later work.",
   "team.workspace.acceptanceNote":
-    "Accepted is the responsibility state saved in this local prototype.",
+    "Acceptance is explicitly confirmed and saved for this event.",
   "team.workspace.overdueSignal": "Overdue: {count}",
   "team.workspace.blockedSignal": "Blocked: {count}",
   "team.workspace.notAcceptedSignal": "Not accepted: {count}",
@@ -71,7 +71,7 @@ export const TEAM_BG_MESSAGES = {
   "team.workspace.summaryNote":
     "Причините за внимание може да се припокриват. Незавършените задачи включват и по-късната работа.",
   "team.workspace.acceptanceNote":
-    "Приемането на отговорност е състоянието, записано в този локален прототип.",
+    "Приемането на отговорност се потвърждава изрично и се запазва за това събитие.",
   "team.workspace.overdueSignal": "Просрочени: {count}",
   "team.workspace.blockedSignal": "Блокирани: {count}",
   "team.workspace.notAcceptedSignal": "Неприети: {count}",

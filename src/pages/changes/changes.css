@@ -57,6 +57,10 @@
   font-size: 0.85rem;
   color: var(--ink-soft);
 }
+.page--changes .change-register__title + time {
+  display: block;
+  margin-top: 6px;
+}
 .page--changes .change-register__impact {
   margin: 0;
   display: grid;

@@ -4906,3 +4906,147 @@ src/services/taskReadState.ts
 src/services/taskReads.test.ts
 src/styles.css
 ```
+
+## BudoGraph Visual Refinement V1 - 2026-10-08
+
+Baseline and remote `main` confirmed:
+`1b1d24458321395af4195ea6bc763d3178aed342`
+(`feat(app): add production email and account recovery`). The user approved
+exactly five presentation/content fixes. Product changes are limited to
+`src/styles.css`, `src/pages/changes/changes.css` and
+`src/i18n/teamMessages.ts`; this evidence and AI_ASSISTANCE_LOG.md are the only
+documentation changes.
+
+### Presentation and accessibility evidence
+
+- **200/200 before and 200/200 final after cases**: ten screens at
+  1440/1080/768/390/320, BG/EN, Light/Dark. Screens cover fully quiet, partial and
+  populated Dashboard, Changes, Team, Tasks, Login, forgot-password, pending
+  verification and reset-password. Every case has zero horizontal overflow,
+  document panning and application errors. Long BG Task/Change/Event strings are
+  explicit transport fixtures, not backend edits.
+- Empty Dashboard Attention, Operational Changes and Team pressure retain the
+  existing section order, heading, meaning and status semantics. Their local
+  presentation is left aligned, naturally sized, without padding, dashed border,
+  decorative icon or colored wrapper. At 390px BG the three empty bodies change
+  from 270px each (810px total) to 67.6875/47.34375/67.6875px (182.71875px total).
+  Preparation Timeline and empty states outside these sections are unchanged.
+- Next action changes only from muted ink/weight 500 to primary ink/weight 600;
+  font size, row padding, ordering, metadata and attention semantics are retained.
+- Context-free Change timestamps have their own block with 6px top spacing.
+  All **20/20 context-bearing row captures are pixel-identical** to baseline.
+- Dark mobile active text is `--accent-dark` (#e18298) on `--accent-soft`
+  (#3a202a): **5.526943246:1**, previously 4.426702661:1. All measured mobile
+  active states meet 4.5:1. Light nav, inactive nav and nav backgrounds are
+  unchanged. No palette or navigation architecture change is made.
+- Team EN copy: "Acceptance is explicitly confirmed and saved for this event."
+  BG: "Приемането на отговорност се потвърждава изрично и се запазва за това
+  събитие." Both languages wrap cleanly at all widths, with no offline/realtime
+  claim or technical implementation language.
+- **100/100 locked content captures are pixel-identical**: 20 each Event
+  overview, Preparation Timeline, populated Operational Changes, populated Team
+  pressure and Tasks. Only the approved active-nav text color is temporarily
+  frozen to baseline in these component captures because fixed nav can overlap
+  them; actual full-page captures and contrast measurements are unmodified.
+  **80/80 full Auth/verification/recovery captures are pixel-identical** without
+  normalization. Main heading text and link destinations match in all 200 cases.
+- **20/20 keyboard cases** at all five widths, BG/EN and Light/Dark: native
+  Dashboard disclosures and Attention disclosure toggle with Enter/Space,
+  summaries retain the existing 3px solid focus ring, and quiet statuses retain
+  meaningful heading/description text without icons. No formal WCAG
+  certification is claimed; semantics and content do not rely only on color.
+
+Temporary evidence is outside Git at
+`C:/Users/Lenovo/AppData/Local/Temp/budograph-visual-refinement-v1/`.
+`VISUAL_COMPARISONS.md` links the representative quiet desktop/mobile Light/Dark,
+partial/populated Dashboard, context/no-context Change and BG/EN Team images.
+`before/report.json`, `after/report.json`, `comparison-report.json` and
+`keyboard-report.json` record raw measurements. No generated screenshot or log
+is committed.
+
+### Executed checks
+
+- `pnpm.cmd format`, `format:check`, `lint`, `typecheck`, `test`, `build`: PASS;
+  **245 frontend tests passed**, none failed or skipped. The final CSS timestamp
+  scope correction was formatted and rebuilt. Build retains the existing Vite
+  bundle-size warning; no bundle restructuring is introduced.
+- `pnpm.cmd server:typecheck`, `server:test`, `server:build`: PASS. Backend suite:
+  **124 passing, 11 opt-in PostgreSQL suites skipped, 135 total**, zero failures.
+  Skipped integration suites are not reported as passes. Backend source,
+  database schema and migration files are unchanged.
+- All six requested/relevant existing browser suites completed with exit code 0.
+  Live suite results below are separate from the frozen visual fixtures.
+
+`test:browser:change-dashboard`: PASS, zero application/console errors.
+Its real backend/PostgreSQL workflow checks canonical Event Changes,
+updatedAt ordering, durable links, affected Task count and response owner.
+Organizer unowned attention, owner/no-Decision, owner/Decision/no-Response,
+one item maximum per Change, exclusion of other owners and missing-Plan-B-only,
+read-only Member owners and unchanged Task attention are verified. Real
+Event switching/late reads and labeled safe failures also pass. Coverage includes
+120 role/surface/layout cases, 24 text-contrast cases, four explicitly labeled
+long-name fixtures, keyboard/focus navigation and causal copy checks.
+
+`test:browser:changes`: PASS, zero application/console errors. Real Organizer
+create/edit, Task selection/impact, Decision/Response/Plan B, refresh/provenance,
+whitespace validation, unchanged Task semantics, two-tab optimistic conflict,
+draft retention/explicit reload, Member denial and newly invited Member access
+are covered. Labeled transport failures pass without demo fallback. All 60 real
+list/detail/form BG/EN Light/Dark cases at the five requested widths have no
+overflow/panning and retain 44px targets; four explicitly mocked long-BG mobile
+detail cases pass.
+
+`test:browser:workspace`: PASS, 11 checks and eight real responsive captures,
+zero application errors and zero Event/Task business mutation requests.
+Dashboard counts/focus/pressure and Team identities/roles/assignment/acceptance
+summaries match real API/SQL. Organizer and independent Member sessions preserve
+authorized state, canonical refresh, task-link focus/scroll/history and shared
+reads; poisoned localStorage is unused. Labeled loading/empty/no-Event/500/403
+states, canonical Changes links, truthful Templates empty state and actual
+Dashboard/Team 401 recovery also pass.
+
+`test:browser:tasks`: PASS, 13 checks/five real layout cases, zero application
+errors and zero task mutation requests. Real DTO/rendered content matches
+read-only PostgreSQL; independent roles, refresh, canonical drawer/deep links,
+four-cell register semantics, safe injected failures/empty states, actual
+expired-session recovery, HttpOnly authentication and logout are covered.
+
+`test:browser:auth`: PASS, 15 checks/20 Login layout cases, zero application and
+console errors. Real Organizer/Member login, refresh, logout, invalidated-session
+recheck, intended-route behavior, generic focused errors, duplicate-submit
+prevention, HttpOnly cookies, absence of browser-stored tokens, closed public
+signup, rejection of external returnTo, visible keyboard focus and mobile account
+menu are verified. Injected server/malformed-identity failures are labeled.
+
+`test:browser:account-safety`: PASS, **180 mocked HTTP presentation cases** across
+five widths, BG/EN and Light/Dark/System, with zero page errors. Recovery request,
+pending/verified/invalid verification, valid/invalid reset, password mismatch,
+generic feedback, rate-limit feedback, focus transitions, 44px targets and absent
+stored tokens are covered. No real verification/recovery email was sent or
+production Resend delivery inferred. P4A behavior remains unchanged; the human
+domain/DNS/Resend gate is still outstanding.
+
+Existing browser reports remain ignored at
+`tmp/p3c-evidence/browser/report.json`, `tmp/p3b-evidence/browser/report.json`,
+`tmp/p1d3-evidence/browser/report.json`, `tmp/p1d2-evidence/browser/report.json`,
+`tmp/p1d-evidence/browser/report.json` and `tmp/p4a-evidence/browser/report.json`.
+Their generated screenshots/logs are not staged. Staging is restricted to the
+three intended product files and these two mandatory documentation files; final
+staged safety and commit/push/sync results are supplied in the completion report.
+
+Initial visual comparison revealed an unnecessary shift in rows with context;
+the timestamp block/spacing was narrowed to the title's direct time sibling and
+the complete after matrix was recaptured. Pixel comparisons initially included
+the intended fixed active-nav recoloring; explicit nav-color normalization in
+locked content captures isolates page content, without changing actual full-page
+evidence. A temporary keyboard harness initially checked a generic details class
+rather than its owning section; corrected harness passes all 20 cases. The first
+temporary secret-scan attempt stopped on an encoding-name typo before scanning;
+the corrected private scan completed. These intermediate harness runs are not
+counted as passes.
+
+No Operational Changes readout redesign, Decision/Response differentiation,
+larger preference controls, extra spacing/typography, animation, other empty
+states, sidebar, Tasks or Auth refinement is implemented. P4A domain/DNS/Resend
+human delivery verification remains outstanding. Supplied NOIT 2025-2026 rules
+require actual-year verification. The unrelated shortcut is untouched.

@@ -1109,3 +1109,38 @@ The shared `en-GB`/`bg-BG` formatting intentionally differs for the same calenda
 date. No date, behavior, layout, backend, database, auth, dependency or license
 change was made. The unrelated shortcut stays untouched. No subagent was used.
 P2C is not started; supplied 2025-2026 rules require actual-year verification.
+
+## BudoGraph Visual Refinement V1 - 2026-10-08
+
+The user explicitly approved five bounded refinements after the Taste audit,
+starting at `1b1d24458321395af4195ea6bc763d3178aed342`:
+compact empty Dashboard Attention/Operational Changes/Team pressure sections;
+stronger next-action typography; timestamp separation only on context-free
+Change rows; Dark mobile active-nav contrast; accurate BG/EN Team acceptance
+copy. Assistance changes only the shared stylesheet, Changes stylesheet and
+Team translation catalog, plus the mandatory assistance/evidence documentation.
+
+The three Dashboard empty presentations retain semantic headings, explanatory
+text and `role="status"`; their decorative icons and dashed wrappers are removed
+locally. The shared empty-state component and other empty states are unchanged.
+Action typography uses existing primary ink and weight 600 at the existing size.
+The timestamp sibling rule uses an existing 6px spacing value; rows with context
+retain their previous presentation. Active Dark mobile nav uses the existing
+`--accent-dark` token: measured contrast is 5.526943246:1.
+
+Assistance includes fixed-clock read-only visual fixtures, 200 before and 200
+final after cases, representative comparison images, pixel comparison of locked
+content, and 20 keyboard/focus/disclosure cases. Temporary content screenshots
+freeze only the approved nav text recoloring to baseline for pixel comparison;
+full screenshots and measurements show the actual final navigation. Real
+backend/browser regressions are distinguished from transport fixtures in
+TEST_EVIDENCE.md. Synthetic records created by existing browser verifiers remain
+in the development database; no destructive cleanup is performed.
+
+No extra Taste recommendation, Impeccable phase, new design phase, dependency,
+schema, domain rule, API, permission, auth or P4A email change is implemented.
+P4A remains partial because the real domain/DNS/Resend human gate is outstanding.
+No real email delivery, human acceptance, formal accessibility certification,
+survey or user-feedback result is claimed. The author must review and understand
+the generated changes. No subagent was used. The supplied NOIT rules apply to
+2025-2026 and require verification for the actual competition year.

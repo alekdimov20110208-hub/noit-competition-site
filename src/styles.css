@@ -1021,9 +1021,9 @@ h3 {
 }
 
 .focus-item__action {
-  color: var(--ink-soft);
+  color: var(--ink);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .focus-item__body strong {
@@ -2018,6 +2018,33 @@ h3 {
   color: var(--ink-soft);
   font-size: 0.82rem;
   line-height: 1.55;
+}
+
+.page--dashboard
+  :is(.operational-focus, .change-impact, .team-pressure)
+  > .empty-state {
+  min-height: 0;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.page--dashboard
+  :is(.operational-focus, .change-impact, .team-pressure)
+  > .empty-state
+  > .empty-state__icon {
+  display: none;
+}
+
+.page--dashboard
+  :is(.operational-focus, .change-impact, .team-pressure)
+  > .empty-state
+  p {
+  margin-bottom: 0;
 }
 
 /* Drawer */
@@ -3125,6 +3152,10 @@ h3 {
   .mobile-nav__link[aria-current="page"] {
     color: var(--accent);
     background: var(--accent-soft);
+  }
+
+  :root[data-theme="dark"] .mobile-nav__link[aria-current="page"] {
+    color: var(--accent-dark);
   }
 
   .app-main {
