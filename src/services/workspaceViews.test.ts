@@ -45,6 +45,7 @@ const dto = (n: number, assignedMemberId = active.id) => ({
   context: "",
   deadline: "2026-10-04",
   deadlineTime: null,
+  reminderOffsets: [],
   status: "not-started",
   priority: "critical",
   assignedMemberId,

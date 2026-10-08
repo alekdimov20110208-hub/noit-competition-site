@@ -38,6 +38,7 @@ const fields = {
   context: "Details",
   deadline: "2026-11-01",
   deadlineTime: null,
+  reminderOffsets: [],
   priority: "important" as const,
 };
 const dto = {

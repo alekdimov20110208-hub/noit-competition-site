@@ -7,8 +7,10 @@ configured development database is migrated and verified; production application
 is a separate deployment action. Date-only existing Tasks remain valid. Demonstrate
 Add time → change → remove and linked Change current impact using controlled
 accounts. The existing offline/backup plan remains; a failed server save must retain
-confirmed data and report the failure. No reminder/notification scheduling is
-available. See [feature contract](BUDOGRAPH_TASK_DUE_TIME.md). P4A's external human
+confirmed data and report the failure. The reminder extension additionally requires
+migration `0007_task_reminders_notifications.sql` and a running backend worker;
+see [reminder deployment](#in-app-reminder-phase) and
+[due-time contract](BUDOGRAPH_TASK_DUE_TIME.md). P4A's external human
 gate remains PARTIAL and has not been run in this phase.
 
 P4A adds production-capable email integration; **no deployment was performed**.
@@ -432,3 +434,7 @@ monitoring, or production hosting. Phase 2B.1 is limited to visual and
 information-hierarchy refinement; Phase 2B.2 is limited to the existing Tasks
 experience. Neither removes any exclusion above. The checklist is not
 product-market validation or proof of usability.
+
+## In-app reminder phase
+
+Deploy additive migration 0007 before the backend. No new service or provider setup is needed. Keep at least one backend process running for reminders. Restart catch-up only occurs before the Task deadline. Demonstrate presets on a timed Task, current-recipient delivery, explicit read state and Event isolation; the verification script uses an injected clock locally. Keep its synthetic fixtures/evidence separate from production. Offline demo can show a recorded controlled flow; the local PostgreSQL/backend runtime remains required for durable delivery.

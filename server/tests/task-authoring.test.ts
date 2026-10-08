@@ -25,6 +25,7 @@ const fields = {
   context: " Details ",
   deadline: "2026-09-01",
   deadlineTime: null,
+  reminderOffsets: [],
   priority: "important",
 };
 const denied = (status: number) => (error: unknown) =>
@@ -47,6 +48,7 @@ function harness(role = "ORGANIZER") {
     context: "Details",
     deadline: fields.deadline,
     deadlineTime: null,
+    reminderOffsets: [],
     priority: "important",
     status: "in-progress",
     assigned_member_id: memberId,
@@ -233,6 +235,7 @@ test("time edit uses one update/history/version, preserves acceptance and suppor
     (
       await noop.service.updateDetails(user, eventId, taskId, {
         deadlineTime: null,
+        reminderOffsets: [],
         expectedVersion: 4,
       })
     ).version,
@@ -335,6 +338,7 @@ test("strict bounded Unicode/free text, real calendar dates, enums and versions"
       title: "Preparation",
       deadline: "0001-01-01",
       deadlineTime: null,
+      reminderOffsets: [],
       priority: "normal",
     }).category,
     "",
@@ -373,6 +377,7 @@ test("Organizer create: scoped server ID/actor/defaults and one atomic task.crea
         category: "Venue",
         deadline: fields.deadline,
         deadlineTime: null,
+        reminderOffsets: [],
         priority: "important",
         assignedMemberId: assignee,
         taskVersion: 1,
@@ -422,6 +427,7 @@ test("all authored fields update once, only meaningful changes recorded, accepta
     context: "More",
     deadline: "2026-09-02",
     deadlineTime: null,
+    reminderOffsets: [],
     priority: "critical",
     expectedVersion: 4,
   });

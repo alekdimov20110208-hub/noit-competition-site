@@ -3,10 +3,12 @@
 ## Optional Task due time — 2026-10-08
 
 Task deadlines support optional minute-level Event-local wall-clock time. Events
-have a canonical timezone; no conversion to an instant is performed. Urgency,
+have a canonical timezone; configured reminders convert the deadline to an instant.
+Urgency,
 overdue/attention and ordering remain date-based, so an earlier time today does not
-make a Task overdue. There are no reminders, notifications, recurrence or calendar
-integrations. Physical-device behavior and formal accessibility certification have
+make a Task overdue. Date-only Tasks cannot have reminders. Recurrence and calendar
+integrations are absent. See [the reminder extension](BUDOGRAPH_TASK_REMINDERS.md).
+Physical-device behavior and formal accessibility certification have
 not been claimed. See [feature contract](BUDOGRAPH_TASK_DUE_TIME.md).
 
 ## P4A boundary — 2026-10-06
@@ -40,7 +42,7 @@ and TEST_EVIDENCE.md for contracts and actual verification. Earlier phase descri
 below retain historical limitations superseded by this section.
 
 Automatic fallback execution, resolved/closed lifecycle, response-owner acceptance, Change deletion,
-comments, notifications, realtime, polling and automatic impact inference are absent.
+comments, Change notifications, realtime, polling and automatic impact inference are absent.
 Task deadlines remain required; DTO support for null dates does not add deadline-free
 Task authoring. Dashboard reads refresh on explicit retry, Event switch or reentry;
 other clients' changes are not pushed automatically. Lists are unpaginated and
@@ -344,3 +346,9 @@ TIMESTAMPTZ audit/auth/activity instants. UUID knowledge does not grant access.
 Fictional local demo state is never imported automatically. GPLv3/source,
 documentation, test-role account, and online-access requirements remain
 **2025–2026 source rules requiring verification for a later competition year**.
+
+## In-app reminders V1
+
+Recent notification history is limited to 50 displayed rows; unread count and mark-all cover older rows. Reminders refresh on panel/workspace actions, without realtime/client polling. Worker passes are bounded to 100 eligible candidates with 30 seconds between passes; backlog/lock contention may delay delivery. Missed windows after the deadline are suppressed. DST uses PostgreSQL platform resolution and notification snapshots preserve the original delivery meaning. No push/email/recurrence/custom reminder durations or new calendar integration. Formal accessibility certification and physical-device verification are not claimed. P4A external human setup remains PARTIAL.
+
+The production frontend build still emits Vite's advisory for a single minified chunk above 500 kB (about 534 kB, 148 kB gzip in this phase). Build succeeds; no production latency or performance certification is claimed.

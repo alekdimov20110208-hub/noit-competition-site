@@ -35,6 +35,7 @@ const task = {
   context: "Scoped task",
   deadline: "2026-10-04",
   deadlineTime: null,
+  reminderOffsets: [],
   status: "in-progress",
   priority: "important",
   assignedMemberId: member.id,

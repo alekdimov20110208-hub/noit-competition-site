@@ -118,7 +118,8 @@ Enter a title, deadline and priority. Category and context are optional free tex
 The deadline time is optional. Use **Add time / Добавяне на час** for a minute-level
 time in the Event's timezone, displayed in 24-hour format, for example
 **10 Nov 2026 · 16:00 / 10.11.2026 г. · 16:00**. It means when work should be
-finished on that day. It does not schedule a reminder or notification. Date-only
+finished on that day. Adding a time alone does not schedule a reminder; select the
+desired reminder presets in the same form. Date-only
 Tasks remain valid and keep their existing date display.
 The date belongs to the Event calendar and may be before its start. Optionally
 select one of this Event's active members; **Unassigned** is valid. Save opens the
@@ -557,3 +558,7 @@ The available NOIT regulation covers the **2025–2026 competition year** and is
 historical. Before using BudoGraph for a later competition year, reverify the
 official rules, dates, category wording, procedures, deliverables, formats,
 online-availability periods, declarations, and test-account requirements.
+
+## Task reminders and notifications
+
+Organizers can select 1 day, 1 hour and/or 15 minutes before a timed Task deadline. Add a deadline time first; removing it clears reminders. The header bell shows your current Event notifications. Open an item to mark it read and open its Task, or use Mark all as read. Opening the panel alone does not mark items read. Switch Event to view that Event only. Refresh/open the panel to see newly generated reminders; delivery uses the current assignee and suppresses completed Tasks. There are no email/browser-push reminders.

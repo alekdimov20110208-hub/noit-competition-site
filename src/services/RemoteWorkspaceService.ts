@@ -1,5 +1,6 @@
 import { getCalendarDayNumber } from "../domain/taskTiming.ts";
 import { isTaskDeadlineTime } from "../domain/taskDeadlineTime.ts";
+import { validReminderOffsets } from "../domain/taskReminders.ts";
 import type { Event, Task, TaskStatus, TeamMember } from "../domain/types.ts";
 import type { TaskFields, TaskFieldErrors } from "./taskAuthoring.ts";
 import { InvitationService } from "./invitations.ts";
@@ -20,6 +21,7 @@ export type TaskEvent = Pick<Event, "id" | "name" | "startDate" | "endDate"> & {
   updatedAt: string;
 };
 export interface RemoteTask extends Task {
+  reminderOffsets: number[];
   assignedMemberId: string | null;
   acceptedByMemberId: string | null;
   acceptedAt: string | null;
@@ -171,6 +173,11 @@ export function mapRemoteTask(eventId: string, value: unknown): RemoteTask {
   const row = record(value);
   if (row.deadlineTime !== null && !isTaskDeadlineTime(row.deadlineTime))
     invalid();
+  if (
+    !validReminderOffsets(row.reminderOffsets) ||
+    (row.deadlineTime === null && row.reminderOffsets.length)
+  )
+    invalid();
   const status = row.status,
     priority = row.priority;
   if (
@@ -207,6 +214,7 @@ export function mapRemoteTask(eventId: string, value: unknown): RemoteTask {
     context: string(row.context),
     deadline: date(row.deadline),
     deadlineTime: row.deadlineTime as string | null,
+    reminderOffsets: [...row.reminderOffsets].sort((a, b) => b - a),
     status,
     priority,
     ownerId: assignedMemberId ?? "",
@@ -522,6 +530,7 @@ export class RemoteWorkspaceService
       context: fields.context,
       deadline: fields.deadline,
       deadlineTime: fields.deadlineTime,
+      reminderOffsets: fields.reminderOffsets ?? [],
       priority: fields.priority,
       ...(taskId && "expectedVersion" in command
         ? { expectedVersion: command.expectedVersion }
@@ -566,12 +575,15 @@ export class RemoteWorkspaceService
             context: "INVALID_TEXT",
             deadline: "INVALID_DATE",
             deadlineTime: "INVALID_TIME",
+            reminderOffsets: "INVALID_REMINDERS",
             priority: "INVALID_PRIORITY",
             assignedMemberId: "INVALID_ASSIGNEE",
             expectedVersion: "INVALID_VERSION",
           };
           for (const key of Object.keys(allowed) as (keyof typeof allowed)[])
             if (raw[key] === allowed[key]) fields[key] = allowed[key];
+          if (raw.reminderOffsets === "REMINDERS_REQUIRE_TIME")
+            fields.reminderOffsets = "REMINDERS_REQUIRE_TIME";
         } catch {
           /* Only fixed field codes are shown. */
         }

@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedUser } from "../auth/session.ts";
 import { UnauthorizedError } from "../auth/session.ts";
+import { recordTaskAssignment } from "../notifications/service.ts";
 import {
   inTransaction,
   type TransactionDatabase,
@@ -79,6 +80,23 @@ function scopedIds(eventId: string, taskId?: string) {
     throw new TaskCommandError(400, "INVALID_ID");
   }
   return { eventId: eventId.toLowerCase(), taskId: taskId?.toLowerCase() };
+}
+
+async function saveReminders(
+  database: TransactionDatabase,
+  taskId: string,
+  offsets: number[],
+) {
+  await database.query(
+    "DELETE FROM public.task_reminder WHERE task_id=$1 AND NOT (offset_minutes=ANY($2::INTEGER[]))",
+    [taskId, offsets],
+  );
+  for (const offset of offsets)
+    await database.query(
+      `INSERT INTO public.task_reminder (id,task_id,offset_minutes,due_at,trigger_at)
+    VALUES ($1,$2,$3,clock_timestamp(),clock_timestamp()) ON CONFLICT (task_id,offset_minutes) DO NOTHING`,
+      [randomUUID(), taskId, offset],
+    );
 }
 
 export function createTaskService(pool: TransactionPool) {
@@ -279,6 +297,8 @@ export function createTaskService(pool: TransactionPool) {
           }),
         ],
       );
+      if (command.kind === "assignment" && assignment !== null)
+        await recordTaskAssignment(database, eventId, taskId!, user.id);
       return taskDto(after);
     });
   }
@@ -318,10 +338,24 @@ export function createTaskService(pool: TransactionPool) {
           deadlineTime: Object.hasOwn(command, "deadlineTime")
             ? command.deadlineTime!
             : before.deadlineTime,
+          reminderOffsets:
+            command.reminderOffsets ?? before.reminderOffsets ?? [],
           priority: command.priority ?? before.priority,
         };
+        if (fields.deadlineTime === null) {
+          if (
+            Object.hasOwn(command, "deadlineTime") &&
+            command.deadlineTime === null
+          )
+            fields.reminderOffsets = [];
+          else if (fields.reminderOffsets.length)
+            throw new TaskCommandError(400, "INVALID_TASK_COMMAND", {
+              reminderOffsets: "REMINDERS_REQUIRE_TIME",
+            });
+        }
+        before.reminderOffsets ??= [];
         for (const key of Object.keys(fields) as (keyof TaskFields)[]) {
-          if (fields[key] !== before[key])
+          if (JSON.stringify(fields[key]) !== JSON.stringify(before[key]))
             changes[key] = { before: before[key], after: fields[key] };
         }
         if (!Object.keys(changes).length) return taskDto(before);
@@ -345,12 +379,18 @@ export function createTaskService(pool: TransactionPool) {
         );
         after = updated.rows[0] as TaskRow;
         if (!after) throw new TaskCommandError(409, "TASK_VERSION_CONFLICT");
+        await saveReminders(database, targetId, fields.reminderOffsets);
+        after.reminderOffsets = fields.reminderOffsets;
         payload = {
           changes,
           previousVersion: before.version,
           taskVersion: after.version,
         };
       } else {
+        if (command.reminderOffsets?.length && command.deadlineTime === null)
+          throw new TaskCommandError(400, "INVALID_TASK_COMMAND", {
+            reminderOffsets: "REMINDERS_REQUIRE_TIME",
+          });
         if (command.assignedMemberId) {
           try {
             await requireAssignee(database, eventId, command.assignedMemberId);
@@ -382,11 +422,14 @@ export function createTaskService(pool: TransactionPool) {
           ],
         );
         after = inserted.rows[0] as TaskRow;
+        await saveReminders(database, targetId, command.reminderOffsets ?? []);
+        after.reminderOffsets = command.reminderOffsets ?? [];
         payload = {
           title: after.title,
           category: after.category,
           deadline: after.deadline,
           deadlineTime: after.deadlineTime,
+          reminderOffsets: after.reminderOffsets,
           priority: after.priority,
           assignedMemberId: after.assigned_member_id,
           taskVersion: after.version,
@@ -405,6 +448,8 @@ export function createTaskService(pool: TransactionPool) {
           JSON.stringify(payload),
         ],
       );
+      if (!editing && after.assigned_member_id !== null)
+        await recordTaskAssignment(database, eventId, targetId, user.id);
       return taskDto(after);
     });
   }

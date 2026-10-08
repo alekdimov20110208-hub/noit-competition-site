@@ -19,6 +19,8 @@ import { registerChangeRoutes } from "./routes/changes.ts";
 import { ChangeCommandError } from "./changes/model.ts";
 import type { ChangeService } from "./changes/service.ts";
 import type { TransactionalEmailService } from "./email/service.ts";
+import type { NotificationService } from "./notifications/service.ts";
+import { registerNotificationRoutes } from "./routes/notifications.ts";
 
 export interface AppOptions {
   checkDatabase: CheckDatabase;
@@ -29,6 +31,7 @@ export interface AppOptions {
   invitations?: InvitationService;
   changes?: ChangeService;
   email?: TransactionalEmailService;
+  notifications?: NotificationService;
 }
 
 const standardMethods = new Set([
@@ -50,6 +53,7 @@ export function createApp({
   invitations,
   changes,
   email,
+  notifications,
 }: AppOptions) {
   const app = Fastify({
     requestIdHeader: false,
@@ -136,6 +140,8 @@ export function createApp({
     registerChangeRoutes(app, authentication, changes);
   if (authentication) registerAuthRoutes(app, authentication);
   if (authentication && tasks) registerTaskRoutes(app, authentication, tasks);
+  if (authentication && notifications)
+    registerNotificationRoutes(app, authentication, notifications);
   if (authentication && events)
     registerEventReadRoutes(app, authentication, events);
   if (authentication && invitations)

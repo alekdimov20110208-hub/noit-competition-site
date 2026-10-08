@@ -578,6 +578,20 @@ export default function App() {
       }
       dataMode="remote-workspace"
       persistenceError={null}
+      notificationContext={
+        remoteTasks.status === "ready" &&
+        remoteEvent &&
+        remoteEvent.id === contextEvent?.id &&
+        identity.user
+          ? {
+              eventId: remoteEvent.id,
+              userId: identity.user.id,
+              timeZone: remoteEvent.timezone,
+              refreshToken: remoteTasks.workspace,
+              onOpenTask: openTask,
+            }
+          : undefined
+      }
       onNavigate={(href) => navigate(href)}
     >
       {page}

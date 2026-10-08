@@ -150,3 +150,5 @@ fixture transactions, using savepoints and final rollback without resetting or
 dropping tables. Separate real auth verification creates/logs out only its own
 sessions; it does not import demo business data. Exact executed results are in
 [test evidence](../../docs/TEST_EVIDENCE.md).
+
+`0007_task_reminders_notifications.sql`: additive Task reminder configuration and typed personal notification/read persistence, indexed schedules, recalculation triggers, recipient/Event constraints and delivery uniqueness. No defaults/backfill on existing Tasks. Requires 0006. Apply before reminder-enabled server startup.

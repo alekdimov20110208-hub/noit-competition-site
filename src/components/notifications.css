@@ -1,0 +1,130 @@
+.notification-bell {
+  position: relative;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+}
+.notification-count {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ink);
+  background: var(--surface-raised);
+  border-radius: 4px;
+  padding: 0 3px;
+}
+.notification-count:empty {
+  display: none;
+}
+.notification-panel {
+  padding: 0;
+  width: min(460px, calc(100vw - 24px));
+  max-height: min(720px, calc(100dvh - 32px));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.notification-panel::backdrop {
+  background: rgb(0 0 0 / 35%);
+}
+.notification-panel__content {
+  padding: 20px;
+}
+.notification-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.notification-panel__header h2 {
+  font-size: 18px;
+  margin: 0;
+}
+.notification-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0;
+}
+.notification-panel__actions button {
+  min-height: 44px;
+}
+.notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.notification-list li + li {
+  border-top: 1px solid var(--line);
+}
+.notification-item {
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  width: 100%;
+  gap: 6px;
+  min-height: 44px;
+  padding: 14px 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.notification-item__meaning {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.notification-item__read,
+.notification-item time {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+.notification-item[data-unread="true"] .notification-item__read {
+  font-weight: 700;
+  color: var(--ink);
+}
+.notification-item strong {
+  font-size: 14px;
+}
+.notification-item > span:not(.notification-item__meaning) {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.task-reminders {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+}
+.task-reminders legend {
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.task-reminders label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.task-reminders input {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  accent-color: var(--accent);
+}
+.task-reminders:disabled {
+  opacity: 0.65;
+}

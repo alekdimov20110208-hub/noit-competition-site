@@ -66,6 +66,7 @@ const scopedWorkspace: TasksWorkspace = {
         context: "Preserved through Event edit",
         deadline: next.startDate,
         deadlineTime: null,
+        reminderOffsets: [],
         status: "not-started",
         priority: "normal",
         assignedMemberId: null,

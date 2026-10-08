@@ -1159,3 +1159,7 @@ No real email delivery, human acceptance, formal accessibility certification,
 survey or user-feedback result is claimed. The author must review and understand
 the generated changes. No subagent was used. The supplied NOIT rules apply to
 2025-2026 and require verification for the actual competition year.
+
+## 2026-10-08 — Task reminders and in-app notifications
+
+Codex inspected mandatory master/regulations, locked baseline and canonical Task/authorization contracts, implemented additive schema, backend worker/read APIs, typed BG/EN header/form UI and deterministic tests/browser verification. No new dependencies or external setup. Tests and concrete results are recorded in TEST_EVIDENCE.md; human authors must review and understand the generated SQL/TypeScript, DST behavior and concurrency before competition use. Human review is pending, not claimed complete.

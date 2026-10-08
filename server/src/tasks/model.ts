@@ -17,6 +17,7 @@ export interface TaskDto {
   blocks: string;
   deadline: string;
   deadlineTime: string | null;
+  reminderOffsets: number[];
   status: TaskStatus;
   priority: "normal" | "important" | "critical";
   assignedMemberId: string | null;
@@ -36,6 +37,7 @@ export interface TaskRow {
   blocks?: string;
   deadline: string;
   deadlineTime: string | null;
+  reminderOffsets?: number[];
   status: TaskStatus;
   priority: TaskDto["priority"];
   assigned_member_id: string | null;
@@ -49,7 +51,8 @@ export interface TaskRow {
 // never alter a calendar date or its canonical YYYY-MM-DD representation.
 export const taskColumns = `id, title, category, context, blocked_by, blocks, to_char(deadline, 'YYYY-MM-DD') AS deadline,
   to_char(deadline_time, 'HH24:MI') AS "deadlineTime",
-  status, priority, assigned_member_id, accepted_by_member_id, accepted_at, version, updated_at`;
+  status, priority, assigned_member_id, accepted_by_member_id, accepted_at, version, updated_at,
+  ARRAY(SELECT offset_minutes FROM public.task_reminder WHERE task_id = public.task.id ORDER BY offset_minutes DESC) AS "reminderOffsets"`;
 
 export function taskDto(row: TaskRow): TaskDto {
   return {
@@ -61,6 +64,7 @@ export function taskDto(row: TaskRow): TaskDto {
     blocks: row.blocks ?? "",
     deadline: row.deadline,
     deadlineTime: row.deadlineTime,
+    reminderOffsets: row.reminderOffsets ?? [],
     status: row.status,
     priority: row.priority,
     assignedMemberId: row.assigned_member_id,
@@ -95,6 +99,7 @@ export interface TaskFields {
   context: string;
   deadline: string;
   deadlineTime: string | null;
+  reminderOffsets: number[];
   priority: TaskDto["priority"];
 }
 export type TaskFieldErrors = Partial<
@@ -119,6 +124,7 @@ export function parseTaskAuthoring(
     "context",
     "deadline",
     "deadlineTime",
+    "reminderOffsets",
     "priority",
     editing ? "expectedVersion" : "assignedMemberId",
   ];
@@ -166,6 +172,25 @@ export function parseTaskAuthoring(
       fields.priority = "INVALID_PRIORITY";
     else result.priority = body.priority as TaskDto["priority"];
   }
+  if (!editing || Object.hasOwn(body, "reminderOffsets")) {
+    const offsets = Object.hasOwn(body, "reminderOffsets")
+      ? body.reminderOffsets
+      : [];
+    if (
+      !Array.isArray(offsets) ||
+      offsets.length > 3 ||
+      new Set(offsets).size !== offsets.length ||
+      offsets.some((value) => ![1440, 60, 15].includes(value))
+    )
+      fields.reminderOffsets = "INVALID_REMINDERS";
+    else result.reminderOffsets = [...offsets].sort((a, b) => b - a);
+  }
+  if (
+    result.reminderOffsets?.length &&
+    result.deadlineTime === null &&
+    (!editing || !Object.hasOwn(body, "deadlineTime"))
+  )
+    fields.reminderOffsets = "REMINDERS_REQUIRE_TIME";
   if (editing) {
     if (
       !Number.isSafeInteger(body.expectedVersion) ||

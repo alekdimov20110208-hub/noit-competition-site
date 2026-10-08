@@ -909,3 +909,7 @@ The supplied NOIT regulation applies to **2025–2026**. Eligibility, GPLv3, com
 source/docs, role test accounts, the online-access period, PDF format, dates, and
 scoring must all be verified for the actual participation year. Stack and phase
 choices are internal project decisions, not official competition rules.
+
+## Task reminder worker
+
+Apply `0007_task_reminders_notifications.sql` with `pnpm.cmd db:migrate` before server startup. Fastify starts one in-process PostgreSQL-backed worker on readiness and drains it at close, with 30 seconds between completed passes and a 100-candidate bound. Run `pnpm.cmd test:browser:task-reminders` using the existing controlled-account/browser environment. No public deterministic-clock endpoint exists. See [Task reminders](BUDOGRAPH_TASK_REMINDERS.md) for API, atomicity, DST and dedupe contracts.

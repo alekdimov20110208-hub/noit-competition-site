@@ -1,3 +1,5 @@
+import { isTaskDeadlineTime } from "../domain/taskDeadlineTime.ts";
+import { getCalendarDayNumber } from "../domain/taskTiming.ts";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { BudoSelect } from "./BudoSelect.tsx";
 import { TASK_PRIORITY_MESSAGE_KEYS } from "../domain/labels.ts";
@@ -15,6 +17,8 @@ import {
   type TaskFieldErrors,
 } from "../services/taskAuthoring.ts";
 import "./taskAuthoring.css";
+import { REMINDER_OFFSETS } from "../domain/taskReminders.ts";
+import { reminderPresetKey } from "../i18n/notificationMessages.ts";
 
 export interface TaskAuthoringFormProps {
   task?: RemoteTask;
@@ -53,6 +57,7 @@ export function TaskAuthoringForm({
           context: "",
           deadline: "",
           deadlineTime: null,
+          reminderOffsets: [],
           priority: "normal",
         },
   );
@@ -83,7 +88,13 @@ export function TaskAuthoringForm({
     if (message && !pending) notice.current?.focus();
   }, [message, pending]);
   function change<K extends keyof TaskFields>(key: K, value: TaskFields[K]) {
-    setFields((current) => ({ ...current, [key]: value }));
+    setFields((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "deadlineTime" && value === null
+        ? { reminderOffsets: [] }
+        : {}),
+    }));
     setErrors((current) => ({ ...current, [key]: undefined }));
   }
   async function reload(signal: AbortSignal) {
@@ -174,15 +185,17 @@ export function TaskAuthoringForm({
     void run(false);
   }
   const errorKey = (field: keyof TaskFieldErrors): MessageKey =>
-    field === "deadlineTime"
-      ? "tasks.authoring.timeError"
-      : field === "deadline"
-        ? "tasks.authoring.dateError"
-        : field === "assignedMemberId"
-          ? "tasks.authoring.assigneeError"
-          : field === "priority"
-            ? "tasks.authoring.priorityError"
-            : "tasks.authoring.textError";
+    field === "reminderOffsets"
+      ? "reminders.error"
+      : field === "deadlineTime"
+        ? "tasks.authoring.timeError"
+        : field === "deadline"
+          ? "tasks.authoring.dateError"
+          : field === "assignedMemberId"
+            ? "tasks.authoring.assigneeError"
+            : field === "priority"
+              ? "tasks.authoring.priorityError"
+              : "tasks.authoring.textError";
   return (
     <form
       ref={form}
@@ -394,6 +407,56 @@ export function TaskAuthoringForm({
             )}
             <p className="task-authoring-help">{t("tasks.authoring.help")}</p>
           </>
+        )}
+        <fieldset
+          className="task-reminders"
+          disabled={
+            pending ||
+            !isTaskDeadlineTime(fields.deadlineTime) ||
+            getCalendarDayNumber(fields.deadline) === null
+          }
+          aria-describedby="task-reminder-help"
+        >
+          <legend>{t("reminders.title")}</legend>
+          {REMINDER_OFFSETS.map((offset) => (
+            <label key={offset}>
+              <input
+                type="checkbox"
+                id={`task-reminder-${offset}`}
+                checked={fields.reminderOffsets?.includes(offset) ?? false}
+                onChange={(event) =>
+                  change(
+                    "reminderOffsets",
+                    event.target.checked
+                      ? [...(fields.reminderOffsets ?? []), offset].sort(
+                          (a, b) => b - a,
+                        )
+                      : (fields.reminderOffsets ?? []).filter(
+                          (value) => value !== offset,
+                        ),
+                  )
+                }
+              />
+              <span>{t(reminderPresetKey(offset))}</span>
+            </label>
+          ))}
+        </fieldset>
+        <small id="task-reminder-help">
+          {t(
+            fields.deadlineTime
+              ? "reminders.removeTime"
+              : "reminders.requiresTime",
+          )}
+        </small>
+        {errors.reminderOffsets && (
+          <p
+            id="task-author-reminderOffsets"
+            tabIndex={-1}
+            role="alert"
+            className="task-authoring-error"
+          >
+            {t("reminders.error")}
+          </p>
         )}
       </fieldset>
       <div className="task-authoring-actions">

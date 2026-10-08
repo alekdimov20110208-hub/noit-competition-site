@@ -1,8 +1,15 @@
 # BudoGraph
 
+Current addition: **Task reminders and current-Event in-app notifications**.
+Organizers can choose 1 day, 1 hour and/or 15 minutes before a timed deadline.
+The current assignee receives durable notifications; the header bell supports
+personal read state. Apply additive migration `0007_task_reminders_notifications.sql`.
+See [the feature contract](docs/BUDOGRAPH_TASK_REMINDERS.md) and
+[verification evidence](docs/TEST_EVIDENCE.md).
+
 Tasks support an optional deadline time in the Event's timezone, for example
 **10 Nov 2026 · 16:00**. The required calendar date, acceptance, urgency and ordering
-contracts are preserved. This adds no reminder or notification scheduling. Apply
+contracts are preserved. A time alone does not configure reminders. Apply
 additive migration `0006_task_deadline_time.sql` before running the updated backend.
 See [optional due-time contract](docs/BUDOGRAPH_TASK_DUE_TIME.md) and
 [user guide](docs/USER_GUIDE.md).
@@ -17,7 +24,7 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 
 ## Project status and evidence boundary
 
-Current addition: **P3C Dashboard integration and Change clarity**, preserving P3A/P3B.
+**P3C Dashboard integration and Change clarity** preserves P3A/P3B.
 Dashboard **Operational Changes** now reads canonical current-Event Changes, latest
 updated first with a stable ID tie-break and durable detail links. Personal Change
 attention is deterministic: Organizer/unowned, own/missing Decision, then own/Decision
@@ -454,3 +461,5 @@ The available NOIT regulation is for the **2025-2026 competition year** and is h
 ## License
 
 BudoGraph source code is licensed under the GNU General Public License version 3 only (`GPL-3.0-only`). See [LICENSE](LICENSE). Third-party components retain their own licenses as recorded in [docs/THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md).
+
+Task reminders and current-Event in-app notifications are documented in [the phase contract](docs/BUDOGRAPH_TASK_REMINDERS.md). Apply immutable migration 0007 before starting this version.

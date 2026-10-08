@@ -34,6 +34,7 @@ const dto = {
   context: "",
   deadline: "2026-10-04",
   deadlineTime: null,
+  reminderOffsets: [],
   status: "not-started",
   priority: "normal",
   assignedMemberId: member.id,

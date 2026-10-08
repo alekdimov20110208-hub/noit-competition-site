@@ -41,6 +41,8 @@ export interface Task {
   ownerId: string;
   deadline: string;
   deadlineTime: string | null;
+  // Legacy local demo snapshots may omit configuration; remote DTOs require it.
+  reminderOffsets?: number[];
   status: TaskStatus;
   priority: TaskPriority;
   context: string;

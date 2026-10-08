@@ -194,7 +194,9 @@ try {
     true,
   );
   await organizer.page.keyboard.press("Escape");
-  await organizer.page.locator("dialog").waitFor({ state: "hidden" });
+  await organizer.page
+    .locator(".invitation-dialog")
+    .waitFor({ state: "hidden" });
   assert.equal(
     await organizer.page
       .getByRole("button", { name: "Invite member", exact: true })
@@ -627,11 +629,11 @@ try {
         await organizer.page.setViewportSize({ width, height: 900 });
         await safe(organizer.page);
         const size = await organizer.page
-          .locator("dialog")
+          .locator(".invitation-dialog")
           .evaluate((n) => ({ w: n.scrollWidth, c: n.clientWidth }));
         assert.ok(size.w <= size.c);
         const targets = await organizer.page
-          .locator("dialog button")
+          .locator(".invitation-dialog button")
           .evaluateAll((nodes) =>
             nodes.map((n) => n.getBoundingClientRect().height),
           );
@@ -655,7 +657,7 @@ try {
           await organizer.page.keyboard.press("Tab");
           assert.equal(
             await organizer.page
-              .locator("dialog")
+              .locator(".invitation-dialog")
               .evaluate((n) => n.contains(document.activeElement)),
             true,
           );
@@ -664,7 +666,7 @@ try {
         await organizer.page.keyboard.press("Shift+Tab");
         assert.equal(
           await organizer.page
-            .locator("dialog button")
+            .locator(".invitation-dialog button")
             .last()
             .evaluate((n) => n === document.activeElement),
           true,
@@ -685,7 +687,7 @@ try {
           focusContained: true,
         });
         if ([1440, 390].includes(width))
-          await organizer.page.locator("dialog").screenshot({
+          await organizer.page.locator(".invitation-dialog").screenshot({
             path: `${out}/organizer-dialog-${width}-${language}-${theme}.png`,
             animations: "disabled",
           });

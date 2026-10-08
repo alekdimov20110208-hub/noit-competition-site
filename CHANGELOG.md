@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-08 — Task reminders and in-app notifications
+
+- Add durable current-Event TASK_ASSIGNED and TASK_DUE_REMINDER history with personal read state.
+- Add fixed 1-day/1-hour/15-minute Task presets, Event timezone schedules and atomic time-removal cleanup.
+- Add a bounded PostgreSQL worker, catch-up before deadlines, current-assignee delivery and multi-instance uniqueness.
+- Extend the existing header and Organizer Task form with quiet BG/EN controls, explicit failure handling and scoped Task navigation.
+- Add immutable migration 0007, deterministic PostgreSQL/browser tests and deployment/user documentation.
+- Preserve Task acceptance/version contracts, P1/P2/P3, Dashboard attention and P4A. No email, push, realtime or client polling.
+
 ## 2026-10-06 — BudoGraph P4A
 
 - Add isolated server-only Resend HTTP delivery and BG/EN HTML/plain-text emails.

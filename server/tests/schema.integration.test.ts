@@ -127,6 +127,7 @@ test(
           "0004_event_changes.sql",
           "0005_change_response.sql",
           "0006_task_deadline_time.sql",
+          "0007_task_reminders_notifications.sql",
         ],
       );
       client.release();
@@ -138,7 +139,7 @@ test(
           for (let index = 0; index < 2; index += 1) {
             assert.deepEqual(await runMigrations(pool, migrationDirectory), {
               applied: 0,
-              alreadyApplied: 6,
+              alreadyApplied: 7,
             });
           }
         },
@@ -227,10 +228,12 @@ test(
                 "event_invitation",
                 "event_change",
                 "change_task",
+                "task_reminder",
+                "notification",
               ],
             ],
           );
-          assert.equal(rows.length, 11);
+          assert.equal(rows.length, 13);
           assert.ok(
             rows.every(
               (row) => row.row_security === true && row.policies === 0,
@@ -266,6 +269,8 @@ test(
               "public.event_invitation",
               "public.event_change",
               "public.change_task",
+              "public.task_reminder",
+              "public.notification",
             ]) {
               await database.query("SAVEPOINT p1b_browser_role");
               let count: unknown;

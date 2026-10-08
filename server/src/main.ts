@@ -14,6 +14,11 @@ import {
   createTransactionalEmailService,
 } from "./email/service.ts";
 import { verificationCallback } from "./routes/auth.ts";
+import { createNotificationService } from "./notifications/service.ts";
+import {
+  createReminderWorker,
+  registerReminderWorker,
+} from "./notifications/worker.ts";
 
 async function main() {
   let app: FastifyInstance | undefined;
@@ -73,6 +78,7 @@ async function main() {
       email,
       changes: createChangeService(database),
       tasks: createTaskService(database),
+      notifications: createNotificationService(database),
       events: createEventService(database),
       invitations: createInvitationService(
         database,
@@ -107,6 +113,7 @@ async function main() {
       logger: { level: "info" },
     });
 
+    registerReminderWorker(app, createReminderWorker(database));
     process.on("SIGINT", handleSignal);
     process.on("SIGTERM", handleSignal);
     await app.listen({ host: config.host, port: config.port });

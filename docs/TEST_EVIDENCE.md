@@ -1,5 +1,51 @@
 # BudoGraph Test Evidence
 
+## Task reminders and in-app notifications — 2026-10-08
+
+Baseline `9adc7c387d32c144f74d89c32bec184d6f76cd33`. Immutable migration
+`0007_task_reminders_notifications.sql` applied to the configured development DB;
+0001–0006 unchanged and repeat runner checks pass. No default reminder rows/backfill.
+
+| Verification                              | Executed result                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend unit/regression                  | PASS: 255 tests, 0 failures. Preset/DTO validation, BG/EN copy, safe read/transport failures, scope and locked contracts.                                                                                                                                                                                                                                                                                                                      |
+| Backend unit/regression                   | PASS: 129 tests; 14 explicitly disabled database tests in this unit command; 0 failures.                                                                                                                                                                                                                                                                                                                                                       |
+| PostgreSQL full regression                | PASS: 107 tests, 0 failures/skips in the final full run; Auth/account-safety, Events, responsibility, invitations, P3 Changes and optional Task time.                                                                                                                                                                                                                                                                                          |
+| Final dedicated PostgreSQL reminder suite | PASS: 11 tests, 0 failures/skips, including newly added explicit notification INSERT fault proving rollback of Task/configuration/ActivityEntry and no notification. Also direct date-only DB constraint, bounded history, read state, isolation, DST, current recipient, catch-up, rescheduling and two actual workers racing. The final indexed 1440-minute scan window rerun passes all 11 checks.                                          |
+| New authenticated feature browser suite   | PASS: real controlled Event/Organizer/Member, real PostgreSQL and injectable worker clock; create/persistence/permissions, exact-one delivery, repeat worker, mark-read/refresh, mark-all, reassignment, completion suppression, time-removal cleanup, Event switch, concurrent workers and explicit fetch/read failure injection. 20 viewport/language/theme cases, no horizontal overflow, 50-item long-title history, 0 application errors. |
+| Focus and visual review                   | PASS: notification-to-Task opens with focus inside canonical Task drawer; viewport captures of complete reminder controls and BG/EN/light/dark inspected at 1440/390/320; 44px checkbox-label targets. Full feature matrix includes 1080/768 as well. No formal certification/physical-device claim.                                                                                                                                           |
+| Auth presentation regression              | PASS: all existing 222 presentation cases and 20 interaction checks; report has 0 application/console errors.                                                                                                                                                                                                                                                                                                                                  |
+| Remaining browser regression suites       | PASS: Auth/session, Task reads, responsibility/actions (40 role layouts), workspace, Events, Task authoring (20), invitations (20 recipient + 20 dialog), Changes/live impact (60 + 4 long BG), Dashboard (120 + 24 contrast + 4 long-name + keyboard/Back), optional due time (20), and P4A account safety (180 mocked presentation/recovery cases). All original business assertions preserved.                                              |
+| Quality and staged audit                  | PASS: format/format:check, lint, frontend/backend typecheck, frontend/backend builds and git diff checks. Exactly 43 scoped files; staged contents and frontend bundle exclude configured private values and credential patterns. No environment, shortcut, temporary evidence, new dependency, historical migration or P4A implementation change.                                                                                             |
+
+Evidence: ignored `tmp/reminders-*.log`, `tmp/reminders-evidence`; existing browser
+reports retain their standard ignored directories. Tests keep clearly synthetic
+Events/Tasks/history; passwords, tokens and cookies remain in memory. No production
+personal data, environment files, DB dumps or screenshots are committed. Early
+verifier attempts exposed uncommitted authoring selection/scroll layout behavior:
+placing reminders below existing controls and synchronizing listbox initial focus
+preserved the original authoring interaction; the final pointer-assignment flow and
+complete feature suite passed. One early fixture run timed out while creating 52
+history rows through individual remote commands; the explicitly synthetic bounded
+history fixture now inserts in one statement. A Change assertion mistakenly treated
+an existing array return as a single DTO and was corrected without altering its
+version-preservation assertion. An invitation layout verifier initially selected every native `dialog`, including
+the new hidden notification panel. Its selectors now target the existing
+`.invitation-dialog`; overflow, 44px-target, keyboard/focus and screenshot assertions
+are unchanged, and the rerun passes. An extra focused browser attempt overlapped another authentication verifier and
+hit the unchanged sign-in limiter (HTTP 429). Its later retry passed all reminder
+flows after the login traffic subsided; no production limiter was altered. No
+existing assertion was relaxed. The first Dashboard regression attempt passed all 120 presentation cases, contrast
+checks and long-name fixtures, but its final keyboard Back check hit the captured
+server-unavailable sign-in state. Process inspection showed the Node watch child
+restarted at that exact boundary; the watch trigger was not established. The
+backend was temporarily run without watching, preserving its configuration, for a
+complete unchanged-assertion Dashboard rerun and the remaining browser checks.
+Watch mode is restored after verification. No production or P4A setting changes.
+
+Real historical
+regulations remain 2025–2026 and must be verified for a later competition year.
+
 ## Optional Task due time — 2026-10-08
 
 Baseline: `bfc405aafb955ddb9c50bf35bb40a9bb4cc3f9eb` (`fix(app): refine operational

@@ -11,6 +11,7 @@ import { AppLink } from "./AppLink.tsx";
 import { BrandWordmark } from "./BrandWordmark.tsx";
 import { PreferencesControls } from "./PreferencesControls.tsx";
 import { AccountControl } from "../auth/AccountControl.tsx";
+import { NotificationCenter } from "./NotificationCenter.tsx";
 
 type PersistenceError = "read" | "write" | null;
 
@@ -43,6 +44,13 @@ interface AppShellProps {
   onSwitchEvent?: (eventId: string) => void;
   eventEditHref?: string;
   eventsStatus?: "loading" | "ready" | "error";
+  notificationContext?: {
+    eventId: string;
+    userId: string;
+    timeZone: string;
+    refreshToken: unknown;
+    onOpenTask: (id: string) => void;
+  };
 }
 
 export function AppShell({
@@ -56,6 +64,7 @@ export function AppShell({
   onSwitchEvent,
   eventEditHref,
   eventsStatus,
+  notificationContext,
 }: AppShellProps) {
   const { t, formatDate, formatDateRange } = useI18n();
   const { storageError: preferenceStorageError } = usePreferences();
@@ -135,6 +144,12 @@ export function AppShell({
             <span>{event?.name ?? t("tasks.remote.context")}</span>
           </div>
         </div>
+        {notificationContext && (
+          <NotificationCenter
+            key={`${notificationContext.userId}:${notificationContext.eventId}`}
+            {...notificationContext}
+          />
+        )}
         <PreferencesControls />
         {onSwitchEvent && (
           <EventSwitcher

@@ -1,3 +1,7 @@
+import {
+  NOTIFICATION_EN_MESSAGES,
+  NOTIFICATION_BG_MESSAGES,
+} from "./notificationMessages.ts";
 import type { Language } from "../preferences/types.ts";
 import {
   SAFETY_EN_MESSAGES,
@@ -349,6 +353,7 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...NOTIFICATION_EN_MESSAGES,
   ...CHANGE_EN_MESSAGES,
   ...INVITATION_EN_MESSAGES,
   ...EVENT_EN_MESSAGES,
@@ -693,6 +698,7 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...NOTIFICATION_BG_MESSAGES,
   ...CHANGE_BG_MESSAGES,
   ...INVITATION_BG_MESSAGES,
   ...EVENT_BG_MESSAGES,
