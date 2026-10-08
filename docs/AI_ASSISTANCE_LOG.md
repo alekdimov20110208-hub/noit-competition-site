@@ -1,5 +1,45 @@
 # AI Assistance Log
 
+## Profile & Account Settings V1 — 2026-10-08
+
+Two Task actions attempts timed out at different points. A read-only fresh-page
+probe passed 20 exact-baseline frontend and 20 current cases against the same
+development API. No pre-existing defect was inferred from those timeouts. The
+existing suite gained bounded, status/path-only diagnostics with identifiers
+normalized; its business, error, keyboard, responsive and history assertions
+remain unchanged. Final completion is recorded in TEST_EVIDENCE.
+
+Dashboard sign-in also timed out twice. The diagnostic repeat returned HTTP 500
+while the local backend listener was absent. Codex restarted the unchanged backend,
+verified liveness and database readiness, and reran the original suite. The first
+attempt's cause was not inferred; failed attempts are retained as failed evidence.
+
+A final concurrency review reproduced a gap with two ProfileController instances
+after page navigation (7/8 focused tests passed before correction). Commands now
+check the shared auth busy flag before starting, so a remounted page cannot release
+another command's logout lock. The expanded focused suite passes 8/8. A browser
+reload assertion also sampled canonical identity before notice removal; it now
+waits for removal and retains the original zero-notices assertion. All prior
+browser assertions remain; a held-request navigation case was added.
+
+The pasted request authorizes implementation and commit/push after verification,
+from `a404169f416761466dc40cc2de06f4acf68ab54e`. Codex read the full master prompt
+and all 30 regulations pages, inspected current auth/preferences/P4A/brand code
+and installed Better Auth 1.7.7 schemas/session behavior. No subagents were used.
+
+Implemented global profile, name allowlist, active-session/origin enforcement,
+supported password/session rotation, canonical identity refresh, shared preferences,
+initials and BG/EN. PostgreSQL fixtures roll back; controlled browser name/password
+changes restore their initial values through the supported API. Visual/error
+fixtures are labelled separately from real writes.
+
+Initial checks exposed a response-content-type mismatch, a strip-only TypeScript
+constructor issue and browser harness aria-label/preference-reset mistakes; they
+were corrected. Long names caused a short-sidebar scroll regression; desktop
+identity is now bounded. Final reruns are documented in TEST_EVIDENCE. Credentials,
+cookies, screenshots and temporary reports are excluded from Git. Human code,
+device/screen-reader and P4A real-inbox verification remain required.
+
 ## Official Concept 3 brand integration — 2026-10-08
 
 User-authorized integration from

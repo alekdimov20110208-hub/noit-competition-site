@@ -201,8 +201,56 @@
 }
 .account-control__name {
   display: block;
+  min-width: 0;
   overflow-wrap: anywhere;
   font-size: 0.8rem;
+}
+.account-control--desktop .account-control__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (min-width: 961px) and (max-height: 768px) {
+  .account-control--desktop {
+    padding-top: 6px;
+    margin-bottom: 8px;
+  }
+}
+.account-control__identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.account-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+.account-avatar--large {
+  width: 52px;
+  height: 52px;
+  font-size: 1.05rem;
+}
+.account-control__profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: inherit;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+.account-control--desktop .account-control__profile {
+  margin-right: 14px;
 }
 .account-control button {
   display: inline-flex;

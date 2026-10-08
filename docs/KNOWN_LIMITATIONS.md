@@ -1,5 +1,19 @@
 # Known Limitations
 
+## Profile V1 — 2026-10-08
+
+Only display name is editable; email changes/photos remain V2. The nullable image
+field is not upload infrastructure and is not rendered. Preferences remain
+browser-local; notification delivery settings are unavailable. A lost response
+can make a write uncertain; UI explains reload/recovery instead of announcing success.
+Better Auth changes the credential before deleting/creating sessions; failure
+between those library steps can require signing in again. Same-user exclusion
+is per server process; multiple instances need shared concurrency/rate-limit policy.
+Long desktop names are ellipsized; full values remain in the Profile field and
+accessible text. P4A domain/Resend inbox verification remains NOT RUN.
+Physical-device, other browser-engine, password-manager and formal accessibility
+validation remain human checks. V2, Event Management and deployment are unstarted.
+
 ## Optional Task due time — 2026-10-08
 
 Task deadlines support optional minute-level Event-local wall-clock time. Events

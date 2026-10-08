@@ -4,6 +4,7 @@ import { requireAuthenticatedUser, type SessionAuth } from "../auth/session.ts";
 import { createEmailThrottle } from "../email/throttle.ts";
 import { emailLocale } from "../email/service.ts";
 import { uuidPattern } from "../tasks/model.ts";
+import { profileName, profilePassword } from "../auth/profile.ts";
 
 export interface AuthIntegration {
   auth: SessionAuth & { handler(request: Request): Promise<Response> };
@@ -33,6 +34,7 @@ export function safeEmailReturnTo(value: unknown) {
     "/changes",
     "/templates",
     "/events/new",
+    "/account",
   ].includes(url.pathname);
   const scoped =
     parts[1] === "events" &&
@@ -69,9 +71,17 @@ export function verificationCallback(
 
 export function registerAuthRoutes(
   app: FastifyInstance,
-  { auth, baseURL, publicAppUrl = baseURL, emailEnabled }: AuthIntegration,
+  {
+    auth,
+    baseURL,
+    publicAppUrl = baseURL,
+    emailEnabled,
+    taskMutationOrigins,
+  }: AuthIntegration,
 ) {
   const origin = new URL(baseURL).origin;
+  const mutationOrigins = new Set(taskMutationOrigins ?? [origin]);
+  const pendingAccounts = new Set<string>();
   const throttle = createEmailThrottle();
   app.route({
     method: ["GET", "POST"],
@@ -96,6 +106,40 @@ export function registerAuthRoutes(
           "/api/auth/send-verification-email",
         ].includes(url.pathname.replace(/\/$/, ""));
       let body = request.body;
+      const accountCommand =
+        request.method === "POST" &&
+        ["/api/auth/update-user", "/api/auth/change-password"].includes(
+          url.pathname.replace(/\/$/, ""),
+        );
+      let accountId: string | undefined;
+      if (accountCommand) {
+        accountId = (await requireAuthenticatedUser(auth, request)).id;
+        if (
+          !mutationOrigins.has(request.headers.origin ?? "") ||
+          request.headers["sec-fetch-site"] === "cross-site"
+        )
+          return reply
+            .code(403)
+            .send({ status: "error", code: "UNTRUSTED_ORIGIN" });
+        if (url.search)
+          return reply
+            .code(400)
+            .send({ status: "error", code: "INVALID_PROFILE" });
+        if (url.pathname.replace(/\/$/, "").endsWith("update-user")) {
+          const name = profileName(body);
+          if (!name)
+            return reply
+              .code(400)
+              .send({ status: "error", code: "INVALID_NAME" });
+          body = { name };
+        } else {
+          body = profilePassword(body);
+          if (!body)
+            return reply
+              .code(400)
+              .send({ status: "error", code: "INVALID_PASSWORD_INPUT" });
+        }
+      }
       if (mailRequest) {
         const fields = body as Record<string, unknown> | undefined;
         if (
@@ -151,15 +195,25 @@ export function registerAuthRoutes(
       // Fastify's default trustProxy=false resolves the direct peer address.
       // Clients cannot supply the IP header consumed by Better Auth.
       headers.set("x-budograph-client-ip", request.ip);
-      const response = await auth.handler(
-        new Request(url, {
-          method: request.method,
-          headers,
-          ...(body !== undefined && request.method !== "GET"
-            ? { body: JSON.stringify(body) }
-            : {}),
-        }),
-      );
+      if (accountId && pendingAccounts.has(accountId))
+        return reply.code(409).send({ status: "error", code: "ACCOUNT_BUSY" });
+      if (accountId && pendingAccounts.size >= 10_000)
+        return reply.code(429).send({ status: "error" });
+      if (accountId) pendingAccounts.add(accountId);
+      let response: Response;
+      try {
+        response = await auth.handler(
+          new Request(url, {
+            method: request.method,
+            headers,
+            ...(body !== undefined && request.method !== "GET"
+              ? { body: JSON.stringify(body) }
+              : {}),
+          }),
+        );
+      } finally {
+        if (accountId) pendingAccounts.delete(accountId);
+      }
       if (
         mailRequest &&
         response.status !== 403 &&
@@ -173,6 +227,23 @@ export function registerAuthRoutes(
       });
       const cookies = response.headers.getSetCookie();
       if (cookies.length) reply.header("set-cookie", cookies);
+      if (accountCommand) {
+        // The pinned password endpoint returns a bearer token and full user.
+        // Keep its rotated HttpOnly cookie, but expose only the command result.
+        reply.type("application/json");
+        if (response.ok) return reply.send({ status: true });
+        let code = "ACCOUNT_COMMAND_FAILED";
+        try {
+          const result = (await response.json()) as { code?: string };
+          if (
+            ["INVALID_PASSWORD", "SESSION_EXPIRED"].includes(result.code ?? "")
+          )
+            code = result.code!;
+        } catch {
+          /* Never forward library diagnostics or submitted fields. */
+        }
+        return reply.send({ status: "error", code });
+      }
       return reply.send(response.body ? await response.text() : null);
     },
   });

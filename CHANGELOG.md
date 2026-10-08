@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-08 — Profile & Account Settings V1
+
+- Add global authenticated `/account` and desktop/mobile account navigation.
+- Allow only validated display-name writes through Better Auth 1.7.7 and refresh canonical identity.
+- Add current-password change, prior-session revocation and a new current cookie; strip bearer output.
+- Reuse language/theme preferences; add Unicode initials and complete BG/EN messages.
+- Keep email/photos behind V2 gates; add focused unit/PostgreSQL/browser checks and docs.
+- No schema, dependencies, notification-engine or brand asset changes.
+
 ## 2026-10-08 — Task reminders and in-app notifications
 
 - Add durable current-Event TASK_ASSIGNED and TASK_DUE_REMINDER history with personal read state.

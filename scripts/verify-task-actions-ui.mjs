@@ -28,6 +28,27 @@ const browser = await chromium.launch({
 report.browser = browser.version();
 const contexts = [],
   confirmed = [];
+const readDiagnostics = new WeakMap();
+function observeReads(page) {
+  const reads = [];
+  readDiagnostics.set(page, reads);
+  page.on("response", (response) => {
+    const path = new URL(response.url()).pathname;
+    if (
+      response.request().method() !== "GET" ||
+      !(path === "/api/me" || path.startsWith("/api/events"))
+    )
+      return;
+    reads.push({
+      path: path.replace(
+        /[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}/gi,
+        ":id",
+      ),
+      status: response.status(),
+    });
+    if (reads.length > 20) reads.shift();
+  });
+}
 const checked = (label) => {
   report.checks.push(label);
   console.log(`PASS: ${label}`);
@@ -51,6 +72,7 @@ async function make(label) {
   });
   contexts.push(context);
   const page = await context.newPage();
+  observeReads(page);
   page.on("pageerror", () => report.applicationErrors++);
   await page.addInitScript(() =>
     localStorage.setItem(
@@ -639,6 +661,8 @@ try {
       for (const language of ["en", "bg"])
         for (const theme of ["light", "dark"]) {
           const page = await session.context.newPage();
+          observeReads(page);
+          console.log(`Drawer matrix: ${role} ${width} ${language}/${theme}`);
           await page.setViewportSize({ width, height: 900 });
           await page.addInitScript(
             ({ language, theme }) =>
@@ -812,7 +836,12 @@ try {
       "unknown",
   );
   for (const context of contexts)
-    for (const page of context.pages())
+    for (const page of context.pages()) {
+      console.log("Safe read diagnostics:", {
+        loginVisible: await page.locator("#login-email").isVisible(),
+        checkingVisible: await page.locator(".auth-check").isVisible(),
+        reads: readDiagnostics.get(page),
+      });
       if (await page.locator(".app-main").count()) {
         await page
           .locator(".app-main")
@@ -827,6 +856,7 @@ try {
           await page.getByRole("dialog").count(),
         );
       }
+    }
   report.failure =
     "Task action verification did not complete. Inspect the last passed check; no credentials recorded.";
   throw new Error(report.failure);

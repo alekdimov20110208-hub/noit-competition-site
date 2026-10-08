@@ -1,5 +1,30 @@
 # BudoGraph User Guide
 
+## My Profile / Моят профил
+
+Open **My Profile / Моят профил** in the desktop account area or the mobile
+BudoGraph brand menu. `/account` belongs to your signed-in account and works
+without an Event. A direct visit asks you to sign in first.
+
+Edit **Display name / Екранно име**, then **Save changes / Запази промените**.
+Use 1–100 characters with a letter or number; controls and angle brackets are
+rejected. Initials use first/last words. Confirmed changes update desktop/mobile
+identity. Email is read-only; photos and verified email changes are unavailable.
+
+Under Security, enter your current password and the same new password twice
+(8–128 characters). Success signs out every old session and gives this browser
+a new session. Submitted password fields clear. **Forgot password?** at Login is
+the separate email recovery flow; it requires configured mail and a reachable inbox.
+
+Preferences update the header immediately and persist in this browser when
+storage is available. System follows device theme changes. Notification copy
+describes existing in-app task reminders only.
+
+Failures show a clear message. If a saved change cannot refresh identity, use
+**Reload account / Презареди акаунта**. After an interrupted password response,
+reload; if signed out, try the intended new password before retrying a change
+or using recovery. Account identity/passwords are not persisted in browser storage.
+
 ## Email and account safety (P4A)
 
 Organizers invite from the current Event's Team. The UI distinguishes provider

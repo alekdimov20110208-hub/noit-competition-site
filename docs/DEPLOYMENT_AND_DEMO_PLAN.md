@@ -1,5 +1,15 @@
 # Installation, Deployment, and Demonstration Plan
 
+Profile V1 adds `/account` to the History API fallback paths. It needs the existing
+same-origin frontend/backend, PostgreSQL and Better Auth configuration only;
+there is no migration, storage service or dependency change. Demo: open the
+account control, update display name, observe synchronized initials/identity,
+change a synthetic account's password and demonstrate an old session's denial.
+Use a disposable controlled account and restore its intended credentials through
+the supported change-password flow. Preferences remain browser-local. No email
+change/photo upload is demonstrated. P4A's real inbox gate remains pending.
+This stage documents deployment requirements; it does not deploy the application.
+
 Optional Task due time requires additive migration `0006_task_deadline_time.sql`
 before starting the updated backend. Use the existing reviewed migration runner;
 no default/backfill, deadline rewrite or destructive operation is needed. The

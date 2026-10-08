@@ -17,6 +17,7 @@ import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
 import { EventFormPage } from "./pages/EventFormPage.tsx";
 import { ChangesPage } from "./pages/ChangesPage.tsx";
+import { AccountPage } from "./pages/AccountPage.tsx";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
 import {
   createTaskDetailHistoryState,
@@ -143,7 +144,11 @@ export default function App() {
       const scope =
         parseAppLocation(window.location.pathname, window.location.search)
           .eventId ?? remoteTasks.workspace.currentEventId;
-      if (scope && !targetUrl.pathname.startsWith("/events/")) {
+      if (
+        scope &&
+        targetUrl.pathname !== "/account" &&
+        !targetUrl.pathname.startsWith("/events/")
+      ) {
         const legacy = parseAppLocation(targetUrl.pathname, targetUrl.search);
         targetUrl.pathname = eventHref(scope, legacy.path);
       }
@@ -176,7 +181,8 @@ export default function App() {
       remoteTasks.status === "ready" &&
       remoteTasks.workspace.currentEventId &&
       !currentLocation.eventId &&
-      currentLocation.eventMode === "workspace"
+      currentLocation.eventMode === "workspace" &&
+      currentLocation.path !== "/account"
     ) {
       navigate(
         eventHref(
@@ -554,6 +560,9 @@ export default function App() {
     );
   }
 
+  if (currentLocation.path === "/account" && identity.user)
+    page = <AccountPage key={identity.user.id} user={identity.user} />;
+
   return (
     <AppShell
       currentPath={currentLocation.path}
@@ -564,7 +573,8 @@ export default function App() {
         navigate(
           eventHref(
             eventId,
-            currentLocation.eventMode === "workspace"
+            currentLocation.eventMode === "workspace" &&
+              currentLocation.path !== "/account"
               ? currentLocation.path
               : "/",
           ),

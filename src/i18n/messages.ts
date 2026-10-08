@@ -3,6 +3,7 @@ import {
   NOTIFICATION_BG_MESSAGES,
 } from "./notificationMessages.ts";
 import type { Language } from "../preferences/types.ts";
+import { PROFILE_EN_MESSAGES, PROFILE_BG_MESSAGES } from "./profileMessages.ts";
 import {
   SAFETY_EN_MESSAGES,
   SAFETY_BG_MESSAGES,
@@ -362,6 +363,7 @@ export const EN_MESSAGES = {
   ...WORKSPACE_EN_MESSAGES,
   ...AUTH_EN_MESSAGES,
   ...SAFETY_EN_MESSAGES,
+  ...PROFILE_EN_MESSAGES,
   ...TEAM_EN_MESSAGES,
   ...UI_EN_MESSAGES,
   ...DEMO_EN_MESSAGES,
@@ -707,6 +709,7 @@ export const BG_MESSAGES = {
   ...WORKSPACE_BG_MESSAGES,
   ...AUTH_BG_MESSAGES,
   ...SAFETY_BG_MESSAGES,
+  ...PROFILE_BG_MESSAGES,
   ...TEAM_BG_MESSAGES,
   ...UI_BG_MESSAGES,
   ...DEMO_BG_MESSAGES,

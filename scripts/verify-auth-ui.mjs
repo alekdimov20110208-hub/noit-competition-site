@@ -467,6 +467,13 @@ try {
     await mobile.page.keyboard.press("Tab");
     assert.equal(
       await mobile.page
+        .locator(".account-control--mobile a[href='/account']")
+        .evaluate((e) => e === document.activeElement),
+      true,
+    );
+    await mobile.page.keyboard.press("Tab");
+    assert.equal(
+      await mobile.page
         .locator(".account-control--mobile button")
         .evaluate((e) => e === document.activeElement),
       true,

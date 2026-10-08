@@ -8,7 +8,8 @@ import {
 } from "lucide-react";
 import type { MessageKey } from "./i18n/index.ts";
 
-export type AppPath = "/" | "/tasks" | "/team" | "/changes" | "/templates";
+export type AppPath =
+  "/" | "/tasks" | "/team" | "/changes" | "/templates" | "/account";
 
 export type AppLocation = (
   | {
@@ -99,6 +100,7 @@ function getTaskId(search: string): string | null {
 export function normalizePath(pathname: string): AppPath {
   const withoutTrailingSlash = pathname.replace(/\/+$/, "");
   const normalized = withoutTrailingSlash || "/";
+  if (normalized === "/account") return "/account";
   const route = APP_ROUTES.find((candidate) => candidate.path === normalized);
   return route?.path ?? "/";
 }
@@ -149,6 +151,7 @@ export function eventHref(
   path: AppPath = "/",
   taskId?: string | null,
 ): string {
+  if (path === "/account") return "/account";
   if (
     !/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(eventId)
   )

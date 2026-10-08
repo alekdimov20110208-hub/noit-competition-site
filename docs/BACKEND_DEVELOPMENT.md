@@ -1,5 +1,17 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Profile V1
+
+No new migration or environment variable is required. `/api/auth/update-user`
+permits only a validated display name; `/api/auth/change-password` requires the
+current password and forces old-session revocation/new current cookie. Both
+require an active authenticated user, explicit trusted mutation origin and safe
+Fetch Metadata. Responses omit Better Auth's bearer token/full user. Existing
+logger allowlists never include request bodies. The concurrent command guard
+is per process. See [Profile V1](BUDOGRAPH_PROFILE_V1.md) for exact contracts.
+Run `pnpm test:browser:profile` with the controlled ignored development inputs;
+the browser suite restores name/password through supported API operations.
+
 ## Optional Task due time — 2026-10-08
 
 Apply immutable additive `0006_task_deadline_time.sql` before starting this backend.

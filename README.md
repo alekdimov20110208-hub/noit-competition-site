@@ -1,5 +1,12 @@
 # BudoGraph
 
+Profile V1 adds authenticated `/account`, display-name editing, current-password
+change, initials and synchronized browser-local language/theme preferences.
+Open **My Profile / Моят профил** from the desktop account area or mobile brand
+menu. Email is read-only; photos and verified email changes remain V2. No schema
+or dependency change is needed. See [Profile V1 contract](docs/BUDOGRAPH_PROFILE_V1.md)
+and [verification evidence](docs/TEST_EVIDENCE.md). P4A's inbox gate remains pending.
+
 Current addition: **Task reminders and current-Event in-app notifications**.
 Organizers can choose 1 day, 1 hour and/or 15 minutes before a timed deadline.
 The current assignee receives durable notifications; the header bell supports

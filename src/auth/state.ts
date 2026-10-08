@@ -16,7 +16,12 @@ export class AuthFailure extends Error {
 
 export type AuthState =
   | { status: "loading"; user: null; error: null }
-  | { status: "authenticated"; user: CurrentUser; error: null }
+  | {
+      status: "authenticated";
+      user: CurrentUser;
+      error: null;
+      accountBusy?: boolean;
+    }
   | { status: "unauthenticated"; user: null; error: AuthError | null };
 
 export interface AuthTransport {
@@ -56,6 +61,7 @@ export class AuthController {
   private checking: Promise<void> | null = null;
   private revision = 0;
   private submitting = false;
+  private accountBusy = false;
 
   private transport: AuthTransport;
   constructor(transport: AuthTransport) {
@@ -71,7 +77,15 @@ export class AuthController {
   };
 
   private publish(state: AuthState) {
-    this.state = state;
+    this.state =
+      state.status === "authenticated"
+        ? {
+            status: state.status,
+            user: state.user,
+            error: null,
+            ...(this.accountBusy ? { accountBusy: true } : {}),
+          }
+        : state;
     for (const listener of this.listeners) listener();
   }
 
@@ -80,6 +94,37 @@ export class AuthController {
   expireSession = () => {
     ++this.revision;
     this.publish({ status: "unauthenticated", user: null, error: null });
+  };
+
+  setAccountBusy = (busy: boolean) => {
+    this.accountBusy = busy;
+    if (this.state.status === "authenticated") this.publish(this.state);
+  };
+
+  // Bypass a coalesced read started before a write. A later logout/expiry wins.
+  refreshIdentity = async (
+    expectedId: string,
+  ): Promise<AuthError | "expired" | null> => {
+    if (this.state.user?.id !== expectedId || this.submitting) return "expired";
+    const revision = ++this.revision;
+    try {
+      const user = await this.transport.currentUser();
+      if (revision !== this.revision || this.state.user?.id !== expectedId)
+        return "expired";
+      if (!user || user.id !== expectedId) {
+        this.expireSession();
+        return "expired";
+      }
+      this.publish({
+        status: "authenticated",
+        user: readCurrentUser({ user }),
+        error: null,
+      });
+      return null;
+    } catch (error) {
+      // A confirmed write with failed refresh must not become optimistic identity.
+      return revision === this.revision ? safeFailure(error) : "expired";
+    }
   };
 
   refresh = (): Promise<void> => {
@@ -140,6 +185,9 @@ export class AuthController {
   };
 
   signOut = async (): Promise<AuthError | null> => {
+    // Avoid competing cookie rotation and logout responses in this browser.
+    if (this.state.status === "authenticated" && this.state.accountBusy)
+      return "unexpected";
     if (this.submitting) return null;
     this.submitting = true;
     ++this.revision;

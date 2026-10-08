@@ -129,7 +129,7 @@ export function AppShell({
           })}
         </nav>
 
-        <AccountControl />
+        <AccountControl onNavigate={onNavigate} />
         <div className="sidebar__footer">
           <span className="demo-dot" aria-hidden="true" />
           {t(dataMode === "demo" ? "shell.demoNotice" : "workspace.notice")}
@@ -138,7 +138,7 @@ export function AppShell({
 
       <header className="app-header">
         <div className="app-header__mobile-context">
-          <AccountControl mobile />
+          <AccountControl mobile onNavigate={onNavigate} />
           <div className="app-header__event">
             <CalendarDays size={15} aria-hidden="true" />
             <span>{event?.name ?? t("tasks.remote.context")}</span>

@@ -1,5 +1,112 @@
 # BudoGraph Test Evidence
 
+## Profile & Account Settings V1 — 2026-10-08
+
+Baseline `a404169f416761466dc40cc2de06f4acf68ab54e` matched the explicit request.
+Tracked worktree was clean; the known untracked shortcut was left untouched.
+The complete master prompt and supplied 30-page 2025–2026 regulations were read;
+competition-year rules require verification for later participation.
+
+| Check                     | Actual executed result                                                                                                                                                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Baseline frontend/backend | 255 frontend passes; 129 backend passes / 14 opt-in skips; no failures.                                                                                                                                                                    |
+| Final frontend checks     | `format`, `format:check`, `lint`, `typecheck`, `test`, `build` pass; 263 tests, 0 failures/skips. Existing >500 kB Vite warning remains.                                                                                                   |
+| Backend checks            | `server:typecheck`, `server:test`, `server:build` pass; 133 pass / 15 opt-in skips / 148 total. Skips are not passes.                                                                                                                      |
+| Full PostgreSQL           | `RUN_DATABASE_INTEGRATION=1 server:test:integration`: 113 pass, 0 failures/skips. Actual Better Auth 1.7.7 and configured development PostgreSQL.                                                                                          |
+| Focused profile checks    | 8 frontend tests, 4 backend tests and 6 PostgreSQL test results (parent + 5 subtests). Name allowlist, safe routing, identity refresh/stale reads, failures, password change/rotation, authz/origin and sensitive field preservation.      |
+| Locked-screen comparison  | 80 frozen synthetic baseline/current Dashboard, Tasks, Team and Changes cases; five widths × BG/EN × Light/Dark × four screens. Final pairs are pixel-identical; header/bell/Event switcher/navigation bounds match. 0 application errors. |
+
+New PostgreSQL profile fixtures use one outer rollback transaction with savepoint
+mapping for Better Auth; they leave no committed profile identities or credential
+changes. Assertions compare preserved user fields/other users and complete
+Event/member/task/activity/notification snapshots around writes. Wrong current
+password, inactive/expired/anonymous sessions, forged fields and origin failures
+are denied. Successful password change removes both prior session cookies, rotates
+the current one, rejects the old password and accepts the new password. HTTP output
+is exactly the small command status and intended HttpOnly cookie; captured logs
+exclude password, auth secret, email and session values. Existing P4A tests use fake
+mail; no actual email leaves these tests.
+
+Profile browser verification uses real controlled development sessions/backend;
+name/password mutations restore the starting values through supported APIs.
+Long-name/email presentation and failure/empty states are explicitly labelled
+transport fixtures. The final 20-case matrix passes all requested widths,
+BG/EN, Light/Dark, 125% text expansion and short-sidebar checks. Live System theme
+and profile/header preference synchronization pass. All 13 final functional
+checks pass, including Back/Forward, labels/autocomplete, real password/session
+rotation, held request duplication/logout, navigation/remount exclusion and
+canonical refresh recovery. Zero page errors. Final 1440 BG Dark, 390 BG Light
+and 320 EN Dark viewport images were visually inspected; field bounds use the
+visible document client width, including an ordinary scrollbar.
+
+| Final browser suite             | Executed evidence                                                                                    | Result |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------- | ------ |
+| Auth                            | 15 checks, 20 presentation cases; real independent sessions and logout                               | PASS   |
+| Account Safety                  | 180 explicitly mocked presentation/recovery cases                                                    | PASS   |
+| Auth Experience                 | 222 presentation cases, 20 interaction checks                                                        | PASS   |
+| Workspace / Team                | 11 checks, 8 matrix cases; authorized Event/Member reads                                             | PASS   |
+| Task Reads                      | 13 checks, 5 layout cases; real backend reads and safe failures                                      | PASS   |
+| Task Actions / Responsibility   | 16 checks, 40 Organizer/Member layout cases; canonical writes/history                                | PASS   |
+| Task Authoring                  | 11 checks, 20 matrix cases                                                                           | PASS   |
+| Events                          | 14 checks, 20 matrix cases; role scope/concurrency                                                   | PASS   |
+| Invitations                     | 7 checks, 20 recipient + 20 loaded-dialog cases                                                      | PASS   |
+| Dashboard / P3C                 | 8 checks, 120 matrix + 24 contrast + 4 long-name cases                                               | PASS   |
+| Changes                         | 11 checks, 60 matrix + 4 long-name cases                                                             | PASS   |
+| Due Time                        | 31 checks, 20 matrix cases                                                                           | PASS   |
+| Reminders / Notification Header | 29 checks, 20 matrix cases                                                                           | PASS   |
+| Profile                         | 13 checks, 20 matrix cases; real writes/session rotation and labelled failure/long-identity fixtures | PASS   |
+
+Every final browser report has zero application/page errors. Mocked failure
+resource errors remain intentional and are not application successes. The final
+client guard correction was followed by complete frontend lint/typecheck/test/build
+and fresh Auth/Profile browser runs. Backend source remained unchanged after the
+133-pass unit and 113-pass full PostgreSQL runs.
+
+Final quality/scope audit: repository `format` and `format:check`, additional
+browser-script/CHANGELOG formatting, and working/staged `git diff --check` pass.
+Exact 30-file staged-content and frontend-bundle checks pass against seven
+configured private-value forms and credential patterns; no source maps. No env,
+credential, cookie, real account value, generated screenshot, temporary report or
+shortcut is staged. Schema, dependencies/lockfile, auth configuration/cookies,
+preferences provider, brand, global CSS, domain and notification engine are unchanged.
+
+Early failures were corrected and are not reported as passes: Node strip-only
+constructor syntax, a mock response content-type mismatch, a mismatched translated
+selector, a harness resetting preferences on every navigation, and short-sidebar
+scroll with long names. The Auth regression's original single-Tab expectation was
+extended to require the new Profile link **and** subsequent Logout; no assertion
+was removed. One temporary mobile comparison differed by 1/255 in one pixel;
+the final 80-pair capture is entirely identical.
+
+Screenshots/reports are ignored under `tmp/profile-evidence`; no cookies, session
+dumps or credentials are persisted. Desktop Edge/Chromium engine only: browser
+matrix is not physical-device, other-engine, formal accessibility or product
+validation evidence. P4A real domain/DNS/Resend inbox gate remains **NOT RUN**.
+
+Task actions' final full run passed all unchanged business/error/recovery/keyboard,
+40 role/width/language/theme cases and PostgreSQL history checks. Two earlier
+attempts timed out: one awaiting an injected-error alert and one awaiting a fresh
+matrix page's dialog. Those attempts are not counted as passes, and their cause
+is not labelled pre-existing. A separate read-only probe passed 20 exact-baseline
+frontend plus 20 current fresh-page cases against the same development API;
+maximum observed load was 4,137 ms. Only bounded status/path diagnostics were
+added to the existing suite; no assertion, timeout or Task behavior was relaxed.
+
+Two Dashboard attempts stopped during sign-in before any dashboard assertion.
+The diagnostic repeat observed HTTP 500 from `/api/me` and sign-in; inspection
+confirmed no backend listener on port 3001. The existing backend was restarted
+with its unchanged configuration; both liveness and PostgreSQL readiness returned
+200 before rerunning. The initial attempt's cause remains unproven. Neither failed
+attempt is counted as a pass; no dashboard assertion was changed.
+
+The extended Profile run initially sampled notice count before React completed
+reload-message removal; its identity assertion had passed but the run failed.
+It now waits for notice detachment and retains the exact zero-count assertion.
+A separate unit reproduction caught cross-page-instance command overlap (7/8);
+the shared busy guard fixes it (8/8). Added browser coverage holds a request while
+navigating away/back and verifies one transport request and retained logout lock.
+No original business, failure, layout or cleanup assertion was removed.
+
 ## Task reminders and in-app notifications — 2026-10-08
 
 Baseline `9adc7c387d32c144f74d89c32bec184d6f76cd33`. Immutable migration

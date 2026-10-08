@@ -1,17 +1,26 @@
 import { useRef, useState } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, UserRound } from "lucide-react";
+import { AppLink } from "../components/AppLink.tsx";
+import { avatarInitials } from "./profile.ts";
 import { BrandWordmark } from "../components/BrandWordmark.tsx";
 import { useI18n } from "../i18n/index.ts";
 import { auth, useAuth } from "./runtime.ts";
 import { replaceAuthLocation } from "./routing.ts";
 import type { AuthError } from "./state.ts";
 
-export function AccountControl({ mobile = false }: { mobile?: boolean }) {
+export function AccountControl({
+  mobile = false,
+  onNavigate,
+}: {
+  mobile?: boolean;
+  onNavigate: (href: string) => void;
+}) {
   const { t } = useI18n();
   const state = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
   const pending = useRef(false);
+  const menu = useRef<HTMLDetailsElement>(null);
   if (state.status !== "authenticated") return null;
 
   async function logout() {
@@ -28,10 +37,36 @@ export function AccountControl({ mobile = false }: { mobile?: boolean }) {
 
   const controls = (
     <>
-      <span className="account-control__name">
-        {state.user.name || state.user.email}
-      </span>
-      <button type="button" onClick={logout} disabled={busy}>
+      <div className="account-control__identity">
+        <span className="account-avatar" aria-hidden="true">
+          {avatarInitials(state.user.name)}
+        </span>
+        <span
+          className="account-control__name"
+          title={state.user.name || state.user.email}
+        >
+          {state.user.name || state.user.email}
+        </span>
+      </div>
+      <AppLink
+        href="/account"
+        onNavigate={(href) => {
+          if (menu.current) menu.current.open = false;
+          onNavigate(href);
+        }}
+        className="account-control__profile"
+        aria-current={
+          window.location.pathname === "/account" ? "page" : undefined
+        }
+      >
+        <UserRound size={16} aria-hidden="true" />
+        <span>{t("profile.title")}</span>
+      </AppLink>
+      <button
+        type="button"
+        onClick={logout}
+        disabled={busy || state.accountBusy}
+      >
         <LogOut size={16} aria-hidden="true" />
         <span>{t(busy ? "auth.signingOut" : "auth.logout")}</span>
       </button>
@@ -43,7 +78,21 @@ export function AccountControl({ mobile = false }: { mobile?: boolean }) {
     </>
   );
   return mobile ? (
-    <details className="account-control account-control--mobile">
+    <details
+      ref={menu}
+      className="account-control account-control--mobile"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && menu.current?.open) {
+          menu.current.open = false;
+          menu.current.querySelector("summary")?.focus();
+          event.stopPropagation();
+        }
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget))
+          event.currentTarget.open = false;
+      }}
+    >
       <summary aria-label={t("auth.account")}>
         <BrandWordmark compact />
       </summary>
