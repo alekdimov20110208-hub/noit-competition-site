@@ -441,7 +441,46 @@ history is retained. See the [user guide](docs/USER_GUIDE.md) and
 
 ## Replaceable wordmark
 
-The current Phase 1, Phase 2A, Phase 2B.1, and Phase 2B.2 prototype uses a text-only `BudoGraph` wordmark. The isolated component is `src/components/BrandWordmark.tsx`. When the project author finishes the hand-drawn logo, replace the visual content of that component while preserving its compact layout behavior and accessible name. Add the original asset to the repository, document its authorship and license status, and keep a readable text fallback. No generated, stock, or permanent placeholder logo is used in the current prototype.
+The official **Concept 3 — BG Monogram** was explicitly approved for integration
+on 2026-10-08. `public/brand/budograph-monogram.svg` is the sole canonical vector
+geometry. `src/components/BrandWordmark.tsx` pairs it with the existing BudoGraph
+text, typography and localized tagline; compact mode still omits the tagline.
+The former gold dot was removed from this pairing because the approved monogram
+now supplies the visual accent. Sidebar, mobile account header and AuthShell
+reuse this component. The decorative images are hidden from assistive technology;
+the shared brand has one accessible name, BudoGraph.
+
+Brand fills are navy `#0F2A44`, coral `#F0766B` and inverse cream `#FBF7F3`.
+The sidebar and dark surfaces use cream/coral; light Auth/mobile surfaces use
+navy/coral. Existing application colors and fonts are unchanged. The favicon
+uses cream/coral on opaque navigation navy `#111C2B` for a single treatment across
+browser themes. At 16px the silhouette is recognizable, but individual BG letters
+are not guaranteed to read clearly; no alternate small-size geometry is used.
+
+`public/brand/asset-manifest.json` inventories the vectors and four PNG exports:
+ordinary and maskable app icons at 192px and 512px. The maskable exports derive
+from the same two paths, with additional canvas padding verified against the
+central 80% safe circle from the
+[W3C maskable safe-zone definition](https://www.w3.org/TR/appmanifest/#icon-masks).
+These are future-facing assets only: no PWA manifest,
+service worker, installation UI, Web Push or notification permission is added.
+
+To reproduce exports, supply an **already available** Sharp renderer outside the
+application dependency tree; no renderer is shipped in the app or installed by
+the build:
+
+```powershell
+$env:BUDOGRAPH_SHARP_MODULE = "C:/path/to/existing/sharp/dist/index.mjs"
+node scripts/export-brand-assets.mjs
+node scripts/export-brand-assets.mjs --check
+```
+
+The canonical paths must not be edited without renewed human approval. Export
+verification checks equality of the derived assets (UTF-8/LF normalization for
+text across Git CRLF checkouts), PNG dimensions and
+maskable bounds. Source/provenance and original-reference limitations are recorded
+in [THIRD_PARTY_NOTICES](docs/THIRD_PARTY_NOTICES.md); performed integration and
+regression checks are in [TEST_EVIDENCE](docs/TEST_EVIDENCE.md).
 
 ## Documentation
 

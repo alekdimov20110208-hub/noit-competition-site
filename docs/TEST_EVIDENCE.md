@@ -5142,3 +5142,198 @@ larger preference controls, extra spacing/typography, animation, other empty
 states, sidebar, Tasks or Auth refinement is implemented. P4A domain/DNS/Resend
 human delivery verification remains outstanding. Supplied NOIT 2025-2026 rules
 require actual-year verification. The unrelated shortcut is untouched.
+
+## Official Concept 3 brand integration — 2026-10-08
+
+Human approval was explicit in the integration request. Baseline:
+`17b791f3ffe541ed51111386b8470969a9df99b3` (`feat(app): add task reminders and notifications`).
+The approved temporary canonical SVG and all five prepared variants were present
+and matched the preparation inventory. The two canonical path strings and fills
+are unchanged in production; only title metadata was shortened. No new concept
+or small-size geometry was introduced.
+
+### Implementation and asset verification
+
+One shared BrandWordmark supplies sidebar, compact mobile AccountControl and
+AuthShell. It preserves BudoGraph text, font family/size/weight/tracking, compact
+mode and localized tagline. The tagline retains full brand width. The old gold
+dot is removed from this immediate pairing; mobile spacing offsets its replacement
+so adjacent notification controls retain their baseline position. No AppShell,
+AccountControl, AuthShell form/composition or other page source changed.
+
+The canonical asset is `public/brand/budograph-monogram.svg`; inverse and all
+exports derive from it through `scripts/export-brand-assets.mjs`. Exact mark
+fills: navy `#0F2A44`, coral `#F0766B`, inverse cream `#FBF7F3`. Light/Auth/mobile
+uses navy/coral; sidebar and dark surfaces use cream/coral. The single favicon
+uses opaque `#111C2B` with cream/coral, independent of browser theme. Existing
+semantic tokens, light canvas `#F4F1EB`, typography and fonts are untouched.
+
+Production inventory: canonical and inverse SVGs, favicon.svg, app-icon.svg,
+app-icon-maskable.svg, app-icon-{192,512}.png,
+app-icon-maskable-{192,512}.png and asset-manifest.json. No redundant review
+binaries, original raster, PWA manifest, service worker or Web Push are included.
+The application build does not require Sharp: exports use an existing external
+verification renderer. Dependencies/lockfile are unchanged.
+
+`node scripts/export-brand-assets.mjs --check` passed using the already available
+bundled Sharp runtime. Approved path/fill comparison and structural inspection
+passed for all five SVGs; there are exactly two paths, no images, gradients,
+filters, scripts or external resources. Ordinary/app-maskable PNG dimensions are
+192 and 512. The maskable 320-unit canvas has visible bounds [70,78,250,242];
+the entire conservative foreground rectangle lies inside radius less than 122, below
+the central 80% safe-circle radius 128. A separate pixel scan found **zero
+foreground pixels outside that circle** in both PNG sizes; both are opaque.
+
+The production favicon URL returned 200 with SVG content type. Edge rendered
+16/32/48px samples on light/dark surrounding surfaces. The approved 16/24/32px
+monogram review remains applicable because paths and palette are unchanged:
+16px retains its compact silhouette, while individual BG letters are weak and
+its top gap antialiases; 24/32px read more clearly. No perfect small-letter or
+raster-equivalence claim is made. Coral on app cream remains 2.48:1; it is a
+brand fill, not a replacement for operational text/status colors. Navy/app cream
+is 12.98:1; inverse cream/app navy 16.08:1; coral/app navy 6.13:1.
+
+### Frozen locked-screen comparison
+
+Separate Vite production builds from the exact baseline Git archive and final
+working source were served on loopback ports 5197 and 4173. The archive excludes
+ignored environment files. Frozen-clock, explicitly labeled read-only transport
+fixtures use .invalid identities and controlled development snapshots; they are
+not evidence of live database behavior. Screenshots/logs/fixture data remain at
+`C:/Users/Lenovo/AppData/Local/Temp/budograph-brand-integration/`, outside Git.
+
+**260/260 settled full screenshots are pixel-identical outside the union of the
+old/new brand and text bounds**, with a 2–3px antialiasing margin. The mask does
+not cover the notification bell, preferences, Event switcher or page content.
+Intentional changes are only monogram/wordmark pairing and dot removal. Coverage:
+Dashboard populated/quiet, Tasks, Team, Changes, Login, Invitation, invite-only
+registration, pending/verified verification, forgot-password, valid reset and
+invalid-reset terminal state. Five widths (1440/1080/768/390/320), BG/EN,
+Light/Dark; 20 configurations per screen. All have zero horizontal overflow or
+document panning, including temporarily disabled body overflow clipping.
+
+**Eight short-desktop-sidebar cases** (1440/1080 widths, 768px height, BG/EN,
+Light/Dark) retain identical client/scroll heights and navigation Y coordinates;
+no Bulgarian micro-scroll regression. Main typography, headings and link
+content are unchanged. Header action bounds, sidebar width/height and navigation
+positions match baseline. **20 native Login Tab orders** and **20 native Event
+switches** match; no additional interactive brand controls are introduced.
+Browser accessibility snapshots expose one `img "BudoGraph"` per visible brand,
+with no second monogram name. Decorative image alt values are empty and hidden
+from assistive technology; full mode supplies the localized tagline description.
+Reduced-motion capture behavior is preserved; no animation is added. This is not
+formal accessibility certification or physical-device/screen-reader verification.
+
+An initial temporary harness used a pre-due-time snapshot lacking nullable
+`deadlineTime` fields; it was corrected before baseline capture. Invitation
+geometry measurements initially raced the pending read, so final captures wait
+for the settled context and compare actual screenshot pixels. Intermediate
+captures exposed a mobile bell displacement; brand-only spacing compensation
+fixed it, followed by a complete final capture pass. The exact baseline build
+and final production capture pass are the evidence counted above.
+
+### Repository checks already completed
+
+| Check                                                                   | Actual result                                                                                                                                                                                           |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm.cmd format`, `format:check`, `lint`, `typecheck`, `test`, `build` | PASS; 255 frontend tests, 0 failures/skips. Repeated after final brand CSS change. Existing Vite bundle-size warning remains.                                                                           |
+| `pnpm.cmd server:typecheck`, `server:test`, `server:build`              | PASS; backend suite 129 pass / 14 opt-in integration tests skipped / 143 total. Skips are not counted as passes.                                                                                        |
+| `RUN_DATABASE_INTEGRATION=1 pnpm.cmd server:test:integration`           | PASS; 107 tests, 0 failures/skips. Real PostgreSQL/Better Auth account-safety, invitation/Event/task/Change/reminder/history/concurrency checks; synthetic transactional fixtures, no production email. |
+| `git diff --check`                                                      | PASS before staging; final staged audit is recorded below.                                                                                                                                              |
+
+The old non-package `tests/dashboard-disclosure.browser.mjs` demo-only probe was
+also inspected: it reaches Login and times out on `.demo-snapshot` on **both**
+exact baseline and final protected applications. Its legacy localStorage/demo
+setup does not authenticate the current application. It was not weakened or
+reported as a pass, and Team/other demo-only scripts were not substituted for the
+current authenticated regression suites. Current Dashboard/Team coverage uses
+controlled workspace/P3C suites and the complete frozen matrix above.
+
+### Scope and provenance
+
+README, THIRD_PARTY_NOTICES, AI_ASSISTANCE_LOG and this evidence record document
+approval, AI-assisted raster/reconstruction provenance, paths/colors, reference
+limitations and actual checks. No independently verified trademark, exclusive
+ownership or copyright clearance is claimed; no new restrictive asset terms.
+Current GPL-3.0-only project licensing is unchanged. The supplied NOIT 2025–2026
+regulations need verification for later participation.
+
+Backend/API/auth/P4A, schema/migrations, Events/Tasks/Changes logic, due times,
+reminder scheduling/worker and read/unread behavior are unchanged. Existing
+browser suites may create clearly synthetic development Events/Tasks/history
+as documented in their headers; credentials/tokens/cookies stay in memory.
+P4A remains PARTIAL pending its external human domain/DNS/Resend gate; this task
+does not attempt it or infer real inbox delivery from fake-mail tests. No PWA
+functionality, permission request, new dependency or infrastructure was added.
+The known shortcut remains untouched and must not be staged.
+
+### Text expansion and final scope inventory
+
+An additional 125% root-text expansion comparison passed for 60 settled
+Dashboard/Login/Invitation screenshots (all five widths, BG/EN, Light/Dark),
+plus eight short-sidebar measurements, 20 Tab orders and 20 Event switches.
+The temporary harness explicitly waits for the computed 20px root size before
+measuring. Outside the same approved brand bounds, all 60 screenshot pairs are
+pixel-identical. No horizontal overflow or document panning. This is CSS text
+expansion testing, not native browser-zoom or physical-device testing.
+
+Exactly 18 files constitute this change:
+
+- `src/components/BrandWordmark.tsx`, `src/styles.css`, `index.html`;
+- `scripts/export-brand-assets.mjs`;
+- `README.md`, `docs/THIRD_PARTY_NOTICES.md`, `docs/AI_ASSISTANCE_LOG.md`,
+  `docs/TEST_EVIDENCE.md`;
+- `public/brand/budograph-monogram.svg`, `budograph-monogram-inverse.svg`,
+  `favicon.svg`, `app-icon.svg`, `app-icon-maskable.svg`,
+  `app-icon-192.png`, `app-icon-512.png`, `app-icon-maskable-192.png`,
+  `app-icon-maskable-512.png`, `asset-manifest.json`.
+
+A pre-staging audit of these files checked six configured private values without
+printing them: zero value matches, zero credential-pattern matches, no environment,
+shortcut, SQL/backend, temporary-log or screenshot files in the intended scope.
+The final staged audit and browser suite completion are recorded next.
+
+Export portability was additionally verified against a temporary copy with every
+SVG/JSON converted to CRLF: `export-brand-assets.mjs --check` passed. The exporter
+normalizes text to UTF-8/LF before hashing/checking so Git's Windows newline
+conversion does not create false asset drift. PNG checks remain byte-exact. The
+safe-zone basis was verified against the W3C Web Application Manifest working
+draft's [icon masks and safe zone](https://www.w3.org/TR/appmanifest/#icon-masks):
+centered circle with radius 40% of icon size. No PWA manifest was created.
+
+### Completed authenticated browser regressions and final staged audit
+
+All **12 repository package browser suites** completed with exit code 0, followed
+by the additional Auth presentation script. Existing assertions were not weakened
+or replaced. Reports contain zero application errors; suites recording console
+errors (Auth, Changes, P3C and Auth presentation) also report zero.
+
+| Suite                                        | Actual completed coverage                                                                                                                                                                                                                        |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `test:browser:auth`                          | 15 checks / 20 BG/EN Light/Dark Login layouts; real Organizer/Member sessions, refresh/logout/recovery, closed signup and keyboard/mobile account menu.                                                                                          |
+| `test:browser:tasks`                         | 13 checks / five real layouts; DTO/SQL parity, canonical drawer/deep links, safe failures, real session expiry; no Task mutation requests.                                                                                                       |
+| `test:browser:task-actions`                  | 16 checks / 40 role layouts; assignment/acceptance/status separation, stale 409s, real 401s, history, keyboard and scoped PostgreSQL proof.                                                                                                      |
+| `test:browser:workspace`                     | 11 checks / eight real captures; authenticated Dashboard/Team API/SQL parity, Task round trips, focus/history, canonical reads and zero Event/Task business mutations.                                                                           |
+| `test:browser:events`                        | 14 checks / 20 layouts; native Event switching, real creation/edit/concurrency/access roles and expired-session safety.                                                                                                                          |
+| `test:browser:task-authoring`                | 11 checks / 20 layouts; real create/edit, optimistic conflict, draft retention, Event switching, errors and session expiry.                                                                                                                      |
+| `test:browser:invitations`                   | Seven checks / 20 recipient plus 20 loaded-dialog cases; invite-only registration/join, role boundaries, concurrency, revocation/expiration and focus.                                                                                           |
+| `test:browser:changes`                       | Real create/edit/Task-impact and Decision/Response/Plan B, no-op/version/history, two-tab conflict, Member denial/access, safe failures; 60 layouts plus four mocked long-BG mobile cases.                                                       |
+| `test:browser:change-dashboard`              | Eight checks / 120 Organizer/Member layouts, 24 contrast checks, four long-name fixtures, attention/operational semantics and keyboard/durable Back.                                                                                             |
+| `test:browser:task-deadline-time`            | 31 checks / 20 layouts; optional time authoring/removal, DATE semantics, timezone, Dashboard/live impact and preserved assignment/status behavior.                                                                                               |
+| `test:browser:task-reminders`                | 29 checks / 20 layouts; real durable assignment/reminder notifications, exact-one/concurrent delivery, read/read-all persistence, reassignment/completion/time-removal/Event isolation, bounded long-title panel, failure recovery and keyboard. |
+| `test:browser:account-safety`                | 180 mocked HTTP BG/EN Light/Dark/System recovery/verification/reset cases; no external mail sent.                                                                                                                                                |
+| `node scripts/verify-auth-experience-ui.mjs` | 222 presentation cases / 20 interaction checks; loading/Login/invitation/registration/terminal composition, focus, form semantics, targets, contrast and overflow.                                                                               |
+
+The staged audit passed for exactly the 18 listed files: six configured private
+values checked without disclosure, zero matches and zero credential-pattern hits.
+No environment, secret, cookie/token dump, backend/schema/migration/dependency,
+shortcut or temporary evidence is staged. `git diff --cached --check` passes.
+All original product layouts and Task/Change/notification/P4A behavior are
+preserved within the performed verification. Known limitations remain the small
+16px letter reading, Edge-only automated device emulation, no physical-device or
+formal screen-reader/accessibility certification, unchanged Vite size warning,
+legacy demo-only probe incompatibility, and outstanding P4A external human gate.
+
+Commit and push/sync results are reported in the completion response. Explicit
+human brand acceptance has already been given; no renewed brand approval gate
+is introduced. Stop after integration; do not continue into PWA or Web Push.

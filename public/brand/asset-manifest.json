@@ -1,0 +1,79 @@
+{
+  "canonical": "budograph-monogram.svg",
+  "geometry": "Approved Concept 3; all exports reuse canonical path data unchanged.",
+  "textEncoding": "UTF-8/LF; text hashes and checks normalize checkout CRLF",
+  "colors": {
+    "navy": "#0F2A44",
+    "coral": "#F0766B",
+    "inverseCream": "#FBF7F3",
+    "background": "#111C2B"
+  },
+  "exports": [
+    {
+      "file": "budograph-monogram.svg",
+      "purpose": "Canonical transparent navy/coral geometry",
+      "bytes": 556,
+      "sha256": "6b7c525db34cebc864289c5a4360a93d5ed4d696a9e054405d1e0fcb3e04320c"
+    },
+    {
+      "file": "budograph-monogram-inverse.svg",
+      "purpose": "Derived transparent cream/coral treatment",
+      "bytes": 556,
+      "sha256": "8c79268ac85a409d72c74b119f8bb28e1086366e58cc919f6896317169cc24f1"
+    },
+    {
+      "file": "favicon.svg",
+      "purpose": "Opaque navy with cream/coral; one treatment for every browser theme",
+      "bytes": 603,
+      "sha256": "cc96f14988615202b15658bce91e7a4f6c7955ad136b12056bb7d7a9d499da82"
+    },
+    {
+      "file": "app-icon.svg",
+      "purpose": "Approved inset app-icon treatment for square/circle contexts",
+      "bytes": 603,
+      "sha256": "d5186d0d2e8cdf396605dc1e948171c76a91c669b394edc9bfe48aed4c2ab68d"
+    },
+    {
+      "file": "app-icon-maskable.svg",
+      "purpose": "Additional inset; verified within the central 80% safe circle",
+      "bytes": 603,
+      "sha256": "ee5cdcd4768f7f9cc7ea1dfe65857acee2d6813d49f651ef9130b1cb4ee796ba"
+    },
+    {
+      "file": "app-icon-192.png",
+      "purpose": "192px opaque export derived from app-icon.svg",
+      "bytes": 3133,
+      "sha256": "ad19eb839305f3d25743dc75cf8af9f34d85f3c6e178fa576c84d822344f8caf"
+    },
+    {
+      "file": "app-icon-maskable-192.png",
+      "purpose": "192px opaque export derived from app-icon-maskable.svg",
+      "bytes": 2941,
+      "sha256": "9801258d328e8e060a42ff01d268cc35716232d116fcaca26ff7c01cf8bdcf9e"
+    },
+    {
+      "file": "app-icon-512.png",
+      "purpose": "512px opaque export derived from app-icon.svg",
+      "bytes": 13281,
+      "sha256": "22fce84ec4a19efde28311481c9fcbdc741c7dc6d0d0d87f1f64e1c14a9b5288"
+    },
+    {
+      "file": "app-icon-maskable-512.png",
+      "purpose": "512px opaque export derived from app-icon-maskable.svg",
+      "bytes": 12254,
+      "sha256": "00cb79754c53cc01a62b94821df9fcbc0d61e4a6b8450a4905a2b1cda6fbd478"
+    }
+  ],
+  "maskableSafeArea": {
+    "canvas": 320,
+    "visibleBounds": [
+      70,
+      78,
+      250,
+      242
+    ],
+    "boundingRadius": 121.7538500417954,
+    "safeRadius": 128,
+    "verified": true
+  }
+}

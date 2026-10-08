@@ -298,13 +298,52 @@ h3 {
 }
 
 .brand-wordmark {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: inline-grid;
+  grid-template-columns: 28px auto;
+  column-gap: 8px;
+  align-items: center;
   min-width: 0;
+  max-width: 100%;
+}
+
+.brand-wordmark__mark {
+  grid-column: 1;
+  grid-row: 1;
+  width: 28px;
+  height: 28px;
+}
+
+.brand-wordmark__mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.brand-wordmark__mark .brand-wordmark__mark-light {
+  display: none;
+}
+
+.auth-header .brand-wordmark__mark-light,
+.app-header .brand-wordmark__mark-light {
+  display: block;
+}
+
+.auth-header .brand-wordmark__mark-inverse,
+.app-header .brand-wordmark__mark-inverse {
+  display: none;
+}
+
+:root[data-theme="dark"] .brand-wordmark__mark-light {
+  display: none;
+}
+
+:root[data-theme="dark"] .brand-wordmark__mark-inverse {
+  display: block;
 }
 
 .brand-wordmark__text {
+  grid-column: 2;
+  grid-row: 1;
   color: var(--nav-text);
   font-size: 1.42rem;
   font-weight: 760;
@@ -313,17 +352,8 @@ h3 {
   white-space: nowrap;
 }
 
-.brand-wordmark__text::after {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-left: 4px;
-  border-radius: 50%;
-  background: var(--nav-gold);
-  content: "";
-}
-
 .brand-wordmark__tag {
+  grid-column: 1 / -1;
   margin-top: 3px;
   color: var(--nav-muted);
   font-size: 0.68rem;
@@ -3101,6 +3131,19 @@ h3 {
     font-size: 1.1rem;
   }
 
+  .app-header .brand-wordmark {
+    grid-template-columns: 24px auto;
+    column-gap: 6px;
+    /* Use existing header space without displacing the notification control.
+       24px mark + 6px gap replaces the former 9px trailing dot. */
+    margin-right: -21px;
+  }
+
+  .app-header .brand-wordmark__mark {
+    width: 24px;
+    height: 24px;
+  }
+
   .app-header__event {
     display: flex;
     min-width: 0;
@@ -3413,6 +3456,16 @@ h3 {
 
   .app-header .brand-wordmark__text {
     font-size: 1rem;
+  }
+
+  .app-header .brand-wordmark {
+    grid-template-columns: 21px auto;
+    margin-right: -18px;
+  }
+
+  .app-header .brand-wordmark__mark {
+    width: 21px;
+    height: 21px;
   }
 
   .app-header__event {

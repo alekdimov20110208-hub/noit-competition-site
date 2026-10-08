@@ -54,6 +54,46 @@ The installed package distributions contain their applicable license texts. `pnp
 
 ## Assets
 
+### Official BudoGraph brand — 2026-10-08
+
+The human user explicitly approved the reconstructed **Concept 3 — BG Monogram**
+and authorized its integration. The primary visual reference was the user-supplied
+raster presentation `a_clean_graphic_design_brand_board_logo_presenta.png`, supplied
+from `D:/Downloads/EXE FILES/`. It is an AI-assisted design reference, not an
+authoritative production vector. Its original generator, author/owner and any
+independent redistribution clearance have not been verified.
+
+Codex reconstructed the mark as two closed vector paths during the preceding
+temporary preparation task. The user approved the canonical SVG from
+`C:/Users/Lenovo/AppData/Local/Temp/budograph-brand-review/`. Integration preserves
+both approved path strings and fills; only its title metadata was shortened for
+production. Curves were inferred/regularized from the large primary raster mark;
+lighting and texture were flattened to the reference palette. Pixel-perfect
+equivalence, trademark clearance and exclusive ownership are not claimed.
+
+| Resource                 | Location                                                                                       | Source / treatment                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Canonical monogram       | `public/brand/budograph-monogram.svg`                                                          | User-approved AI-assisted reconstruction; navy `#0F2A44`, coral `#F0766B`   |
+| Inverse monogram         | `public/brand/budograph-monogram-inverse.svg`                                                  | Deterministic fill change to cream `#FBF7F3`; identical geometry            |
+| Favicon                  | `public/brand/favicon.svg`                                                                     | Same geometry, inverse treatment on `#111C2B`; no external service          |
+| Ordinary app icon        | `public/brand/app-icon.svg`, `app-icon-192.png`, `app-icon-512.png`                            | Approved inset canvas, unchanged paths                                      |
+| Future maskable app icon | `public/brand/app-icon-maskable.svg`, `app-icon-maskable-192.png`, `app-icon-maskable-512.png` | More inset canvas, unchanged paths; safe-area check documented in manifest  |
+| Asset inventory/exporter | `public/brand/asset-manifest.json`, `scripts/export-brand-assets.mjs`                          | File hashes and deterministic exports; no additional application dependency |
+
+No third-party attribution or new restrictive asset license is invented. The
+repository's existing GPL-3.0-only license remains unchanged; this record is not
+an independent legal-clearance claim. No original raster, downloaded font,
+stock image or temporary review screenshot is added to the product. Existing
+wordmark typography and localized tagline are retained. The gold dot is removed
+only from the immediate logo pairing. Final students' understanding/review and
+actual-year competition licensing checks remain part of the submission workflow.
+
+The exporter reuses an already installed Sharp verification renderer. It is not
+an application dependency, bundled library or distributed font/visual resource.
+No dependency or lockfile changes accompany this integration.
+
+### Historical Phase 2A asset state
+
 At the time of this Phase 2A review:
 
 - no externally downloaded images are used;

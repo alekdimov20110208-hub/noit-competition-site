@@ -1,5 +1,35 @@
 # AI Assistance Log
 
+## Official Concept 3 brand integration — 2026-10-08
+
+User-authorized integration from
+`17b791f3ffe541ed51111386b8470969a9df99b3`. The pasted request explicitly confirmed
+human approval of the preceding Concept 3 SVG reconstruction. Codex had read the
+complete mandatory master prompt and all 30 supplied 2025–2026 regulations pages.
+It inspected the shared component, sidebar/mobile/Auth uses, theme/typography,
+favicon, asset conventions and provenance docs. No subagents were used.
+
+Copied the approved two-path canonical geometry, shortened title metadata, and
+derived inverse/favicon/ordinary and maskable SVG/PNG exports. No paths were
+redrawn. Existing typography, BudoGraph text, localized tagline, compact behavior,
+theme tokens and accessible brand name are retained. The gold dot was removed
+from the immediate pairing to avoid a second visual accent. Full-width tagline
+layout preserves the Bulgarian wrap and sidebar spacing. Mobile brand spacing
+uses existing free header space to retain adjacent notification control positions.
+
+Frozen baseline/current builds and synthetic read-only transport captures distinguish
+intentional logo changes from locked-page regressions. Actual commands, results
+and limitations are recorded in TEST_EVIDENCE.md. Temporary captures/logs remain
+outside Git; no credentials, cookies, token artifacts or original raster are
+committed. Source provenance is recorded in THIRD_PARTY_NOTICES.md without claiming
+exclusive ownership, independently cleared copyright or trademark verification.
+
+No backend/schema, auth, reminders, notification engine, P4A/Resend, dependency,
+PWA or Web Push implementation changes. The P4A human domain/DNS/Resend gate
+remains outstanding. Supplied 2025–2026 competition rules must be checked for
+later participation. Explicit visual approval does not establish the student's
+full code understanding or replace physical-device/screen-reader verification.
+
 ## Optional Task due time — 2026-10-08
 
 User-authorized implementation from `bfc405aafb955ddb9c50bf35bb40a9bb4cc3f9eb`.
