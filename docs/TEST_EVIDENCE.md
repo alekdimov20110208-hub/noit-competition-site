@@ -1,5 +1,30 @@
 # BudoGraph Test Evidence
 
+## Event Management Stages 2 + 3 — author acceptance and LOCK, 2026-10-11
+
+The project author explicitly confirmed **HUMAN PASS — 6/6** for Stage 2 and
+Stage 3 on **2026-10-11**. Both stages are **TECHNICAL PASS / HUMAN PASS / LOCKED**
+at accepted implementation `9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`
+(`feat(app): improve event management UX and history`). See the
+[Final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record)
+for exact scope and all six author-confirmed groups. Stage 1 remains LOCKED;
+its original record and accepted implementation are unchanged.
+
+This documentation-only task performs no new product/browser/PostgreSQL/password
+or session tests and no restart. The existing logs/reports reconcile to frontend
+280/280, backend 135 PASS / 16 opt-in skips, real PostgreSQL 119/119, browser
+99 groups / 228 cases, direct History 9 groups / 28 layouts, additional link
+workflow 8 groups, locked comparisons 112/112 plus two negative controls and
+2395 ActivityEntry records unchanged. Existing security PASS/zero secret findings,
+one authorized backend reload, preserved Vite/configuration and policy-compliant
+fixture/session cleanup remain implementation evidence, not new LOCK executions.
+
+The sections below retain their timestamped technical results, failures and
+pre-human-acceptance PENDING/NOT LOCKED states. This author-confirmed record
+supersedes only Stage 2 + 3 acceptance status. Documentation verification covers
+Git/source identity, retained figures, local links, formatting, whitespace and
+secret/artifact exclusion. Stages 4–7 remain NOT STARTED.
+
 ## Event Management Stages 2 + 3 — 2026-10-11
 
 Combined owner-authorized implementation starts from

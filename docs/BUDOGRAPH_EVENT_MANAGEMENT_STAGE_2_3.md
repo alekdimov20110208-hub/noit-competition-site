@@ -1,5 +1,122 @@
 # BudoGraph Event Management Stages 2 + 3 — 2026-10-11
 
+## Final LOCK record
+
+The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-11**
+for Event Management Stage 2 and Stage 3 and authorized their final LOCK.
+Accepted implementation: `9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`
+(`feat(app): improve event management UX and history`), committed and pushed to
+`origin/main`. Previous Stage 1 LOCK documentation commit:
+`43d1b515cbcefc64ff1b708a84f6f11675cfb552`.
+
+| Accepted feature                            | Technical gate  | Human gate                   | Final status       |
+| ------------------------------------------- | --------------- | ---------------------------- | ------------------ |
+| Stage 1 — Global Event Listing & Navigation | PASS, preserved | Existing 6/6 PASS, preserved | LOCKED — PRESERVED |
+| Stage 2 — Detail & UX                       | TECHNICAL PASS  | HUMAN PASS                   | LOCKED             |
+| Stage 3 — Event History                     | TECHNICAL PASS  | HUMAN PASS                   | LOCKED             |
+| Combined Stage 2 + 3                        | PASS            | 6/6 PASS                     | LOCKED             |
+
+This is a documentation-only acceptance task. The author-confirmed checks below
+are human acceptance, not a new automated or browser run. No application, test,
+schema, dependency, configuration, infrastructure, credential or database change
+is made by this LOCK task. No product/browser/PostgreSQL/password/session matrix
+is rerun, and no service restart occurs.
+
+### Locked Stage 2 scope
+
+The existing `/events/new` and `/events/:eventId/edit` forms gain clearer hierarchy,
+required-field copy, calendar-date/one-day and timezone explanations, accessible
+field descriptions and explicit return to Event Management. Form Cancel and
+management-return buttons are disabled during save where implemented. Existing
+server validation, expectedVersion concurrency, canonical conflict recovery and
+successful-save navigation remain. Same-Event active Organizers edit; eligible
+Members can create independent Events and become their Organizers. BG/EN,
+Light/Dark and responsive desktop/mobile behavior are accepted.
+
+Existing routes and architecture are preserved. Drafts remain in memory; a
+general unsaved-navigation guard is not implemented or included in this LOCK.
+
+### Locked Stage 3 scope
+
+Event-scoped `/events/:eventId/history` reads existing PostgreSQL ActivityEntry
+through server-authorized `GET /api/events/:eventId/history`. Active same-Event
+Organizer and Member reads show actor/action/time, stored versions and transitions
+where available, and related Task/Change links where available. Pages contain at
+most 50 records with deterministic timestamp/UUID ordering. Event isolation,
+revoked/inactive/foreign access protection, localization/themes, responsive UI
+and preservation of existing history are accepted.
+
+Fastify, Better Auth, PostgreSQL, existing Event modules, ActivityEntry persistence
+and routing/navigation contracts are reused. No migration, dependency, separate
+audit persistence, retention change or historical rewrite is introduced.
+Recorded versions/transitions are historical values; displayed actor names and
+related titles are current joins. Full past Decision/Response/Plan B text is not
+reconstructed or retained by this feature. The History row link is the accepted
+Stage 1 listing compatibility addition; original controls and permissions remain.
+
+### Author-confirmed human acceptance
+
+Acceptance date: **2026-10-11**. Combined result: **6/6 PASS**.
+
+- [x] Event Create/Edit, validation and conflict handling.
+- [x] Organizer/Member permissions and ownership restrictions.
+- [x] History actor/time information, versions and related links.
+- [x] Event switching, pagination and navigation.
+- [x] Responsive layout, BG/EN and Light/Dark.
+- [x] Final usability assessment and source/evidence review.
+
+### Preserved technical evidence and invariants
+
+The [implementation evidence](TEST_EVIDENCE.md#event-management-stages-2--3--2026-10-11)
+and preserved report below remain the technical source: frontend 280/280;
+backend 135 PASS / 16 expected opt-in skips; PostgreSQL 119/119; browser 99 groups /
+228 cases; direct History 9 groups / 28 layouts; additional link workflow 8 groups;
+112/112 locked visual comparisons plus two negative controls; 2395 ActivityEntry
+records unchanged; security PASS with zero secret findings. These are existing
+implementation results, not executions during this documentation task. The
+authorized single backend reload, live/ready checks, preserved Vite/configuration
+and fixture/session cleanup remain recorded implementation evidence.
+
+The [Stage 1 LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record)
+is unchanged. Its earlier Stage 2 NOT STARTED wording records that historical
+acceptance date; this separately authorized implementation and LOCK supersede
+only that later-stage status. Authenticated `/events`, filters/search, Manage,
+Create/Edit routes, Better Auth/PostgreSQL, Event permissions, ActivityEntry and
+Task/Change behavior, locked Dashboard/Tasks/Team/Changes interiors, Brand/Profile
+acceptance, five-item navigation, BG/EN, Light/Dark and responsive compatibility
+remain preserved. No prior failures or pre-acceptance evidence are erased.
+
+### Excluded and deferred scope
+
+Stage 4 durable operation idempotency, Stage 5 Duplicate Event, Stage 6 Archive
+Event and Stage 7 Clear All Tasks are **NOT STARTED**. The Archived filter does
+not perform archiving. General unsaved-navigation protection and full historical
+coordination-text reconstruction remain unavailable. Templates, Budget, Calendar,
+PWA, Web Push and unrelated work remain outside this acceptance. The 572.83 kB
+build advisory and other [known limitations](KNOWN_LIMITATIONS.md) are retained.
+NOIT 2025–2026 regulations do not automatically apply to 2026–2027; actual-year
+eligibility, dates, categories and submission/defence/licensing requirements need
+separate verification. This LOCK is an internal product acceptance.
+
+EVENT MANAGEMENT STAGE 1: LOCKED — PRESERVED
+
+EVENT MANAGEMENT STAGE 2: TECHNICAL PASS / HUMAN PASS / LOCKED — YES
+
+EVENT MANAGEMENT STAGE 3: TECHNICAL PASS / HUMAN PASS / LOCKED — YES
+
+COMBINED HUMAN ACCEPTANCE: 6/6 PASS
+
+STAGE 4: NOT STARTED
+
+STAGES 5–7: NOT STARTED
+
+The report from **Authorization and baseline** to the end of this file is
+preserved pre-human-acceptance implementation evidence. Its PENDING/NOT LOCKED
+wording and unchecked original checklist are historical; the Final LOCK record
+above supersedes only that acceptance status.
+
+---
+
 ## Authorization and baseline
 
 Combined owner request authorizes Stage 2 form/workflow UX and Stage 3 minimal

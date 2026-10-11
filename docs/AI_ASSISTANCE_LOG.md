@@ -1,5 +1,30 @@
 # AI Assistance Log
 
+## Event Management Stages 2 + 3 — author acceptance and LOCK, 2026-10-11
+
+The project author explicitly confirmed Human Acceptance — **6/6 PASS** for both
+stages and authorized documentation-only final LOCK at accepted implementation
+`9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`. Codex verified `main`, synchronized
+local/remote implementation identity and clean tracked tree/index before editing.
+The mandatory sources already read in this conversation remain unchanged.
+
+Codex records precise Stage 2 form UX and Stage 3 canonical read-only History
+scope, all six human-confirmed groups, acceptance date **2026-10-11** and the
+[Final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record).
+The user guide's current pending status is reconciled with that author approval.
+Stage 1's historical LOCK record remains byte-identical. Previous failures and
+PENDING/NOT LOCKED states remain historical evidence; human approval is not
+relabelled as an automated run.
+
+Only documentation changes are authorized. Existing test figures are checked
+against retained logs/reports; product/browser/PostgreSQL/password/session suites
+are not rerun. No runtime restart, credential/database/configuration/source/test
+change occurs. Documentation checks cover links, implementation SHA, scopes,
+formatting, whitespace, secret/private-artifact exclusion and protected hashes.
+The dedicated publication subject is `docs: lock event management stages 2 and 3`.
+The unrelated shortcut and ignored private/evidence files remain excluded.
+Stages 4–7 are NOT STARTED. Current-year NOIT verification remains separate.
+
 ## Event Management Stages 2 + 3 — 2026-10-11
 
 The owner explicitly authorized combined implementation, internal Stage 2/3

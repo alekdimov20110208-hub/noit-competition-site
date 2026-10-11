@@ -29,7 +29,9 @@ or **Refresh history / Обновяване на историята** for a fres
 failed reads are distinct. This is the recorded operational history, not every
 past action. Names/titles are current, and full old Decision/Response/Plan B text
 is not retained. History is read-only; no edit, erase or new audit action is offered.
-Stages 4–7 remain unstarted. Stage 2 + 3 human acceptance is pending.
+Stages 4–7 remain unstarted. Stage 2 + 3 are LOCKED after the project author's
+6/6 Human Acceptance on 2026-10-11; see the
+[Final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record).
 
 ## Event Management / Управление на събития
 

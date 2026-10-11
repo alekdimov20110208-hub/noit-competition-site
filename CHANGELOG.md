@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-11 — Event Management Stages 2 + 3 LOCK
+
+- Record explicit project-author Human Acceptance — 6/6 PASS on 2026-10-11 and LOCK Stage 2 Detail & UX and Stage 3 Event History at implementation `9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`.
+- Document precise accepted scopes and preserve Stage 1 LOCK, existing technical evidence, historical failures and pre-acceptance PENDING states. Keep current-name/history limitations, 572.83 kB advisory and competition-year boundary.
+- Documentation only: no application, test, schema, dependency, configuration, infrastructure, credential or data change; no product/browser/PostgreSQL/password matrix or restart. Stages 4–7 remain NOT STARTED; the unrelated shortcut stays excluded.
+
 ## 2026-10-11 — Event Management Stages 2 + 3
 
 - Clarify existing Create/Edit hierarchy, required fields, calendar-date and timezone guidance, accessible descriptions and pending controls; retain canonical validation, conflicts and successful-save navigation.

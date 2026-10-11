@@ -7,8 +7,10 @@ canonical PostgreSQL ActivityEntry records, Event-scoped authorization and
 combined verification are **TECHNICAL PASS**: frontend 280, backend 135 (+16 opt-in
 skips), real PostgreSQL 119, fresh browser 99 groups / 228 cases and strict locked
 interiors 112/112. Direct shared-runtime History passed after the owner-authorized
-single backend reload. Human acceptance remains pending; these stages are not
-locked. See [Stage 2 + 3](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md).
+single backend reload. The project author confirmed **HUMAN PASS — 6/6** on
+**2026-10-11**; Stage 2 + 3 are **LOCKED** at implementation
+`9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`. See the
+[Final LOCK record](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record).
 Stages 4–7 are not started.
 
 Event Management Stage 1 adds global authenticated `/events` and a single

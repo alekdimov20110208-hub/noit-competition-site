@@ -2,8 +2,11 @@
 
 ## Event Management Stages 2 + 3 — 2026-10-11
 
-Implementation and combined technical verification pass. Human acceptance is
-pending and Stage 2 + 3 are not locked. Stage 1's accepted LOCK remains unchanged.
+Implementation and combined technical verification pass. The project author
+confirmed **HUMAN PASS — 6/6** on **2026-10-11**; Stage 2 + 3 are **LOCKED** at
+`9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`. The
+[Final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record)
+defines the accepted scope. Stage 1's accepted LOCK remains unchanged.
 Only existing ActivityEntry records are shown: this is not a complete audit or
 an event-sourcing system. Actor display names and related titles are current,
 not historical name snapshots. Task status and Change coordination presence
