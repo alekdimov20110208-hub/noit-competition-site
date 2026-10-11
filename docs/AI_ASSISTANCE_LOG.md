@@ -1,5 +1,24 @@
 # AI Assistance Log
 
+## Event Management Stage 1 — author acceptance and LOCK, 2026-10-11
+
+The project author explicitly confirmed all six human acceptance checks and
+authorized the final Stage 1 LOCK for accepted implementation
+`8959b51eb054f71ddf9cafe7136f096edcc9b1f5`
+(`feat(app): add event management listing and navigation`). Technical PASS was
+already independently recorded. Codex updated only existing status/acceptance
+documentation and the [Stage 1 LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record):
+TECHNICAL PASS, HUMAN PASS — 6/6, LOCKED. The record preserves the exact six
+author-confirmed checks, accepted scope, invariants and existing evidence links.
+
+This task does not repeat human checks or product/browser/database verification;
+it attributes human acceptance to the author's explicit confirmation. Prior PASS
+evidence and earlier pending/failure records remain unchanged. Active/Archived
+listing is distinct from a future Archive Event command. No code, tests, fixtures,
+database, credentials, environment or infrastructure were changed, and the
+unrelated shortcut remains excluded. Event Management Stage 2 is NOT STARTED.
+Earlier entries below retain their then-current pre-acceptance status.
+
 ## Event Management Stage 1 — final evidence reconciliation, 2026-10-11
 
 The owner authorized one non-mutating short-sidebar investigation and a conditional

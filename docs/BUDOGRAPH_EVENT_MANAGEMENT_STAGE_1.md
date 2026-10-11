@@ -11,7 +11,10 @@ is preserved and must never be staged, changed, deleted or committed.
 
 Implementation, all mandatory verification and final quality checks are complete.
 Stage 1 is **TECHNICAL PASS**.
-Human Acceptance is **PENDING**; Stage 1 is **NOT LOCKED**.
+Human Acceptance is **PASS — 6/6**, explicitly confirmed by the project author
+on **2026-10-11**. Stage 1 is **LOCKED** within the accepted scope below.
+Accepted implementation: `8959b51eb054f71ddf9cafe7136f096edcc9b1f5`
+(`feat(app): add event management listing and navigation`).
 
 The final Profile run passed 13/13 groups and 20/20 layouts using one isolated,
 rollback-only disposable Organizer on official local PostgreSQL 17.11, with
@@ -25,10 +28,65 @@ The only final harness corrections synchronize the existing Tasks route focus
 before opening the mobile account menu and await active reduced-motion
 transitions before geometry measurement. Original assertions/deadlines and locked
 product styling remain unchanged. The unrelated shortcut and temporary evidence
-are excluded from the conditional Stage 1 commit. The approved commit message is
-`feat(app): add event management listing and navigation`; its SHA belongs in Git
-history after publication. No further tests, later stage or LOCK are authorized
-by technical completion.
+were excluded from the accepted implementation commit. The project author's
+subsequent explicit six-check acceptance authorizes this documentation-only LOCK;
+technical completion alone did not authorize it. No later stage is authorized.
+
+## Stage 1 LOCK record
+
+| Field                    | Accepted record                                              |
+| ------------------------ | ------------------------------------------------------------ |
+| Feature                  | Event Management Stage 1 — Global Event Listing & Navigation |
+| Technical Gate           | TECHNICAL PASS                                               |
+| Human Acceptance         | HUMAN PASS — 6/6, confirmed by the project author            |
+| Status                   | LOCKED                                                       |
+| Acceptance date          | 2026-10-11                                                   |
+| Accepted implementation  | `8959b51eb054f71ddf9cafe7136f096edcc9b1f5`                   |
+| Implementation subject   | `feat(app): add event management listing and navigation`     |
+| Event Management Stage 2 | NOT STARTED                                                  |
+
+The project author explicitly confirmed these six manual checks. This records
+human acceptance; no new automated or browser execution is claimed in this LOCK task.
+
+| Human check                                             | Author-confirmed result |
+| ------------------------------------------------------- | ----------------------- |
+| Organizer login and Manage navigation                   | PASS                    |
+| Event listing, search and Active/Archived filters       | PASS                    |
+| Event workspace navigation to Dashboard, Tasks and Team | PASS                    |
+| Event Create/Edit navigation                            | PASS                    |
+| Mobile/narrow layout, BG/EN and control visibility      | PASS                    |
+| Member access and Organizer-only Edit restrictions      | PASS                    |
+
+**Locked scope:** authenticated global `/events`; membership-authorized Event
+listing and access; Active/Archived filtering and Event-name search; workspace
+navigation; one Manage entry in each desktop/mobile Event switcher, preserving
+the five-item mobile navigation; Edit only for active same-Event Organizer
+membership; existing Create/Edit flows; existing locked workspace designs.
+An authenticated Member can still create an independent Event under the existing
+authoring API and become its Organizer; this grants no Edit authority in another
+Event. Archived listing opens accessible historical workspaces. It does **not**
+implement an Archive Event operation.
+
+**Preserved invariants:** PostgreSQL and Better Auth behavior; Event-scoped
+authorization; Dashboard, Tasks and Team design; Task history/activity integrity;
+existing Event authoring behavior; BG/EN and Light/Dark behavior; responsive
+layouts. The accepted technical evidence supports these invariants; the six
+manual checks do not claim formal accessibility or cross-engine certification.
+
+**Future work, not included or implemented by this LOCK:** Event Management UX
+refinements; Event History improvements; durable idempotency for sensitive Event
+operations; Duplicate Event; Archive Event operations; Clear All Tasks. Stages
+2–7 require separate authorization and remain NOT STARTED.
+
+**Preserved evidence:** [final Technical PASS report](../tmp/event-management-stage1/profile-short-sidebar-20261011/FINAL_REPORT.md),
+[complete Profile result](../tmp/event-management-stage1/profile-short-sidebar-20261011/profile/report.json),
+[acceptance inventory](../tmp/event-management-stage1/profile-short-sidebar-20261011/acceptance-inventory.json),
+[security audit](../tmp/event-management-stage1/profile-short-sidebar-20261011/staged-security-audit.json)
+and [test evidence reconciliation](TEST_EVIDENCE.md#event-management-stage-1--final-reconciliation-2026-10-11).
+The `tmp` evidence is preserved ignored local evidence and is not committed.
+The technical report's earlier PENDING/NOT LOCKED status records its pre-human
+acceptance date; this author-confirmed LOCK supersedes only that status.
+Previous passing results and historical failures are unchanged.
 
 ## Behavior
 
@@ -261,7 +319,12 @@ regional round through one month after the final round. It is not asserted as a
 current-year rule. September 15, 2026 is a historical internal project deadline.
 Stage 1 scope and approval/LOCK gates are internal product decisions.
 
-## Exact human acceptance checklist
+## Historical verification planning checklist
+
+The original checklist below is preserved for traceability. Final Human
+Acceptance is the project author's six-check record above. Unchecked planning
+items are not additional manual PASS claims; participation-year competition and
+formal device/accessibility reviews remain separate work.
 
 - [x] Complete all mandatory technical browser coverage, including real controlled Stage 1 sessions and the isolated disposable Profile regression; preserve existing evidence.
 - [x] Resolve the seven strict locked-screen differences; 112 original references match exactly with the documented shell-height normalization. Human visual acceptance remains pending.
@@ -282,6 +345,6 @@ DATABASE MIGRATION: NONE
 
 STAGES 2–7 STARTED: NO
 
-HUMAN ACCEPTANCE: PENDING
+HUMAN ACCEPTANCE: PASS — 6/6
 
-STAGE 1 LOCKED: NO
+STAGE 1 LOCKED: YES

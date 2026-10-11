@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-11 — Event Management Stage 1 LOCK
+
+- Record the project author's explicit Human Acceptance: 6/6 PASS, following Technical PASS, and lock Global Event Listing & Navigation at implementation `8959b51eb054f71ddf9cafe7136f096edcc9b1f5`.
+- Update the existing project status and Stage 1 LOCK record with the precise accepted scope, preserved authorization/design/history invariants and links to unchanged evidence.
+- Distinguish Active/Archived listing from future Archive Event operations. UX refinements, Event History improvements, durable idempotency, Duplicate Event and Clear All Tasks remain future work; Stage 2 is not started.
+- Documentation only: no product, test, database, fixture, credential, environment or infrastructure changes; preserve the unrelated untracked shortcut.
+
 ## 2026-10-11 — Event Management Stage 1 verification closure
 
 - Complete the mandatory Profile regression once on isolated local PostgreSQL 17.11: 13/13 functional groups and 20/20 layouts, with verified disposable and runtime cleanup.

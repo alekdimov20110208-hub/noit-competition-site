@@ -8,7 +8,9 @@ mandatory coverage and final quality checks. Fresh isolated Profile passed
 13/13 groups and 20/20 layouts, with
 verified disposable/runtime cleanup; other mandatory evidence remains preserved.
 Locked interiors pass 112/112 after isolating only approved header-height changes.
-Human Acceptance remains **PENDING** and Stage 1 is **NOT LOCKED**;
+Human Acceptance is **PASS — 6/6**, confirmed by the project author on
+2026-10-11, and Stage 1 is **LOCKED** at accepted implementation
+`8959b51eb054f71ddf9cafe7136f096edcc9b1f5`;
 stages 2–7 are **NOT STARTED**. See [the Stage 1 technical report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md)
 and [current evidence](docs/TEST_EVIDENCE.md).
 
@@ -49,6 +51,13 @@ and [test evidence](docs/TEST_EVIDENCE.md). Earlier descriptions retain historic
 BudoGraph is an organizer workspace for martial-arts seminars and events. It gives the organizer one current operational overview of preparation tasks, ownership, deadlines, risks, changes, and contingency responses while continuing to treat direct human communication as essential.
 
 ## Project status and evidence boundary
+
+**Event Management Stage 1 — Global Event Listing & Navigation: TECHNICAL PASS,
+HUMAN PASS — 6/6, LOCKED.** The authoritative [Stage 1 LOCK record](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record)
+defines the accepted scope, implementation and preserved evidence. Active/Archived
+is a listing filter; Archive Event operations, Duplicate Event, Clear All Tasks,
+Event History improvements, durable idempotency and later UX refinements are
+future work. Event Management Stage 2 is **NOT STARTED**.
 
 **P3C Dashboard integration and Change clarity** preserves P3A/P3B.
 Dashboard **Operational Changes** now reads canonical current-Event Changes, latest

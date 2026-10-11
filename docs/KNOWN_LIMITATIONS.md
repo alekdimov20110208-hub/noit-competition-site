@@ -4,8 +4,11 @@
 
 All mandatory technical coverage and final quality checks pass, including fresh
 isolated Profile 13/13 groups and 20/20 layouts. Stage 1 is **TECHNICAL PASS**.
-Human Acceptance is **PENDING** and
-Stage 1 remains **NOT LOCKED**. Earlier stale credentials, infrastructure failures
+Human Acceptance is **PASS — 6/6**, explicitly confirmed by the project author
+on 2026-10-11; Stage 1 is **LOCKED** at accepted implementation
+`8959b51eb054f71ddf9cafe7136f096edcc9b1f5`. The
+[LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record) defines its
+scope. Earlier stale credentials, infrastructure failures
 and Profile timing failures remain historical evidence, not current missing
 coverage. The remote intermittency's root cause remains unproven; local Profile
 isolation does not claim to fix it. All 112 locked interiors match their original
@@ -16,6 +19,9 @@ formal accessibility certification are separate pending human gates.
 Stages 2–7 remain **NOT STARTED**.
 Only an Event-name client-side search is provided; no management detail, duplicate,
 archive or Clear All Tasks action exists. Existing Create/Edit forms are unchanged.
+Active/Archived is a listing filter, not the future Archive Event operation.
+Event Management UX refinements, Event History improvements and durable
+idempotency for sensitive Event operations are also outside the Stage 1 LOCK.
 Physical devices, other engines and formal accessibility validation remain human
 checks. See [the Stage 1 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md) and
 [test evidence](TEST_EVIDENCE.md) for exact executed results and limitations.

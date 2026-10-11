@@ -3,8 +3,14 @@
 ## Event Management Stage 1 — final reconciliation, 2026-10-11
 
 Mandatory technical coverage and closure quality checks are complete: **TECHNICAL
-PASS**. Human Acceptance is
-**PENDING** and Stage 1 remains **NOT LOCKED**. Baseline HEAD:
+PASS**. The project author confirmed **HUMAN PASS — 6/6** on **2026-10-11**;
+Stage 1 is **LOCKED**. Accepted implementation:
+`8959b51eb054f71ddf9cafe7136f096edcc9b1f5`. See the
+[Stage 1 LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record)
+for all six author-confirmed checks, scope and invariants. This documentation-only
+acceptance task runs no product/browser tests and leaves all technical evidence
+unchanged. The preserved technical report's PENDING/NOT LOCKED wording is its
+historical pre-human-acceptance status. Baseline HEAD:
 `fbf4db18b4d139f1ab45f762f9cd2e2c1a34ca87`. The authorized scoped publication uses
 `feat(app): add event management listing and navigation`; use Git history and the
 ignored final closure report for its resulting local/remote SHA.
