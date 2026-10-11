@@ -8,7 +8,6 @@ export function EventSwitcher({
   currentEventId,
   onSwitch,
   onNavigate,
-  editHref,
   status = "ready",
   mobile = false,
 }: {
@@ -16,7 +15,6 @@ export function EventSwitcher({
   currentEventId?: string;
   onSwitch: (eventId: string) => void;
   onNavigate: (href: string) => void;
-  editHref?: string;
   status?: "loading" | "ready" | "error";
   mobile?: boolean;
 }) {
@@ -50,14 +48,9 @@ export function EventSwitcher({
           ))}
       </select>
       <div className="event-switcher__actions">
-        <AppLink href="/events/new" onNavigate={onNavigate}>
-          {t("events.create")}
+        <AppLink href="/events" onNavigate={onNavigate}>
+          {t("events.manage")}
         </AppLink>
-        {editHref && (
-          <AppLink href={editHref} onNavigate={onNavigate}>
-            {t("events.edit")}
-          </AppLink>
-        )}
       </div>
     </div>
   );

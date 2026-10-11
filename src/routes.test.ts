@@ -16,7 +16,60 @@ import {
   TASK_DETAIL_HISTORY_STATE,
   eventHref,
   eventEditHref,
+  isGlobalAppPath,
+  APP_ROUTES,
 } from "./routes.ts";
+
+test("Event management is global, ignores detail context and leaves the five workspace routes intact", () => {
+  for (const pathname of ["/events", "/events/", "/events///"]) {
+    assert.deepEqual(parseAppLocation(pathname, "?task=old&change=old"), {
+      path: "/events",
+      taskId: null,
+      eventId: null,
+      eventMode: "workspace",
+    });
+    assert.equal(normalizePath(pathname), "/events");
+  }
+  assert.equal(isGlobalAppPath("/events"), true);
+  assert.equal(isGlobalAppPath("/account"), true);
+  assert.equal(isGlobalAppPath("/"), false);
+  assert.equal(eventHref(randomUUID(), "/events"), "/events");
+  assert.deepEqual(
+    APP_ROUTES.map((route) => route.path),
+    ["/", "/tasks", "/team", "/changes", "/templates"],
+  );
+});
+
+test("strict global management login return accepts only the canonical route", () => {
+  assert.equal(safeReturnTo("/events"), "/events");
+  assert.equal(safeReturnTo("/events/"), "/events");
+  assert.equal(
+    new URL(loginHref("/events"), "https://budograph.invalid").searchParams.get(
+      "returnTo",
+    ),
+    "/events",
+  );
+  for (const href of [
+    "/events?task=old",
+    "/events?next=//evil.invalid",
+    "/events#fragment",
+    "//evil.invalid/events",
+    "/%65vents",
+    "/events/duplicate",
+    "/events/manage",
+  ])
+    assert.equal(safeReturnTo(href), "/");
+});
+
+test("all five Event-scoped pages preserve route and login scope", () => {
+  const id = randomUUID();
+  for (const route of APP_ROUTES) {
+    const href = eventHref(id, route.path);
+    assert.equal(parseAppLocation(href, "").path, route.path);
+    assert.equal(parseAppLocation(href, "").eventId, id);
+    assert.equal(safeReturnTo(href), href);
+  }
+});
 
 test("Event URLs preserve explicit Dashboard, Tasks, Team and edit scope through refresh", () => {
   const eventId = randomUUID();

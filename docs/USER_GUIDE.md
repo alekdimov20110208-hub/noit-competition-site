@@ -1,5 +1,26 @@
 # BudoGraph User Guide
 
+## Event Management / Управление на събития
+
+Choose **Manage / Управление** next to the Event selector on desktop or mobile,
+or open `/events` after signing in. The page works independently of a selected
+Task workspace. **Active / Активни** is selected initially; **Archived / Архивирани**
+shows accessible historical Events. Search by Event name within the selected filter.
+Rows show dates, timezone and your membership role.
+
+Use **Open event / Отваряне на събитието** to enter an active workspace. Archived
+rows open the existing readable historical workspace. **Create event / Създаване
+на събитие** uses the existing form and gives you Organizer membership in the new
+Event. **Edit event / Редактиране на събитието** appears only when you are an
+Organizer of an active Event. Edit is unavailable for Members and archived Events.
+Only Events accessible to your signed-in account are listed. If there are no active
+Events, legacy workspace entry opens management. Loading, empty/search-empty and
+failure/retry states give explicit guidance. The bottom navigation keeps five items.
+
+No duplication, archive command, management detail or task-clearing action is
+available in Stage 1. Those later stages have not started. Current technical and
+human acceptance status is in [the Stage 1 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md).
+
 ## My Profile / Моят профил
 
 Open **My Profile / Моят профил** in the desktop account area or the mobile

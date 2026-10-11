@@ -42,7 +42,6 @@ interface AppShellProps {
   dataMode?: "demo" | "remote-tasks" | "remote-workspace";
   events?: readonly TaskEvent[];
   onSwitchEvent?: (eventId: string) => void;
-  eventEditHref?: string;
   eventsStatus?: "loading" | "ready" | "error";
   notificationContext?: {
     eventId: string;
@@ -62,7 +61,6 @@ export function AppShell({
   dataMode = "demo",
   events = [],
   onSwitchEvent,
-  eventEditHref,
   eventsStatus,
   notificationContext,
 }: AppShellProps) {
@@ -88,7 +86,6 @@ export function AppShell({
               currentEventId={event?.id}
               onSwitch={onSwitchEvent}
               onNavigate={onNavigate}
-              editHref={eventEditHref}
               status={eventsStatus}
             />
           ) : (
@@ -157,7 +154,6 @@ export function AppShell({
             currentEventId={event?.id}
             onSwitch={onSwitchEvent}
             onNavigate={onNavigate}
-            editHref={eventEditHref}
             status={eventsStatus}
             mobile
           />

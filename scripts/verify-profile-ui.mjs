@@ -4,6 +4,52 @@ import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import { readServerEnv } from "../server/src/config/env.ts";
+const controlledConfig = readServerEnv();
+assert.equal(controlledConfig.nodeEnv, "development");
+// An owned rollback-only development fixture may inject credentials in memory.
+// Ordinary runs keep the original controlled environment and HTTP destination.
+const disposableFixture = globalThis[Symbol.for("budograph.profile.fixture")];
+// Optional passive observer owned by the isolated verification helper.
+const profileObserver = globalThis[Symbol.for("budograph.profile.observer")];
+if (disposableFixture?.directTransport) {
+  const frontend = new URL(disposableFixture.frontendOrigin);
+  assert.ok(
+    frontend.protocol === "http:" &&
+      frontend.hostname === "127.0.0.1" &&
+      frontend.port &&
+      frontend.origin === disposableFixture.frontendOrigin,
+    "Isolated frontend must use an explicit loopback origin",
+  );
+  assert.ok(
+    controlledConfig.betterAuthUrl === disposableFixture.apiOrigin &&
+      controlledConfig.publicAppUrl === disposableFixture.frontendOrigin &&
+      new URL(controlledConfig.databaseUrl).hostname === "127.0.0.1",
+    "Direct fixture configuration must match the isolated local endpoints",
+  );
+} else {
+  assert.equal(
+    new URL(controlledConfig.betterAuthUrl).origin,
+    "http://127.0.0.1:3001",
+  );
+}
+if (disposableFixture) {
+  const target = new URL(disposableFixture.apiOrigin);
+  assert.equal(target.hostname, "127.0.0.1");
+  assert.equal(target.protocol, "http:");
+  assert.ok(target.port && !["3001", "5173"].includes(target.port));
+  assert.equal(target.origin, disposableFixture.apiOrigin);
+  assert.ok(
+    disposableFixture.userId && disposableFixture.rollbackOnly === true,
+  );
+  assert.ok(disposableFixture.email.endsWith("@example.invalid"));
+  assert.notEqual(
+    disposableFixture.email,
+    process.env.BUDOGRAPH_ORGANIZER_EMAIL,
+  );
+  assert.notEqual(disposableFixture.email, process.env.BUDOGRAPH_MEMBER_EMAIL);
+  assert.notEqual(process.env.BUDOGRAPH_PROFILE_RECOVERY_SELF_TEST, "1");
+}
 const { chromium } = await import(
   process.env.BUDOGRAPH_PLAYWRIGHT_MODULE
     ? pathToFileURL(process.env.BUDOGRAPH_PLAYWRIGHT_MODULE).href
@@ -11,27 +57,51 @@ const { chromium } = await import(
 );
 const browser = await chromium.launch({
   headless: true,
+  // The harness owns interruption cleanup. Playwright's default signal
+  // handler exits the process before the supported restoration can finish.
+  handleSIGINT: false,
+  handleSIGTERM: false,
   ignoreDefaultArgs: ["--hide-scrollbars"],
   ...(process.env.BUDOGRAPH_BROWSER_EXECUTABLE
     ? { executablePath: process.env.BUDOGRAPH_BROWSER_EXECUTABLE }
     : {}),
 });
-const origin = "http://127.0.0.1:5173",
-  out = "tmp/profile-evidence/browser";
+const origin = disposableFixture?.frontendOrigin ?? "http://127.0.0.1:5173",
+  out = disposableFixture?.outputDirectory ?? "tmp/profile-evidence/browser";
+const apiOrigin = disposableFixture?.apiOrigin ?? origin;
 mkdirSync(out, { recursive: true });
 const report = {
   browser: browser.version(),
   checks: [],
   matrix: [],
   pageErrors: 0,
+  passwordRestoration: { verified: false },
+  authResponses: [],
+  interruptionSelfTest:
+    process.env.BUDOGRAPH_PROFILE_RECOVERY_SELF_TEST === "1",
 };
 const checked = (label) => {
   report.checks.push(label);
   console.log(`PASS: ${label}`);
 };
-const email = process.env.BUDOGRAPH_ORGANIZER_EMAIL,
-  password = process.env.BUDOGRAPH_ORGANIZER_PASSWORD;
+const email = disposableFixture?.email ?? process.env.BUDOGRAPH_ORGANIZER_EMAIL,
+  password =
+    disposableFixture?.password ?? process.env.BUDOGRAPH_ORGANIZER_PASSWORD;
 assert.ok(email && password, "Controlled development credentials required");
+async function verifyDisposableIdentity(context) {
+  if (!disposableFixture) return;
+  const response = await context.request.get(`${apiOrigin}/api/me`);
+  assert.equal(
+    response.status(),
+    200,
+    "Disposable identity must be authenticated",
+  );
+  const user = (await response.json()).user;
+  assert.ok(
+    user.id === disposableFixture.userId && user.email === email,
+    "Refuse account write outside the owned disposable identity",
+  );
+}
 const contexts = [];
 async function make() {
   const context = await browser.newContext({
@@ -40,7 +110,31 @@ async function make() {
     locale: "en-GB",
   });
   contexts.push(context);
+  if (disposableFixture && !disposableFixture.directTransport) {
+    // Transparent transport to the real isolated Fastify/Better Auth backend;
+    // no success responses or authenticated identities are fabricated here.
+    await context.route(`${origin}/api/**`, async (route) => {
+      const url = new URL(route.request().url());
+      const observation = profileObserver?.transportStarted(
+        context,
+        route.request(),
+      );
+      try {
+        const response = await route.fetch({
+          url: apiOrigin + url.pathname + url.search,
+          maxRetries: 0,
+        });
+        profileObserver?.transportResponse(observation, response.status());
+        await route.fulfill({ response });
+        profileObserver?.transportCompleted(observation);
+      } catch (error) {
+        profileObserver?.transportFailed(observation, error);
+        throw error;
+      }
+    });
+  }
   await context.addInitScript(() => {
+    if (location.href === "about:blank") return;
     if (!localStorage.getItem("budograph.preferences.v1"))
       localStorage.setItem(
         "budograph.preferences.v1",
@@ -49,10 +143,24 @@ async function make() {
   });
   const page = await context.newPage();
   page.on("pageerror", () => report.pageErrors++);
+  page.on("response", (response) => {
+    const path = new URL(response.url()).pathname;
+    if (
+      [
+        "/api/me",
+        "/api/auth/sign-in/email",
+        "/api/auth/change-password",
+        "/api/auth/update-user",
+      ].includes(path)
+    )
+      report.authResponses.push({ path, status: response.status() });
+  });
   return { context, page };
 }
-const post = (page, path, fields) =>
-  page.evaluate(
+const post = async (page, path, fields) => {
+  if (["change-password", "update-user"].includes(path))
+    await verifyDisposableIdentity(page.context());
+  return page.evaluate(
     async ({ path, fields }) => {
       const response = await fetch(`/api/auth/${path}`, {
         method: "POST",
@@ -63,6 +171,7 @@ const post = (page, path, fields) =>
     },
     { path, fields },
   );
+};
 async function login(page, pass = password) {
   await page.goto(origin + "/account");
   await page.locator("#login-email").fill(email);
@@ -77,9 +186,96 @@ async function me(page) {
   });
 }
 let originalName,
+  originalIdentityId,
+  interrupted = false,
   changedPassword = false;
 const temporaryPassword = randomBytes(20).toString("hex");
 const { page, context } = await make();
+async function freshSignIn(pass) {
+  const fresh = await make();
+  const response = await fresh.context.request.post(
+    `${apiOrigin}/api/auth/sign-in/email`,
+    {
+      headers: { origin },
+      data: { email, password: pass },
+    },
+  );
+  return { ...fresh, status: response.status() };
+}
+async function verifyRestoration() {
+  await new Promise((resolve) => setTimeout(resolve, 11_000));
+  const restored = await freshSignIn(password);
+  assert.equal(
+    restored.status,
+    200,
+    "Original password fresh login must succeed",
+  );
+  const identity = await restored.context.request.get(`${apiOrigin}/api/me`);
+  assert.equal(identity.status(), 200);
+  const user = (await identity.json()).user;
+  assert.ok(
+    user.id === originalIdentityId && user.email === email,
+    "Restored session must belong to the configured controlled identity",
+  );
+  const obsolete = await freshSignIn(temporaryPassword);
+  assert.equal(
+    obsolete.status,
+    401,
+    "Temporary password must be rejected after restoration",
+  );
+  report.passwordRestoration = {
+    verified: true,
+    originalPasswordFreshLogin: true,
+    expectedIdentity: true,
+    temporaryPasswordRejected: true,
+  };
+}
+async function recoverPassword() {
+  // A failed/lost UI response may follow a successful write. Resolve the actual
+  // credential through fresh supported logins; never rewrite a database hash.
+  await new Promise((resolve) => setTimeout(resolve, 11_000));
+  const original = await freshSignIn(password);
+  if (original.status !== 200) {
+    assert.equal(
+      original.status,
+      401,
+      "Unexpected restoration authentication status",
+    );
+    const temporary = await freshSignIn(temporaryPassword);
+    assert.equal(
+      temporary.status,
+      200,
+      "Controlled temporary credential recovery failed",
+    );
+    await verifyDisposableIdentity(temporary.context);
+    const restored = await temporary.context.request.post(
+      `${apiOrigin}/api/auth/change-password`,
+      {
+        headers: { origin },
+        data: {
+          currentPassword: temporaryPassword,
+          newPassword: password,
+          revokeOtherSessions: true,
+        },
+      },
+    );
+    assert.equal(
+      restored.status(),
+      200,
+      "Supported controlled password restoration failed",
+    );
+  }
+  await verifyRestoration();
+  changedPassword = false;
+}
+const onInterrupt = () => {
+  interrupted = true;
+  // Closing only the workflow page rejects its outstanding waits, entering the
+  // finally cleanup. Independent recovery contexts remain available.
+  void page.close().catch(() => {});
+};
+process.on("SIGINT", onInterrupt);
+process.on("SIGTERM", onInterrupt);
 try {
   await page.goto(origin + "/account");
   await page.locator("#login-email").waitFor();
@@ -87,13 +283,24 @@ try {
   assert.equal(await page.locator(".profile-page").count(), 0);
   checked("anonymous /account is gated with safe login continuation");
   await login(page);
-  originalName = (await me(page)).body.user.name;
+  const originalUser = (await me(page)).body.user;
+  assert.ok(
+    originalUser.email === email,
+    "Configured Organizer identity must match",
+  );
+  originalIdentityId = originalUser.id;
+  if (disposableFixture)
+    assert.equal(originalIdentityId, disposableFixture.userId);
+  originalName = originalUser.name;
   assert.equal(new URL(page.url()).pathname, "/account");
   assert.equal(
     await page.locator(".sidebar__nav a[href='/account']").count(),
     0,
   );
-  assert.equal(await page.locator("#profile-email").inputValue(), email);
+  assert.ok(
+    (await page.locator("#profile-email").inputValue()) === email,
+    "Canonical controlled email must remain read-only",
+  );
   assert.ok(
     (await page.locator("#profile-email").getAttribute("readonly")) !== null,
   );
@@ -117,7 +324,13 @@ try {
     await page.locator("#profile-newPassword").getAttribute("autocomplete"),
     "new-password",
   );
-  await page.locator(".sidebar__nav a").first().click();
+  // The global account UI can be ready before its authorized workspace metadata.
+  // Wait for the real scoped Dashboard link rather than racing its legacy href.
+  const dashboardLink = page.locator(
+    '.sidebar__nav a[href^="/events/"][href$="/dashboard"]',
+  );
+  await dashboardLink.waitFor();
+  await dashboardLink.click();
   await page.locator("#event-overview-title").waitFor();
   const workspaceHref = page.url();
   await page.locator(".account-control--desktop a[href='/account']").click();
@@ -186,6 +399,12 @@ try {
   await page.locator("#profile-name").waitFor();
   const security = page.locator("form").nth(1);
   async function passwordForm(current, next, confirm = next) {
+    assert.equal(
+      interrupted,
+      false,
+      "Interrupted verification cannot submit another credential write",
+    );
+    await verifyDisposableIdentity(page.context());
     await page.locator("#profile-currentPassword").fill(current);
     await page.locator("#profile-newPassword").fill(next);
     await page.locator("#profile-confirmation").fill(confirm);
@@ -217,9 +436,27 @@ try {
   // successful credential write. Cleanup must still try the supported API.
   changedPassword = true;
   await passwordForm(password, temporaryPassword);
-  await page.locator("#profile-password-notice[role=status]").waitFor();
+  profileObserver?.stage("group-7-await-visible-success", page);
+  try {
+    await page.locator("#profile-password-notice[role=status]").waitFor();
+  } catch (error) {
+    await profileObserver?.failure(page, {
+      assertion: "#profile-password-notice[role=status] must become visible",
+      timeoutMs: 30_000,
+    });
+    throw error;
+  }
+  profileObserver?.stage("group-7-visible-success-assertion-passed", page);
   assert.equal((await me(page)).status, 200);
   assert.equal((await me(second.page)).status, 401);
+  if (report.interruptionSelfTest) {
+    // Explicit verification-only fault, after the supported write is confirmed.
+    // Exercise the same handler used by a graceful external interruption.
+    process.emit("SIGINT");
+    throw new Error(
+      "Intentional interruption for controlled restoration self-test",
+    );
+  }
   await second.page.reload();
   await second.page.locator("#login-email").waitFor();
   const oldLogin = await post(second.page, "sign-in/email", {
@@ -227,6 +464,13 @@ try {
     password,
   });
   assert.equal(oldLogin.status, 401);
+  await new Promise((resolve) => setTimeout(resolve, 11_000));
+  const temporarySession = await freshSignIn(temporaryPassword);
+  assert.equal(
+    temporarySession.status,
+    200,
+    "Temporary password fresh login must succeed before restoration",
+  );
   assert.equal(
     (
       await post(page, "change-password", {
@@ -237,9 +481,10 @@ try {
     ).status,
     200,
   );
+  await verifyRestoration();
   changedPassword = false;
   checked(
-    "real password change rotates this browser, revokes the other browser, rejects old password; controlled password restored",
+    "real password change rotates this browser, revokes the other browser, rejects old password; original fresh login and temporary rejection independently verify restoration",
   );
   await page.reload();
   await page.locator("#profile-name").waitFor();
@@ -291,7 +536,9 @@ try {
     "profile/header preferences synchronize both directions and follow live system theme",
   );
   await page.route("**/api/me", async (route) => {
-    const response = await route.fetch();
+    const response = await route.fetch(
+      disposableFixture ? { url: `${apiOrigin}/api/me`, maxRetries: 0 } : {},
+    );
     const body = await response.json();
     body.user.name = "Дълго Екранно Име " + "А".repeat(70);
     body.user.email = "long-address-" + "x".repeat(150) + "@example.invalid";
@@ -349,10 +596,26 @@ try {
             };
           });
         const layout = await inspect();
+        profileObserver?.assertion(page, {
+          caseLabel: `profile-${key}`,
+          width,
+          height: 900,
+          language,
+          theme,
+          requestedTextExpansion: false,
+          predicate: "layout.overflow === false",
+          originalObservation: layout,
+        });
         assert.equal(layout.overflow, false);
+        profileObserver?.predicate(page, "layout.inputs === true");
         assert.equal(layout.inputs, true);
-        if (layout.sidebar)
+        if (layout.sidebar) {
+          profileObserver?.predicate(
+            page,
+            "layout.sidebar.scroll <= layout.sidebar.client + 1",
+          );
           assert.ok(layout.sidebar.scroll <= layout.sidebar.client + 1);
+        }
         await page.screenshot({
           path: `${out}/profile-${key}.png`,
           fullPage: false,
@@ -360,15 +623,57 @@ try {
         await page.evaluate(
           () => (document.documentElement.style.fontSize = "20px"),
         );
+        // Reduced-motion transitions still run for 0.01ms. Inspect the actual
+        // expanded layout after those transitions finish, not their first frame.
+        await page.waitForFunction(() =>
+          document
+            .getAnimations()
+            .every(
+              (animation) =>
+                !animation.pending && animation.playState !== "running",
+            ),
+        );
         const expanded = await inspect();
+        profileObserver?.assertion(page, {
+          caseLabel: `profile-${key}`,
+          width,
+          height: 900,
+          language,
+          theme,
+          requestedTextExpansion: true,
+          requestedRootFontPx: 20,
+          predicate: "expanded.overflow === false",
+          originalObservation: expanded,
+        });
         assert.equal(expanded.overflow, false);
+        profileObserver?.predicate(page, "expanded.inputs === true");
         assert.equal(expanded.inputs, true);
         await page.evaluate(
           () => (document.documentElement.style.fontSize = ""),
         );
         if (width === 1440 || width === 1080) {
           await page.setViewportSize({ width, height: 768 });
+          // Font reset and short-height media-query spacing must have settled.
+          // This wait never inspects overflow; the original predicate follows.
+          await page.waitForFunction(() =>
+            document
+              .getAnimations()
+              .every(
+                (animation) =>
+                  !animation.pending && animation.playState !== "running",
+              ),
+          );
           const short = await inspect();
+          profileObserver?.assertion(page, {
+            caseLabel: `profile-${key}-short-sidebar`,
+            width,
+            height: 768,
+            language,
+            theme,
+            requestedTextExpansion: false,
+            predicate: "short.sidebar.scroll <= short.sidebar.client + 1",
+            originalObservation: short,
+          });
           assert.ok(short.sidebar.scroll <= short.sidebar.client + 1);
           await page.setViewportSize({ width, height: 900 });
         }
@@ -382,6 +687,7 @@ try {
         });
         console.log(`PASS: profile ${key}`);
       }
+  profileObserver?.clearAssertion(page);
   await page.unroute("**/api/me");
   await page.setViewportSize({ width: 390, height: 900 });
   await page.evaluate(() =>
@@ -460,9 +766,38 @@ try {
   );
   await page.locator(".mobile-nav a").nth(1).click();
   await page.locator(".page--tasks").waitFor();
-  await page.locator(".account-control--mobile summary").click();
-  await page.locator(".account-control--mobile a[href='/account']").click();
+  profileObserver?.assertion(page, {
+    caseLabel: "group-10-mobile-profile-navigation",
+    width: 390,
+    height: 900,
+    language: "en",
+    theme: "light",
+    requestedTextExpansion: false,
+    predicate: "Tasks route focus must settle before opening the account menu",
+  });
+  // The Tasks DOM appears before its async read completes. The ensuing route
+  // focus closes an already-open account menu through its normal blur handler.
+  await page.waitForFunction(
+    () => document.activeElement?.id === "main-content",
+  );
+  const mobileAccount = page.locator(".account-control--mobile");
+  const mobileSummary = mobileAccount.locator("summary");
+  assert.equal(await mobileAccount.count(), 1);
+  assert.ok(await mobileSummary.isVisible());
+  assert.ok(await mobileSummary.isEnabled());
+  await mobileSummary.click();
+  const mobileProfile = mobileAccount.locator("a[href='/account']");
+  assert.equal(await mobileProfile.count(), 1);
+  assert.ok(await mobileProfile.isVisible());
+  assert.ok(await mobileProfile.isEnabled());
+  profileObserver?.predicate(
+    page,
+    "visible, enabled mobile Profile entry must support a normal click",
+  );
+  await mobileProfile.click();
   await page.locator("#profile-name").waitFor();
+  assert.equal(new URL(page.url()).pathname, "/account");
+  profileObserver?.clearAssertion(page);
   await page.locator("#profile-name").fill("Not saved after navigation");
   await page.locator("form").first().locator("button[type=submit]").click();
   await page.locator("#profile-name-notice[role=alert]").waitFor();
@@ -544,24 +879,54 @@ try {
     "existing mobile logout hides profile and clears authenticated identity",
   );
   assert.equal(report.pageErrors, 0);
-} finally {
-  await page.unrouteAll({ behavior: "ignoreErrors" });
-  // Recovery remains supported API-only; never directly rewrite a credential hash.
-  if (changedPassword) {
-    const restored = await post(page, "change-password", {
-      currentPassword: temporaryPassword,
-      newPassword: password,
-      revokeOtherSessions: true,
-    });
-    assert.equal(
-      restored.status,
-      200,
-      "Controlled account password restoration failed",
-    );
+} catch (error) {
+  report.failed = true;
+  process.exitCode = 1;
+  // Playwright call logs can include .fill() arguments; redact both credentials
+  // before any diagnostics leave process memory.
+  let diagnostic = String(error.stack ?? error);
+  for (const value of [email, password, temporaryPassword])
+    diagnostic = diagnostic.replaceAll(value, "[REDACTED]");
+  console.error(diagnostic);
+  // Capture before cleanup changes the DOM or closes the browser. Observer
+  // failures must not prevent supported account restoration in finally.
+  try {
+    await profileObserver?.failure(page, { redactedStack: diagnostic });
+  } catch {
+    report.errorDiagnosticCaptureFailed = true;
   }
-  if (originalName && (await me(page)).status === 200)
-    await post(page, "update-user", { name: originalName });
-  writeFileSync(`${out}/report.json`, JSON.stringify(report, null, 2));
-  for (const c of contexts) await c.close();
-  await browser.close();
+} finally {
+  try {
+    await page.unrouteAll({ behavior: "ignoreErrors" }).catch(() => {});
+    if (changedPassword) await recoverPassword();
+    if (originalName) {
+      const cleanup = await freshSignIn(password);
+      assert.equal(
+        cleanup.status,
+        200,
+        "Controlled account must remain accessible during cleanup",
+      );
+      await verifyDisposableIdentity(cleanup.context);
+      const restoredName = await cleanup.context.request.post(
+        `${apiOrigin}/api/auth/update-user`,
+        {
+          headers: { origin },
+          data: { name: originalName },
+        },
+      );
+      assert.equal(restoredName.status(), 200);
+    }
+  } catch {
+    report.securitySensitiveBlocker = true;
+    process.exitCode = 1;
+    console.error(
+      "Controlled account cleanup/restoration could not be verified; stop dependent suites. No credentials are disclosed.",
+    );
+  } finally {
+    process.removeListener("SIGINT", onInterrupt);
+    process.removeListener("SIGTERM", onInterrupt);
+    writeFileSync(`${out}/report.json`, JSON.stringify(report, null, 2));
+    for (const c of contexts) await c.close();
+    await browser.close();
+  }
 }

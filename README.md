@@ -1,5 +1,24 @@
 # BudoGraph
 
+Event Management Stage 1 adds global authenticated `/events` and a single
+**Manage / Управление** entry in desktop/mobile Event switchers. The listing uses
+membership-scoped Events, Active/Archived filters, name search, existing Create/Edit
+and historical workspace links. Stage 1 is **TECHNICAL PASS** after complete
+mandatory coverage and final quality checks. Fresh isolated Profile passed
+13/13 groups and 20/20 layouts, with
+verified disposable/runtime cleanup; other mandatory evidence remains preserved.
+Locked interiors pass 112/112 after isolating only approved header-height changes.
+Human Acceptance remains **PENDING** and Stage 1 is **NOT LOCKED**;
+stages 2–7 are **NOT STARTED**. See [the Stage 1 technical report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md)
+and [current evidence](docs/TEST_EVIDENCE.md).
+
+`pnpm test:browser:locked-screens` compares the retained original Stage 1 PNGs
+strictly, with no baseline-generation mode or interior masks. Provide Playwright
+and Sharp through `BUDOGRAPH_PLAYWRIGHT_MODULE` / `BUDOGRAPH_SHARP_MODULE`, and
+optionally `BUDOGRAPH_BROWSER_EXECUTABLE`. The original ignored references at
+`tmp/event-management-stage1/locked` must be retained; the technical report explains
+the precise capture strategy and its deliberate interior-change controls.
+
 Profile V1 adds authenticated `/account`, display-name editing, current-password
 change, initials and synchronized browser-local language/theme preferences.
 Open **My Profile / Моят профил** from the desktop account area or mobile brand

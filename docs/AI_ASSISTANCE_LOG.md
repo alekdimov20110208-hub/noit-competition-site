@@ -1,5 +1,89 @@
 # AI Assistance Log
 
+## Event Management Stage 1 — final evidence reconciliation, 2026-10-11
+
+The owner authorized one non-mutating short-sidebar investigation and a conditional
+single complete disposable Profile run. Codex reproduced the original 778/768
+measurement while reduced-motion CSS transitions were active; the next frame had
+16px inherited font, short-height spacing and 768/768. Only two transition-readiness
+waits were added to the existing runner. All 85 original assertions, seven prior
+mobile-navigation additions and existing deadlines remain intact. The prior Group
+10 focus/menu correction was preserved and its real mobile journey now passes.
+
+Fresh original Profile passed 13/13 groups and 20/20 layouts on official pinned
+local PostgreSQL 17.11, production backend and a dedicated frontend. Group 7 visible
+success took 193.5ms; temporary credential/session checks and verified restoration
+used only one disposable identity. Supported scoped revocation, outer rollback,
+independent zero rows and rejected disposable login passed. The automatic owned
+runtime deletion was denied by policy; the owner removed its exact directory
+through File Explorer and absence/process cleanup was independently verified.
+Established accounts, Supabase, shared configuration/backend and locked styling
+were unchanged. No remote failure root cause or infrastructure fix is claimed.
+
+All other mandatory suites are preserved PASS evidence, not rerun: 15 principal
+suites now total 170 functional groups and 831 layout/presentation cases. Mocked
+recovery presentation and optional interruption checks remain explicitly classified.
+Historical partial/failed reports are preserved. Final typechecks, lint, builds and
+formatting pass; the complete mandatory gate justifies Stage 1 TECHNICAL PASS.
+Human Acceptance, author understanding/review and LOCK remain pending. Stage 2 is
+not started. The owner conditionally authorized scoped commit/push after every
+mandatory gate and cleanup passes; publication is not inferred from this entry.
+
+The entries below record earlier stages of verification and their then-current
+status. TEST_EVIDENCE.md's current reconciliation supersedes old blockers without
+erasing their history. Participation-year NOIT rules still require human review.
+
+## Event Management Stage 1 — 2026-10-09
+
+Final recovery resumes after the owner manually updates the ignored Organizer
+test password and explicitly authorizes the controlled Profile rotation workflow.
+Real Organizer login succeeds with 200 and correct identity/membership capabilities.
+Profile passes 13 functional checks / 20 responsive cases. The harness adds a
+development/local-backend guard, fresh temporary-password acceptance, independent
+original-password login and temporary-password rejection after restoration,
+credential-safe diagnostics and supported-API cleanup after failure/SIGINT/SIGTERM.
+The original Organizer password and unchanged Member password independently verify.
+It waits for the authorized scoped Dashboard link before its existing navigation
+checks; no security or workflow assertion is removed. Early failures occurred
+before password mutation and remain documented. No production logic, locked
+interior, dependency, migration or later-stage functionality changes in recovery.
+The full current browser matrix is running; no technical PASS or push is inferred
+from partial progress. Human acceptance remains pending and Stage 1 stays unlocked.
+
+The explicit human request authorized Stage 1 implementation against `fbf4db18`.
+Codex read AGENTS, the complete master prompt, all supplied regulation pages and
+relevant route/shell/controller/form/security/test documentation. It added global
+membership-scoped listing/navigation, one BG/EN Manage action, local filters/search,
+small listing-only controller mode, focus recovery and focused regression coverage.
+No backend, schema, dependency, locked page interior or later-stage feature changed.
+
+Actual unit/PostgreSQL and labelled synthetic browser evidence is recorded in
+TEST_EVIDENCE and the Stage 1 report. Existing live browser baseline and final
+suites were attempted, but controlled Organizer credentials were rejected with
+HTTP 401. No password reset, authentication bypass or weakening of an assertion
+was used to claim a real-session pass. Earlier fixture/runtime/capture failures
+are recorded separately. Credentials/cookies are never stored in screenshots or
+reports; generated evidence stays ignored. Human code review/understanding and
+acceptance remain pending. No commit/push or Stage 1 LOCK is performed.
+
+The verification-recovery request authorizes diagnosis and scoped verification
+only. A read-only credential audit with Better Auth's verifier proves the ignored
+Organizer test password is stale; browser payload equality and the 401 response
+confirm the request path. Member real login/listing/refresh pass 3 checks.
+The owner was asked to update the ignored local password, without sharing it.
+The existing Profile browser harness temporarily changes/restores that password;
+clarification was requested against the explicit prohibition before running it.
+No account/password/hash change is made to recover authentication.
+
+All seven visual pairs were inspected and measured. Their tiny glyph/icon/border
+differences occur inside locked pages; the approved header's 44px height reduction
+changes the raster origin. Restoring only the original header height during
+interior capture makes all 112 original references pixel-identical. The original
+chrome exclusions remain unchanged, no interior masks/tolerances/baseline writes
+are introduced, and two deliberate interior colour changes are detected. A scoped
+verification script and package command make this protection repeatable without
+adding dependencies. Exact bounds and remaining browser blockers are documented.
+
 ## Profile & Account Settings V1 — 2026-10-08
 
 Two Task actions attempts timed out at different points. A read-only fresh-page

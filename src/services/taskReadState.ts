@@ -57,6 +57,7 @@ export class TaskReadController {
   private authoringOpen = false;
   private eventCancellations = new Set<AbortController>();
   private selectedEventId: string | null = null;
+  private listingOnly = false;
   private onUnauthorized: () => void;
   constructor(
     service: TasksReadService &
@@ -70,6 +71,7 @@ export class TaskReadController {
   }
   getSnapshot = () => this.state;
   getSelectedEventId = () => this.selectedEventId;
+  getListingOnly = () => this.listingOnly;
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => {
@@ -94,6 +96,7 @@ export class TaskReadController {
     this.eventCancellations.clear();
     this.currentEventId = "";
     this.selectedEventId = null;
+    this.listingOnly = false;
     this.publish({
       status: "loading",
       workspace: emptyTasksWorkspace(),
@@ -101,11 +104,13 @@ export class TaskReadController {
       accessibleEvents: [],
     });
   };
-  selectEvent = (eventId: string | null) => {
-    if (eventId === this.selectedEventId) return;
+  selectEvent = (eventId: string | null, listingOnly = false) => {
+    if (eventId === this.selectedEventId && listingOnly === this.listingOnly)
+      return;
     const accessibleEvents = this.state.accessibleEvents;
     this.clear();
     this.selectedEventId = eventId;
+    this.listingOnly = listingOnly;
     this.currentEventId = eventId ?? "";
     this.publish({ ...this.state, accessibleEvents });
   };
@@ -152,10 +157,21 @@ export class TaskReadController {
             );
             if (revision !== this.revision) return;
             this.publish({ ...this.state, accessibleEvents });
+            if (this.listingOnly) {
+              this.publish({
+                status: "ready",
+                workspace: emptyTasksWorkspace(),
+                error: null,
+                accessibleEvents,
+              });
+              return;
+            }
             const requestedId = this.selectedEventId ?? this.currentEventId;
             const event = requestedId
               ? accessibleEvents.find((event) => event.id === requestedId)
-              : selectAccessibleEvent(accessibleEvents);
+              : selectAccessibleEvent(
+                  accessibleEvents.filter((event) => !event.archived),
+                );
             readingEventId = event?.id ?? requestedId;
             if (!event && requestedId)
               throw new WorkspaceReadFailure(

@@ -1,5 +1,25 @@
 # Known Limitations
 
+## Event Management Stage 1 — 2026-10-09
+
+All mandatory technical coverage and final quality checks pass, including fresh
+isolated Profile 13/13 groups and 20/20 layouts. Stage 1 is **TECHNICAL PASS**.
+Human Acceptance is **PENDING** and
+Stage 1 remains **NOT LOCKED**. Earlier stale credentials, infrastructure failures
+and Profile timing failures remain historical evidence, not current missing
+coverage. The remote intermittency's root cause remains unproven; local Profile
+isolation does not claim to fix it. All 112 locked interiors match their original
+references under the approved shared-header normalization. No established-account
+password change was used for final closure; the disposable fixture/runtime were
+independently removed. P4A external provider/inbox setup, physical-device and
+formal accessibility certification are separate pending human gates.
+Stages 2–7 remain **NOT STARTED**.
+Only an Event-name client-side search is provided; no management detail, duplicate,
+archive or Clear All Tasks action exists. Existing Create/Edit forms are unchanged.
+Physical devices, other engines and formal accessibility validation remain human
+checks. See [the Stage 1 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md) and
+[test evidence](TEST_EVIDENCE.md) for exact executed results and limitations.
+
 ## Profile V1 — 2026-10-08
 
 Only display name is editable; email changes/photos remain V2. The nullable image
@@ -12,7 +32,7 @@ is per server process; multiple instances need shared concurrency/rate-limit pol
 Long desktop names are ellipsized; full values remain in the Profile field and
 accessible text. P4A domain/Resend inbox verification remains NOT RUN.
 Physical-device, other browser-engine, password-manager and formal accessibility
-validation remain human checks. V2, Event Management and deployment are unstarted.
+validation remain human checks. V2, Event Management stages 2–7 and deployment are unstarted.
 
 ## Optional Task due time — 2026-10-08
 

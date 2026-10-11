@@ -16,6 +16,7 @@ import { DashboardPage } from "./pages/DashboardPage.tsx";
 import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
 import { EventFormPage } from "./pages/EventFormPage.tsx";
+import { EventManagementPage } from "./pages/EventManagementPage.tsx";
 import { ChangesPage } from "./pages/ChangesPage.tsx";
 import { AccountPage } from "./pages/AccountPage.tsx";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
@@ -23,6 +24,7 @@ import {
   createTaskDetailHistoryState,
   createTaskHref,
   eventHref,
+  isGlobalAppPath,
   isTaskDetailHistoryState,
   parseAppLocation,
   resolveTaskLocation,
@@ -64,6 +66,7 @@ export default function App() {
     remoteEnabled,
     identity.user?.id ?? "",
     currentLocation.eventId,
+    currentLocation.path === "/events",
   );
   const remoteEvent = remoteTasks.workspace.events[0] ?? null;
   const refreshWorkspace = remoteTasks.retry;
@@ -146,7 +149,9 @@ export default function App() {
           .eventId ?? remoteTasks.workspace.currentEventId;
       if (
         scope &&
-        targetUrl.pathname !== "/account" &&
+        !isGlobalAppPath(
+          parseAppLocation(targetUrl.pathname, targetUrl.search).path,
+        ) &&
         !targetUrl.pathname.startsWith("/events/")
       ) {
         const legacy = parseAppLocation(targetUrl.pathname, targetUrl.search);
@@ -179,10 +184,20 @@ export default function App() {
   useEffect(() => {
     if (
       remoteTasks.status === "ready" &&
+      !remoteTasks.workspace.currentEventId &&
+      !currentLocation.eventId &&
+      currentLocation.eventMode === "workspace" &&
+      !isGlobalAppPath(currentLocation.path)
+    ) {
+      navigate("/events", { replace: true, scroll: false });
+      return;
+    }
+    if (
+      remoteTasks.status === "ready" &&
       remoteTasks.workspace.currentEventId &&
       !currentLocation.eventId &&
       currentLocation.eventMode === "workspace" &&
-      currentLocation.path !== "/account"
+      !isGlobalAppPath(currentLocation.path)
     ) {
       navigate(
         eventHref(
@@ -202,7 +217,8 @@ export default function App() {
   useEffect(() => {
     if (
       !pendingRouteFocus.current ||
-      (currentLocation.eventMode === "workspace" &&
+      (!isGlobalAppPath(currentLocation.path) &&
+        currentLocation.eventMode === "workspace" &&
         remoteTasks.status === "loading")
     )
       return;
@@ -550,9 +566,9 @@ export default function App() {
             <button
               className="button button--primary"
               type="button"
-              onClick={() => navigate("/events/new")}
+              onClick={() => navigate("/events")}
             >
-              {t("events.create")}
+              {t("events.manage")}
             </button>
           }
         />
@@ -562,6 +578,16 @@ export default function App() {
 
   if (currentLocation.path === "/account" && identity.user)
     page = <AccountPage key={identity.user.id} user={identity.user} />;
+
+  if (currentLocation.path === "/events")
+    page = (
+      <EventManagementPage
+        events={remoteTasks.accessibleEvents}
+        status={remoteTasks.status}
+        onRetry={() => void remoteTasks.retry()}
+        onNavigate={navigate}
+      />
+    );
 
   return (
     <AppShell
@@ -574,17 +600,11 @@ export default function App() {
           eventHref(
             eventId,
             currentLocation.eventMode === "workspace" &&
-              currentLocation.path !== "/account"
+              !isGlobalAppPath(currentLocation.path)
               ? currentLocation.path
               : "/",
           ),
         )
-      }
-      eventEditHref={
-        contextEvent?.membership.accessRole === "ORGANIZER" &&
-        !contextEvent.archived
-          ? `/events/${contextEvent.id}/edit`
-          : undefined
       }
       dataMode="remote-workspace"
       persistenceError={null}

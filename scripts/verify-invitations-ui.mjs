@@ -45,12 +45,13 @@ async function context() {
     reducedMotion: "reduce",
   });
   contexts.push(context);
-  await context.addInitScript(() =>
+  await context.addInitScript(() => {
+    if (location.href === "about:blank") return;
     localStorage.setItem(
       "budograph.preferences.v1",
       JSON.stringify({ version: 1, language: "en", theme: "light" }),
-    ),
-  );
+    );
+  });
   const page = await context.newPage();
   page.on("pageerror", () => report.applicationErrors++);
   return { context, page };

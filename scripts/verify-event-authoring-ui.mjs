@@ -141,6 +141,7 @@ async function make(label) {
     }
   });
   await page.addInitScript(() => {
+    if (location.href === "about:blank") return;
     if (!localStorage.getItem("budograph.preferences.v1"))
       localStorage.setItem(
         "budograph.preferences.v1",
@@ -423,7 +424,7 @@ try {
     .waitFor();
   await organizer.page
     .locator(".app-main")
-    .getByRole("button", { name: "Create event", exact: true })
+    .getByRole("link", { name: "Create event", exact: true })
     .click();
   await organizer.page.locator("#event-name").waitFor();
   assert.equal(
@@ -826,6 +827,17 @@ try {
     "MEMBER",
   );
   assert.equal(dualRole.event.membership.accessRole, "ORGANIZER");
+  // Stage 1 moves the same-Event Edit affordance into the global Manage list.
+  assert.equal(
+    await member.page
+      .locator(`.event-switcher a[href="${href(memberCreated.id, "edit")}"]`)
+      .count(),
+    0,
+  );
+  await member.page
+    .locator('.event-switcher:visible a[href="/events"]')
+    .click();
+  await member.page.locator('.page--events[aria-busy="false"]').waitFor();
   assert.equal(
     await member.page
       .locator(`a[href="${href(memberCreated.id, "edit")}"]:visible`)

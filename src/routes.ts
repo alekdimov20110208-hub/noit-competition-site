@@ -9,7 +9,11 @@ import {
 import type { MessageKey } from "./i18n/index.ts";
 
 export type AppPath =
-  "/" | "/tasks" | "/team" | "/changes" | "/templates" | "/account";
+  "/" | "/tasks" | "/team" | "/changes" | "/templates" | "/account" | "/events";
+
+export function isGlobalAppPath(path: AppPath): boolean {
+  return path === "/account" || path === "/events";
+}
 
 export type AppLocation = (
   | {
@@ -100,7 +104,7 @@ function getTaskId(search: string): string | null {
 export function normalizePath(pathname: string): AppPath {
   const withoutTrailingSlash = pathname.replace(/\/+$/, "");
   const normalized = withoutTrailingSlash || "/";
-  if (normalized === "/account") return "/account";
+  if (normalized === "/account" || normalized === "/events") return normalized;
   const route = APP_ROUTES.find((candidate) => candidate.path === normalized);
   return route?.path ?? "/";
 }
@@ -151,7 +155,7 @@ export function eventHref(
   path: AppPath = "/",
   taskId?: string | null,
 ): string {
-  if (path === "/account") return "/account";
+  if (isGlobalAppPath(path)) return path;
   if (
     !/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(eventId)
   )

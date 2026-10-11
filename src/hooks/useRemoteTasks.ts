@@ -10,6 +10,7 @@ export function useRemoteTasks(
   enabled: boolean,
   userId: string,
   selectedEventId: string | null = null,
+  listingOnly = false,
 ) {
   // A new identity receives a new store during render, before effects can run.
   const identityScope = useMemo(
@@ -44,14 +45,15 @@ export function useRemoteTasks(
   }, [controller, enabled]);
   useEffect(() => {
     if (!enabled) return;
-    controller.selectEvent(selectedEventId);
+    controller.selectEvent(selectedEventId, listingOnly);
     void controller.load();
-  }, [controller, enabled, selectedEventId]);
+  }, [controller, enabled, selectedEventId, listingOnly]);
   // URL scope changes synchronously. Never paint former-Event rows under the
   // next Event URL while waiting for the selection effect to cancel/read.
   const visible =
     !enabled ||
     controller.getSelectedEventId() !== selectedEventId ||
+    controller.getListingOnly() !== listingOnly ||
     (selectedEventId &&
       state.workspace.currentEventId &&
       selectedEventId !== state.workspace.currentEventId)

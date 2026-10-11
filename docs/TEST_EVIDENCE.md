@@ -1,5 +1,300 @@
 # BudoGraph Test Evidence
 
+## Event Management Stage 1 — final reconciliation, 2026-10-11
+
+Mandatory technical coverage and closure quality checks are complete: **TECHNICAL
+PASS**. Human Acceptance is
+**PENDING** and Stage 1 remains **NOT LOCKED**. Baseline HEAD:
+`fbf4db18b4d139f1ab45f762f9cd2e2c1a34ca87`. The authorized scoped publication uses
+`feat(app): add event management listing and navigation`; use Git history and the
+ignored final closure report for its resulting local/remote SHA.
+
+The table reconciles actual retained reports. Only Profile V1 is fresh in this
+closure; the other fourteen suites are preserved post-Stage-1 PASS evidence,
+validated against unchanged product files. No full matrix was repeated.
+
+| Suite                     | Functional groups | Layout/presentation cases | Evidence under `tmp/event-management-stage1/`                 |
+| ------------------------- | ----------------: | ------------------------: | ------------------------------------------------------------- |
+| Event Management — PASS   |                12 |                        28 | `first-batch-20261009/event-management/report.json`           |
+| Event Authoring — PASS    |                14 |                        20 | `first-batch-20261009/event-authoring/report.json`            |
+| Task Authoring — PASS     |                11 |                        20 | `batch2-guard-recovery-20261009/task-authoring/report.json`   |
+| Task Actions — PASS       |                16 |                        40 | `task-actions-completion-20261009/task-actions/report.json`   |
+| Task Deadline Time — PASS |                11 |                        20 | `batch3-rerun-20261009/task-deadline-time/report.json`        |
+| Task Reminders — PASS     |                 7 |                        20 | `batch3-rerun-20261009/task-reminders/report.json`            |
+| Auth — PASS               |                15 |                        20 | `batch4-20261010/auth/report.json`                            |
+| Auth Experience — PASS    |                20 |                       222 | `batch4-completion-20261010/auth-experience/report.json`      |
+| Account Safety — PASS     |                 1 |                       180 | `batch4-completion-20261010/account-safety/report.json`       |
+| Workspace — PASS          |                11 |                         8 | `batch4-completion-remaining-20261010/workspace/report.json`  |
+| Task Reads — PASS         |                13 |                         5 | `batch4-completion-remaining-20261010/task-reads/report.json` |
+| Invitations — PASS        |                 7 |                        40 | `batch5-20261010/invitations/report.json`                     |
+| Changes — PASS            |                11 |                        64 | `batch5-remaining-20261010/changes/report.json`               |
+| Change Dashboard — PASS   |                 8 |                       124 | `batch5-remaining-20261010/change-dashboard/report.json`      |
+| Profile V1 — PASS         |                13 |                        20 | `profile-short-sidebar-20261011/profile/report.json`          |
+
+Principal total: **170 functional groups / 831 layout or presentation cases**.
+Deadline and Reminder raw check arrays include layout entries; Reminder also
+records two expected HTTP-503 diagnostics. They are not extra functional passes.
+Invitations includes 20 recipient + 20 dialog cases. Changes/Dashboard include
+four labelled stress cases each. Auth Experience and Account Safety use
+intercepted presentation/recovery flows; they do not prove external email reset.
+
+Additional mandatory coverage remains preserved PASS: Changes read-checks
+**2 groups / 12 contrast cases**; Change Dashboard **24 separate contrast
+cases**; Auth unavailable **1 group** within its original client connection-refusal
+scope; locked interiors **112/112 exact comparisons + 2 negative controls**.
+See `final-gate-continuation-20261011/changes-read-checks/report.json`,
+`three-blocker-recovery-20261011/unavailable-report.json` and
+`final-three-gate-closure-20261011/locked-screens/report.json`.
+
+Preserved final regression: frontend **273/273**; backend **133 PASS / 15 opt-in
+skips** (148 total); real PostgreSQL **113/113, zero skips**, including independent
+connection concurrency and Profile **6 results** (parent + five subtests).
+`final-gate-continuation-20261011/batch-report.json` and
+`final-gate-20261011/batch-report.json` retain those executions. Skips are not
+passes. No product/backend/schema change invalidates those results.
+
+Fresh final quality checks all exited **0**: frontend/backend typechecks, ESLint,
+frontend/backend builds and full configured formatting check. The existing
+frontend bundle warning remains (556.24 kB minified); no limits were increased.
+Evidence: `profile-short-sidebar-20261011/quality-results.json` and its six logs.
+The Profile runner's Node syntax, focused formatting, AST assertion-preservation
+and Git whitespace checks also pass. No unit/PostgreSQL/browser matrix was repeated.
+
+Fresh complete Profile ran once on local official PostgreSQL **17.11**, the actual
+production Fastify/Better Auth backend and a dedicated frontend, with one
+disposable Organizer/Event. Seven existing migrations and loopback/database/role/
+empty-table/proxy guards were verified before account creation. There was no
+Supabase target or established-account input. All **13/13 functional groups and
+20/20 layouts**, Group 7 visible success (**193.5 ms**), real Group 10 normal mobile
+Profile click, short-height sidebar predicates, password/session security,
+restoration/fresh correct-identity login and superseded-password rejection passed.
+Exit **0**; **0 page errors, 0 unexpected console errors, 0 actual backend 500s**.
+Long identity and HTTP failure/held-response states remain labelled fixtures.
+
+The short-sidebar failure was reproduced by one supplementary non-mutating
+geometry investigation. At the immediate original measurement, the root was
+16 px but the sidebar still inherited 20 px, used old spacing and had **191 active
+transitions**, measuring **778/768 px**. The existing reduced-motion rule uses
+0.01 ms transitions. The next recorded rendering frame, **11.7 ms** later, had
+no active transitions, the correct 16 px/short-height spacing and **768/768 px**.
+The runner now waits for running/pending animations to finish after text expansion
+and short-height resize. It does not wait for overflow to pass, sleep arbitrarily,
+change tolerance or modify CSS. This also measures expansion after its transition.
+All **85 original assertions**, the existing **7 Group 10 additions** and their
+deadlines are preserved; **2 readiness waits** were added. The prior Group 10
+focus/menu race correction remains unchanged.
+
+Fixture cleanup is independently verified: zero user/account/session/Event/
+membership/activity rows, disposable login **401**, supported owned-session
+revocation and rollback. All owned processes/listeners stopped. Automatic runtime
+deletion was denied by policy; the owner deleted only the exact owned directory
+through File Explorer, and absence was independently verified. Shared backend
+PID **25912** remained healthy **200**. Established accounts, environment files,
+Supabase and all **224 original locked reference/capture PNGs** remain unchanged.
+No new remote account snapshot is claimed.
+
+Fresh evidence: `profile-short-sidebar-20261011/profile/report.json`,
+`run-report.json`, `result-summary.json`, `geometry-report.json`,
+`harness-validation.json`, `cleanup-verification.json` and
+`integrity-before-documentation.json` in the same ignored directory.
+Earlier failed reports remain intact: `native-profile-closure-20261011`,
+`profile-layout-recovery-20261011`, `profile-complete-once-20261011` and
+`profile-navigation-closure-20261011`. The earliest lost-stack failure is still
+not assigned an invented predicate; the later captured short-height failure is
+distinct from 125% expansion.
+
+No mandatory browser suite is skipped or incomplete. The optional Profile
+interruption self-test is **NOT RUN** and was disabled in the disposable run.
+The four old unauthenticated demo runners retain historical FAIL evidence and are
+explicitly superseded by current authenticated Workspace/Tasks/Changes/locked
+coverage, as mapped in `acceptance-contract-audit-20261011/REPORT.md`; they are
+not relabelled PASS. Fresh Profile coverage was mandatory under the original
+Stage 1 regression contract and subsequent approved gates; it was completed,
+not waived. P4A external inbox/provider setup remains a separate historical gap.
+
+No Stage 2, deployment, migrations, dependencies, architecture or locked product
+styling changes. Human design/device/accessibility acceptance remains pending.
+The supplied 2025–2026 competition rules still require participation-year review.
+
+## Event Management Stage 1 — historical initial/recovery evidence, 2026-10-09
+
+The following records preserve the earlier PARTIAL state and failed attempts;
+the 2026-10-11 reconciliation above defines the current status.
+
+Baseline and then-current HEAD (uncommitted): `fbf4db18b4d139f1ab45f762f9cd2e2c1a34ca87`.
+Tracked baseline was clean; the unrelated shortcut is preserved. Stage 1 is
+implemented, **TECHNICAL PARTIAL**, human acceptance **PENDING**, **NOT LOCKED**.
+No commit/push occurs while mandatory browser verification remains incomplete.
+[The Stage 1 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md) contains behavior,
+permissions, exact file manifest and human acceptance checklist.
+
+| Check                        | Actual executed result                                                                                                                                                             |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baseline frontend            | PASS: 263 tests, no failures/skips                                                                                                                                                 |
+| Final frontend               | PASS: 273 tests, no failures/skips; 10 new route/listing/controller tests                                                                                                          |
+| Backend unit/regression      | PASS: 133 passes, 15 explicit opt-in skips, 148 total; skips are not PostgreSQL passes                                                                                             |
+| Full real PostgreSQL         | PASS: 113 results, 0 failures/skips, configured development database and real Better Auth                                                                                          |
+| Concurrency                  | PASS: included independent-connection Change editor and Decision/Plan B tests                                                                                                      |
+| Profile V1 PostgreSQL        | PASS: 6 results (parent + 5 subtests), real name/password/session behavior and business/history preservation                                                                       |
+| Static checks/builds         | Frontend/backend typechecks, ESLint, formatting and both builds pass; existing >500 kB Vite warning remains                                                                        |
+| Stage 1 synthetic browser    | PASS: 10 grouped checks, 28 layout cases, 0 application errors                                                                                                                     |
+| Stage 1 default/full browser | PARTIAL: same fixture checks pass; 0 real account checks complete; full command exits unsuccessfully at login                                                                      |
+| Locked strict pixel gate     | PASS in recovery: 112 original references exactly identical with only documented header-height normalization; strict dimensions; 2 negative controls; 0 application/console errors |
+
+Recovery reran frontend (273/273), backend (133 passes / 15 opt-in skips), the
+entire real PostgreSQL suite (113/113, 0 skips, 474,546.6ms), both typechecks,
+ESLint and both builds successfully. Concurrency and Profile V1 rollback fixtures
+are included. Account Safety reran 1 grouped check / 180 cases; Auth Experience
+reran 20 interaction checks / 222 cases; Stage 1 fixtures-only reran 10 grouped
+checks / 28 layout cases. All three commands exit 0. Auth Experience reports zero
+application/console errors; the other two report zero application errors.
+These labelled synthetic checks do not replace real authentication/workflow gates.
+
+All 14 current browser suites were executed sequentially without changing an
+existing assertion, account or password.
+
+| Existing suite      | Completed checks/cases                                                     | Final gate                    |
+| ------------------- | -------------------------------------------------------------------------- | ----------------------------- |
+| Account Safety      | 1 grouped check, 180 mocked presentation/recovery cases, 0 page errors     | PASS                          |
+| Auth Experience     | 20 interaction checks, 222 mocked presentation cases, 0 application errors | PASS                          |
+| Auth                | 3 initial unauthenticated/invalid-login checks; no authenticated matrix    | BLOCKED; unsuccessful command |
+| Workspace / Team    | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Task Reads          | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Task Actions        | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Task Authoring      | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Event Authoring     | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Invitations         | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Dashboard / Changes | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Changes             | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Task due time       | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Task reminders      | 0 functional checks                                                        | BLOCKED; unsuccessful command |
+| Profile V1          | 1 initial anonymous-account check; no authenticated matrix                 | BLOCKED; unsuccessful command |
+
+Recovery confirms that the configured Organizer account is correct and active,
+but its **ignored test password is stale**. The exact real browser
+`POST /api/auth/sign-in/email` body contains only email/password, both equal to the
+configured inputs in memory. It returns `401 INVALID_EMAIL_OR_PASSWORD`. The
+official Better Auth 1.7.7 password verifier returns false against the current
+credential; no values or hashes are emitted. Email-verification failure is a
+different 403 path, after password verification.
+
+Node loads `server/.env` then `server/.env.p1b.local`; there are no inherited
+Organizer variables and the first file defines neither. Effective Organizer email
+and password match the second file, at lines 4 and 5 respectively. The browser
+harness preserves the password. The owner must update
+`BUDOGRAPH_ORGANIZER_PASSWORD` in ignored `server/.env.p1b.local` to the account's
+current password, keeping it out of chat/source/reports. The configured Member
+password verifies true. Its actual browser login returns 200 and an independent
+real probe completes 3 checks: global listing return, exact authorized active
+rows/Edit capabilities and refresh persistence. It reports 0 application errors
+and 0 unexpected console errors; one expected anonymous `/api/me` 401 network
+diagnostic is observed before login. Initial probes conservatively rejected this
+expected diagnostic until its exact path/status/phase were verified.
+
+No real Organizer/Create/Edit/browser-security suite is counted as passing.
+Correct the local test input and rerun all 12 blocked current suites and Stage 1's
+complete command. Full real Create/Edit/browser-security acceptance is still
+unverified despite passing unit and complete PostgreSQL authorization/API tests.
+The existing Profile browser suite temporarily changes/restores the controlled
+password. The recovery instruction forbids automatic password changes, so explicit
+authorization or a human-performed password check is also pending. Its assertions
+were not skipped or weakened. No reset, direct hash edit, replacement Organizer,
+authentication bypass or public signup is introduced.
+
+Four historical demo-era executable suites were attempted and each exits with
+failure and 0 completed checks: `team-workspace.browser`,
+`interface-alignment.browser`, `desaas-composition.browser`,
+`dashboard-disclosure.browser`. Their legacy workspace selectors are absent
+behind the current authenticated boundary. `team-workspace-edges.mjs` is an
+imported helper, not a standalone entry. No historical suite is counted as a pass.
+A scratch PowerShell legacy-summary append used an incorrect boolean; the actual
+four process failures/logs were retained and its JSON summary repaired.
+
+The 28 layout cases cover 320/360/390/768/960/1024/1440px × BG/EN × Light/Dark.
+Explicit synthetic identity/transport fixtures verify long names, translated copy,
+Active/Archived, search, membership roles/Edit capabilities, visible focus,
+44 × 44px one-line Manage, focused listing controls above fixed mobile navigation,
+no horizontal overflow and five navigation items. Ten functional groups cover
+global login return, Create/Edit links, history/refresh, switching/detail reset,
+zero-Event/archived-only entry, inaccessible explicit IDs, Task failure isolation,
+loading, safe list failure and retry. The new suite does not write real Events.
+
+The initial strict locked comparison measured 105/112 exact pairs and failed;
+that evidence and all original PNGs remain preserved. Recovery inspected each of
+the seven differences numerically and visually. The exact baseline Git archive,
+frozen/localized synthetic records/clock and seven widths × BG/EN × Light/Dark ×
+four screens (Dashboard/Tasks/Team/Changes) remain the comparison basis.
+
+All bounds are inclusive, relative to the locked-page PNG. Every listed case is
+BG; viewport height is 900px. Every changed pixel is inside a locked interior.
+
+| Screen    | Viewport  | Language | Theme | Exact difference bounds | Changed pixels/channels | Max delta | Location                                   |
+| --------- | --------- | -------- | ----- | ----------------------- | ----------------------- | --------- | ------------------------------------------ |
+| Dashboard | 960 × 900 | BG       | Dark  | `(343,452)–(343,452)`   | 1 / 1                   | 1         | Critical-priority glyph                    |
+| Dashboard | 390 × 900 | BG       | Light | `(126,1645)–(126,1645)` | 1 / 1                   | 1         | First-aid/incident timeline glyph          |
+| Changes   | 390 × 900 | BG       | Light | `(358,493)–(358,493)`   | 1 / 3                   | 18        | Empty-state lower-right border curve       |
+| Dashboard | 390 × 900 | BG       | Dark  | `(127,1645)–(127,1645)` | 1 / 1                   | 1         | Same timeline glyph                        |
+| Changes   | 390 × 900 | BG       | Dark  | `(190,322)–(358,493)`   | 2 / 4                   | 15        | Search-X icon and lower-right border curve |
+| Changes   | 320 × 900 | BG       | Light | `(3,227)–(288,496)`     | 6 / 14                  | 14        | Empty-state dashed border                  |
+| Changes   | 320 × 900 | BG       | Dark  | `(3,227)–(288,496)`     | 5 / 11                  | 12        | Empty-state dashed border                  |
+
+No content, computed-style, visible interior layout, focus target or accessibility
+attribute changes were found in the paired DOM. Text/roles/labels/hrefs/tab order
+match. Raw geometry differences are zero-size hidden nodes and about 0.0000305px
+SVG floating-point measurements. The approved switcher shrinks the BG header by
+44px at 390px (155→111) and 320px (197→153), moving the interior's absolute raster
+origin without changing relative layout. The 960px single-channel delta does not
+reproduce in fresh paired captures. Locked interior sources/styles remain unchanged.
+Real authenticated focus/workflow tests are blocked separately; no formal
+accessibility certification is claimed.
+
+The recovery verifier restores only the recorded original `.app-header` height
+during capture. It retains exactly the original shared chrome visibility
+exclusions, with no additional excluded region, interior mask, tolerance or
+baseline regeneration. It compares against the **original PNG bytes**, checks their
+SHA-256 remains unchanged, asserts equal dimensions and zero changed channels.
+The actual unmodified shell's responsive/focus/touch/overflow checks remain in the
+separate 28-case matrix. Thus approved shell geometry cannot contaminate the
+interior raster comparison, and the locked interior remains fully asserted.
+
+`pnpm.cmd test:browser:locked-screens` exits 0: **112/112 exact matches**, 0
+application errors, 0 console errors. Two intentional heading-colour changes
+produce 8,061 Dashboard / 3,791 Changes channel differences and are correctly
+rejected. An initial font-size self-test triggered strict dimension rejection;
+the final colour controls independently confirm pixel rejection. No visual
+product fix, weakened equality assertion or reference replacement is performed.
+Playwright/Sharp use external runtime paths; no dependencies were added.
+
+Recovery evidence additionally includes safe `auth-audit.json`,
+`browser-login-audit.json`, `member-read-probe.json`,
+`visual-difference-bounds.json`, `layout-probe.json`, `header-origin-probe.json`,
+112 strict current captures, 2 negative controls and `locked-protection/report.json`
+under `tmp/event-management-stage1/recovery`. No original reference is replaced.
+
+Evidence remains ignored in `tmp/event-management-stage1`: frontend/backend/PG
+logs, `full-browser-results.json`, `browser/report.json`, 28
+`browser/events-{width}-{language}-{theme}.png` images, loading capture,
+`locked/report.json` and 224 before/after interior images. Representative 320 BG
+Light and 1440 EN Dark listing captures and 390 BG locked Dashboard images were
+visually inspected. Existing Account Safety/Auth Experience report paths remain
+unchanged. No credentials, cookies, HAR, storageState or trace is persisted.
+Edge Chromium evidence is not physical-device, other-engine, formal accessibility
+or human validation evidence.
+
+Early failed attempts remain separate: unavailable runtime/browser path, stopped
+Vite, stale Vite route-module cache (restart fixed it), synthetic name whitespace,
+retained intentional Task-failure flag in an archived fixture, and permitted sticky
+chrome in early comparison screenshots. No failing business assertion was removed.
+An encoding error interrupted this evidence edit; the original HEAD report was
+restored completely and the new section written as UTF-8 before validation.
+
+Scope/content audit covers exactly 25 changed files and seven configured private
+value forms plus credential patterns and the production bundle. No secret/env,
+generated evidence or shortcut is staged. Backend, migrations, dependencies,
+brand, preferences, domain, global CSS and locked interiors are unchanged.
+Human acceptance/LOCK are pending; stages 2–7 remain NOT STARTED. No deployment.
+The supplied 2025–2026 competition rules require actual-year verification.
+
 ## Profile & Account Settings V1 — 2026-10-08
 
 Baseline `a404169f416761466dc40cc2de06f4acf68ab54e` matched the explicit request.

@@ -84,6 +84,89 @@ const scopedWorkspace: TasksWorkspace = {
   activeMembers: members(next),
 };
 
+test("global listing reads membership Events independently of failing Task workspace", async () => {
+  let taskReads = 0;
+  const controller = new TaskReadController(
+    {
+      readTasks: async () => {
+        throw new Error("unused");
+      },
+      listEvents: async () => [event, { ...next, archived: true }],
+      readEventTasks: async () => {
+        taskReads++;
+        throw new WorkspaceReadFailure("unavailable");
+      },
+    },
+    () => assert.fail("unexpected expiry"),
+  );
+  await controller.load();
+  assert.equal(controller.getSnapshot().status, "error");
+  controller.selectEvent(null, true);
+  await controller.load();
+  assert.equal(controller.getSnapshot().status, "ready");
+  assert.equal(taskReads, 1);
+  assert.equal(controller.getSnapshot().accessibleEvents.length, 2);
+  assert.deepEqual(controller.getSnapshot().workspace, emptyTasksWorkspace());
+});
+
+test("management mode cancels and rejects former workspace completion", async () => {
+  const pending = deferred<TasksWorkspace>();
+  const controller = new TaskReadController(
+    {
+      readTasks: async () => scopedWorkspace,
+      listEvents: async () => [next],
+      readEventTasks: async () => pending.promise,
+    },
+    () => {},
+  );
+  const reading = controller.load();
+  await new Promise((resolve) => setImmediate(resolve));
+  controller.selectEvent(null, true);
+  await controller.load();
+  pending.resolve(scopedWorkspace);
+  await reading;
+  assert.equal(controller.getSnapshot().status, "ready");
+  assert.deepEqual(controller.getSnapshot().workspace, emptyTasksWorkspace());
+  controller.clear();
+  assert.deepEqual(controller.getSnapshot().accessibleEvents, []);
+});
+
+test("global discovery expires a 401 session without retaining Event metadata", async () => {
+  let expired = 0;
+  const controller = new TaskReadController(
+    {
+      readTasks: async () => emptyTasksWorkspace(),
+      listEvents: async () => {
+        throw new WorkspaceReadFailure("unauthenticated");
+      },
+      readEventTasks: async () => scopedWorkspace,
+    },
+    () => expired++,
+  );
+  controller.selectEvent(null, true);
+  await controller.load();
+  assert.equal(expired, 1);
+  assert.equal(controller.getSnapshot().error, "unauthenticated");
+  assert.deepEqual(controller.getSnapshot().accessibleEvents, []);
+});
+
+test("legacy landing avoids archived workspace while explicit archived URLs remain readable", async () => {
+  const historical = { ...next, archived: true };
+  const controller = new TaskReadController(
+    {
+      readTasks: async () => emptyTasksWorkspace(),
+      listEvents: async () => [historical],
+      readEventTasks: async (value) => workspace(value),
+    },
+    () => {},
+  );
+  await controller.load();
+  assert.deepEqual(controller.getSnapshot().workspace, emptyTasksWorkspace());
+  controller.selectEvent(historical.id);
+  await controller.load();
+  assert.equal(controller.getSnapshot().workspace.events[0]?.archived, true);
+});
+
 test("Event create sends only editable calendar fields and uses canonical Organizer projection", async () => {
   const service = new RemoteWorkspaceService(async (url, options) => {
     assert.equal(url, "/api/events");

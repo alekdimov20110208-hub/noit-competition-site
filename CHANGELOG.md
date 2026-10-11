@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-10-11 — Event Management Stage 1 verification closure
+
+- Complete the mandatory Profile regression once on isolated local PostgreSQL 17.11: 13/13 functional groups and 20/20 layouts, with verified disposable and runtime cleanup.
+- Resolve the evidenced mobile menu/focus and short-sidebar transition measurement races only in the existing browser harness; preserve assertions, deadlines and locked product styling.
+- Reconcile all 15 principal PASS suites: 170 functional groups and 831 layout/presentation cases, plus preserved unit/PostgreSQL/concurrency/locked-visual gates; distinguish mocked presentation from real authentication.
+- Preserve historical failures, unchanged established accounts/environment/reference files and the unrelated shortcut. Final typechecks, lint, builds and formatting pass; Stage 1 is TECHNICAL PASS. Human Acceptance and LOCK remain pending, and Stage 2 is not started.
+
+## 2026-10-09 — Event Management Stage 1 (technical verification partial)
+
+- Add authenticated global `/events`, membership-scoped listing, Active/Archived and Event-name search.
+- Replace switcher Create/Edit actions with one BG/EN Manage link and preserve five bottom items.
+- Preserve existing Create/Edit forms/APIs and readable archived workspace links; restrict Edit to active same-Event Organizers.
+- Isolate listing reads from Tasks; preserve explicit scope/history and meaningful no-active-Event entry.
+- Add responsive/focus, route/controller/listing tests and evidence; real browser gate is blocked by configured login credentials.
+- Diagnose the stale ignored Organizer test password without credential changes; resolve all seven visual investigations with strict original-reference comparison and interior-change controls.
+- No schema, migration, dependency or deployment; human acceptance/LOCK pending and stages 2–7 not started.
+
 ## 2026-10-08 — Profile & Account Settings V1
 
 - Add global authenticated `/account` and desktop/mobile account navigation.

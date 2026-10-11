@@ -53,6 +53,7 @@ async function make(label) {
   });
   contexts.push(context);
   await context.addInitScript(() => {
+    if (location.href === "about:blank") return;
     if (!localStorage.getItem("budograph.preferences.v1"))
       localStorage.setItem(
         "budograph.preferences.v1",

@@ -52,6 +52,7 @@ async function make(label) {
   });
   contexts.push(context);
   await context.addInitScript(() => {
+    if (location.href === "about:blank") return;
     if (!localStorage.getItem("budograph.preferences.v1"))
       localStorage.setItem(
         "budograph.preferences.v1",
@@ -102,8 +103,7 @@ async function read(account, eventId, taskId) {
 async function open(account, eventId, taskId) {
   await account.page.goto(origin + href(eventId, "tasks", taskId));
   await account.page.locator(".page--tasks:not([aria-busy])").waitFor();
-  if (taskId)
-    await account.page.locator(".task-drawer__identity").waitFor();
+  if (taskId) await account.page.locator(".task-drawer__identity").waitFor();
 }
 async function createForm(page) {
   await page.getByRole("button", { name: "Create task", exact: true }).click();

@@ -20,7 +20,7 @@ export function safeReturnTo(value: string | null): string {
     const url = new URL(value, "https://budograph.invalid");
     if (url.origin !== "https://budograph.invalid" || url.hash) return "/";
     const path = url.pathname.replace(/\/+$/, "") || "/";
-    if (path === "/account" && !url.search) return "/account";
+    if ((path === "/account" || path === "/events") && !url.search) return path;
     if (readInvitationToken(url.pathname) && !url.search) return url.pathname;
     const location = parseAppLocation(path, url.search);
     if (path === "/events/new") return path;

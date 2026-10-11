@@ -1,4 +1,29 @@
 export const EVENT_EN_MESSAGES = {
+  "events.manage": "Manage",
+  "events.management.title": "Event Management",
+  "events.management.description":
+    "Open and manage the events you have access to.",
+  "events.filter": "Event status",
+  "events.active": "Active",
+  "events.archived": "Archived",
+  "events.search": "Search by event name",
+  "events.accessRole": "Your access role",
+  "events.role.organizer": "Organizer",
+  "events.role.member": "Member",
+  "events.open": "Open event",
+  "events.openArchived": "Open archived workspace",
+  "events.list.error":
+    "Events could not be loaded. Check your connection and try again.",
+  "events.list.count": "Events: {count}",
+  "events.filtered.empty": "No matching events",
+  "events.filtered.description":
+    "Try another name or change the status filter.",
+  "events.active.empty": "No active events",
+  "events.active.description":
+    "Create an event or select Archived to view historical workspaces.",
+  "events.archived.empty": "No archived events",
+  "events.archived.description":
+    "Archived events you have access to will appear here.",
   "events.switch": "Switch event",
   "events.none": "No events yet",
   "events.choose": "Choose an event",
@@ -42,6 +67,31 @@ export const EVENT_EN_MESSAGES = {
 };
 
 export const EVENT_BG_MESSAGES = {
+  "events.manage": "Управление",
+  "events.management.title": "Управление на събития",
+  "events.management.description":
+    "Отваряйте и управлявайте събитията, до които имате достъп.",
+  "events.filter": "Състояние на събитията",
+  "events.active": "Активни",
+  "events.archived": "Архивирани",
+  "events.search": "Търсене по име на събитие",
+  "events.accessRole": "Вашата роля за достъп",
+  "events.role.organizer": "Организатор",
+  "events.role.member": "Член",
+  "events.open": "Отваряне на събитието",
+  "events.openArchived": "Отваряне на архивираното събитие",
+  "events.list.error":
+    "Събитията не можаха да се заредят. Проверете връзката си и опитайте отново.",
+  "events.list.count": "Събития: {count}",
+  "events.filtered.empty": "Няма съвпадащи събития",
+  "events.filtered.description":
+    "Опитайте друго име или променете филтъра за състояние.",
+  "events.active.empty": "Няма активни събития",
+  "events.active.description":
+    "Създайте събитие или изберете „Архивирани“, за да отворите минали събития.",
+  "events.archived.empty": "Няма архивирани събития",
+  "events.archived.description":
+    "Тук ще се показват архивираните събития, до които имате достъп.",
   "events.switch": "Смяна на събитие",
   "events.none": "Все още няма събития",
   "events.choose": "Изберете събитие",
