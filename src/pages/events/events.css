@@ -9,6 +9,22 @@
   padding: 0;
   border: 0;
 }
+.event-form__legend {
+  padding: 0;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+.event-form__section {
+  margin: 8px 0;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+.event-form__context {
+  margin: 8px 0 24px;
+}
+.event-form__section + .event-field__help {
+  margin: 0 0 16px;
+}
 .event-field {
   display: grid;
   min-width: 0;

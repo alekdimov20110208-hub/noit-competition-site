@@ -10,13 +10,14 @@ const { chromium } = await import(
     : "playwright"
 );
 const origin = "http://127.0.0.1:5173";
-const out = "tmp/p1d-evidence/browser";
+const out = process.env.BUDOGRAPH_EVIDENCE_DIR ?? "tmp/p1d-evidence/browser";
 mkdirSync(out, { recursive: true });
 const report = {
   checks: [],
   matrix: [],
   consoleErrors: 0,
   applicationErrors: 0,
+  authResponses: [],
 };
 const browser = await chromium.launch({
   headless: true,
@@ -72,6 +73,11 @@ async function make(width = 1440, language = "en", theme = "light") {
     locale: language === "bg" ? "bg-BG" : "en-GB",
   });
   const page = await context.newPage();
+  page.on("response", (response) => {
+    const path = new URL(response.url()).pathname;
+    if (path === "/api/auth/sign-in/email" || path === "/api/me")
+      report.authResponses.push({ path, status: response.status() });
+  });
   page.on("pageerror", () => report.applicationErrors++);
   page.on("console", (msg) => {
     if (

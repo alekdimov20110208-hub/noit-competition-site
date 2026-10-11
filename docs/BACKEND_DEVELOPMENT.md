@@ -1,5 +1,34 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Event Management Stages 2 + 3
+
+No migration or environment/dependency change is required. Existing Event writes,
+Task and Change commands remain canonical. `GET /api/events/:eventId/history`
+requires a valid active Better Auth session and active same-Event membership,
+including for archived Events. It returns minimized `{ eventId, entries,
+nextCursor }`; reads are no-store and there is no history-write endpoint.
+
+`before` is the last loaded ActivityEntry UUID, resolved only in the same Event.
+Unknown/duplicate parameters, malformed IDs and missing/foreign cursors are rejected;
+unauthorized Events return non-disclosing 404. One parameterized SQL statement
+combines authorization and a 51-row bound, returns at most 50 records and orders
+by exact PostgreSQL `(created_at DESC, id DESC)` using the existing index.
+No timestamp is round-tripped through JavaScript for the cursor.
+
+Actor identity, target ID, action and actual stored versions are preserved. DTOs
+omit raw payloads, emails and coordination prose; they expose only recorded changed
+field names, status and presence changes. Actor names and target titles are current
+joins, explicitly identified in UI. Existing deleted/unavailable targets keep IDs
+without offering broken workflow links. History and current-state tables are not
+rewritten; ActivityEntry's existing append-only trigger remains unchanged.
+
+`pnpm test:browser:event-history` uses real PostgreSQL/Auth/Fastify factories.
+`BUDOGRAPH_HISTORY_DIRECT=1` verifies the normal shared backend through Vite;
+the default narrow owned loopback bridge permits source verification while an
+existing shared process is unchanged. `BUDOGRAPH_EVIDENCE_DIR` selects a new
+ignored output directory. The existing original locked PNGs are never regenerated.
+See [Stage 2 + 3](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md) for actual results.
+
 ## Profile V1
 
 No new migration or environment variable is required. `/api/auth/update-user`

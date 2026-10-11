@@ -4,6 +4,7 @@ import { validReminderOffsets } from "../domain/taskReminders.ts";
 import type { Event, Task, TaskStatus, TeamMember } from "../domain/types.ts";
 import type { TaskFields, TaskFieldErrors } from "./taskAuthoring.ts";
 import { InvitationService } from "./invitations.ts";
+import { readEventHistory } from "./eventHistory.ts";
 import {
   ChangeService,
   ChangeFailure,
@@ -375,6 +376,20 @@ export class RemoteWorkspaceService
     const events = readAccessibleEvents(await this.get("/api/events", signal));
     signal.throwIfAborted();
     return events;
+  }
+  async readEventHistory(
+    eventId: string,
+    before: string | null,
+    signal: AbortSignal,
+  ) {
+    const requested = id(eventId);
+    const query = before === null ? "" : `?before=${id(before)}`;
+    const page = readEventHistory(
+      await this.get(`/api/events/${requested}/history${query}`, signal),
+      requested,
+    );
+    signal.throwIfAborted();
+    return page;
   }
 
   async getEvent(eventId: string, signal: AbortSignal): Promise<TaskEvent> {

@@ -20,6 +20,25 @@ import {
   APP_ROUTES,
 } from "./routes.ts";
 
+test("Event history deep links retain scope, login return and Event switching without a sixth navigation item", () => {
+  const id = randomUUID(),
+    other = randomUUID();
+  const href = eventHref(id, "/history");
+  assert.deepEqual(parseAppLocation(href, "?task=old"), {
+    path: "/history",
+    eventId: id,
+    taskId: null,
+    eventMode: "workspace",
+  });
+  assert.equal(safeReturnTo(href), href);
+  assert.equal(
+    eventHref(other, parseAppLocation(href, "").path),
+    `/events/${other}/history`,
+  );
+  assert.equal(APP_ROUTES.length, 5);
+  assert.equal(safeReturnTo("/history"), "/");
+});
+
 test("Event management is global, ignores detail context and leaves the five workspace routes intact", () => {
   for (const pathname of ["/events", "/events/", "/events///"]) {
     assert.deepEqual(parseAppLocation(pathname, "?task=old&change=old"), {

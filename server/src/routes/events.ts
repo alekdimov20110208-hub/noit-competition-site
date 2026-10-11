@@ -14,6 +14,28 @@ export function registerEventReadRoutes(
     const user = await requireAuthenticatedUser(authentication.auth, request);
     return { events: await events.list(user) };
   });
+  if (events.history)
+    app.get<{ Params: { eventId: string }; Querystring: { before?: unknown } }>(
+      "/api/events/:eventId/history",
+      async (request, reply) => {
+        reply.header("cache-control", "no-store");
+        const user = await requireAuthenticatedUser(
+          authentication.auth,
+          request,
+        );
+        if (
+          Object.keys(request.query).some((key) => key !== "before") ||
+          (request.query.before !== undefined &&
+            typeof request.query.before !== "string")
+        )
+          throw new EventCommandError(400, "INVALID_HISTORY_CURSOR");
+        return events.history!(
+          user,
+          request.params.eventId,
+          request.query.before as string | undefined,
+        );
+      },
+    );
   const origins = new Set(
     authentication.taskMutationOrigins ?? [
       new URL(authentication.baseURL).origin,

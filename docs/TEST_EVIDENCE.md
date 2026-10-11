@@ -1,5 +1,118 @@
 # BudoGraph Test Evidence
 
+## Event Management Stages 2 + 3 — 2026-10-11
+
+Combined owner-authorized implementation starts from
+`43d1b515cbcefc64ff1b708a84f6f11675cfb552`. Stage 1's accepted LOCK record is
+unchanged. Stage 2, Stage 3 and combined technical verification are **PASS**.
+Human acceptance remains PENDING; Stage 2 + 3 are NOT LOCKED.
+All paths below are ignored evidence under `tmp/event-management-stage23/`.
+
+Stage 2 completed its internal checkpoint before Stage 3: 59 focused frontend
+tests, typecheck/lint/build, real Event Authoring **14 groups / 20 layouts** and
+real PostgreSQL Event authoring **9 results, zero skips**. UI/SQL verify Create,
+Edit, Member independent ownership, unauthorized/foreign rejection, validation,
+concurrent writes (one 200 / one 409), explicit conflict recovery, navigation and
+actual expired session. Two owned UI-created development Events remain under the
+established retention policy (`stage2-browser/report.json`, `stage2-postgres.log`).
+
+Stage 3 focused checks passed **26 results** across frontend/history routing and
+backend/API tests. New PostgreSQL history coverage passed **6 results** (parent +
+five subtests): actual production Task assignment/acceptance/detail commands and
+Change creation/coordination updates; source actor/target/version identity;
+inactive/foreign membership and cursors; 61 rollback-only ordering fixtures,
+50-record pages, timestamp ties/microseconds; archived reads/current names with
+unchanged source; all owned identities/Event/Task/Change/history absent after
+rollback (`stage3-postgres.log`). No synthetic entries enter established history.
+
+Final automated regression is complete:
+
+| Gate                                                       | Result                                                       | Evidence                     |
+| ---------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------- |
+| Frontend                                                   | 280 PASS, zero failures/skips                                | `final-test.log`             |
+| Backend default                                            | 135 PASS / 16 expected opt-in skips, 151 total               | `final-server-test.log`      |
+| Real PostgreSQL, serial full suite                         | 119 PASS, zero failures/skips                                | `postgres-full.log`          |
+| Formatting, frontend/backend typechecks, lint, both builds | All exit 0                                                   | `final-*.log`                |
+| Strict original locked interiors                           | 112/112 exact; 2 negative controls detect deliberate changes | `locked-screens/report.json` |
+
+The full PostgreSQL run includes independent-connection concurrency and Profile
+rollback fixtures, not mocks. Integration skips in the default backend run are
+not passes. Original visual hashes match accepted Stage 1 evidence; references,
+comparison tolerances and masks are unchanged. Build advisory remains at 500 kB;
+actual minified frontend is 572.83 kB (157.45 kB gzip).
+
+History browser source checks use an owned loopback production-factory backend
+only for History GETs; existing authentication/workflows use the shared backend.
+The completed recovery run has **8 groups** and independently verifies **2327
+canonical history rows unchanged**; its layout matrix is explicitly skipped.
+The preceding attempt completed all **28** BG/EN Light/Dark widths
+320/360/390/768/960/1024/1440 before a harness selector failure. These runs are
+source evidence, not the final direct-runtime PASS (`history-recovery/report.json`,
+`history-browser-final/report.json`). The owner authorized one controlled reload
+of confirmed BudoGraph backend 3001 after tests/cleanup, with no repeat restart.
+
+Final fresh principal browser results all exited 0:
+
+| Suite                           | Functional groups |       Layout/presentation cases | Report                                        |
+| ------------------------------- | ----------------: | ------------------------------: | --------------------------------------------- |
+| Event Authoring                 |                14 |                              20 | `stage2-browser/report.json`                  |
+| Event Management                |                12 |                              28 | `regression-event-management/report.json`     |
+| Auth                            |                15 |                              20 | `regression-final-auth/report.json`           |
+| Workspace                       |                11 |                               8 | `regression-final-workspace/report.json`      |
+| Task Actions                    |                16 |                              40 | `regression-final-task-actions/report.json`   |
+| Task Authoring                  |                11 |                              20 | `regression-final-task-authoring/report.json` |
+| Changes                         |                11 | 60 + 4 labelled stress fixtures | `regression-final-changes/report.json`        |
+| History — direct shared runtime |                 9 |                              28 | `history-direct/report.json`                  |
+
+Total **99 functional groups / 228 layout or presentation cases**; JavaScript
+application errors are zero. Management separates ten presentation-fixture groups
+from two real groups. Transport loading/empty/error cases remain labelled; all
+permission, persistence, actor/version and history-integrity claims use real
+PostgreSQL/session checks. The independent `verification-summary.json` verifies
+counts, completed reports, exact pixel results and direct session/resource cleanup.
+
+Single controlled reload succeeded: confirmed BudoGraph PID 25912 became 28236,
+with identical entry/flags and unchanged Vite PID 26668. Live/ready 200; new
+anonymous History 401; authenticated Organizer/Member History 200 through normal
+5173/3001 requests, no bridge. Full 28-case history matrix ran without skip.
+Foreign Event 404/direct URL, Event switch, Task/Change/Back links, exact pagination,
+safe recovery, peer session and actual sign-out clearing passed. Independent row
+hashes preserve **2395 ActivityEntry records**. Ten protected table fingerprints
+including User/Account/Session and business rows, environment/config and shortcut
+hashes match before/after reload and after browser session cleanup
+(`runtime-integrity.json`, `reload-attempt.json`, `history-direct-exit.json`).
+An integrity-helper relative import failed in preflight before stopping any
+service; it was corrected and verified separately. Actual reload attempts: one,
+successful; no repeat restart. Safe preflight diagnostics are retained.
+
+Final diff review strengthened the controlled-fixture Task/Change link assertions
+and waits for actual Change detail rendering. A focused direct rerun passed all
+8 non-layout groups, both explicit relationship flags, session/resource cleanup
+and the same 2395-row preservation check (`history-links-review/report.json`).
+Its matrix is explicitly skipped; the completed 28-case matrix above is retained.
+Repeated groups are not added to the principal 99/228 total.
+
+Failures are retained: initial History Task selector, then Retry label did not
+match the established UI; corrections preserve business/assertion semantics.
+Initial locked runner used an incorrect external Sharp module path and failed
+before comparison. Initial Auth run timed out after 3 groups; the preceding
+suite's logins and Better Auth's existing 3/10-second sign-in limit suggest a rate
+window collision, but that initial run captured no status and does not prove the
+cause. One isolated rerun with numeric-only response observation and 11-second
+inter-suite spacing passed **15 groups / 20 layouts**. No auth rule, credential,
+product assertion or timeout was weakened (`regression-auth`,
+`regression-final-auth`, original failure logs).
+
+Profile's accepted Stage 1 **13 groups / 20 layouts** are preserved against
+unchanged Profile source. The fresh history browser visits Profile read-only;
+it does not rerun established-account password rotation, prohibited by this task.
+Fresh backend Profile integration uses only synthetic rollback fixtures.
+UI workflow fixtures and their append-only history remain by established policy;
+owned browser sessions are signed out. History itself creates no business fixture.
+
+See [the combined implementation record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md)
+for scope, limitations, year-specific NOIT rules and the pending human checklist.
+
 ## Event Management Stage 1 — final reconciliation, 2026-10-11
 
 Mandatory technical coverage and closure quality checks are complete: **TECHNICAL

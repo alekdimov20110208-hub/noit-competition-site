@@ -20,6 +20,7 @@ import {
   type EventFields,
 } from "./model.ts";
 import { uuidPattern } from "../tasks/model.ts";
+import { createEventHistoryReadService } from "./history.ts";
 export type { AccessibleEvent } from "./model.ts";
 
 export function createEventReadService(database: AuthorizationDatabase) {
@@ -224,8 +225,15 @@ export function createEventService(
       return eventDto(after, { id: actor.id, accessRole: actor.access_role });
     });
   }
-  return { ...reads, create, update };
+  return {
+    ...reads,
+    create,
+    update,
+    history: createEventHistoryReadService(database),
+  };
 }
 
 export type EventService = EventReadService &
-  Partial<Pick<ReturnType<typeof createEventService>, "create" | "update">>;
+  Partial<
+    Pick<ReturnType<typeof createEventService>, "create" | "update" | "history">
+  >;

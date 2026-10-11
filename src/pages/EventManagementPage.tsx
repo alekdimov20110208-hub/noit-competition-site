@@ -175,6 +175,14 @@ export function EventManagementPage({
                       {t("events.edit")}
                     </AppLink>
                   )}
+                  <AppLink
+                    href={eventHref(event.id, "/history")}
+                    onNavigate={onNavigate}
+                    className="button button--secondary"
+                    aria-label={`${t("history.title")}: ${event.name}`}
+                  >
+                    {t("history.title")}
+                  </AppLink>
                 </div>
               </li>
             ))}

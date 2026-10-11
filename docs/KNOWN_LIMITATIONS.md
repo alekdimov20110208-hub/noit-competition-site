@@ -1,5 +1,28 @@
 # Known Limitations
 
+## Event Management Stages 2 + 3 — 2026-10-11
+
+Implementation and combined technical verification pass. Human acceptance is
+pending and Stage 2 + 3 are not locked. Stage 1's accepted LOCK remains unchanged.
+Only existing ActivityEntry records are shown: this is not a complete audit or
+an event-sourcing system. Actor display names and related titles are current,
+not historical name snapshots. Task status and Change coordination presence
+are shown when recorded; full past Decision/Response/Plan B text is unavailable.
+Missing versions/actions are never synthesized. History uses 50-record pages;
+refresh reads the latest records without polling or an immutable session snapshot.
+
+Form drafts remain in memory and leaving a form discards them, as before; there
+was no existing general unsaved-navigation guard. Pending form navigation controls
+are disabled. A lost write response can still be uncertain: inspect management
+before repeating creation. Durable command idempotency is Stage 4, not implemented.
+Duplicate Event, Archive Event and Clear All Tasks (Stages 5–7), templates,
+analytics, new AI/email and deployment remain excluded. The archived filter is
+not an Archive operation. Existing engine/device/accessibility and external inbox
+limitations remain. The build's existing 500 kB advisory is retained (572.83 kB).
+
+Earlier phase sections retain their historical statuses. This section supersedes
+only their Stage 2 + 3 unstarted boundary; it does not alter Stage 1 acceptance.
+
 ## Event Management Stage 1 — 2026-10-09
 
 All mandatory technical coverage and final quality checks pass, including fresh

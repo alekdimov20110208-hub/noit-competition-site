@@ -1,5 +1,39 @@
 # AI Assistance Log
 
+## Event Management Stages 2 + 3 — 2026-10-11
+
+The owner explicitly authorized combined implementation, internal Stage 2/3
+checkpoints, final verification and conditional commit/push. Codex inspected the
+mandatory master prompt, supplied regulations, accepted Stage 1 record, existing
+Event/Task/Change persistence, fixture policies and established runners. The
+existing problem, concept, architecture, security and testing contracts continue.
+
+Codex refined the narrow form, added a read-only canonical history query/DTO,
+scoped page and cursor controller, and targeted tests. No schema, dependency,
+credential, historical-data rewrite or Stage 4–7 change was introduced. The only
+Stage 1 listing compatibility addition is the History row link; original controls,
+permissions, five navigation items, styling and LOCK record are preserved.
+
+Initial history browser harness selectors were corrected from evidence, without
+weakening assertions. Failed reports remain retained. Fresh strict locked pixels
+pass 112/112 with two negative controls. Technical evidence distinguishes real
+PostgreSQL/session requests from labelled transport presentation fixtures.
+
+The owner separately authorized one controlled shared-backend reload after final
+checks, preserving configuration, database, credentials and Vite, followed by direct
+Organizer/Member history verification. No automatic repeat restart is authorized.
+The single reload succeeded (backend PID 25912 to 28236; Vite PID 26668 preserved),
+with live/ready 200 and anonymous History 401. Direct real History passed 9 groups /
+28 layouts; independent hashes preserve 2395 history records and ten protected
+tables including accounts/sessions. A helper import preflight failure occurred
+before any stop; it was retained and corrected, with zero reload attempts then.
+Final frontend 280, backend 135 plus 16 opt-in skips, full PostgreSQL 119 and fresh
+browser 99 groups / 228 cases pass. Failed runs are retained and distinguished.
+Final review strengthened relationship assertions; the affected direct workflow
+rerun passed 8 groups without repeating the completed layout matrix.
+Human source review, understanding and acceptance remain pending. No Human PASS
+or Stage 2 + 3 LOCK is inferred from technical verification.
+
 ## Event Management Stage 1 — author acceptance and LOCK, 2026-10-11
 
 The project author explicitly confirmed all six human acceptance checks and

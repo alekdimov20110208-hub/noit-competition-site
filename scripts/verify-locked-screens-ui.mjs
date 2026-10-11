@@ -23,7 +23,9 @@ const { default: sharp } = await import(
 const baseline =
   process.env.BUDOGRAPH_LOCKED_BASELINE ?? "tmp/event-management-stage1/locked";
 const origin = process.env.BUDOGRAPH_BASE_URL ?? "http://127.0.0.1:5173";
-const out = "tmp/event-management-stage1/recovery/locked-protection";
+const out =
+  process.env.BUDOGRAPH_EVIDENCE_DIR ??
+  "tmp/event-management-stage1/recovery/locked-protection";
 mkdirSync(out, { recursive: true });
 const references = JSON.parse(
   readFileSync(`${baseline}/report.json`, "utf8"),

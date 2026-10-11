@@ -26,7 +26,7 @@ const { chromium } = await import(
     : "playwright"
 );
 const origin = "http://127.0.0.1:5173",
-  out = "tmp/p1d3-evidence/browser";
+  out = process.env.BUDOGRAPH_EVIDENCE_DIR ?? "tmp/p1d3-evidence/browser";
 mkdirSync(out, { recursive: true });
 const report = { checks: [], errors: 0, mutations: 0, matrix: [] };
 const config = readDatabaseEnv();

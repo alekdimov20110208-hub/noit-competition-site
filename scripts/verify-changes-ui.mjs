@@ -12,7 +12,9 @@ const { chromium } = await import(
 );
 const origin = "http://127.0.0.1:5173",
   readChecksOnly = process.argv.includes("--read-checks"),
-  out = `tmp/p3b-evidence/${readChecksOnly ? "read-checks" : "browser"}`,
+  out =
+    process.env.BUDOGRAPH_EVIDENCE_DIR ??
+    `tmp/p3b-evidence/${readChecksOnly ? "read-checks" : "browser"}`,
   run = randomUUID().slice(0, 8);
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({

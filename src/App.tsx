@@ -17,6 +17,8 @@ import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
 import { EventFormPage } from "./pages/EventFormPage.tsx";
 import { EventManagementPage } from "./pages/EventManagementPage.tsx";
+import { EventHistoryPage } from "./pages/EventHistoryPage.tsx";
+import { auth } from "./auth/runtime.ts";
 import { ChangesPage } from "./pages/ChangesPage.tsx";
 import { AccountPage } from "./pages/AccountPage.tsx";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
@@ -66,7 +68,7 @@ export default function App() {
     remoteEnabled,
     identity.user?.id ?? "",
     currentLocation.eventId,
-    currentLocation.path === "/events",
+    currentLocation.path === "/events" || currentLocation.path === "/history",
   );
   const remoteEvent = remoteTasks.workspace.events[0] ?? null;
   const refreshWorkspace = remoteTasks.retry;
@@ -545,6 +547,7 @@ export default function App() {
           onCancel={() =>
             navigate(contextEvent ? eventHref(contextEvent.id) : "/")
           }
+          onManage={() => navigate("/events")}
         />
       );
     }
@@ -588,6 +591,33 @@ export default function App() {
         onNavigate={navigate}
       />
     );
+
+  if (currentLocation.path === "/history")
+    page =
+      remoteTasks.status === "ready" && contextEvent ? (
+        <EventHistoryPage
+          key={`${identity.user?.id}:${contextEvent.id}`}
+          event={contextEvent}
+          onNavigate={navigate}
+          onUnauthorized={auth.expireSession}
+        />
+      ) : remoteTasks.status === "ready" ? (
+        <div className="page">
+          <PageHeader
+            title={t("history.title")}
+            description={t("events.error.not-found")}
+          />
+          <div className="notice" role="alert">
+            {t("events.error.not-found")}
+          </div>
+        </div>
+      ) : (
+        <WorkspaceReadNotice
+          state={remoteTasks}
+          team={false}
+          onRetry={() => void remoteTasks.retry()}
+        />
+      );
 
   return (
     <AppShell

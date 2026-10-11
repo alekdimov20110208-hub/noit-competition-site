@@ -14,7 +14,7 @@ const { chromium } = await import(
     : "playwright"
 );
 const origin = "http://127.0.0.1:5173",
-  out = "tmp/p2a-evidence/browser";
+  out = process.env.BUDOGRAPH_EVIDENCE_DIR ?? "tmp/p2a-evidence/browser";
 mkdirSync(out, { recursive: true });
 const config = readDatabaseEnv();
 assert.equal(
@@ -211,6 +211,20 @@ async function create(page, label, pending = false) {
   await page.goto(origin + "/events/new");
   await page.locator("#event-name").waitFor();
   assert.equal(
+    await page.locator(".event-form__legend").innerText(),
+    "Event details",
+  );
+  assert.equal(
+    await page.locator("#event-startDate").getAttribute("aria-describedby"),
+    "event-dates-help",
+  );
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Back to Event Management" })
+      .count(),
+    1,
+  );
+  assert.equal(
     await page.locator("#event-timezone").inputValue(),
     "Europe/Sofia",
   );
@@ -257,6 +271,18 @@ async function create(page, label, pending = false) {
       true,
     );
     assert.equal(await page.locator("#event-name").isDisabled(), true);
+    assert.equal(
+      await page
+        .getByRole("button", { name: "Back to Event Management" })
+        .isDisabled(),
+      true,
+    );
+    assert.equal(
+      await page
+        .getByRole("button", { name: "Cancel", exact: true })
+        .isDisabled(),
+      true,
+    );
     await page.locator(".event-form").evaluate((form) => form.requestSubmit());
     assert.equal(count, 1);
     release();

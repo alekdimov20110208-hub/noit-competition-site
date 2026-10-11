@@ -10,7 +10,8 @@ const { chromium } = await import(
     : "playwright"
 );
 const origin = "http://127.0.0.1:5173";
-const out = "tmp/event-management-stage1/browser";
+const out =
+  process.env.BUDOGRAPH_EVIDENCE_DIR ?? "tmp/event-management-stage1/browser";
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({
   headless: true,
@@ -466,6 +467,15 @@ try {
           `${role}: real session and exact membership-scoped listing/capabilities`,
         );
       } finally {
+        const logout = await context.request.post(
+          origin + "/api/auth/sign-out",
+          { headers: { origin }, data: {} },
+        );
+        assert.equal(
+          logout.status(),
+          200,
+          "Revoke only this verifier's owned session",
+        );
         await context.close();
       }
     }

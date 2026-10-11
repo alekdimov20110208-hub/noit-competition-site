@@ -1,5 +1,16 @@
 # BudoGraph
 
+Event Management Stages 2 + 3 refine the existing Create/Edit form and add
+read-only `/events/:eventId/history` from the management listing. History uses
+canonical PostgreSQL ActivityEntry records, Event-scoped authorization and
+50-record cursor pages. No migration or dependency is required. Stage 2 + 3 and
+combined verification are **TECHNICAL PASS**: frontend 280, backend 135 (+16 opt-in
+skips), real PostgreSQL 119, fresh browser 99 groups / 228 cases and strict locked
+interiors 112/112. Direct shared-runtime History passed after the owner-authorized
+single backend reload. Human acceptance remains pending; these stages are not
+locked. See [Stage 2 + 3](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md).
+Stages 4–7 are not started.
+
 Event Management Stage 1 adds global authenticated `/events` and a single
 **Manage / Управление** entry in desktop/mobile Event switchers. The listing uses
 membership-scoped Events, Active/Archived filters, name search, existing Create/Edit
@@ -11,7 +22,7 @@ Locked interiors pass 112/112 after isolating only approved header-height change
 Human Acceptance is **PASS — 6/6**, confirmed by the project author on
 2026-10-11, and Stage 1 is **LOCKED** at accepted implementation
 `8959b51eb054f71ddf9cafe7136f096edcc9b1f5`;
-stages 2–7 are **NOT STARTED**. See [the Stage 1 technical report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md)
+Stage 1's accepted scope excludes later stages; current Stage 2 + 3 status is above. See [the Stage 1 technical report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md)
 and [current evidence](docs/TEST_EVIDENCE.md).
 
 `pnpm test:browser:locked-screens` compares the retained original Stage 1 PNGs
@@ -55,9 +66,9 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 **Event Management Stage 1 — Global Event Listing & Navigation: TECHNICAL PASS,
 HUMAN PASS — 6/6, LOCKED.** The authoritative [Stage 1 LOCK record](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record)
 defines the accepted scope, implementation and preserved evidence. Active/Archived
-is a listing filter; Archive Event operations, Duplicate Event, Clear All Tasks,
-Event History improvements, durable idempotency and later UX refinements are
-future work. Event Management Stage 2 is **NOT STARTED**.
+is a listing filter.
+Stage 2 + 3 add the form refinements and history described above. Durable
+idempotency, duplication, archive operations and Clear All Tasks remain future work.
 
 **P3C Dashboard integration and Change clarity** preserves P3A/P3B.
 Dashboard **Operational Changes** now reads canonical current-Event Changes, latest

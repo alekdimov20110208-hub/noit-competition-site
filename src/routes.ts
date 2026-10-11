@@ -9,7 +9,14 @@ import {
 import type { MessageKey } from "./i18n/index.ts";
 
 export type AppPath =
-  "/" | "/tasks" | "/team" | "/changes" | "/templates" | "/account" | "/events";
+  | "/"
+  | "/tasks"
+  | "/team"
+  | "/changes"
+  | "/templates"
+  | "/account"
+  | "/events"
+  | "/history";
 
 export function isGlobalAppPath(path: AppPath): boolean {
   return path === "/account" || path === "/events";
@@ -130,7 +137,7 @@ export function parseAppLocation(
   if (normalized === "/events/new")
     return { path: "/", taskId: null, eventId: null, eventMode: "create" };
   const scoped =
-    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/(dashboard|tasks|team|changes|templates|edit)$/i.exec(
+    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/(dashboard|tasks|team|changes|templates|edit|history)$/i.exec(
       normalized,
     );
   const eventId = scoped?.[1]?.toLowerCase() ?? null;

@@ -49,6 +49,7 @@ interface EventFormPageProps {
   onReload: (signal: AbortSignal) => Promise<TaskEvent>;
   onSuccess: (event: TaskEvent) => void;
   onCancel: () => void;
+  onManage: () => void;
 }
 
 export function EventFormPage({
@@ -57,6 +58,7 @@ export function EventFormPage({
   onReload,
   onSuccess,
   onCancel,
+  onManage,
 }: EventFormPageProps) {
   const { t } = useI18n();
   // Refetches must never silently rebase an open draft or its expected version.
@@ -211,10 +213,10 @@ export function EventFormPage({
           aria-invalid={Boolean(error)}
           aria-describedby={
             error
-              ? `event-${field}-error`
+              ? `event-${field}-error${field !== "name" ? " event-dates-help" : ""}`
               : field === "name"
                 ? "event-name-help"
-                : undefined
+                : "event-dates-help"
           }
           onChange={(e) => change(field, e.target.value)}
         />
@@ -238,6 +240,16 @@ export function EventFormPage({
         description={t(
           event ? "events.edit.description" : "events.create.description",
         )}
+        actions={
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={onManage}
+            disabled={pending}
+          >
+            {t("events.backToManagement")}
+          </button>
+        }
       />
       <form
         ref={form}
@@ -277,10 +289,13 @@ export function EventFormPage({
           </div>
         )}
         <fieldset disabled={pending || needsReload}>
-          <legend className="sr-only">
-            {t(event ? "events.edit" : "events.create")}
-          </legend>
+          <legend className="event-form__legend">{t("events.details")}</legend>
+          <p className="event-form__context">{t("events.required")}</p>
           {input("name")}
+          <h2 className="event-form__section">{t("events.schedule")}</h2>
+          <p className="event-field__help" id="event-dates-help">
+            {t("events.dates.help")}
+          </p>
           <div className="event-form__dates">
             {input("startDate")}
             {input("endDate")}
@@ -336,6 +351,7 @@ export function EventFormPage({
             className="button button--secondary"
             type="button"
             onClick={onCancel}
+            disabled={pending}
           >
             {t("common.cancel")}
           </button>

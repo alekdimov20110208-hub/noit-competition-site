@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-11 — Event Management Stages 2 + 3
+
+- Clarify existing Create/Edit hierarchy, required fields, calendar-date and timezone guidance, accessible descriptions and pending controls; retain canonical validation, conflicts and successful-save navigation.
+- Add read-only, membership-authorized Event history with deterministic 50-record PostgreSQL cursor pages, current actor/target names, actual recorded versions, status and coordination-presence changes, and scoped Task/Change links.
+- Add only a History link to management rows for Stage 3 compatibility; preserve Stage 1 controls, filters, permissions, shell and locked interiors.
+- Add focused history, API, PostgreSQL and browser coverage; preserve original references and prior failure evidence. No migrations, dependencies, destructive operations, credential rotation or Stage 4–7 work.
+- Human acceptance remains pending; Stage 2 + 3 are not locked. Final technical evidence is recorded separately.
+
 ## 2026-10-11 — Event Management Stage 1 LOCK
 
 - Record the project author's explicit Human Acceptance: 6/6 PASS, following Technical PASS, and lock Global Event Listing & Navigation at implementation `8959b51eb054f71ddf9cafe7136f096edcc9b1f5`.

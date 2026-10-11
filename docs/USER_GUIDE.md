@@ -1,5 +1,36 @@
 # BudoGraph User Guide
 
+## Event details and history / Данни и история на събитието
+
+From **Manage / Управление**, create or edit through the existing routes.
+All four fields are required. Choose the first/last calendar day; for a one-day
+Event use the same date twice. The Event timezone governs Task due times and
+reminders, while calendar dates remain unchanged. Field errors are associated
+with their inputs. Saving disables duplicate submission and form navigation;
+a successful save opens the canonical Event Dashboard. **Back to Event Management /
+Към управление на събития** returns to the global list.
+
+A version conflict loads the latest details and requires an explicit reviewed save.
+If reload fails, use **Load latest details** before saving. Drafts live only in
+memory and leaving the form discards them. If a creation response is uncertain,
+check management before retrying, since duplicate prevention is not yet durable.
+Only active same-Event Organizers edit; eligible Members can create independent
+Events and become their Organizers.
+
+Choose **Event history / История на събитието** on an Event row. Members and
+Organizers can read only their accessible Events, including archived ones. Newest
+recorded actions appear first, with time in the Event timezone, actor, related
+record, stored version and recorded changed fields/status/presence where available.
+Task/Change links open their existing workflow; Back returns to history. Event
+switching retains the history page and reads the selected Event.
+
+Use **Load older records / Зареждане на по-стари записи** for up to 50 older records
+or **Refresh history / Обновяване на историята** for a fresh read. Empty and
+failed reads are distinct. This is the recorded operational history, not every
+past action. Names/titles are current, and full old Decision/Response/Plan B text
+is not retained. History is read-only; no edit, erase or new audit action is offered.
+Stages 4–7 remain unstarted. Stage 2 + 3 human acceptance is pending.
+
 ## Event Management / Управление на събития
 
 Choose **Manage / Управление** next to the Event selector on desktop or mobile,
