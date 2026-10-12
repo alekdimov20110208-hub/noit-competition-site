@@ -4,6 +4,7 @@ import {
   parseAppLocation,
   eventHref,
   eventEditHref,
+  eventDuplicateHref,
   changeHref,
 } from "../routes.ts";
 import { readInvitationToken } from "../services/invitations.ts";
@@ -29,7 +30,9 @@ export function safeReturnTo(value: string | null): string {
         return changeHref(location.eventId, location.changeId);
       return location.eventMode === "edit"
         ? eventEditHref(location.eventId)
-        : eventHref(location.eventId, location.path, location.taskId);
+        : location.eventMode === "duplicate"
+          ? eventDuplicateHref(location.eventId)
+          : eventHref(location.eventId, location.path, location.taskId);
     }
     if (!APP_ROUTES.some((route) => route.path === path)) return "/";
     return location.path === "/tasks" && location.taskId

@@ -299,7 +299,7 @@ export interface EventFields {
   endDate: string;
   timezone: string;
 }
-export type EventActionError = TaskActionError;
+export type EventActionError = TaskActionError | "key-reused" | "uncertain";
 export type EventFieldErrors = Partial<
   Record<keyof EventFields | "expectedVersion", string>
 >;
@@ -320,6 +320,13 @@ export interface EventWorkspaceService {
     signal: AbortSignal,
   ): Promise<TasksWorkspace>;
   createEvent(fields: EventFields, signal: AbortSignal): Promise<TaskEvent>;
+  duplicateEvent(
+    sourceId: string,
+    expectedVersion: number,
+    fields: EventFields,
+    commandId: string,
+    signal: AbortSignal,
+  ): Promise<TaskEvent>;
   updateEvent(
     eventId: string,
     expectedVersion: number,
@@ -640,12 +647,34 @@ export class RemoteWorkspaceService
     });
   }
 
+  duplicateEvent(
+    sourceId: string,
+    expectedVersion: number,
+    fields: EventFields,
+    commandId: string,
+    signal: AbortSignal,
+  ): Promise<TaskEvent> {
+    const source = id(sourceId),
+      key = id(commandId);
+    return this.eventCommand(
+      `/api/events/${source}/duplicate`,
+      "POST",
+      fields,
+      signal,
+      { eventId: source, expectedVersion, duplicateKey: key },
+    );
+  }
+
   private async eventCommand(
     path: string,
     method: "POST" | "PATCH",
     fields: EventFields,
     signal: AbortSignal,
-    update?: { eventId: string; expectedVersion: number },
+    update?: {
+      eventId: string;
+      expectedVersion: number;
+      duplicateKey?: string;
+    },
   ): Promise<TaskEvent> {
     // Explicit projection prevents client properties from becoming authority.
     const body = {
@@ -662,9 +691,16 @@ export class RemoteWorkspaceService
         method,
         credentials: "same-origin",
         cache: "no-store",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          ...(update?.duplicateKey
+            ? { "Idempotency-Key": update.duplicateKey }
+            : {}),
+        },
         body: JSON.stringify(body),
-        signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
+        signal: update?.duplicateKey
+          ? signal
+          : AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
       });
     } catch {
       if (signal.aborted) throw signal.reason;
@@ -678,7 +714,19 @@ export class RemoteWorkspaceService
       409: "conflict",
     };
     if (!response.ok) {
-      const code = errors[response.status] ?? "unavailable";
+      let code = errors[response.status] ?? "unavailable";
+      if (response.status === 409 && update?.duplicateKey) {
+        // Only a known version rejection proves this command had no effects.
+        // An unreadable/unknown conflict must retain its UUID for safe recovery.
+        code = "uncertain";
+        try {
+          const reason = record(await response.json()).code;
+          if (reason === "IDEMPOTENCY_KEY_REUSED") code = "key-reused";
+          else if (reason === "EVENT_VERSION_CONFLICT") code = "conflict";
+        } catch {
+          /* Fixed public codes only. */
+        }
+      }
       const fieldErrors: EventFieldErrors = {};
       if (code === "invalid") {
         try {
@@ -708,17 +756,21 @@ export class RemoteWorkspaceService
     }
     try {
       const event = readRemoteEvent(record(await response.json()).event);
-      if (update && event.id !== update.eventId) invalid();
+      if (update && !update.duplicateKey && event.id !== update.eventId)
+        invalid();
       if (
-        !update &&
+        (!update || update.duplicateKey) &&
         (event.archived || event.membership.accessRole !== "ORGANIZER")
       )
         invalid();
+      if (update?.duplicateKey && event.id === update.eventId) invalid();
       signal.throwIfAborted();
       return event;
     } catch {
       if (signal.aborted) throw signal.reason;
-      throw new EventActionFailure("invalid");
+      throw new EventActionFailure(
+        update?.duplicateKey ? "uncertain" : "invalid",
+      );
     }
   }
 

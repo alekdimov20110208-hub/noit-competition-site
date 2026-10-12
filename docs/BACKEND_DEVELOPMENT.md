@@ -1,5 +1,38 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Event Management Stages 4 + 5
+
+Apply additive `0008_event_command_receipts.sql` explicitly with `pnpm db:migrate`
+before starting this source. Prior migrations, dependencies and environment remain
+unchanged. Existing Create/Edit APIs keep their approved semantics.
+
+`POST /api/events/:eventId/duplicate` requires current active Better Auth identity,
+active source Organizer (archives permitted), trusted Origin/Fetch Metadata and
+`Idempotency-Key: <UUID>`. Strict body: `name`, `startDate`, `endDate`, `timezone`,
+`expectedVersion` (source). Only reviewed target basics are inserted; requester
+owns the fresh Event and its sole Organizer membership. No operational rows copy.
+
+Actor/key serialization precedes source Event/membership/identity locks. Source
+authorization always precedes receipt lookup; accepted replay additionally requires
+current destination Organizer access. Initial/replay returns accepted `201 { event }`,
+no-store, with no repeat effects. Different payload/scope: `409 IDEMPOTENCY_KEY_REUSED`;
+fresh stale version: `409 EVENT_VERSION_CONFLICT`. Effects, creation provenance and
+immutable receipt commit/rollback together. Receipt RLS has no browser policies;
+raw requests/secrets are not stored and no expiry/purge is introduced. See
+[the combined report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md).
+
+`pnpm test:browser:event-duplication` verifies real PostgreSQL/session/factory
+requests, forwarding only Duplicate POSTs to an owned loopback backend by default.
+`BUDOGRAPH_DUPLICATE_DIRECT=1` uses shared backend/Vite after precisely authorized
+reload; `BUDOGRAPH_DUPLICATE_SKIP_MATRIX=1` runs targeted direct integration after
+the full matrix. `BUDOGRAPH_EVIDENCE_DIR` selects new ignored evidence. Stage 6/7
+endpoints do not exist.
+
+Final Stage 4 + 5 direct integration passed after exactly one owner-authorized
+shared-backend reload: Duplicate 13 groups and History 8 groups, both without a
+bridge or repeated matrices. Backend liveness/readiness and Better Auth pass;
+Vite, configuration, original PostgreSQL records and sessions are preserved.
+
 ## Event Management Stages 2 + 3
 
 No migration or environment/dependency change is required. Existing Event writes,

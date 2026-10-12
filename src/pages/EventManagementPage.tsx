@@ -3,10 +3,14 @@ import { AppLink } from "../components/AppLink.tsx";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { PageHeader } from "../components/PageHeader.tsx";
 import { useI18n } from "../i18n/index.ts";
-import { eventEditHref, eventHref } from "../routes.ts";
+import { eventEditHref, eventHref, eventDuplicateHref } from "../routes.ts";
 import { revealFocusTarget } from "../navigationFocus.ts";
 import type { TaskEvent } from "../services/RemoteWorkspaceService.ts";
-import { canEditEvent, filterEvents } from "./events/listing.ts";
+import {
+  canEditEvent,
+  canDuplicateEvent,
+  filterEvents,
+} from "./events/listing.ts";
 import "./events/eventManagement.css";
 
 export function EventManagementPage({
@@ -183,6 +187,16 @@ export function EventManagementPage({
                   >
                     {t("history.title")}
                   </AppLink>
+                  {canDuplicateEvent(event) && (
+                    <AppLink
+                      href={eventDuplicateHref(event.id)}
+                      onNavigate={onNavigate}
+                      className="button button--secondary"
+                      aria-label={`${t("events.duplicate")}: ${event.name}`}
+                    >
+                      {t("events.duplicate")}
+                    </AppLink>
+                  )}
                 </div>
               </li>
             ))}

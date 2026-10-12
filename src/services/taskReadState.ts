@@ -732,6 +732,43 @@ export class TaskReadController {
       .catch(() => {});
     return request;
   };
+
+  duplicateEvent = (
+    sourceId: string,
+    expectedVersion: number,
+    fields: EventFields,
+    commandId: string,
+    signal?: AbortSignal,
+  ): Promise<TaskEvent> => {
+    if (this.eventPending) return this.eventPending;
+    if (!this.service.duplicateEvent)
+      return Promise.reject(new EventActionFailure("unavailable"));
+    const revision = this.contextRevision;
+    const pendingWorkspace = this.pending ?? this.actionPending;
+    const request = this.eventRequest(async (cancellation) => {
+      if (pendingWorkspace)
+        await this.waitForPendingWorkspace(pendingWorkspace, cancellation);
+      return this.service.duplicateEvent!(
+        sourceId,
+        expectedVersion,
+        fields,
+        commandId,
+        cancellation,
+      );
+    }, signal).then((event) => {
+      if (revision !== this.contextRevision)
+        throw new DOMException("Event context changed.", "AbortError");
+      this.rememberEvent(event);
+      return event;
+    });
+    this.eventPending = request;
+    void request
+      .finally(() => {
+        if (this.eventPending === request) this.eventPending = null;
+      })
+      .catch(() => {});
+    return request;
+  };
 }
 
 // A calendar carrier for existing date-only selectors. Deadline strings are

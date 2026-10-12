@@ -1,5 +1,37 @@
 # Known Limitations
 
+## Event Management Stages 4 + 5 — 2026-10-12
+
+Both stages and combined verification are TECHNICAL PASS, including direct shared
+backend integration. Human Acceptance PENDING, Stage 4 + 5 NOT LOCKED.
+Earlier sections retain historical states. Current Stage 4 + 5 scope supersedes
+their unstarted boundary; Stage 1–3 LOCK records remain unchanged. See
+[the combined report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md).
+
+Only Duplicate uses durable receipts. Existing Create/Edit keep their approved
+behavior; uncertain Create still requires checking management. Duplicate is
+source-Organizer-only, including archives; Members can still create independent
+Events. Only name/timezone are prefilled; dates require explicit review. The
+requester is the sole destination Organizer; operational records are excluded.
+
+Receipts retain the accepted creation-time result; normal reads show current data.
+Current source/destination Organizer authority is required for replay. No receipt
+directory, automatic conflict replay, expiry or purge is introduced. Timeouts fail
+safely and require explicit same-key retry.
+
+Uncertain submitted Duplicate fields/key are scoped to identity/source in tab
+sessionStorage for refresh recovery, with in-tab memory fallback. Unsubmitted
+drafts remain in memory; no general unsaved-navigation guard exists. If tab storage
+is unavailable/cleared, refresh cannot recover the request key, while the backend
+still prevents repeated effects for that key. Synthetic committed race/browser
+fixtures are retained under the existing append-only policy; sessions/resources
+close. Established credentials and uncontrolled data remain preserved.
+
+Archive/Clear (Stages 6–7), Templates, new AI, deployment and PWA are excluded.
+Other engines/physical devices/human accessibility and current-year NOIT verification
+remain separate. Existing development DB privileges do not prove production least
+privilege. The Vite bundle advisory remains; final size/runtime results are in the report.
+
 ## Event Management Stages 2 + 3 — 2026-10-11
 
 Implementation and combined technical verification pass. The project author

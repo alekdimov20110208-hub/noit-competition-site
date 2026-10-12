@@ -16,3 +16,7 @@ export function filterEvents(
 export function canEditEvent(event: TaskEvent): boolean {
   return !event.archived && event.membership.accessRole === "ORGANIZER";
 }
+
+export function canDuplicateEvent(event: TaskEvent): boolean {
+  return event.membership.accessRole === "ORGANIZER";
+}

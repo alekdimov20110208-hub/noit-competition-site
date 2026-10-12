@@ -118,19 +118,39 @@ async function make(label) {
   return { page, context };
 }
 async function read(page) {
-  return page.evaluate(async () => {
+  let selectedId = eventId;
+  if (!selectedId) {
+    const accessible = await page.evaluate(
+      async () =>
+        (await (await fetch("/api/events", { cache: "no-store" })).json())
+          .events,
+    );
+    const candidates = await pool.query(
+      "SELECT event_id FROM public.task WHERE title=$1 AND deleted_at IS NULL AND event_id=ANY($2::UUID[])",
+      [
+        "Verify the two-user responsibility loop",
+        accessible.filter((event) => !event.archived).map((event) => event.id),
+      ],
+    );
+    assert.equal(
+      candidates.rows.length,
+      1,
+      "Exactly one authorized active controlled responsibility fixture required",
+    );
+    selectedId = candidates.rows[0].event_id;
+  }
+  return page.evaluate(async (selectedId) => {
     const { events } = await fetch("/api/events", { cache: "no-store" }).then(
       (response) => response.json(),
     );
-    const event = [...events].sort(
-      (a, b) =>
-        a.startDate.localeCompare(b.startDate) || a.id.localeCompare(b.id),
-    )[0];
+    const event = events.find(
+      (event) => event.id === selectedId && !event.archived,
+    );
     const body = await fetch(`/api/events/${event.id}/tasks`, {
       cache: "no-store",
     }).then((response) => response.json());
     return { event, ...body };
-  });
+  }, selectedId);
 }
 async function open(page) {
   await page.goto(origin + `/events/${eventId}/tasks?task=${taskId}`);

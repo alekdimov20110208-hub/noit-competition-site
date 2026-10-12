@@ -21,6 +21,7 @@ import {
 } from "./model.ts";
 import { uuidPattern } from "../tasks/model.ts";
 import { createEventHistoryReadService } from "./history.ts";
+import { runEventOperation } from "./operations.ts";
 export type { AccessibleEvent } from "./model.ts";
 
 export function createEventReadService(database: AuthorizationDatabase) {
@@ -90,6 +91,52 @@ async function recordEventActivity(
   );
 }
 
+async function insertEvent(
+  transaction: TransactionDatabase,
+  userId: string,
+  fields: EventFields,
+  duplication?: {
+    sourceEventId: string;
+    sourceVersion: number;
+    operationId: string;
+  },
+): Promise<AccessibleEvent> {
+  await requireStoredTimezone(transaction, fields.timezone);
+  const eventId = randomUUID(),
+    memberId = randomUUID();
+  const inserted = await transaction.query(
+    `INSERT INTO public.event (id, name, start_date, end_date, timezone, owner_user_id)
+     VALUES ($1, $2, $3::DATE, $4::DATE, $5, $6) RETURNING ${eventColumns}`,
+    [
+      eventId,
+      fields.name,
+      fields.startDate,
+      fields.endDate,
+      fields.timezone,
+      userId,
+    ],
+  );
+  const event = inserted.rows[0] as EventRow;
+  await transaction.query(
+    `INSERT INTO public.event_member (id, event_id, user_id, access_role, operational_role, active)
+     VALUES ($1, $2, $3, 'ORGANIZER', '', TRUE)`,
+    [memberId, eventId, userId],
+  );
+  await recordEventActivity(
+    transaction,
+    userId,
+    memberId,
+    eventId,
+    "EVENT_CREATED",
+    {
+      ...fields,
+      version: event.version,
+      ...(duplication ? { duplication } : {}),
+    },
+  );
+  return eventDto(event, { id: memberId, accessRole: "ORGANIZER" });
+}
+
 export function createEventService(
   database: AuthorizationDatabase & TransactionPool,
 ) {
@@ -107,36 +154,7 @@ export function createEventService(
         [user.id],
       );
       if (!identities.rows.length) throw new UnauthorizedError();
-      await requireStoredTimezone(transaction, fields.timezone);
-      const eventId = randomUUID(),
-        memberId = randomUUID();
-      const inserted = await transaction.query(
-        `INSERT INTO public.event (id, name, start_date, end_date, timezone, owner_user_id)
-         VALUES ($1, $2, $3::DATE, $4::DATE, $5, $6) RETURNING ${eventColumns}`,
-        [
-          eventId,
-          fields.name,
-          fields.startDate,
-          fields.endDate,
-          fields.timezone,
-          user.id,
-        ],
-      );
-      const event = inserted.rows[0] as EventRow;
-      await transaction.query(
-        `INSERT INTO public.event_member (id, event_id, user_id, access_role, operational_role, active)
-         VALUES ($1, $2, $3, 'ORGANIZER', '', TRUE)`,
-        [memberId, eventId, user.id],
-      );
-      await recordEventActivity(
-        transaction,
-        user.id,
-        memberId,
-        eventId,
-        "EVENT_CREATED",
-        { ...fields, version: event.version },
-      );
-      return eventDto(event, { id: memberId, accessRole: "ORGANIZER" });
+      return insertEvent(transaction, user.id, fields);
     });
   }
 
@@ -229,11 +247,43 @@ export function createEventService(
     ...reads,
     create,
     update,
+    duplicate(
+      user: AuthenticatedUser,
+      sourceId: string,
+      key: unknown,
+      input: unknown,
+    ) {
+      return runEventOperation(
+        database,
+        user,
+        sourceId,
+        key,
+        input,
+        async (transaction, fields, source, operationId) => {
+          // Project only reviewed target basics; source relationships/lifecycle are
+          // never selected or copied. Source is locked and remains untouched.
+          const target = {
+            name: fields.name,
+            startDate: fields.startDate,
+            endDate: fields.endDate,
+            timezone: fields.timezone,
+          };
+          return insertEvent(transaction, user.id, target, {
+            sourceEventId: source.id,
+            sourceVersion: source.version,
+            operationId,
+          });
+        },
+      );
+    },
     history: createEventHistoryReadService(database),
   };
 }
 
 export type EventService = EventReadService &
   Partial<
-    Pick<ReturnType<typeof createEventService>, "create" | "update" | "history">
+    Pick<
+      ReturnType<typeof createEventService>,
+      "create" | "update" | "history" | "duplicate"
+    >
   >;

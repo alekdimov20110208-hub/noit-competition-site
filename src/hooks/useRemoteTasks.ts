@@ -73,6 +73,7 @@ export function useRemoteTasks(
     getEvent: controller.getEvent,
     createEvent: controller.createEvent,
     updateEvent: controller.updateEvent,
+    duplicateEvent: controller.duplicateEvent,
     createTask: controller.createTask,
     updateTaskDetails: controller.updateTaskDetails,
     getTask: controller.getTask,

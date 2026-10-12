@@ -1,5 +1,44 @@
 # BudoGraph Test Evidence
 
+## Event Management Stages 4 + 5 — 2026-10-12 (TECHNICAL PASS)
+
+Starting synchronized `main`: `4167af65cc919d4d77962d1bd9847e70f45e8b26`.
+Ignored evidence root: `tmp/event-management-stage45/`. Stage 4 checkpoint preceded
+Duplicate: 5 unit / 7 real PostgreSQL tests, including independent connections and
+a fresh Node replay process. Stage 5 final focused PostgreSQL: 12 PASS. Final full
+regression: frontend 286 PASS, backend 141 PASS + 19 opt-in skips, enabled serial
+PostgreSQL 138 PASS with no skips. Initial 11/137 runs are retained separately.
+
+Strict original locked interiors: 112 exact matches and two negative controls;
+references unchanged. Extended real Duplicate browser: 13 groups / 28 BG/EN ×
+Light/Dark layouts, including lost-response refresh recovery, concurrency,
+validation/version recovery, source integrity, archived source and access denial.
+All nine principal browser suites pass: 111 groups / 256 layout and labelled stress
+cases. Additional focused current-source recovery (13 groups) covers committed
+network/malformed409 loss with the same UUID; focused History (8 groups) proves
+older-page append and both relationship links on the existing controlled fixture.
+All owned cleanup/resource checks pass. Original 2395 history rows, seven migration
+checksums, all 23 account rows, environment and shortcut are preserved; secrets 0.
+Final direct shared-runtime Duplicate: 13 groups; History: 8 groups, no bridge or
+matrix repetition, zero application errors, owned sessions/resources closed.
+Exactly one separately owner-authorized reload succeeded: backend PID 28236 to
+34372, Vite 26668 unchanged, liveness/readiness 200, Duplicate/History anonymous 401.
+All 14 original table counts/content fingerprints match before/after reload and
+after direct browser runs, excluding only eight declared new fixture Events.
+The 2518 history rows present immediately before reload remain unchanged;
+the read-only direct History run also preserves all 2527 then-existing rows.
+Evidence: `reload-attempt.json`, `runtime-integrity.json`,
+`post-browser-integrity.json`, `duplicate-direct/report.json`,
+`history-direct/report.json`. Both stages and combined verification: TECHNICAL PASS.
+Human Acceptance PENDING; Stage 4 + 5 NOT LOCKED; Stages 6–7 NOT STARTED.
+
+Preserved harness failures include a read-only schema-version comparison, new
+TypeScript test typing, fieldset disabled measurement and assumptions about default
+landing order/assigned-work fixtures. Corrections preserve assertions and bind
+assigned-work suites to the existing authorized controlled fixture; metadata-only
+copies/archives legitimately change default selection order. See
+[the combined report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md) for final results.
+
 ## Event Management Stages 2 + 3 — author acceptance and LOCK, 2026-10-11
 
 The project author explicitly confirmed **HUMAN PASS — 6/6** for Stage 2 and

@@ -1,4 +1,22 @@
 export const EVENT_EN_MESSAGES = {
+  "events.duplicate": "Duplicate event",
+  "events.duplicate.description":
+    "Review the basics for a new independent event.",
+  "events.duplicate.suffix": " (copy)",
+  "events.duplicate.source": "Source event: {name}",
+  "events.duplicate.boundary":
+    "Copies event basics only. Tasks and team access are not copied.",
+  "events.duplicate.dates":
+    "Choose start and end dates for the new event. Source dates are not filled in.",
+  "events.duplicate.permission":
+    "Only an Organizer of the source event can duplicate it.",
+  "events.duplicate.retry": "Retry this duplication",
+  "events.duplicate.conflict":
+    "The source event changed. Its latest version has been loaded. Review your new event details and submit again explicitly.",
+  "events.duplicate.uncertain":
+    "This duplication may already have completed. Retry the same request to recover its result. Its reviewed fields are held until the result is confirmed.",
+  "events.duplicate.keyReused":
+    "This request identity was already used with different details. No new duplication was performed.",
   "history.present": "Text present",
   "history.absent": "No text",
   "history.field.status": "Status",
@@ -127,6 +145,24 @@ export const EVENT_EN_MESSAGES = {
 };
 
 export const EVENT_BG_MESSAGES = {
+  "events.duplicate": "Дублиране на събитие",
+  "events.duplicate.description":
+    "Прегледайте основните данни за ново независимо събитие.",
+  "events.duplicate.suffix": " (копие)",
+  "events.duplicate.source": "Изходно събитие: {name}",
+  "events.duplicate.boundary":
+    "Копират се само основните данни. Задачите и достъпът на екипа не се копират.",
+  "events.duplicate.dates":
+    "Изберете начална и крайна дата за новото събитие. Датите на източника не се попълват.",
+  "events.duplicate.permission":
+    "Само Организатор на изходното събитие може да го дублира.",
+  "events.duplicate.retry": "Повторен опит за това дублиране",
+  "events.duplicate.conflict":
+    "Изходното събитие е променено. Заредена е последната му версия. Прегледайте данните за новото събитие и потвърдете отново.",
+  "events.duplicate.uncertain":
+    "Дублирането може вече да е завършило. Повторете същата заявка, за да получите резултата. Прегледаните полета се запазват до потвърждаването му.",
+  "events.duplicate.keyReused":
+    "Идентификаторът на заявката вече е използван с други данни. Не е извършено ново дублиране.",
   "history.present": "Има текст",
   "history.absent": "Няма текст",
   "history.field.status": "Статус",

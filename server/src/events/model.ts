@@ -83,7 +83,7 @@ export function validEventTimezone(value: unknown): value is string {
 
 export function parseEventCommand(
   input: unknown,
-  editing = false,
+  editing: boolean | "duplicate" = false,
 ): EventFields & { expectedVersion?: number } {
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw new EventCommandError(400, "INVALID_EVENT_COMMAND");
@@ -121,7 +121,10 @@ export function parseEventCommand(
     editing &&
     (!Number.isSafeInteger(body.expectedVersion) ||
       (body.expectedVersion as number) < 1 ||
-      (body.expectedVersion as number) >= 2147483647)
+      // Duplicate never increments the source, so its terminal INTEGER version
+      // is valid. Existing Edit retains the prior increment-safe upper bound.
+      (body.expectedVersion as number) >=
+        (editing === "duplicate" ? 2147483648 : 2147483647))
   )
     fields.expectedVersion = "INVALID_VERSION";
   if (Object.keys(fields).length)

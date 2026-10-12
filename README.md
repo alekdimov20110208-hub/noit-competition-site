@@ -1,5 +1,15 @@
 # BudoGraph
 
+Event Management Stages 4 + 5 add durable PostgreSQL receipts and Organizer-only
+**Duplicate event / Дублиране на събитие** from active or archived sources.
+Only reviewed basics create a fresh active Event with the requesting Organizer;
+Tasks, Team and operational history are excluded. Apply additive
+`0008_event_command_receipts.sql`. Both stages and combined verification are
+**TECHNICAL PASS**, including direct shared-backend Organizer/Member verification;
+Human Acceptance is **PENDING**, Stage 4 + 5 **NOT LOCKED**, and Stages 6–7
+**NOT STARTED**. Stages 1–3 stay LOCKED. See
+[the combined report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md).
+
 Event Management Stages 2 + 3 refine the existing Create/Edit form and add
 read-only `/events/:eventId/history` from the management listing. History uses
 canonical PostgreSQL ActivityEntry records, Event-scoped authorization and
@@ -11,7 +21,7 @@ single backend reload. The project author confirmed **HUMAN PASS — 6/6** on
 **2026-10-11**; Stage 2 + 3 are **LOCKED** at implementation
 `9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`. See the
 [Final LOCK record](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record).
-Stages 4–7 are not started.
+Current Stage 4 + 5 status is above; Stages 6–7 are not started.
 
 Event Management Stage 1 adds global authenticated `/events` and a single
 **Manage / Управление** entry in desktop/mobile Event switchers. The listing uses
@@ -69,8 +79,9 @@ BudoGraph is an organizer workspace for martial-arts seminars and events. It giv
 HUMAN PASS — 6/6, LOCKED.** The authoritative [Stage 1 LOCK record](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record)
 defines the accepted scope, implementation and preserved evidence. Active/Archived
 is a listing filter.
-Stage 2 + 3 add the form refinements and history described above. Durable
-idempotency, duplication, archive operations and Clear All Tasks remain future work.
+Stage 2 + 3 add the form refinements and history described above. Stage 4 + 5
+add the precise operation safety/duplication scope above; Archive Event and
+Clear All Tasks remain future work.
 
 **P3C Dashboard integration and Change clarity** preserves P3A/P3B.
 Dashboard **Operational Changes** now reads canonical current-Event Changes, latest

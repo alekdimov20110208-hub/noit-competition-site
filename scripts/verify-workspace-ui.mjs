@@ -97,15 +97,34 @@ async function make(label) {
   lastLogin = Date.now();
   await page.locator("button[type=submit]").click();
   await page.locator("#event-overview-title").waitFor();
+  // Bind this assigned-work fixture suite explicitly. Metadata-only copies and
+  // retained lifecycle fixtures legitimately change default landing order.
+  const accessible = await page.evaluate(
+    async () => (await (await fetch("/api/events")).json()).events,
+  );
+  const fixture = await pool.query(
+    "SELECT event_id FROM public.task WHERE title=$1 AND deleted_at IS NULL AND event_id=ANY($2::UUID[])",
+    [
+      "Verify the two-user responsibility loop",
+      accessible.filter((event) => !event.archived).map((event) => event.id),
+    ],
+  );
+  assert.equal(
+    fixture.rows.length,
+    1,
+    "Exactly one authorized active controlled responsibility fixture required",
+  );
+  await page.goto(origin + `/events/${fixture.rows[0].event_id}/dashboard`);
+  await page.locator("#event-overview-title").waitFor();
   return { context, page };
 }
 async function read(page) {
   return page.evaluate(async () => {
     const events = await fetch("/api/events").then((r) => r.json());
-    const event = [...events.events].sort(
-      (a, b) =>
-        a.startDate.localeCompare(b.startDate) || a.id.localeCompare(b.id),
-    )[0];
+    const selectedId = location.pathname.split("/")[2];
+    const event = events.events.find(
+      (event) => event.id === selectedId && !event.archived,
+    );
     const tasks = await fetch(`/api/events/${event.id}/tasks`).then((r) =>
       r.json(),
     );

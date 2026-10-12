@@ -128,6 +128,7 @@ test(
           "0005_change_response.sql",
           "0006_task_deadline_time.sql",
           "0007_task_reminders_notifications.sql",
+          "0008_event_command_receipts.sql",
         ],
       );
       client.release();
@@ -139,7 +140,7 @@ test(
           for (let index = 0; index < 2; index += 1) {
             assert.deepEqual(await runMigrations(pool, migrationDirectory), {
               applied: 0,
-              alreadyApplied: 7,
+              alreadyApplied: 8,
             });
           }
         },

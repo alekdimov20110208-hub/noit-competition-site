@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-12 — Event Management Stages 4 + 5
+
+- Add actor-scoped durable Event command receipts, canonical payload conflicts and atomic authorization/effects/history/replay with additive migration `0008`.
+- Add Organizer-only metadata duplication from active/archived sources: reviewed name/timezone, explicit dates, fresh active identity and sole requesting Organizer; no operational records copied.
+- Add BG/EN copy-boundary guidance, pending controls, same-key refresh recovery after uncertain responses and explicit source-version conflict recovery. Preserve Stage 1–3 LOCK records and existing Create/Edit APIs.
+- Add real PostgreSQL concurrency/process/rollback/integrity and browser coverage; preserve failed evidence and original visual references. Both stages and combined verification are TECHNICAL PASS, including direct shared-backend Duplicate/History after exactly one owner-authorized reload.
+- Human Acceptance PENDING; Stage 4 + 5 NOT LOCKED; Stages 6–7 NOT STARTED. No dependency, established password, infrastructure or historical-record rewrite.
+
 ## 2026-10-11 — Event Management Stages 2 + 3 LOCK
 
 - Record explicit project-author Human Acceptance — 6/6 PASS on 2026-10-11 and LOCK Stage 2 Detail & UX and Stage 3 Event History at implementation `9372f4974f1746008f1d3f3ec2c2b7b65e4535bc`.

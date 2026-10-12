@@ -1,5 +1,26 @@
 # BudoGraph User Guide
 
+## Duplicate event / Дублиране на събитие
+
+In **Manage / Управление**, Organizers can choose **Duplicate event / Дублиране на
+събитие** for an accessible active or archived Event. The form identifies the source
+and explains that Tasks and Team access are not copied. Source Members cannot
+duplicate it, but can still create independent Events.
+
+Review the name with ` (copy)` / ` (копие)` and prefilled timezone. Choose new
+start/end dates explicitly; source dates are not filled in. All four target basics
+are editable. Success opens the new active Event Dashboard with you as its sole
+Organizer and no inherited Tasks/Team/Changes/notifications/reminders/history.
+Duplication leaves the source unchanged and records the new Event's own creation.
+
+Submission disables fields/navigation. If the response is uncertain, reviewed
+fields are held: use **Retry this duplication / Повторен опит за това дублиране**
+to recover the same result, including after refresh in the same tab. Keep the tab's
+stored request during recovery. Source-version conflict loads the latest source,
+preserves target details and requires an explicit reviewed submit. Validation
+errors allow correction. Both stages and combined verification are TECHNICAL PASS;
+Human Acceptance PENDING, Stage 4 + 5 NOT LOCKED. Archive/Clear remain unavailable.
+
 ## Event details and history / Данни и история на събитието
 
 From **Manage / Управление**, create or edit through the existing routes.
@@ -29,7 +50,7 @@ or **Refresh history / Обновяване на историята** for a fres
 failed reads are distinct. This is the recorded operational history, not every
 past action. Names/titles are current, and full old Decision/Response/Plan B text
 is not retained. History is read-only; no edit, erase or new audit action is offered.
-Stages 4–7 remain unstarted. Stage 2 + 3 are LOCKED after the project author's
+Stages 6–7 remain unstarted. Stage 2 + 3 are LOCKED after the project author's
 6/6 Human Acceptance on 2026-10-11; see the
 [Final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record).
 
@@ -51,7 +72,8 @@ Events, legacy workspace entry opens management. Loading, empty/search-empty and
 failure/retry states give explicit guidance. The bottom navigation keeps five items.
 
 No duplication, archive command, management detail or task-clearing action is
-available in Stage 1. Those later stages have not started. Current technical and
+included in Stage 1. Current Duplicate is described above; Archive and Clear
+remain deferred. Current technical and
 human acceptance status is in [the Stage 1 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md).
 
 ## My Profile / Моят профил

@@ -192,6 +192,7 @@ try {
     memberEvents = await events(member);
   const shared = organizerEvents.find(
     (event) =>
+      !event.archived &&
       event.membership.accessRole === "ORGANIZER" &&
       memberEvents.some(
         (value) =>

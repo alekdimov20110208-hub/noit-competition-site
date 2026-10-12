@@ -1,5 +1,32 @@
 # AI Assistance Log
 
+## Event Management Stages 4 + 5 — 2026-10-12
+
+The owner authorized combined implementation, focused checkpoints, real verification
+and conditional publication after all technical gates. Codex recovered the original
+approved contract by read-only inspection of **Review Event Management contract**;
+no task was messaged/delegated. Mandatory sources and prior approvals remain
+applicable; later-year NOIT requirements need separate verification.
+
+Codex added the narrow durable receipt transaction/migration and passed the Stage 4
+checkpoint before implementing metadata-only Duplicate. Current source authority
+precedes receipt lookup; the new Event has reviewed basics and sole requesting
+Organizer membership. Existing Create/Edit/History and unrelated commands remain
+protected. Verification includes real independent connections/processes, rollback,
+integrity/security, browser recovery and unchanged original visual references.
+
+Harness failures remain recorded and corrections preserve assertions. Controlled
+committed fixtures are retained; owned sessions/resources close. No established
+password, environment, infrastructure, original migration or history rewrite occurs.
+The owner separately authorized exactly one Stage 4 + 5 shared-backend reload;
+previous Stage 2 + 3 permission was not reused. It succeeded: PID 28236 to 34372,
+same command/environment, Vite PID 26668 preserved. Direct no-bridge Duplicate
+(13 groups) and History (8 groups) pass. All original records in the 14 captured
+tables match before/after reload and after direct browser cleanup, excluding only
+eight declared new fixture Events. Credentials/sessions/configuration remain intact.
+All technical gates pass; conditional commit/push authorization now applies.
+Human Acceptance PENDING; Stage 4 + 5 NOT LOCKED; Stages 6–7 NOT STARTED.
+
 ## Event Management Stages 2 + 3 — author acceptance and LOCK, 2026-10-11
 
 The project author explicitly confirmed Human Acceptance — **6/6 PASS** for both

@@ -486,6 +486,7 @@ try {
       memberEvents = (await api(member, "/api/events")).events;
     const event = events.find(
       (event) =>
+        !event.archived &&
         event.membership.accessRole === "ORGANIZER" &&
         memberEvents.some(
           (candidate) =>

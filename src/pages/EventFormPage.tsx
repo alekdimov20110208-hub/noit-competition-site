@@ -14,6 +14,12 @@ import {
   type EventFormErrors,
 } from "./events/helpers.ts";
 import "./events/events.css";
+import {
+  duplicateEventDefaults,
+  readDuplicateAttempt,
+  rememberDuplicateAttempt,
+  forgetDuplicateAttempt,
+} from "../services/eventDuplication.ts";
 
 const ERROR_KEYS = {
   name: "events.validation.name",
@@ -28,6 +34,8 @@ const ACTION_ERROR_KEYS = {
   "not-found": "events.error.not-found",
   unavailable: "events.error.unavailable",
   conflict: "events.error.conflict",
+  "key-reused": "events.duplicate.keyReused",
+  uncertain: "events.duplicate.uncertain",
 } as const satisfies Record<string, MessageKey>;
 
 function eventFields(event: TaskEvent): EventFields {
@@ -41,10 +49,13 @@ function eventFields(event: TaskEvent): EventFields {
 
 interface EventFormPageProps {
   event?: TaskEvent;
+  duplicateSource?: TaskEvent;
+  identityId?: string;
   onSave: (
     fields: EventFields,
     expectedVersion: number | null,
     signal: AbortSignal,
+    operationId?: string,
   ) => Promise<TaskEvent>;
   onReload: (signal: AbortSignal) => Promise<TaskEvent>;
   onSuccess: (event: TaskEvent) => void;
@@ -54,6 +65,8 @@ interface EventFormPageProps {
 
 export function EventFormPage({
   event,
+  duplicateSource,
+  identityId = "",
   onSave,
   onReload,
   onSuccess,
@@ -61,22 +74,36 @@ export function EventFormPage({
   onManage,
 }: EventFormPageProps) {
   const { t } = useI18n();
+  const [attempt, setAttempt] = useState(() =>
+    duplicateSource
+      ? readDuplicateAttempt(identityId, duplicateSource.id)
+      : null,
+  );
   // Refetches must never silently rebase an open draft or its expected version.
   const [fields, setFields] = useState<EventFields>(() =>
-    event
-      ? eventFields(event)
-      : {
-          name: "",
-          startDate: "",
-          endDate: "",
-          timezone: browserEventTimezone(),
-        },
+    attempt
+      ? attempt.fields
+      : duplicateSource
+        ? duplicateEventDefaults(duplicateSource, t("events.duplicate.suffix"))
+        : event
+          ? eventFields(event)
+          : {
+              name: "",
+              startDate: "",
+              endDate: "",
+              timezone: browserEventTimezone(),
+            },
   );
   const [expectedVersion, setExpectedVersion] = useState<number | null>(
-    event?.version ?? null,
+    attempt?.expectedVersion ??
+      duplicateSource?.version ??
+      event?.version ??
+      null,
   );
   const [errors, setErrors] = useState<EventFormErrors>({});
-  const [message, setMessage] = useState<MessageKey | null>(null);
+  const [message, setMessage] = useState<MessageKey | null>(
+    attempt ? "events.duplicate.uncertain" : null,
+  );
   const [pending, setPending] = useState(false);
   const [needsReload, setNeedsReload] = useState(false);
   const cancellation = useRef<AbortController | null>(null);
@@ -105,11 +132,13 @@ export function EventFormPage({
   async function reload(signal: AbortSignal) {
     const canonical = await onReload(signal);
     if (signal.aborted) return;
-    setFields(eventFields(canonical));
+    if (!duplicateSource) setFields(eventFields(canonical));
     setExpectedVersion(canonical.version);
     setErrors({});
     setNeedsReload(false);
-    setMessage("events.error.conflict");
+    setMessage(
+      duplicateSource ? "events.duplicate.conflict" : "events.error.conflict",
+    );
   }
   async function retryReload() {
     if (cancellation.current) return;
@@ -144,15 +173,36 @@ export function EventFormPage({
     cancellation.current = request;
     setPending(true);
     try {
+      const reviewed = { ...fields, name: fields.name.trim() };
+      const operation = duplicateSource
+        ? (attempt ?? {
+            commandId: crypto.randomUUID(),
+            expectedVersion: expectedVersion!,
+            fields: reviewed,
+          })
+        : null;
+      if (duplicateSource && operation) {
+        rememberDuplicateAttempt(identityId, duplicateSource.id, operation);
+        setAttempt(operation);
+      }
       const canonical = await onSave(
-        { ...fields, name: fields.name.trim() },
-        expectedVersion,
+        operation?.fields ?? reviewed,
+        operation?.expectedVersion ?? expectedVersion,
         request.signal,
+        operation?.commandId,
       );
-      if (!request.signal.aborted) onSuccess(canonical);
+      if (!request.signal.aborted) {
+        if (duplicateSource)
+          forgetDuplicateAttempt(identityId, duplicateSource.id);
+        onSuccess(canonical);
+      }
     } catch (error) {
       if (request.signal.aborted) return;
       if (error instanceof EventActionFailure && error.code === "conflict") {
+        if (duplicateSource) {
+          forgetDuplicateAttempt(identityId, duplicateSource.id);
+          setAttempt(null);
+        }
         setNeedsReload(true);
         try {
           await reload(request.signal);
@@ -163,7 +213,17 @@ export function EventFormPage({
       } else {
         const code =
           error instanceof EventActionFailure ? error.code : "unavailable";
-        setMessage(ACTION_ERROR_KEYS[code]);
+        setMessage(
+          duplicateSource && (code === "unavailable" || code === "uncertain")
+            ? "events.duplicate.uncertain"
+            : duplicateSource && code === "forbidden"
+              ? "events.duplicate.permission"
+              : ACTION_ERROR_KEYS[code],
+        );
+        if (duplicateSource && code === "invalid") {
+          forgetDuplicateAttempt(identityId, duplicateSource.id);
+          setAttempt(null);
+        }
         if (error instanceof EventActionFailure && error.fields) {
           const serverErrors: EventFormErrors = {};
           for (const field of [
@@ -236,9 +296,19 @@ export function EventFormPage({
   return (
     <div className="page page--event-authoring">
       <PageHeader
-        title={t(event ? "events.edit" : "events.create")}
+        title={t(
+          duplicateSource
+            ? "events.duplicate"
+            : event
+              ? "events.edit"
+              : "events.create",
+        )}
         description={t(
-          event ? "events.edit.description" : "events.create.description",
+          duplicateSource
+            ? "events.duplicate.description"
+            : event
+              ? "events.edit.description"
+              : "events.create.description",
         )}
         actions={
           <button
@@ -268,6 +338,14 @@ export function EventFormPage({
         noValidate
         aria-busy={pending}
       >
+        {duplicateSource && (
+          <div className="event-form__context">
+            <p>
+              {t("events.duplicate.source", { name: duplicateSource.name })}
+            </p>
+            <p>{t("events.duplicate.boundary")}</p>
+          </div>
+        )}
         {message && (
           <div
             ref={messageElement}
@@ -288,13 +366,15 @@ export function EventFormPage({
             )}
           </div>
         )}
-        <fieldset disabled={pending || needsReload}>
+        <fieldset disabled={pending || needsReload || Boolean(attempt)}>
           <legend className="event-form__legend">{t("events.details")}</legend>
           <p className="event-form__context">{t("events.required")}</p>
           {input("name")}
           <h2 className="event-form__section">{t("events.schedule")}</h2>
           <p className="event-field__help" id="event-dates-help">
-            {t("events.dates.help")}
+            {t(
+              duplicateSource ? "events.duplicate.dates" : "events.dates.help",
+            )}
           </p>
           <div className="event-form__dates">
             {input("startDate")}
@@ -342,9 +422,13 @@ export function EventFormPage({
             {t(
               pending
                 ? "events.pending"
-                : event
-                  ? "events.save"
-                  : "events.create",
+                : duplicateSource
+                  ? attempt
+                    ? "events.duplicate.retry"
+                    : "events.duplicate"
+                  : event
+                    ? "events.save"
+                    : "events.create",
             )}
           </button>
           <button

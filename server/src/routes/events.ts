@@ -81,5 +81,21 @@ export function registerEventReadRoutes(
           };
         },
       );
+    if (events.duplicate)
+      routes.post<{ Params: { eventId: string } }>(
+        "/api/events/:eventId/duplicate",
+        { bodyLimit: 4096 },
+        async (request, reply) => {
+          const user = await actor(request);
+          const event = await events.duplicate!(
+            user,
+            request.params.eventId,
+            request.headers["idempotency-key"],
+            request.body,
+          );
+          // Exact accepted replay has the same response shape/status as success.
+          return reply.code(201).send({ event });
+        },
+      );
   });
 }

@@ -33,7 +33,7 @@ export type AppLocation = (
     }
 ) & {
   eventId: string | null;
-  eventMode: "workspace" | "create" | "edit";
+  eventMode: "workspace" | "create" | "edit" | "duplicate";
   changeId?: string | null;
 };
 
@@ -137,15 +137,16 @@ export function parseAppLocation(
   if (normalized === "/events/new")
     return { path: "/", taskId: null, eventId: null, eventMode: "create" };
   const scoped =
-    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/(dashboard|tasks|team|changes|templates|edit|history)$/i.exec(
+    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/(dashboard|tasks|team|changes|templates|edit|history|duplicate)$/i.exec(
       normalized,
     );
   const eventId = scoped?.[1]?.toLowerCase() ?? null;
+  const pageMode = scoped?.[2]?.toLowerCase();
   const eventMode =
-    scoped?.[2]?.toLowerCase() === "edit" ? "edit" : "workspace";
+    pageMode === "edit" || pageMode === "duplicate" ? pageMode : "workspace";
   const page = scoped?.[2]?.toLowerCase();
   const path = scoped
-    ? page === "dashboard" || page === "edit"
+    ? page === "dashboard" || page === "edit" || page === "duplicate"
       ? "/"
       : (`/${page}` as AppPath)
     : normalizePath(pathname);
@@ -175,6 +176,10 @@ export function eventHref(
 
 export function eventEditHref(eventId: string): string {
   return eventHref(eventId).replace(/\/dashboard$/, "/edit");
+}
+
+export function eventDuplicateHref(eventId: string): string {
+  return eventHref(eventId).replace(/\/dashboard$/, "/duplicate");
 }
 
 export function changeHref(eventId: string, changeId: string): string {

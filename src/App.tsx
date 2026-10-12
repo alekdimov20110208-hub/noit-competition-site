@@ -68,7 +68,9 @@ export default function App() {
     remoteEnabled,
     identity.user?.id ?? "",
     currentLocation.eventId,
-    currentLocation.path === "/events" || currentLocation.path === "/history",
+    currentLocation.path === "/events" ||
+      currentLocation.path === "/history" ||
+      currentLocation.eventMode === "duplicate",
   );
   const remoteEvent = remoteTasks.workspace.events[0] ?? null;
   const refreshWorkspace = remoteTasks.retry;
@@ -554,7 +556,8 @@ export default function App() {
   } else if (
     remoteTasks.status === "ready" &&
     !remoteEvent &&
-    currentLocation.eventMode !== "edit"
+    currentLocation.eventMode !== "edit" &&
+    currentLocation.eventMode !== "duplicate"
   ) {
     page = (
       <div className="page">
@@ -581,6 +584,57 @@ export default function App() {
 
   if (currentLocation.path === "/account" && identity.user)
     page = <AccountPage key={identity.user.id} user={identity.user} />;
+
+  if (currentLocation.eventMode === "duplicate") {
+    page =
+      remoteTasks.status !== "ready" ? (
+        <WorkspaceReadNotice
+          state={remoteTasks}
+          team={false}
+          onRetry={() => void remoteTasks.retry()}
+        />
+      ) : !contextEvent ||
+        contextEvent.membership.accessRole !== "ORGANIZER" ? (
+        <div className="page">
+          <PageHeader
+            title={t("events.duplicate")}
+            description={t(
+              contextEvent
+                ? "events.duplicate.permission"
+                : "events.error.not-found",
+            )}
+          />
+          <div className="notice" role="alert">
+            {t(
+              contextEvent
+                ? "events.duplicate.permission"
+                : "events.error.not-found",
+            )}
+          </div>
+        </div>
+      ) : (
+        <EventFormPage
+          key={`${identity.user?.id}:${contextEvent.id}:duplicate`}
+          duplicateSource={contextEvent}
+          identityId={identity.user!.id}
+          onSave={(fields, version, signal, commandId) =>
+            remoteTasks.duplicateEvent(
+              contextEvent.id,
+              version!,
+              fields,
+              commandId!,
+              signal,
+            )
+          }
+          onReload={(signal) => remoteTasks.getEvent(contextEvent.id, signal)}
+          onSuccess={(event) =>
+            navigate(eventHref(event.id), { replace: true })
+          }
+          onCancel={() => navigate("/events")}
+          onManage={() => navigate("/events")}
+        />
+      );
+  }
 
   if (currentLocation.path === "/events")
     page = (
@@ -621,7 +675,11 @@ export default function App() {
 
   return (
     <AppShell
-      currentPath={currentLocation.path}
+      currentPath={
+        currentLocation.eventMode === "duplicate"
+          ? "/events"
+          : currentLocation.path
+      }
       event={contextEvent}
       events={remoteTasks.accessibleEvents}
       eventsStatus={remoteTasks.status}

@@ -143,8 +143,22 @@ async function getHistory(page, id) {
 try {
   const organizer = await make("ORGANIZER"),
     member = await make("MEMBER");
-  const shared = organizer.events.find((e) =>
-    member.events.some((m) => m.id === e.id),
+  // Bind pagination/relationship regressions to the established shared fixture,
+  // not newly retained metadata-only sources with short creation histories.
+  const sharedIds = organizer.events
+    .filter((e) => !e.archived && member.events.some((m) => m.id === e.id))
+    .map((e) => e.id);
+  const controlled = await pool.query(
+    "SELECT event_id FROM public.task WHERE title=$1 AND deleted_at IS NULL AND event_id=ANY($2::UUID[])",
+    ["Verify the two-user responsibility loop", sharedIds],
+  );
+  assert.equal(
+    controlled.rows.length,
+    1,
+    "Exactly one authorized controlled history fixture required",
+  );
+  const shared = organizer.events.find(
+    (e) => e.id === controlled.rows[0].event_id,
   );
   assert.ok(shared, "Existing controlled shared Event is required");
   for (const current of [organizer, member]) {
