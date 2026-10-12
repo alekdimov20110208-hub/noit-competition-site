@@ -3,10 +3,12 @@
 ## Event Management Stages 4 + 5 — 2026-10-12
 
 Both stages and combined verification are TECHNICAL PASS, including direct shared
-backend integration. Human Acceptance PENDING, Stage 4 + 5 NOT LOCKED.
+backend integration. The project author confirmed **HUMAN PASS — 6/6** on
+**2026-10-13**; Stage 4 + 5 are **LOCKED** at accepted implementation
+`d2b4340a079ebaf7d3ad9149624e0cdca544b762`.
 Earlier sections retain historical states. Current Stage 4 + 5 scope supersedes
 their unstarted boundary; Stage 1–3 LOCK records remain unchanged. See
-[the combined report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md).
+[the final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md#final-lock-record).
 
 Only Duplicate uses durable receipts. Existing Create/Edit keep their approved
 behavior; uncertain Create still requires checking management. Duplicate is
@@ -28,8 +30,9 @@ fixtures are retained under the existing append-only policy; sessions/resources
 close. Established credentials and uncontrolled data remain preserved.
 
 Archive/Clear (Stages 6–7), Templates, new AI, deployment and PWA are excluded.
-Other engines/physical devices/human accessibility and current-year NOIT verification
-remain separate. Existing development DB privileges do not prove production least
+Other engines, physical-device testing, formal accessibility certification and
+current-year NOIT verification remain separate from author-confirmed usability.
+Existing development DB privileges do not prove production least
 privilege. The Vite bundle advisory remains; final size/runtime results are in the report.
 
 ## Event Management Stages 2 + 3 — 2026-10-11

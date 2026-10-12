@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-13 — Event Management Stages 4 + 5 LOCK
+
+- Record project-author Stage 4 HUMAN PASS, Stage 5 HUMAN PASS and combined 6/6 PASS on 2026-10-13; finalize LOCK at implementation `d2b4340a079ebaf7d3ad9149624e0cdca544b762` (`feat(app): add safe event duplication`).
+- Lock narrowly scoped durable `EVENT_DUPLICATE` receipts and Organizer-only metadata duplication from active/archived sources. Preserve exact copied/excluded fields, replay/authorization guarantees, recorded test counts and known limitations.
+- Preserve Stage 1–3 LOCK records and historical failures/PENDING states; distinguish author-confirmed checks from automated results and ignored local evidence from committed documentation.
+- Documentation only: no product/test code, migration, dependency, configuration, infrastructure, credential or data change; no product test suites or restart. Stage 6 Archive Event and Stage 7 Clear All Tasks remain NOT STARTED; the unrelated shortcut is untouched and excluded.
+
 ## 2026-10-12 — Event Management Stages 4 + 5
 
 - Add actor-scoped durable Event command receipts, canonical payload conflicts and atomic authorization/effects/history/replay with additive migration `0008`.

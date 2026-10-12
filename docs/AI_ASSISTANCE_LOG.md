@@ -1,5 +1,32 @@
 # AI Assistance Log
 
+## Event Management Stages 4 + 5 — author acceptance and LOCK, 2026-10-13
+
+The project author explicitly confirmed Stage 4 HUMAN PASS, Stage 5 HUMAN PASS
+and combined **6/6 PASS** on **2026-10-13**, and authorized this documentation-only
+final LOCK at accepted implementation `d2b4340a079ebaf7d3ad9149624e0cdca544b762`.
+Codex verified `main`, the published subject/SHA, synchronized local/remote HEAD,
+clean tracked tree/index and the preserved unrelated shortcut. Previously fully
+read mandatory master/regulations remain byte-identical to the Stage 1 baseline;
+their 2025–2026 competition-year boundary remains explicit. Original approved
+contract, previous LOCK records and recorded technical evidence were inspected.
+
+Codex added the final author-confirmed record, reconciled current documentation
+status and retained historical PENDING/PARTIAL/failure records unchanged. Existing
+test counts and implementation publication evidence were read, not rerun. The six
+checks are owner confirmations, not Codex executions, physical-device/cross-engine
+claims or formal accessibility certification. Ignored local logs/publication JSON
+are identified separately from committed portable documentation.
+
+This task changes authorized Markdown only. No product/test code, schema/migration,
+dependency, configuration, infrastructure, database, credentials or sessions change;
+no product/browser/PostgreSQL suites, service restart or screenshot regeneration.
+Documentation diff/format/link/anchor/status/SHA/count and secret/artifact checks
+precede the dedicated `docs: lock event management stages 4 and 5` publication.
+Stage 1–3 LOCK records remain untouched. Stage 4 locks only `EVENT_DUPLICATE`
+receipts; Stage 5 locks the existing four-field metadata-only Organizer workflow.
+Stage 6 Archive Event and Stage 7 Clear All Tasks remain NOT STARTED.
+
 ## Event Management Stages 4 + 5 — 2026-10-12
 
 The owner authorized combined implementation, focused checkpoints, real verification

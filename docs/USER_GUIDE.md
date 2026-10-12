@@ -19,7 +19,10 @@ to recover the same result, including after refresh in the same tab. Keep the ta
 stored request during recovery. Source-version conflict loads the latest source,
 preserves target details and requires an explicit reviewed submit. Validation
 errors allow correction. Both stages and combined verification are TECHNICAL PASS;
-Human Acceptance PENDING, Stage 4 + 5 NOT LOCKED. Archive/Clear remain unavailable.
+the project author confirmed Human Acceptance **6/6 PASS** on **2026-10-13**.
+Stage 4 + 5 are **LOCKED**; Archive/Clear (Stages 6–7) remain NOT STARTED and
+unavailable. See the
+[final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md#final-lock-record).
 
 ## Event details and history / Данни и история на събитието
 

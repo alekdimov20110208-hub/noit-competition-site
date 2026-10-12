@@ -6,9 +6,10 @@ Only reviewed basics create a fresh active Event with the requesting Organizer;
 Tasks, Team and operational history are excluded. Apply additive
 `0008_event_command_receipts.sql`. Both stages and combined verification are
 **TECHNICAL PASS**, including direct shared-backend Organizer/Member verification;
-Human Acceptance is **PENDING**, Stage 4 + 5 **NOT LOCKED**, and Stages 6–7
-**NOT STARTED**. Stages 1–3 stay LOCKED. See
-[the combined report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md).
+the project author confirmed **HUMAN PASS — 6/6** on **2026-10-13**. Stage 4 + 5
+are **LOCKED** at implementation `d2b4340a079ebaf7d3ad9149624e0cdca544b762`.
+Stages 1–3 stay LOCKED; Stages 6–7 remain **NOT STARTED**. See
+[the final LOCK record](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md#final-lock-record).
 
 Event Management Stages 2 + 3 refine the existing Create/Edit form and add
 read-only `/events/:eventId/history` from the management listing. History uses

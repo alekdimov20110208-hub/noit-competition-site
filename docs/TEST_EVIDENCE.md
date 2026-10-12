@@ -1,5 +1,35 @@
 # BudoGraph Test Evidence
 
+## Event Management Stages 4 + 5 — author acceptance and LOCK, 2026-10-13
+
+The project author explicitly confirmed Stage 4 HUMAN PASS, Stage 5 HUMAN PASS
+and combined **6/6 PASS** on **2026-10-13**, authorizing documentation-only final
+LOCK at implementation `d2b4340a079ebaf7d3ad9149624e0cdca544b762`
+(`feat(app): add safe event duplication`), already published to `origin/main`.
+See the [final LOCK record](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md#final-lock-record)
+for the six author-confirmed groups, exact scopes, exclusions and limitations.
+The dedicated documentation publication subject is
+`docs: lock event management stages 4 and 5`; its actual SHA is reported after
+commit/push verification, separately from the accepted implementation SHA.
+
+Existing technical results remain unchanged: frontend 286 PASS; backend 141 PASS
+and 19 expected opt-in skips; real PostgreSQL 138/138; focused PostgreSQL 12/12;
+principal browser 111 groups / 256 cases; final direct shared backend Duplicate 13
+and History 8 groups; original locked visuals 112/112 and two negative controls;
+security PASS, zero secret/artifact findings; idempotency and duplicate integrity
+VERIFIED. The 2395 original ActivityEntries, 2518 pre-reload history rows, original
+data in 14 tables, credentials, sessions and migration history were preserved.
+Exactly one authorized backend reload belongs to implementation verification;
+Vite and PostgreSQL stayed running. No new product tests or restarts occur for LOCK.
+
+The preserved report and technical section below are committed documentation.
+The [local implementation publication receipt](../tmp/event-management-stage45/publication.json)
+and all ignored `tmp/event-management-stage45/` evidence are local-only, uncommitted
+artifacts, not included in repository clones. Historical failed runs, intermediate
+PARTIAL results and pre-acceptance PENDING states remain traceable; this final
+author-confirmed record supersedes their phase status without changing test counts.
+Stage 1–3 LOCK records remain unchanged; Stages 6–7 are NOT STARTED.
+
 ## Event Management Stages 4 + 5 — 2026-10-12 (TECHNICAL PASS)
 
 Starting synchronized `main`: `4167af65cc919d4d77962d1bd9847e70f45e8b26`.
