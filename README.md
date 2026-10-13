@@ -1,5 +1,22 @@
 # BudoGraph
 
+## Stage 6 — Archive Event, TECHNICAL PASS, 2026-10-14
+
+Stage 6 is implemented on shared main and technically verified, including the
+author's one controlled backend-only reload. Any active same-Event Organizer,
+including a non-owner, can archive through exact typed canonical-name confirmation,
+reviewed version and durable UUID recovery. Business data/history remain read-only;
+archived-source Duplicate and personal notification read state remain available.
+Results: frontend 290 PASS, backend 144 PASS (+24 opt-in skips), real PostgreSQL
+157 PASS, original locked interiors 112 exact matches plus two negative controls.
+Direct shared browser verification totals 78 groups/152 layouts, plus six HTTP
+boundary groups; zero application errors. All original rows/history, migrations
+and LOCK files are preserved. Human Acceptance is PENDING; Stage 6 is NOT LOCKED.
+The [Stage 6 report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md) is frozen before
+publication; actual implementation SHA/remote equality are in Git history and the
+final publication response. Stages 1–5 remain LOCKED; Stage 7 is NOT STARTED.
+Earlier phase sections retain historical dates and statuses.
+
 Event Management Stages 4 + 5 add durable PostgreSQL receipts and Organizer-only
 **Duplicate event / Дублиране на събитие** from active or archived sources.
 Only reviewed basics create a fresh active Event with the requesting Organizer;
@@ -8,7 +25,8 @@ Tasks, Team and operational history are excluded. Apply additive
 **TECHNICAL PASS**, including direct shared-backend Organizer/Member verification;
 the project author confirmed **HUMAN PASS — 6/6** on **2026-10-13**. Stage 4 + 5
 are **LOCKED** at implementation `d2b4340a079ebaf7d3ad9149624e0cdca544b762`.
-Stages 1–3 stay LOCKED; Stages 6–7 remain **NOT STARTED**. See
+Stages 1–3 stay LOCKED. At that LOCK, Stages 6–7 were **NOT STARTED**; current
+Stage 6 status is recorded above. See
 [the final LOCK record](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md#final-lock-record).
 
 Event Management Stages 2 + 3 refine the existing Create/Edit form and add

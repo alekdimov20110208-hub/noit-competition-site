@@ -71,6 +71,11 @@ export function createNotificationService(pool: TransactionPool) {
       throw new TaskCommandError(400, "INVALID_ID");
     const event = eventId.toLowerCase();
     return inTransaction(pool, async (db) => {
+      // Lifecycle commands lock Event before membership/identity. Establish that
+      // same order explicitly rather than relying on a joined query's plan.
+      await db.query("SELECT id FROM public.event WHERE id=$1 FOR SHARE", [
+        event,
+      ]);
       const membership = await db.query(
         `SELECT m.id FROM public.event_member m
         JOIN public."user" u ON u.id=m.user_id JOIN public.event e ON e.id=m.event_id

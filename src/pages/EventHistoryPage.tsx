@@ -15,6 +15,7 @@ import "./events/history.css";
 const ACTIONS: Record<string, MessageKey> = {
   EVENT_CREATED: "history.event.created",
   EVENT_UPDATED: "history.event.updated",
+  EVENT_ARCHIVED: "history.event.archived",
   "task.created": "history.task.created",
   "task.updated": "history.task.updated",
   "task.assigned": "history.task.assigned",

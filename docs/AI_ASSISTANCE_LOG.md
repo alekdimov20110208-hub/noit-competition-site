@@ -1,5 +1,39 @@
 # AI Assistance Log
 
+## Event Management Stage 6 — implementation and shared verification, 2026-10-13–14
+
+The author explicitly authorized Archive only. Codex recovered the original
+approved Event Management contract read-only, confirmed synchronized starting SHA
+`892bc68b92d0586c3c881da9cb3e503afd701227`, inspected mandatory sources/contracts,
+LOCK records, source and the PostgreSQL preservation/migration baseline. Accepted
+rules permit active same-Event Organizers, including non-owners, with exact canonical
+name, reviewed version and durable actor/key receipts.
+
+Codex prepared/tested the package in an attached isolated checkout while shared
+main was watched. On 2026-10-14 the author separately authorized ONE controlled
+reload. Codex freshly verified owner, executable, process directory, creation and
+parent/child identities, idle database and absence of competing work; stopped only
+that watcher/backend pair; promoted exactly 35 hashed files; started backend 29068
+without watch using unchanged configuration. Vite 26668/PostgreSQL stayed running.
+No second reload/start, credential reset, destructive cleanup, dependency, deployment
+or Stage 7 work occurred.
+
+Final independent PostgreSQL 157 PASS and original-data preservation were reviewed.
+Main repeats frontend 290 PASS, backend 144 PASS/24 expected skips and quality checks.
+Direct Archive 14/28 + stress, critical Stage 1–5 64/124 and six HTTP boundary groups
+pass. Original 2528 ActivityEntries and every original/pre-reload row remain; 47 new
+post-reload synthetic ActivityEntries/24 Events are separate and retained. Owned
+sessions/tests/browsers/pools close. One main migration rerun applies 0/9.
+
+The [Stage 6 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md) retains initial failures
+and fixes: schema inventory, new payload/race/URL/navigation harness assumptions,
+collapsed-details focus control, browser runtime revision and supplementary route/
+invited-account fixtures. Product/test bytes match the reviewed passing package;
+prior assertions and reference screenshots remain untouched. Overall TECHNICAL PASS.
+This record is frozen before conditional publication; actual SHA/push equality are
+in Git history and the final response/local publication record. No automated result
+is owner Human PASS; Human Acceptance is PENDING, Stage 6 NOT LOCKED, Stage 7 NOT STARTED.
+
 ## Event Management Stages 4 + 5 — author acceptance and LOCK, 2026-10-13
 
 The project author explicitly confirmed Stage 4 HUMAN PASS, Stage 5 HUMAN PASS

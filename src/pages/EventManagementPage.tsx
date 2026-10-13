@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { EventArchiveDialog } from "../components/EventArchiveDialog.tsx";
+import { readArchiveAttempt } from "../services/eventArchiving.ts";
 import { AppLink } from "../components/AppLink.tsx";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { PageHeader } from "../components/PageHeader.tsx";
@@ -18,15 +20,43 @@ export function EventManagementPage({
   status,
   onRetry,
   onNavigate,
+  identityId,
+  getEvent,
+  archiveEvent,
+  onRefresh,
 }: {
   events: readonly TaskEvent[];
   status: "loading" | "ready" | "error";
   onRetry: () => void;
   onNavigate: (href: string) => void;
+  identityId: string;
+  getEvent: (id: string, signal?: AbortSignal) => Promise<TaskEvent>;
+  archiveEvent: (
+    id: string,
+    version: number,
+    name: string,
+    key: string,
+    signal?: AbortSignal,
+  ) => Promise<TaskEvent>;
+  onRefresh: () => Promise<void>;
 }) {
   const { t, formatDate } = useI18n();
   const [archived, setArchived] = useState(false);
   const [query, setQuery] = useState("");
+  const [archiveTarget, setArchiveTarget] = useState<TaskEvent | null>(null);
+  const [dangerOpen, setDangerOpen] = useState<string[]>([]);
+  const [success, setSuccess] = useState<{
+    name: string;
+    refreshFailed: boolean;
+  } | null>(null);
+  const recoveries =
+    status === "ready"
+      ? events.filter(
+          (e) =>
+            e.membership.accessRole === "ORGANIZER" &&
+            readArchiveAttempt(identityId, e.id),
+        )
+      : [];
   const visible = filterEvents(events, archived, query);
   const filtered = query.trim().length > 0;
   return (
@@ -48,6 +78,27 @@ export function EventManagementPage({
           </AppLink>
         }
       />
+      {success && (
+        <p className="notice" role="status">
+          {t(
+            success.refreshFailed
+              ? "events.archive.refreshFailed"
+              : "events.archive.success",
+            { name: success.name },
+          )}
+        </p>
+      )}
+      {recoveries.map((e) => (
+        <div key={e.id} className="notice" role="status">
+          <p>{t("events.archive.recoveryNotice", { name: e.name })}</p>
+          <button
+            className="button button--secondary"
+            onClick={() => setArchiveTarget(e)}
+          >
+            {t("events.archive.recover")}
+          </button>
+        </div>
+      ))}
       <div className="event-management__controls">
         <div
           className="event-management__filters"
@@ -198,10 +249,55 @@ export function EventManagementPage({
                     </AppLink>
                   )}
                 </div>
+                {canEditEvent(event) && (
+                  <details
+                    className="event-management__danger"
+                    onToggle={(e) => {
+                      const open = e.currentTarget.open;
+                      setDangerOpen((ids) =>
+                        open
+                          ? [...new Set([...ids, event.id])]
+                          : ids.filter((id) => id !== event.id),
+                      );
+                    }}
+                  >
+                    <summary>{t("events.archive.danger")}</summary>
+                    {dangerOpen.includes(event.id) && (
+                      <>
+                        <p>{t("events.archive.description")}</p>
+                        <button
+                          type="button"
+                          className="button event-archive-action"
+                          aria-label={`${t("events.archive")}: ${event.name}`}
+                          aria-haspopup="dialog"
+                          onClick={() => setArchiveTarget(event)}
+                        >
+                          {t("events.archive")}
+                        </button>
+                      </>
+                    )}
+                  </details>
+                )}
               </li>
             ))}
           </ul>
         </>
+      )}
+      {archiveTarget && (
+        <EventArchiveDialog
+          key={`${identityId}:${archiveTarget.id}`}
+          event={archiveTarget}
+          identityId={identityId}
+          getEvent={getEvent}
+          archiveEvent={archiveEvent}
+          onRefresh={onRefresh}
+          onClose={() => setArchiveTarget(null)}
+          onSuccess={(event, refreshFailed) => {
+            setArchiveTarget(null);
+            setSuccess({ name: event.name, refreshFailed });
+            onNavigate("/events");
+          }}
+        />
       )}
     </div>
   );

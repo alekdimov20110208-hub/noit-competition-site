@@ -34,6 +34,7 @@ interface AppShellProps {
     | (Pick<Event, "name" | "startDate" | "endDate"> & {
         location?: string;
         id?: string;
+        archived?: boolean;
       })
     | null;
   persistenceError: PersistenceError;
@@ -186,6 +187,11 @@ export function AppShell({
           <div className="notice notice--warning" role="status">
             <strong>{t(PREFERENCE_ERROR_KEYS[preferenceStorageError])}</strong>
           </div>
+        )}
+        {dataMode === "remote-workspace" && event?.archived && (
+          <p className="notice" role="status">
+            {t("events.archive.historical")}
+          </p>
         )}
         {children}
       </main>

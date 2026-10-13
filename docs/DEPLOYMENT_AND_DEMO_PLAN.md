@@ -1,5 +1,19 @@
 # Installation, Deployment, and Demonstration Plan
 
+## Stage 6 Archive demonstration — TECHNICAL PASS, 2026-10-14
+
+No production deployment occurs. The author's one controlled backend-only reload
+and direct shared verification passed; Vite/PostgreSQL remain running. Demonstrate
+with a newly owned synthetic Event containing retained Task/Team/Change/history,
+exact typed confirmation, Active-to-Archived movement, preserved read-only links
+and same-UUID recovery. Never archive established business/test Events for proof.
+Keep synthetic business/history records; sign out only demonstration-owned sessions.
+Label recorded/local backup runtimes accurately. Main and database include additive
+0009; verified rerun 0/9, earlier checksums unchanged. Additional reload requires
+new explicit approval. See [Stage 6 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md).
+Human Acceptance and Stage 6 LOCK are separate pending steps; Stage 7 is NOT STARTED.
+Supplied NOIT 2025–2026 competition/availability rules require actual-year verification.
+
 Profile V1 adds `/account` to the History API fallback paths. It needs the existing
 same-origin frontend/backend, PostgreSQL and Better Auth configuration only;
 there is no migration, storage service or dependency change. Demo: open the

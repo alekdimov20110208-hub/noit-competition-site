@@ -81,6 +81,22 @@ export function registerEventReadRoutes(
           };
         },
       );
+    if (events.archive)
+      routes.post<{ Params: { eventId: string } }>(
+        "/api/events/:eventId/archive",
+        { bodyLimit: 4096 },
+        async (request) => {
+          const user = await actor(request);
+          return {
+            event: await events.archive!(
+              user,
+              request.params.eventId,
+              request.headers["idempotency-key"],
+              request.body,
+            ),
+          };
+        },
+      );
     if (events.duplicate)
       routes.post<{ Params: { eventId: string } }>(
         "/api/events/:eventId/duplicate",

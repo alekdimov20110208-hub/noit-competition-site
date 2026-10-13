@@ -35,6 +35,7 @@ const ACTION_ERROR_KEYS = {
   unavailable: "events.error.unavailable",
   conflict: "events.error.conflict",
   "key-reused": "events.duplicate.keyReused",
+  "version-limit": "events.error.unavailable",
   uncertain: "events.duplicate.uncertain",
 } as const satisfies Record<string, MessageKey>;
 

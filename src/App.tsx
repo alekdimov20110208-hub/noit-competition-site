@@ -639,10 +639,15 @@ export default function App() {
   if (currentLocation.path === "/events")
     page = (
       <EventManagementPage
+        key={identity.user?.id}
         events={remoteTasks.accessibleEvents}
         status={remoteTasks.status}
         onRetry={() => void remoteTasks.retry()}
         onNavigate={navigate}
+        identityId={identity.user!.id}
+        getEvent={remoteTasks.getEvent}
+        archiveEvent={remoteTasks.archiveEvent}
+        onRefresh={remoteTasks.refreshEvents}
       />
     );
 

@@ -1,5 +1,32 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Stage 6 Archive Event — TECHNICAL PASS, 2026-10-14
+
+Apply additive `0009_event_archive_receipts.sql` after 0008; never edit applied
+SQL/checksums. It was applied once from the prepared checkout (1 new / 8 existing).
+Shared main now contains the reviewed migration; main rerun is 0 applied / 9 existing.
+The author's one controlled reload completed; backend 29068 runs without watch,
+shared Vite 26668/PostgreSQL remain running. Another reload requires new approval.
+
+`POST /api/events/:eventId/archive`, UUID `Idempotency-Key`, body
+`{ expectedVersion, confirmationName }`, returns `200 { event }`. Active identity
+and active same-Event Organizer membership are rechecked transactionally; non-owner
+Organizers qualify. Exact case-sensitive name equality has no trimming/normalization.
+Advisory actor/key lock precedes Event UPDATE and membership/identity SHARE locks.
+Archive/version, one immutable ActivityEntry and receipt commit atomically. Exact
+replay reauthorizes before receipt lookup and alone bypasses stale version. Fresh
+current-version archived commands are no-ops; stale requests conflict. Personal
+notification read state remains allowed; operational writes remain forbidden.
+
+`node --run test:browser:event-archive` owns isolated factories/Vite at 5174 by
+default. `BUDOGRAPH_ARCHIVE_DIRECT=1` targets shared 5173/3001; full direct run
+passed 14 groups/28 layouts + one stress, plus six supplementary HTTP groups and
+unmodified Stage 1–5 critical scripts. `BUDOGRAPH_ARCHIVE_SKIP_MATRIX=1` permits
+focused repeats after complete matrix evidence. Do not run browser writes alongside
+serial PostgreSQL tests; retain synthetic history and prefer rollback fixtures.
+The full reviewed PostgreSQL suite passed 157 results. See [Stage 6 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md)
+for scope, evidence and limitations. Human Acceptance is pending; no Stage 7 API exists.
+
 ## Event Management Stages 4 + 5
 
 Apply additive `0008_event_command_receipts.sql` explicitly with `pnpm db:migrate`

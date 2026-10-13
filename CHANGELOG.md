@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-14 — Event Management Stage 6 Archive Event
+
+- Add same-Event Organizer Archive (including non-owner), exact name/version confirmation, atomic state/history and durable same-UUID recovery with additive 0009.
+- Add accessible confirmation/recovery, separated management lifecycle action and historical read-only notice; preserve archived-source Duplicate and personal notification read state.
+- Make notification Event-first locking explicit; verify authorization, retention, rollback, independent races and original locked interiors without changing prior assertions/references.
+- Complete the author's one controlled shared-backend reload, direct Archive/Stage 1–5 regressions and preservation gates: TECHNICAL PASS. Vite/PostgreSQL stay running; 0009 rerun applies no SQL. Human Acceptance remains PENDING, Stage 6 is NOT LOCKED and Stage 7 is NOT STARTED.
+
 ## 2026-10-13 — Event Management Stages 4 + 5 LOCK
 
 - Record project-author Stage 4 HUMAN PASS, Stage 5 HUMAN PASS and combined 6/6 PASS on 2026-10-13; finalize LOCK at implementation `d2b4340a079ebaf7d3ad9149624e0cdca544b762` (`feat(app): add safe event duplication`).

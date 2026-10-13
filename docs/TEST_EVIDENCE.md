@@ -1,5 +1,46 @@
 # BudoGraph Test Evidence
 
+## Event Management Stage 6 — TECHNICAL PASS, 2026-10-13–14
+
+Starting main/origin SHA: `892bc68b92d0586c3c881da9cb3e503afd701227`. Reviewed
+isolated implementation is promoted to shared main with one explicitly authorized
+backend-only reload. Shared integration PASS; Human Acceptance PENDING, Stage 6
+NOT LOCKED. This evidence freezes before publication; actual SHA/remote equality
+are in Git history/final response and ignored local publication record.
+See [Stage 6 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md) for exact scope/inventory.
+
+Independent: frontend 290 PASS; backend 144 PASS/24 expected opt-in skips; full
+serial real PostgreSQL 157 PASS, zero failures/skips; focused Archive 10 PASS,
+races 9 PASS, enhanced Archive/Schema 27 PASS. Original locked interiors 112 exact
+matches plus two negative controls; reference bytes unchanged. Main independently
+repeats frontend 290/backend 144+24, both typechecks/builds, lint/default formatting
+and extra Archive-script formatting; final JS 593.49 kB retains the existing warning.
+
+Direct shared: Archive 14 groups/28 layouts + one 320px/125% stress; Stage 1–5
+Management 12/28 (10 labelled synthetic/two real), Auth 15/20, Create/Edit 14/20,
+History 9/28, Duplicate 14/28: critical total 64/124, principal total 78/152.
+Six supplementary HTTP groups prove real foreign Event denial, durable replay/
+no-op, 11 forbidden authoring surfaces, two forbidden invitation consumers,
+retained row hashes/Member reads and archived Duplicate. Zero application errors.
+Repeated independent/direct/keyboard runs are separate, not added to principal totals.
+
+Fresh process identity/CWD/owner and no competing work preceded stop of watcher
+2176/child 30580. One start created backend 29068 without watch; Vite 26668 and
+PostgreSQL remain running. Live/ready200, Archive registered, direct checks pass.
+Main migration rerun 0 applied/9 existing; checksums unchanged. Final all-row hashes
+preserve original 14 tables and the entire pre-reload baseline, including 2528 original
+ActivityEntries, 23 accounts/89 sessions. Final 2698 ActivityEntries include 47 new
+post-reload synthetic entries; 24 new Events and other deltas are separately recorded.
+Dedicated main/worktree LOCK files and reviewed product/test bytes are preserved.
+All owned sessions/tests/browsers/pools close; no verifier process/5174 listener remains.
+
+Failed runs are retained rather than relabelled: earlier schema/payload/race/URL/
+focus/auth-throttle harness issues, missing default browser revision, nonexistent
+single-Event GET and wrong invitation-account fixture. Existing scripts/assertions
+and references remain. Evidence in the prepared checkout and main's
+`tmp/event-management-stage6/` is ignored local material, not clone artifacts.
+Earlier accepted sections retain historical counts/statuses. Stage 7 is NOT STARTED.
+
 ## Event Management Stages 4 + 5 — author acceptance and LOCK, 2026-10-13
 
 The project author explicitly confirmed Stage 4 HUMAN PASS, Stage 5 HUMAN PASS

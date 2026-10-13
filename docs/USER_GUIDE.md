@@ -1,5 +1,25 @@
 # BudoGraph User Guide
 
+## Stage 6 Archive Event — available, Human Acceptance pending, 2026-10-14
+
+Stage 6 is available in the shared application and has TECHNICAL PASS. Human
+Acceptance remains pending; see [technical status](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md).
+An active same-Event Organizer (owner or non-owner) expands **Danger zone / Опасни
+действия** in Event Management and chooses **Archive event / Архивиране на събитието**.
+Review the canonical name and retention explanation, then type that name exactly,
+including case/spaces. Cancel/Escape before submission sends no command. Pending
+submission is guarded; a changed Event requires explicit reload, review and typing
+again. Successful Archive moves it from Active to Archived; explicitly open its
+historical workspace/History. Tasks, Team, Changes, invitations, notifications and
+History remain. Operational edits/reminder delivery stop; personal notification
+read state and eligible archived-source Duplicate remain available. No Unarchive/Restore.
+
+If a response is lost, use **Recover archive result / Проверка на резултата** with
+the held request. Refresh retains it in the same tab where storage is available.
+Do not start another archive action to guess the result. Access/session changes
+fail safely and may require sign-in or refreshed management data. Stage 7 Clear All
+Tasks is NOT STARTED. Existing phase sections below retain their historical states.
+
 ## Duplicate event / Дублиране на събитие
 
 In **Manage / Управление**, Organizers can choose **Duplicate event / Дублиране на

@@ -733,6 +733,43 @@ export class TaskReadController {
     return request;
   };
 
+  archiveEvent = (
+    eventId: string,
+    expectedVersion: number,
+    confirmationName: string,
+    commandId: string,
+    signal?: AbortSignal,
+  ): Promise<TaskEvent> => {
+    if (this.eventPending) return this.eventPending;
+    if (!this.service.archiveEvent)
+      return Promise.reject(new EventActionFailure("unavailable"));
+    const revision = this.contextRevision;
+    const pendingWorkspace = this.pending ?? this.actionPending;
+    const request = this.eventRequest(async (cancellation) => {
+      if (pendingWorkspace)
+        await this.waitForPendingWorkspace(pendingWorkspace, cancellation);
+      return this.service.archiveEvent!(
+        eventId,
+        expectedVersion,
+        confirmationName,
+        commandId,
+        cancellation,
+      );
+    }, signal).then((event) => {
+      if (revision !== this.contextRevision)
+        throw new DOMException("Event context changed.", "AbortError");
+      this.rememberEvent(event);
+      return event;
+    });
+    this.eventPending = request;
+    void request
+      .finally(() => {
+        if (this.eventPending === request) this.eventPending = null;
+      })
+      .catch(() => {});
+    return request;
+  };
+
   duplicateEvent = (
     sourceId: string,
     expectedVersion: number,

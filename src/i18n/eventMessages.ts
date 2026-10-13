@@ -1,4 +1,35 @@
 export const EVENT_EN_MESSAGES = {
+  "events.archive": "Archive event",
+  "events.archive.danger": "Danger zone",
+  "events.archive.description":
+    "Archiving makes this event read-only and stops reminders. Tasks, Team, Changes, invitations, notifications and History are preserved. This action cannot be undone here.",
+  "events.archive.confirmation": "Type the event name to confirm",
+  "events.archive.exact":
+    "Match the displayed name exactly, including case and spaces.",
+  "events.archive.pending": "Archiving…",
+  "events.archive.invalid":
+    "The confirmation must match the current event name exactly.",
+  "events.archive.permission":
+    "Your session or event access changed. Archiving is unavailable.",
+  "events.archive.conflict":
+    "The event changed. Load its current details, review them and type its name again before confirming.",
+  "events.archive.reload": "Load current event details",
+  "events.archive.unavailable":
+    "The event could not be prepared for archiving. Return to Event Management and refresh its details.",
+  "events.archive.uncertain":
+    "Archiving may already have completed. Recover this same request to confirm its result; do not start another archive action.",
+  "events.archive.recover": "Recover archive result",
+  "events.archive.recoveryNotice":
+    "An archive result for “{name}” needs confirmation.",
+  "events.archive.already":
+    "This event is already archived and remains read-only.",
+  "events.archive.success":
+    "“{name}” is archived. Open Archived to view its preserved workspace and History.",
+  "events.archive.refreshFailed":
+    "“{name}” is archived. The list could not be refreshed; reload Event Management to view it.",
+  "history.event.archived": "Event archived",
+  "events.archive.historical":
+    "Historical workspace: this event is archived and read-only. Its records and History are preserved.",
   "events.duplicate": "Duplicate event",
   "events.duplicate.description":
     "Review the basics for a new independent event.",
@@ -145,6 +176,37 @@ export const EVENT_EN_MESSAGES = {
 };
 
 export const EVENT_BG_MESSAGES = {
+  "events.archive": "Архивиране на събитието",
+  "events.archive.danger": "Опасни действия",
+  "events.archive.description":
+    "Архивирането прави събитието достъпно само за преглед и спира напомнянията. Задачите, екипът, промените, поканите, известията и историята се запазват. Тук няма възстановяване на активно събитие.",
+  "events.archive.confirmation": "Въведете името на събитието за потвърждение",
+  "events.archive.exact":
+    "Спазете точно показаното име, включително главни букви и интервали.",
+  "events.archive.pending": "Архивиране…",
+  "events.archive.invalid":
+    "Потвърждението трябва да съвпада точно с текущото име на събитието.",
+  "events.archive.permission":
+    "Сесията или достъпът ви до събитието са променени. Архивирането е недостъпно.",
+  "events.archive.conflict":
+    "Събитието е променено. Заредете текущите данни, прегледайте ги и въведете името отново преди потвърждение.",
+  "events.archive.reload": "Зареждане на текущите данни",
+  "events.archive.unavailable":
+    "Събитието не може да бъде подготвено за архивиране. Върнете се в управлението и обновете данните.",
+  "events.archive.uncertain":
+    "Архивирането може вече да е завършило. Проверете резултата със същата заявка; не започвайте друго архивиране.",
+  "events.archive.recover": "Проверка на резултата",
+  "events.archive.recoveryNotice":
+    "Резултатът от архивирането на „{name}“ изисква проверка.",
+  "events.archive.already":
+    "Събитието вече е архивирано и остава достъпно само за преглед.",
+  "events.archive.success":
+    "„{name}“ е архивирано. Отворете „Архивирани“ за запазеното работно пространство и историята.",
+  "events.archive.refreshFailed":
+    "„{name}“ е архивирано. Списъкът не е обновен; презаредете управлението, за да го видите.",
+  "history.event.archived": "Събитието е архивирано",
+  "events.archive.historical":
+    "Историческо работно пространство: събитието е архивирано и достъпно само за преглед. Записите и историята са запазени.",
   "events.duplicate": "Дублиране на събитие",
   "events.duplicate.description":
     "Прегледайте основните данни за ново независимо събитие.",

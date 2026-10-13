@@ -299,7 +299,8 @@ export interface EventFields {
   endDate: string;
   timezone: string;
 }
-export type EventActionError = TaskActionError | "key-reused" | "uncertain";
+export type EventActionError =
+  TaskActionError | "key-reused" | "uncertain" | "version-limit";
 export type EventFieldErrors = Partial<
   Record<keyof EventFields | "expectedVersion", string>
 >;
@@ -313,6 +314,13 @@ export class EventActionFailure extends Error {
   }
 }
 export interface EventWorkspaceService {
+  archiveEvent(
+    eventId: string,
+    expectedVersion: number,
+    confirmationName: string,
+    commandId: string,
+    signal: AbortSignal,
+  ): Promise<TaskEvent>;
   listEvents(signal: AbortSignal): Promise<TaskEvent[]>;
   getEvent(eventId: string, signal: AbortSignal): Promise<TaskEvent>;
   readEventTasks(
@@ -663,6 +671,70 @@ export class RemoteWorkspaceService
       signal,
       { eventId: source, expectedVersion, duplicateKey: key },
     );
+  }
+
+  async archiveEvent(
+    eventId: string,
+    expectedVersion: number,
+    confirmationName: string,
+    commandId: string,
+    signal: AbortSignal,
+  ): Promise<TaskEvent> {
+    const source = id(eventId),
+      key = id(commandId);
+    let response: Response;
+    try {
+      const request = this.request;
+      response = await request(`/api/events/${source}/archive`, {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "content-type": "application/json", "Idempotency-Key": key },
+        body: JSON.stringify({ expectedVersion, confirmationName }),
+        signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
+      });
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new EventActionFailure("uncertain");
+    }
+    if (!response.ok) {
+      let code: EventActionError =
+        (
+          {
+            400: "invalid",
+            401: "unauthenticated",
+            403: "forbidden",
+            404: "not-found",
+          } as Record<number, EventActionError>
+        )[response.status] ?? "uncertain";
+      if (response.status === 409) {
+        try {
+          const reason = record(await response.json()).code;
+          if (reason === "EVENT_VERSION_CONFLICT") code = "conflict";
+          else if (reason === "IDEMPOTENCY_KEY_REUSED") code = "key-reused";
+          else if (reason === "VERSION_LIMIT_REACHED") code = "version-limit";
+        } catch {
+          /* Keep the accepted key on unknown responses. */
+        }
+      }
+      signal.throwIfAborted();
+      throw new EventActionFailure(code);
+    }
+    try {
+      const event = readRemoteEvent(record(await response.json()).event);
+      if (
+        event.id !== source ||
+        !event.archived ||
+        event.membership.accessRole !== "ORGANIZER" ||
+        event.version < expectedVersion
+      )
+        invalid();
+      signal.throwIfAborted();
+      return event;
+    } catch {
+      if (signal.aborted) throw signal.reason;
+      throw new EventActionFailure("uncertain");
+    }
   }
 
   private async eventCommand(

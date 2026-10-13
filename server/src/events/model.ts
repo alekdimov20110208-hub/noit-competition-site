@@ -29,7 +29,7 @@ export interface EventRow {
 }
 
 export type EventFieldErrors = Partial<
-  Record<keyof EventFields | "expectedVersion", string>
+  Record<keyof EventFields | "expectedVersion" | "confirmationName", string>
 >;
 
 export class EventCommandError extends Error {

@@ -22,6 +22,7 @@ import {
 import { uuidPattern } from "../tasks/model.ts";
 import { createEventHistoryReadService } from "./history.ts";
 import { runEventOperation } from "./operations.ts";
+import { archiveEvent } from "./archive.ts";
 export type { AccessibleEvent } from "./model.ts";
 
 export function createEventReadService(database: AuthorizationDatabase) {
@@ -247,6 +248,14 @@ export function createEventService(
     ...reads,
     create,
     update,
+    archive(
+      user: AuthenticatedUser,
+      sourceId: string,
+      key: unknown,
+      input: unknown,
+    ) {
+      return archiveEvent(database, user, sourceId, key, input);
+    },
     duplicate(
       user: AuthenticatedUser,
       sourceId: string,
@@ -284,6 +293,6 @@ export type EventService = EventReadService &
   Partial<
     Pick<
       ReturnType<typeof createEventService>,
-      "create" | "update" | "history" | "duplicate"
+      "create" | "update" | "history" | "duplicate" | "archive"
     >
   >;
