@@ -1,9 +1,10 @@
 # BudoGraph User Guide
 
-## Stage 6 Archive Event — available, Human Acceptance pending, 2026-10-14
+## Stage 6 Archive Event — available and LOCKED, 2026-10-14
 
-Stage 6 is available in the shared application and has TECHNICAL PASS. Human
-Acceptance remains pending; see [technical status](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md).
+Stage 6 is available and **LOCKED** with TECHNICAL PASS and project-author-confirmed
+**HUMAN PASS — 6/6** on **2026-10-14**. See the
+[FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md#final-lock-record).
 An active same-Event Organizer (owner or non-owner) expands **Danger zone / Опасни
 действия** in Event Management and chooses **Archive event / Архивиране на събитието**.
 Review the canonical name and retention explanation, then type that name exactly,

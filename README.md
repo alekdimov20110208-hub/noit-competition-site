@@ -1,6 +1,6 @@
 # BudoGraph
 
-## Stage 6 — Archive Event, TECHNICAL PASS, 2026-10-14
+## Event Management Stages 1–6 — LOCKED, 2026-10-14
 
 Stage 6 is implemented on shared main and technically verified, including the
 author's one controlled backend-only reload. Any active same-Event Organizer,
@@ -11,11 +11,14 @@ Results: frontend 290 PASS, backend 144 PASS (+24 opt-in skips), real PostgreSQL
 157 PASS, original locked interiors 112 exact matches plus two negative controls.
 Direct shared browser verification totals 78 groups/152 layouts, plus six HTTP
 boundary groups; zero application errors. All original rows/history, migrations
-and LOCK files are preserved. Human Acceptance is PENDING; Stage 6 is NOT LOCKED.
-The [Stage 6 report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md) is frozen before
-publication; actual implementation SHA/remote equality are in Git history and the
-final publication response. Stages 1–5 remain LOCKED; Stage 7 is NOT STARTED.
-Earlier phase sections retain historical dates and statuses.
+and LOCK files are preserved. The project author confirmed **HUMAN PASS — 6/6**
+for Stage 6 on **2026-10-14** at implementation
+`2626810e0cb7bc3533f3ec2bdb52484d42390d92`.
+**Event Management Stages 1–6 are LOCKED. Stage 7 is NOT STARTED.**
+The [FINAL LOCK RECORD](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md#final-lock-record)
+governs current status; its original prepublication/PENDING sections remain historical.
+Counts above are preserved executed evidence, not new LOCK-task test runs. Earlier
+phase sections retain historical dates/statuses when superseded by this current record.
 
 Event Management Stages 4 + 5 add durable PostgreSQL receipts and Organizer-only
 **Duplicate event / Дублиране на събитие** from active or archived sources.

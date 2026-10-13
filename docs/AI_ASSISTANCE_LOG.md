@@ -1,5 +1,34 @@
 # AI Assistance Log
 
+## Event Management Stage 6 — author acceptance and final LOCK, 2026-10-14
+
+The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-14**
+and authorized one documentation-only final LOCK at accepted implementation
+`2626810e0cb7bc3533f3ec2bdb52484d42390d92`
+(`feat(app): add safe event archiving`). Codex verified repository/main, that
+published local/remote SHA, clean tracked tree/index, mandatory sources unchanged
+from their complete session review, byte-preserved Stage 1–5 LOCKs and the untouched
+unrelated shortcut. Existing Stage 6 technical/report/publication evidence was read.
+
+Codex adds the final author-confirmed record, reconciles current documentation and
+retains the historical PENDING/prepublication and failed-run evidence. The six
+groups are the author's confirmations, not Codex executions, physical-device or
+additional-engine tests or formal accessibility certification. Only authorized
+Markdown and documentation checks are involved: formatting, allowlist/diff/link/
+anchor/status/count/SHA integrity, prior LOCK/evidence hashes and secret review.
+
+No product/test code, migration, configuration, dependency, screenshot, ignored
+evidence, credential, account/session, operational data or database change; no
+new automated product/browser/PostgreSQL suite, build/development server,
+database connection or service restart. Earlier reload authorization is consumed.
+Stages 1–5 remain LOCKED; Stage 6 is TECHNICAL PASS, HUMAN PASS — 6/6 and LOCKED;
+Stage 7 remains NOT STARTED. Supplied NOIT 2025–2026 rules retain their historical boundary.
+
+The accepted implementation's publication is complete. This entry accompanies
+the dedicated `docs: lock event management stage 6` commit; its actual SHA,
+non-force push/local-remote equality and clean tracked/index outcome are reported
+after publication in the final response, without a guessed self-referential SHA.
+
 ## Event Management Stage 6 — implementation and shared verification, 2026-10-13–14
 
 The author explicitly authorized Archive only. Codex recovered the original

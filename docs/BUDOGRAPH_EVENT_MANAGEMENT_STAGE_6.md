@@ -1,5 +1,114 @@
 # BudoGraph Event Management Stage 6 — Archive Event
 
+## FINAL LOCK RECORD
+
+The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-14**
+and authorized this documentation-only final LOCK. Accepted implementation:
+`2626810e0cb7bc3533f3ec2bdb52484d42390d92`
+(`feat(app): add safe event archiving`), committed and pushed to `origin/main`.
+Documentation preflight verified that exact local/remote `main`, a clean tracked
+tree/index, preserved Stage 1–5 LOCK records and the untouched unrelated shortcut.
+
+| Accepted feature        | Technical gate                               | Human gate                    | Final status       |
+| ----------------------- | -------------------------------------------- | ----------------------------- | ------------------ |
+| Stages 1–5              | PASS, preserved                              | Existing acceptance preserved | LOCKED — PRESERVED |
+| Stage 6 — Archive Event | TECHNICAL PASS; shared backend/security PASS | HUMAN PASS — 6/6              | LOCKED — YES       |
+
+This record supersedes the historical prepublication/PENDING snapshot below.
+The six results are the author's explicit acceptance, not new Codex tests:
+
+| Group                                    | Author-confirmed accepted behavior                                                                                       | Result |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------ |
+| 1 — Archive Authorization                | Owner and active non-owner Organizer eligible; Member, foreign-Event and revoked access denied.                          | PASS   |
+| 2 — Exact Name Confirmation              | Exact canonical name, case/whitespace, Cancel/Escape, reviewed version and stale-version recovery.                       | PASS   |
+| 3 — Archive Transition                   | Submission protection, successful Archive, Active-to-Archived movement and explicit next Event selection.                | PASS   |
+| 4 — Archived Read-Only Retention         | Tasks, Team, Changes, History and historical links remain; authoring denied; eligible archived-source Duplicate remains. | PASS   |
+| 5 — Recovery and Security                | Lost-response recovery, same-key replay, refresh, Back/Forward, changed access and expired sessions.                     | PASS   |
+| 6 — Usability and Accessibility Behavior | BG/EN, System/Light/Dark, desktop/mobile, long names and keyboard/focus behavior.                                        | PASS   |
+
+### Locked Archive scope
+
+An active authenticated same-Event Organizer may archive an active Event,
+including a non-owner Organizer. Ownership stays a separate relationship;
+Members cannot archive. Backend authorization is enforced again on receipt replay.
+Intentional confirmation requires the exact canonical name, case/whitespace-sensitive
+equality with no trimming, fuzzy matching or Unicode normalization, and the reviewed
+Event version. Invalid/stale input never silently archives a changed Event.
+
+Additive `0009_event_archive_receipts.sql` supplies actor-scoped UUID
+`Idempotency-Key` receipts with canonical SHA-256 request digests. Transactional
+Event locking/version validation serializes requests. Archive state, one
+`EVENT_ARCHIVED` ActivityEntry for a new archive and its durable receipt commit
+atomically or roll back together. Exact accepted replay is durable, including
+across independent backend processes; altered content conflicts and no duplicate
+archive effect/history is produced. Stage 4 `EVENT_DUPLICATE` semantics stay intact.
+Only Duplicate and Archive have these receipts; this is not a universal command framework.
+
+Archive moves the Event to Archived and returns navigation to `/events`; later
+selection is explicit. Metadata, Tasks/responsibility, EventMember identities/access
+history, Changes/Decision/Response/Plan B, invitations, notification history and
+immutable ActivityEntries remain. Authorized historical Task/Change links remain.
+Operational authoring is blocked, reminder delivery follows existing archive rules,
+personal notification read state remains permitted and eligible archived-source
+Duplicate remains available. No Event deletion or data clearing occurs.
+An already archived Event requires current version and exact confirmation for a
+fresh recorded no-op; stale input conflicts. Exact accepted receipt replay keeps
+its established reauthorization/version exception. There is no Unarchive or Restore.
+
+### Preserved technical and data evidence
+
+The existing [evidence inventory](#6-executed-evidence-inventory) and
+[shared integration record](#9-authorized-shared-integration-and-prepublication-evidence-freeze)
+remain intact: frontend **290 PASS**; backend **144 PASS / 24 expected opt-in skips**;
+full isolated real PostgreSQL **157 PASS, zero failures/skips**; concurrency **9/9 PASS**.
+The full PostgreSQL run is not described as a new main rerun. Direct shared Archive
+passed **14 groups / 28 layouts + one 320px/125% stress**; critical Stage 1–5 browser
+regressions **64/124**; principal shared total **78/152**, with **6 supplementary HTTP
+groups** separate. Locked references **112/112**, with **2 detected negative controls**.
+Typechecks, lint, formatting and both builds passed; recorded shared health/readiness
+were **200**, application errors **0**, secret/private-artifact violations **0**.
+Independent repeats, optional skips and failed/intermediate harness corrections
+retain their original meanings and are not added to principal totals.
+
+Recorded preservation retains all original rows in **14 tables**, including **2528
+ActivityEntries**, **23 accounts**, **89 sessions**, prior migration checksums and
+Stage 1–5 LOCK files. **24 synthetic Events / 47 synthetic ActivityEntries** were
+added after reload; the final recorded ActivityEntry total is **2698**. These retained
+fixtures are separate from original data. Migration inventory is **0001–0009**;
+0001–0008 remain unchanged; the recorded final rerun is **0 applied / 9 already applied**.
+No database connection, migration execution or new data snapshot occurs in this LOCK task.
+
+The author's one authorized backend-only reload on **2026-10-14** stopped the
+verified watcher/backend pair, promoted the reviewed package and started one backend
+without watch. Resulting **PID 29068** is a historical observation, not a claim about
+the current process. Shared Vite/PostgreSQL stayed running and direct verification
+passed. The earlier unexplained watcher child-PID replacement remains unexplained.
+This documentation task performs no service restart or operational health test.
+
+### Limitations and preserved stages
+
+There is no Unarchive/Restore, Event deletion, receipt directory/expiry/purge or
+complete historical text/state reconstruction. Tab storage may lose a recovery hint;
+server UUID guarantees remain. The existing JS **593.49 kB** build-size advisory remains.
+This acceptance does not add physical-device, browser-engine or formal accessibility
+certification, or certify production least privilege. Supplied NOIT **2025–2026**
+rules remain historical and need actual-competition-year verification.
+
+Stages 1 (Listing/Navigation), 2 (Create/Edit UX), 3 (History), 4 (Duplicate operation
+safety) and 5 (metadata-only Duplicate) remain **LOCKED — PRESERVED**, including
+their accepted permissions, immutable history, designs, behavior and migration
+guarantees. **Stage 7 — Clear All Tasks: NOT STARTED**.
+
+Only authorized Markdown changes in this task. No product/test code, schema,
+dependency, configuration, credentials, accounts, sessions, operational data,
+screenshots or ignored evidence changes; no product/browser/PostgreSQL suite,
+build, development server or visual-reference regeneration is executed. The final
+LOCK documentation commit uses `docs: lock event management stage 6`; actual SHA,
+non-force push equality and clean tracked/index outcome are reported after publication,
+without inserting a guessed self-referential SHA into this commit.
+
+## Historical technical report — prepublication snapshot
+
 Implementation and evidence: **2026-10-13–14**. Overall status: **TECHNICAL PASS**.
 The one authorized shared-backend reload and direct integration are **PASS**.
 This report freezes verified technical evidence before the implementation commit;
@@ -346,5 +455,27 @@ SHARED BACKEND INTEGRATION: PASS
 COMMIT/PUSH: NOT PERFORMED — prepublication evidence freeze
 HUMAN ACCEPTANCE: PENDING
 STAGE 6 LOCKED: NO
+STAGE 7: NOT STARTED
+```
+
+## 12. Final authoritative Stage 6 status — 2026-10-14
+
+The author-confirmed [FINAL LOCK RECORD](#final-lock-record) governs current
+acceptance. The earlier Human Acceptance PENDING and prepublication status block
+remain historical evidence, not the current Stage 6 status.
+
+```text
+EVENT MANAGEMENT STAGES 1–5: LOCKED — PRESERVED
+EVENT MANAGEMENT STAGE 6: TECHNICAL PASS
+ARCHIVE AUTHORIZATION: VERIFIED
+ARCHIVE DATA INTEGRITY: VERIFIED
+ARCHIVE HISTORY PRESERVATION: VERIFIED
+ARCHIVED READ-ONLY: VERIFIED
+SECURITY: PASS
+SHARED BACKEND INTEGRATION: PASS
+STAGE 6 IMPLEMENTATION COMMIT: 2626810e0cb7bc3533f3ec2bdb52484d42390d92
+IMPLEMENTATION COMMIT/PUSH: COMPLETED
+HUMAN ACCEPTANCE: HUMAN PASS — 6/6 — 2026-10-14
+STAGE 6 LOCKED: YES
 STAGE 7: NOT STARTED
 ```

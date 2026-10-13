@@ -1,5 +1,26 @@
 # BudoGraph Test Evidence
 
+## Event Management Stage 6 — final Human Acceptance and LOCK, 2026-10-14
+
+The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-14**
+and authorized this documentation-only final LOCK at accepted implementation
+`2626810e0cb7bc3533f3ec2bdb52484d42390d92`
+(`feat(app): add safe event archiving`), already published to synchronized main/origin.
+The six accepted groups are Archive Authorization, Exact Name Confirmation, Archive
+Transition, Archived Read-Only Retention, Recovery/Security and Usability/Accessibility
+Behavior. These are author-confirmed results, not new Codex automated tests or
+physical-device, engine or formal accessibility certification.
+
+Stage 6 is **TECHNICAL PASS**, shared backend/security **PASS**, **HUMAN PASS — 6/6**
+and **LOCKED**; Stages 1–5 remain LOCKED. The [FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md#final-lock-record)
+supersedes the earlier PENDING snapshot while preserving all technical counts,
+independent/main distinctions, failed harness records and data-preservation evidence.
+Only documentation checks run in this task; no product/browser/PostgreSQL matrix,
+build, database connection/migration, service restart or screenshot regeneration.
+The dedicated documentation publication SHA/outcome is reported after publication;
+no ignored evidence is rewritten. **Stage 7 is NOT STARTED**. The section below is
+the historical prepublication technical record.
+
 ## Event Management Stage 6 — TECHNICAL PASS, 2026-10-13–14
 
 Starting main/origin SHA: `892bc68b92d0586c3c881da9cb3e503afd701227`. Reviewed

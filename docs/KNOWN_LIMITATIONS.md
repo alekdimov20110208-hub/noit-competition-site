@@ -1,11 +1,13 @@
 # Known Limitations
 
-## Event Management Stage 6 — TECHNICAL PASS, 2026-10-14
+## Event Management Stage 6 — LOCKED, 2026-10-14
 
 Stage 6 is implemented on shared main; one explicitly authorized backend-only
-reload and direct integration passed. Human Acceptance remains PENDING and Stage 6
-is NOT LOCKED. Publication SHA/remote equality are recorded after this prepublication
-documentation freeze in Git history and the final response.
+reload and direct integration passed. The project author confirmed **HUMAN PASS —
+6/6** on **2026-10-14**; Stage 6 is **LOCKED** at implementation
+`2626810e0cb7bc3533f3ec2bdb52484d42390d92`. The
+[FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md#final-lock-record) supersedes
+historical pending states while retaining genuine limitations.
 Only Duplicate and Archive have durable receipts. Closing/clearing tab storage
 can lose a recovery hint; UUID correctness remains server-side. There is no
 Unarchive, Restore, Delete, receipt directory/expiry/purge or historical full-state
@@ -13,10 +15,11 @@ reconstruction. Current actor names and clock-derived signals retain existing
 historical-view limitations. Physical devices, other engines and formal accessibility
 certification are not claimed. Development tests do not certify production least
 privilege. Vite retains its existing 500 kB build-size advisory (final JS 593.49 kB).
-Main and database inventories both include unchanged additive 0009; rerun 0/9.
-All original rows, prior migration checksums and LOCK records are preserved; new
-synthetic fixtures/history are retained and counted separately. No owned test
-process/session remains. Any additional backend reload needs new explicit approval.
+Recorded migration inventory is 0001–0009, with earlier checksums unchanged and
+rerun 0 applied / 9 already applied. Existing preservation/cleanup evidence retains
+original rows, migration/LOCK records and separately counted synthetic history;
+it is not a new runtime/database check in this documentation task. Any additional
+backend reload needs new explicit approval.
 See [Stage 6 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md). Earlier sections are
 historical; Stage 7 is NOT STARTED. Supplied NOIT 2025–2026 rules require actual-year verification.
 

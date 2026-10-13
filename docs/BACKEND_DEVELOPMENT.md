@@ -5,8 +5,9 @@
 Apply additive `0009_event_archive_receipts.sql` after 0008; never edit applied
 SQL/checksums. It was applied once from the prepared checkout (1 new / 8 existing).
 Shared main now contains the reviewed migration; main rerun is 0 applied / 9 existing.
-The author's one controlled reload completed; backend 29068 runs without watch,
-shared Vite 26668/PostgreSQL remain running. Another reload requires new approval.
+The recorded authorized reload started backend PID 29068 without watch while
+Vite 26668/PostgreSQL stayed running. These PIDs are historical observations;
+this documentation task makes no current-runtime check. Another reload requires new approval.
 
 `POST /api/events/:eventId/archive`, UUID `Idempotency-Key`, body
 `{ expectedVersion, confirmationName }`, returns `200 { event }`. Active identity
@@ -25,7 +26,8 @@ unmodified Stage 1–5 critical scripts. `BUDOGRAPH_ARCHIVE_SKIP_MATRIX=1` permi
 focused repeats after complete matrix evidence. Do not run browser writes alongside
 serial PostgreSQL tests; retain synthetic history and prefer rollback fixtures.
 The full reviewed PostgreSQL suite passed 157 results. See [Stage 6 report](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md)
-for scope, evidence and limitations. Human Acceptance is pending; no Stage 7 API exists.
+for scope, evidence and limitations. The author confirmed HUMAN PASS — 6/6 on
+2026-10-14; Stage 6 is LOCKED. Stage 7 is NOT STARTED; no Stage 7 API exists.
 
 ## Event Management Stages 4 + 5
 
