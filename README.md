@@ -1,5 +1,20 @@
 # BudoGraph
 
+## Event Management Stage 7 — TECHNICAL PASS, 2026-10-15
+
+Clear All Tasks is implemented and verified on shared main. Same-Event
+Organizers review a canonical Task/reminder/Change digest and type the exact
+Event name. Soft deletion, per-Task/Event activity and durable UUID receipts
+commit atomically; existing relationships and notifications remain.
+One authorized backend-only reload and direct shared integration passed. Shared
+browser verification passed 101 groups, 125 layouts and 10 stress cases; 112
+frozen comparisons and both negative controls passed. Original business/history/
+accounts remain preserved. The original session check remains **88/89 MATCH —
+PRE-EXISTING DISCREPANCY**, with cause unestablished; the author's limited exception
+was satisfied and the fresh 89-session baseline remains unchanged. Human Acceptance
+is PENDING; Stage 7 is NOT LOCKED. See
+[the Stage 7 report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md).
+
 ## Event Management Stages 1–6 — LOCKED, 2026-10-14
 
 Stage 6 is implemented on shared main and technically verified, including the
@@ -14,7 +29,8 @@ boundary groups; zero application errors. All original rows/history, migrations
 and LOCK files are preserved. The project author confirmed **HUMAN PASS — 6/6**
 for Stage 6 on **2026-10-14** at implementation
 `2626810e0cb7bc3533f3ec2bdb52484d42390d92`.
-**Event Management Stages 1–6 are LOCKED. Stage 7 is NOT STARTED.**
+**Event Management Stages 1–6 are LOCKED.** The Stage 6 record's Stage 7
+NOT STARTED status is historical; the Stage 7 section above governs current status.
 The [FINAL LOCK RECORD](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md#final-lock-record)
 governs current status; its original prepublication/PENDING sections remain historical.
 Counts above are preserved executed evidence, not new LOCK-task test runs. Earlier

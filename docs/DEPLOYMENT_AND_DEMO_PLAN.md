@@ -1,5 +1,26 @@
 # Installation, Deployment, and Demonstration Plan
 
+## Stage 7 Clear demonstration — shared TECHNICAL PASS, 2026-10-15
+
+The exact reviewed package is available on shared main after one authorized
+backend-only reload. Both Stage 6 and Stage 7 reload permissions are consumed;
+no further restart is authorized. Shared backend/Vite/PostgreSQL remain healthy.
+Independent and direct shared verification, migration and preservation gates pass.
+The author-approved original 88/89 session exception remains recorded; the fresh
+89-session baseline is preserved. Human Acceptance remains PENDING and Stage 7
+is NOT LOCKED. No production deployment occurs.
+
+Demonstrate only with a newly owned synthetic Event. Add active/completed Tasks,
+a linked Change with Decision/Response/Plan B, assignment/acceptance, reminder
+configuration and delivered synthetic notification. Review the exact Event/set,
+Cancel/Escape, changed-scope rejection, one intentional Clear, empty workspace,
+retained references/read-only Task context, notification read state and same-UUID
+response recovery after adding a new Task. Preserve synthetic business/history
+records; close only owned test sessions/services. Keep the recorded screenshots
+and local verification checkout as accurately labelled backup evidence. They are
+not a production or offline-authentication deployment. Supplied 2025–2026 online
+availability/deployment/deliverable requirements need actual-year verification.
+
 ## Stage 6 Archive demonstration — TECHNICAL PASS, 2026-10-14
 
 No production deployment occurs. The author's one controlled backend-only reload

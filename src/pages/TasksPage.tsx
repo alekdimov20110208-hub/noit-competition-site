@@ -1,5 +1,4 @@
 import {
-  AlertTriangle,
   Check,
   ChevronRight,
   Circle,
@@ -25,6 +24,7 @@ import { EmptyState } from "../components/EmptyState.tsx";
 import { PageHeader } from "../components/PageHeader.tsx";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 import { TaskDrawer } from "../components/TaskDrawer.tsx";
+import { RemovedTaskNotice } from "../components/RemovedTaskNotice.tsx";
 import {
   TASK_PRIORITY_MESSAGE_KEYS,
   TASK_STATUS_MESSAGE_KEYS,
@@ -64,6 +64,7 @@ interface TasksPageProps {
   invalidTaskId: string | null;
   onOpenTask: (taskId: string) => void;
   onCloseTask: () => void;
+  onNavigate?: (href: string) => void;
   onStatusChange?: (taskId: string, status: TaskStatus) => void;
   onToggleAcknowledgement?: (taskId: string) => void;
   readState?: TaskReadState;
@@ -203,6 +204,7 @@ export function TasksPage({
   invalidTaskId,
   onOpenTask,
   onCloseTask,
+  onNavigate,
   onStatusChange,
   onToggleAcknowledgement,
   readState,
@@ -440,20 +442,13 @@ export function TasksPage({
       </dl>
 
       {invalidTaskId && (
-        <div className="notice notice--warning" role="status">
-          <AlertTriangle size={18} aria-hidden="true" />
-          <span>
-            <strong>{t("taskDetails.invalid.title")}</strong>{" "}
-            {t("taskDetails.invalid.description")}
-          </span>
-          <button
-            type="button"
-            className="button button--quiet"
-            onClick={onCloseTask}
-          >
-            {t("taskDetails.invalid.back")}
-          </button>
-        </div>
+        <RemovedTaskNotice
+          key={`${state.currentEventId}:${invalidTaskId}`}
+          eventId={state.currentEventId}
+          taskId={invalidTaskId}
+          onClose={onCloseTask}
+          onNavigate={onNavigate}
+        />
       )}
 
       {mutation?.message && !selectedTask && (

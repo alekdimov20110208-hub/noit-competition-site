@@ -1,5 +1,28 @@
 # BudoGraph User Guide
 
+## Stage 7 Clear All Tasks — available on shared main, 2026-10-15
+
+Active Event Organizers (owner or non-owner) can open
+**Danger zone / Опасни действия** and **Clear all tasks / Изчистване на всички задачи**.
+Read the Event name, current/completed Task counts, affected Changes and configured
+reminders. Type the exact name including case/spaces. Cancel/Escape before submit
+sends no command. Tasks including completed ones leave active views; the Event
+stays active. Task records, Team, Changes/Plan B, links, notifications and History
+remain. Removed Tasks cannot be edited/restored and no Undo exists.
+
+A changed review is rejected; use the explicit reload, review the new counts and
+type again. A confirmed zero result does not change Event or removal history.
+If the response is uncertain, choose **Recover clear result / Проверка на резултата
+от изчистване** using the held original UUID. Refresh in the same tab retains
+that hint where storage is available. Do not begin another Clear to guess a result.
+An accepted replay cannot clear newly created Tasks. Current eligibility is checked.
+
+New Tasks can be created afterward. Retained notification/Change Task links open
+read-only removal context; existing notification read state remains usable.
+Current impact excludes removed Tasks. Historical reference lists show up to 50
+links with the full count. Shared technical verification passed. Project-author
+Human Acceptance remains PENDING; Stage 7 is NOT LOCKED.
+
 ## Stage 6 Archive Event — available and LOCKED, 2026-10-14
 
 Stage 6 is available and **LOCKED** with TECHNICAL PASS and project-author-confirmed

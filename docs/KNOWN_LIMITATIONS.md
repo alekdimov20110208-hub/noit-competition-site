@@ -1,5 +1,30 @@
 # Known Limitations
 
+## Stage 7 Clear All Tasks — shared TECHNICAL PASS, 2026-10-15
+
+The reviewed package is available on shared main after exactly one authorized
+backend-only reload. Technical/shared gates pass; Human Acceptance is PENDING
+and Stage 7 is NOT LOCKED. No additional reload or later stage is authorized.
+
+The original session baseline remains **88/89 MATCH — PRE-EXISTING DISCREPANCY**.
+The new session's time/expected identity is consistent with the author's reported
+login. The original hash-only baseline and available logs cannot establish whether
+the old session was deleted, expired, rotated or modified. No additional security
+or protected-data anomalies were found; the separately accepted fresh 89-session
+baseline remains unchanged. This is a recorded exception, not a repaired check.
+
+Clear retains Task records and relationships; there is no Restore/Undo. Recovery
+hints are scoped to the identity/Event and held in tab storage, with memory
+fallback. Clearing/closing unavailable tab storage can lose the original UUID;
+no receipt directory, expiry or purge is introduced. A fresh conflict needs
+explicit new review; uncertain accepted operations use the original UUID.
+Current active identity/Organizer/Event eligibility is required for Clear recovery.
+Historical names/text are retained current values, not reconstructed past states.
+Change details show at most 50 retained references and the full retained count.
+The existing 500 kB bundle advisory remains. Physical-device, other-engine,
+formal accessibility and production least-privilege certification are unclaimed.
+Supplied NOIT 2025–2026 requirements need actual-year verification.
+
 ## Event Management Stage 6 — LOCKED, 2026-10-14
 
 Stage 6 is implemented on shared main; one explicitly authorized backend-only

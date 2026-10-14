@@ -184,6 +184,21 @@ export function EventArchiveDialog({
       aria-describedby="event-archive-description"
       aria-busy={loading || pending}
       tabIndex={-1}
+      onFocus={(e) => {
+        e.stopPropagation();
+        if (e.target instanceof HTMLElement) {
+          const field = e.target.getBoundingClientRect(),
+            modal = e.currentTarget.getBoundingClientRect();
+          const offset =
+            field.bottom > modal.bottom - 12
+              ? field.bottom - modal.bottom + 12
+              : field.top < modal.top + 12
+                ? field.top - modal.top - 12
+                : 0;
+          if (offset)
+            e.currentTarget.scrollBy({ top: offset, behavior: "instant" });
+        }
+      }}
       onCancel={(e) => {
         e.preventDefault();
         if (!pending) onClose();

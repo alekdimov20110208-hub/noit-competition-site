@@ -1,5 +1,12 @@
 import { useState } from "react";
 import { EventArchiveDialog } from "../components/EventArchiveDialog.tsx";
+import { EventClearDialog } from "../components/EventClearDialog.tsx";
+import {
+  readClearAttempt,
+  type ClearPreview,
+  type ClearAttempt,
+  type ClearResult,
+} from "../services/eventClearing.ts";
 import { readArchiveAttempt } from "../services/eventArchiving.ts";
 import { AppLink } from "../components/AppLink.tsx";
 import { EmptyState } from "../components/EmptyState.tsx";
@@ -23,6 +30,8 @@ export function EventManagementPage({
   identityId,
   getEvent,
   archiveEvent,
+  clearPreview,
+  clearTasks,
   onRefresh,
 }: {
   events: readonly TaskEvent[];
@@ -39,11 +48,23 @@ export function EventManagementPage({
     signal?: AbortSignal,
   ) => Promise<TaskEvent>;
   onRefresh: () => Promise<void>;
+  clearPreview: (id: string, signal?: AbortSignal) => Promise<ClearPreview>;
+  clearTasks: (
+    id: string,
+    attempt: ClearAttempt,
+    signal?: AbortSignal,
+  ) => Promise<ClearResult>;
 }) {
   const { t, formatDate } = useI18n();
   const [archived, setArchived] = useState(false);
   const [query, setQuery] = useState("");
   const [archiveTarget, setArchiveTarget] = useState<TaskEvent | null>(null);
+  const [clearTarget, setClearTarget] = useState<TaskEvent | null>(null);
+  const [clearSuccess, setClearSuccess] = useState<{
+    name: string;
+    count: number;
+    refreshFailed: boolean;
+  } | null>(null);
   const [dangerOpen, setDangerOpen] = useState<string[]>([]);
   const [success, setSuccess] = useState<{
     name: string;
@@ -58,6 +79,15 @@ export function EventManagementPage({
         )
       : [];
   const visible = filterEvents(events, archived, query);
+  const clearRecoveries =
+    status === "ready"
+      ? events.filter(
+          (e) =>
+            !e.archived &&
+            e.membership.accessRole === "ORGANIZER" &&
+            readClearAttempt(identityId, e.id),
+        )
+      : [];
   const filtered = query.trim().length > 0;
   return (
     <div
@@ -88,6 +118,29 @@ export function EventManagementPage({
           )}
         </p>
       )}
+      {clearSuccess && (
+        <p className="notice" role="status">
+          {t(
+            clearSuccess.refreshFailed
+              ? "events.clear.refreshFailed"
+              : clearSuccess.count
+                ? "events.clear.success"
+                : "events.clear.noop",
+            { name: clearSuccess.name, count: clearSuccess.count },
+          )}
+        </p>
+      )}
+      {clearRecoveries.map((e) => (
+        <div key={e.id} className="notice" role="status">
+          <p>{t("events.clear.recoveryNotice", { name: e.name })}</p>
+          <button
+            className="button button--secondary"
+            onClick={() => setClearTarget(e)}
+          >
+            {t("events.clear.recover")}
+          </button>
+        </div>
+      ))}
       {recoveries.map((e) => (
         <div key={e.id} className="notice" role="status">
           <p>{t("events.archive.recoveryNotice", { name: e.name })}</p>
@@ -274,6 +327,21 @@ export function EventManagementPage({
                         >
                           {t("events.archive")}
                         </button>
+                        <p>{t("events.clear.description")}</p>
+                        <button
+                          type="button"
+                          className="button event-clear-action event-clear-trigger"
+                          onFocus={(e) => {
+                            e.stopPropagation();
+                            if (e.currentTarget.matches(":focus-visible"))
+                              revealFocusTarget(e.currentTarget);
+                          }}
+                          aria-label={`${t("events.clear")}: ${event.name}`}
+                          aria-haspopup="dialog"
+                          onClick={() => setClearTarget(event)}
+                        >
+                          {t("events.clear")}
+                        </button>
                       </>
                     )}
                   </details>
@@ -296,6 +364,25 @@ export function EventManagementPage({
             setArchiveTarget(null);
             setSuccess({ name: event.name, refreshFailed });
             onNavigate("/events");
+          }}
+        />
+      )}
+      {clearTarget && (
+        <EventClearDialog
+          key={`${identityId}:${clearTarget.id}`}
+          event={clearTarget}
+          identityId={identityId}
+          getPreview={clearPreview}
+          clearTasks={clearTasks}
+          onRefresh={onRefresh}
+          onClose={() => setClearTarget(null)}
+          onSuccess={(result, refreshFailed) => {
+            setClearTarget(null);
+            setClearSuccess({
+              name: result.event.name,
+              count: result.clearedCount,
+              refreshFailed,
+            });
           }}
         />
       )}

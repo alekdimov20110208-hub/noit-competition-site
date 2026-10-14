@@ -75,6 +75,8 @@ export function useRemoteTasks(
     updateEvent: controller.updateEvent,
     duplicateEvent: controller.duplicateEvent,
     archiveEvent: controller.archiveEvent,
+    clearPreview: controller.clearPreview,
+    clearTasks: controller.clearTasks,
     createTask: controller.createTask,
     updateTaskDetails: controller.updateTaskDetails,
     getTask: controller.getTask,

@@ -23,6 +23,8 @@ import { uuidPattern } from "../tasks/model.ts";
 import { createEventHistoryReadService } from "./history.ts";
 import { runEventOperation } from "./operations.ts";
 import { archiveEvent } from "./archive.ts";
+import { clearEventTasks, previewTaskClear } from "./clear.ts";
+import { readRemovedTask } from "./removedTask.ts";
 export type { AccessibleEvent } from "./model.ts";
 
 export function createEventReadService(database: AuthorizationDatabase) {
@@ -285,6 +287,16 @@ export function createEventService(
         },
       );
     },
+    clearPreview: (user: AuthenticatedUser, sourceId: string) =>
+      previewTaskClear(database, user, sourceId),
+    removedTask: (user: AuthenticatedUser, event: string, task: string) =>
+      readRemovedTask(database, user, event, task),
+    clearTasks: (
+      user: AuthenticatedUser,
+      sourceId: string,
+      key: unknown,
+      input: unknown,
+    ) => clearEventTasks(database, user, sourceId, key, input),
     history: createEventHistoryReadService(database),
   };
 }
@@ -293,6 +305,13 @@ export type EventService = EventReadService &
   Partial<
     Pick<
       ReturnType<typeof createEventService>,
-      "create" | "update" | "history" | "duplicate" | "archive"
+      | "create"
+      | "update"
+      | "history"
+      | "duplicate"
+      | "archive"
+      | "clearPreview"
+      | "clearTasks"
+      | "removedTask"
     >
   >;

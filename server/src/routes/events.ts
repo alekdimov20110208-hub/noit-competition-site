@@ -36,11 +36,41 @@ export function registerEventReadRoutes(
         );
       },
     );
+  if (events.removedTask)
+    app.get<{ Params: { eventId: string; taskId: string } }>(
+      "/api/events/:eventId/task-history/:taskId",
+      async (request, reply) => {
+        reply.header("cache-control", "no-store");
+        const user = await requireAuthenticatedUser(
+          authentication.auth,
+          request,
+        );
+        return events.removedTask!(
+          user,
+          request.params.eventId,
+          request.params.taskId,
+        );
+      },
+    );
   const origins = new Set(
     authentication.taskMutationOrigins ?? [
       new URL(authentication.baseURL).origin,
     ],
   );
+  if (events.clearPreview)
+    app.get<{ Params: { eventId: string } }>(
+      "/api/events/:eventId/tasks/clear-preview",
+      async (request, reply) => {
+        reply.header("cache-control", "no-store");
+        const user = await requireAuthenticatedUser(
+          authentication.auth,
+          request,
+        );
+        if (Object.keys(request.query as object).length)
+          throw new EventCommandError(400, "INVALID_CLEAR_COMMAND");
+        return events.clearPreview!(user, request.params.eventId);
+      },
+    );
   app.register(async (routes) => {
     routes.addHook("onRequest", async (_request, reply) => {
       reply.header("cache-control", "no-store");
@@ -79,6 +109,20 @@ export function registerEventReadRoutes(
               request.body,
             ),
           };
+        },
+      );
+    if (events.clearTasks)
+      routes.post<{ Params: { eventId: string } }>(
+        "/api/events/:eventId/tasks/clear",
+        { bodyLimit: 4096 },
+        async (request) => {
+          const user = await actor(request);
+          return events.clearTasks!(
+            user,
+            request.params.eventId,
+            request.headers["idempotency-key"],
+            request.body,
+          );
         },
       );
     if (events.archive)

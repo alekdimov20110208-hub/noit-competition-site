@@ -1,5 +1,62 @@
 # AI Assistance Log
 
+## Stage 7 shared continuation — technical acceptance, 2026-10-15
+
+The author authorized exactly one controlled backend-only reload and conditional
+publication, then supplied a narrow session-baseline exception and personal-login
+context. Codex investigated read-only: the new structurally valid session belongs
+to the expected unchanged Organizer, created at 00:05:31 Europe/Kiev. Available
+logs and the original hash-only baseline cannot establish the missing session's
+deletion/expiry/rotation mechanism. Original **88/89 MATCH — PRE-EXISTING
+DISCREPANCY** remains; no existing session was restored, revoked or altered.
+No additional identity/account/membership/authorization anomalies were found.
+The separately captured fresh 89-session baseline remained unchanged after tests.
+
+Fresh process, manifest, protected-data and LOCK checks preceded stopping verified
+watcher 15080/child 14224 and starting backend 7156 once without watch. Shared Vite
+27776 and PostgreSQL remained running. Only the exact 43 reviewed files were
+promoted; the 34 implementation/test files retain their reviewed hashes. Nine
+approved documentation paths now reconcile actual evidence. No additional product
+implementation or completed independent matrix was repeated.
+
+Direct shared verification passed 101 browser groups / 125 layouts / 10 stress
+cases, eight HTTP boundary/replay groups, the registered reminder worker check,
+112 frozen comparisons and two negative controls. Promoted tests/quality/builds,
+migration rerun (0/10), final preservation and secret/artifact checks passed.
+Sixty-one additional synthetic Events and one new inactive test identity/account
+remain retained; all owned sessions, browsers, helper processes and pools closed.
+Earlier failed harness launches and timestamp-comparison diagnostics remain
+traceable; fixes were confined to ignored helpers and did not change assertions.
+No subagent, credential change, production deployment or later stage occurred.
+Human Acceptance remains PENDING and Stage 7 is NOT LOCKED. The following dated
+preparation record retains its earlier PENDING state and counts.
+
+## Stage 7 Clear All Tasks — implementation and independent verification, 2026-10-14
+
+The author authorized Stage 7 only. Codex read the mandatory master/regulations,
+recovered the approved original contract read-only, verified synchronized main
+`6fde97a1e00eb7b230ebbc71ec5e02fe31aefd4a`, protected LOCK hashes and a fresh
+read-only database baseline. Main is watched, so work is isolated in an attached
+checkout. No subagent, main-source promotion, shared stop/start, new dependency,
+production deployment, account/email feature, Restore/Undo or later stage is used.
+
+Codex implemented exact scope/name/version review, atomic soft deletion and
+per-Task/Event activity, additive Clear receipts, durable recovery, relationship
+retention and focused BG/EN accessible UI. Retained lookup/Change-reference
+extensions implement the approved Clear prerequisites while keeping active-view
+and existing History semantics. Tests use rollback fixtures or newly owned
+synthetic Events; prior records and failed runs remain traceable. Independent
+frontend 297, backend 146 plus 26 opt-in skips, and real PostgreSQL 181 results
+pass. Complete Clear browser verification passes 15 groups / 28 layouts / 5 stress
+cases; all twelve relevant prior browser suites pass. All 112 frozen comparisons
+match and both negative controls detect changes. Final preservation/security
+checks pass; original rows/relationships/checksums/LOCKs and 23 accounts/89 sessions
+remain intact. Failed/intermediate runs and owned reminder cleanup remain recorded;
+shared integration and author acceptance remain PENDING. Human authors must review,
+understand and verify the generated SQL, lock order, digest, recovery and retention
+behavior before accepting Stage 7. No invented research or human PASS is reported.
+Supplied NOIT rules remain specific to 2025–2026 pending actual-year verification.
+
 ## Event Management Stage 6 — author acceptance and final LOCK, 2026-10-14
 
 The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-14**

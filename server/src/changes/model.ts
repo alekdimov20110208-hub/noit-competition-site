@@ -32,6 +32,8 @@ export interface ChangeDto {
   createdAt: string;
   updatedAt: string;
   affectedTasks: AffectedTask[];
+  removedTasks?: { id: string; title: string }[];
+  removedTaskCount?: number;
   impact: {
     taskCount: number;
     people: ChangeMember[];

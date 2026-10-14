@@ -16,6 +16,8 @@ const ACTIONS: Record<string, MessageKey> = {
   EVENT_CREATED: "history.event.created",
   EVENT_UPDATED: "history.event.updated",
   EVENT_ARCHIVED: "history.event.archived",
+  EVENT_TASKS_CLEARED: "history.event.tasksCleared",
+  "task.removed": "history.task.removed",
   "task.created": "history.task.created",
   "task.updated": "history.task.updated",
   "task.assigned": "history.task.assigned",

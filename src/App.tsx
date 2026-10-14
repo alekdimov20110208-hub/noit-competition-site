@@ -392,6 +392,7 @@ export default function App() {
         now={now}
         state={remoteTasks.workspace}
         selectedTaskId={selectedTaskId}
+        onNavigate={navigate}
         invalidTaskId={invalidTaskId}
         onOpenTask={openTask}
         onCloseTask={closeTask}
@@ -647,6 +648,8 @@ export default function App() {
         identityId={identity.user!.id}
         getEvent={remoteTasks.getEvent}
         archiveEvent={remoteTasks.archiveEvent}
+        clearPreview={remoteTasks.clearPreview}
+        clearTasks={remoteTasks.clearTasks}
         onRefresh={remoteTasks.refreshEvents}
       />
     );

@@ -37,6 +37,8 @@ interface ProjectionRow extends ChangeRow {
   reporter: ChangeMember;
   response_owner: ChangeMember | null;
   affected_tasks: AffectedTask[];
+  removed_tasks: { id: string; title: string }[];
+  removed_task_count: number;
   decision_author: ChangeMember | null;
 }
 
@@ -51,7 +53,12 @@ async function project(
     `SELECT change.*, jsonb_build_object('id', reporter.id, 'name', author.name, 'role', reporter.operational_role) AS reporter,
        CASE WHEN owner.id IS NULL THEN NULL ELSE jsonb_build_object('id', owner.id, 'name', responder.name, 'role', owner.operational_role) END AS response_owner,
        CASE WHEN decision_author.id IS NULL THEN NULL ELSE jsonb_build_object('id', decision_author.id, 'name', decider.name, 'role', decision_author.operational_role) END AS decision_author,
-       COALESCE(impact.tasks, '[]'::JSONB) AS affected_tasks
+       COALESCE(impact.tasks, '[]'::JSONB) AS affected_tasks,
+       COALESCE((SELECT jsonb_agg(jsonb_build_object('id',t.id,'title',t.title) ORDER BY t.id)
+         FROM (SELECT removed.id,removed.title FROM public.change_task l JOIN public.task removed ON removed.event_id=l.event_id AND removed.id=l.task_id
+         WHERE l.event_id=change.event_id AND l.change_id=change.id AND removed.deleted_at IS NOT NULL ORDER BY removed.id LIMIT 50) t),'[]'::JSONB) AS removed_tasks,
+       (SELECT count(*)::INT FROM public.change_task l JOIN public.task t ON t.event_id=l.event_id AND t.id=l.task_id
+         WHERE l.event_id=change.event_id AND l.change_id=change.id AND t.deleted_at IS NOT NULL) AS removed_task_count
      FROM public.event_change AS change
      JOIN public.event_member AS reporter ON reporter.event_id = change.event_id AND reporter.id = change.created_by
      JOIN public."user" AS author ON author.id = reporter.user_id
@@ -99,6 +106,8 @@ async function project(
     createdAt: row.created_at.toISOString(),
     updatedAt: row.updated_at.toISOString(),
     affectedTasks: row.affected_tasks,
+    removedTasks: row.removed_tasks,
+    removedTaskCount: row.removed_task_count,
     impact: deriveImpact(row.affected_tasks),
   }));
 }
@@ -174,7 +183,7 @@ export function createChangeService(pool: TransactionPool) {
         if (before.version !== command.expectedVersion)
           throw new ChangeCommandError(409, "CHANGE_VERSION_CONFLICT");
         const links = await database.query(
-          "SELECT task_id FROM public.change_task WHERE event_id = $1 AND change_id = $2 ORDER BY task_id",
+          "SELECT l.task_id FROM public.change_task l JOIN public.task t ON t.event_id=l.event_id AND t.id=l.task_id WHERE l.event_id = $1 AND l.change_id = $2 AND t.deleted_at IS NULL ORDER BY l.task_id",
           [eventId, targetId],
         );
         previousTasks = links.rows.map(
@@ -297,9 +306,10 @@ export function createChangeService(pool: TransactionPool) {
         );
       }
       if (!before || Object.hasOwn(changed, "affectedTaskIds")) {
-        // Remove only this command's relation rows; no business record deletion.
+        // Replace live links only. Removed-Task links remain immutable history
+        // through later ordinary Change edits, including an explicit empty list.
         await database.query(
-          "DELETE FROM public.change_task WHERE event_id = $1 AND change_id = $2",
+          "DELETE FROM public.change_task l USING public.task t WHERE l.event_id = $1 AND l.change_id = $2 AND t.event_id=l.event_id AND t.id=l.task_id AND t.deleted_at IS NULL",
           [eventId, targetId],
         );
         await database.query(

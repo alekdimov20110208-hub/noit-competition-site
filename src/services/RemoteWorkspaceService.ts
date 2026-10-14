@@ -6,6 +6,15 @@ import type { TaskFields, TaskFieldErrors } from "./taskAuthoring.ts";
 import { InvitationService } from "./invitations.ts";
 import { readEventHistory } from "./eventHistory.ts";
 import {
+  readClearPreview,
+  readClearResult,
+  clearResponseError,
+  validClearAttempt,
+  type ClearPreview,
+  type ClearAttempt,
+  type ClearResult,
+} from "./eventClearing.ts";
+import {
   ChangeService,
   ChangeFailure,
   type RemoteChange,
@@ -314,6 +323,12 @@ export class EventActionFailure extends Error {
   }
 }
 export interface EventWorkspaceService {
+  clearPreview(eventId: string, signal: AbortSignal): Promise<ClearPreview>;
+  clearTasks(
+    eventId: string,
+    attempt: ClearAttempt,
+    signal: AbortSignal,
+  ): Promise<ClearResult>;
   archiveEvent(
     eventId: string,
     expectedVersion: number,
@@ -671,6 +686,67 @@ export class RemoteWorkspaceService
       signal,
       { eventId: source, expectedVersion, duplicateKey: key },
     );
+  }
+
+  async clearPreview(
+    eventId: string,
+    signal: AbortSignal,
+  ): Promise<ClearPreview> {
+    const event = id(eventId);
+    try {
+      const request = this.request;
+      const response = await request(
+        `/api/events/${event}/tasks/clear-preview`,
+        {
+          credentials: "same-origin",
+          cache: "no-store",
+          signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
+        },
+      );
+      if (!response.ok) await clearResponseError(response);
+      const result = readClearPreview(await response.json(), event);
+      signal.throwIfAborted();
+      return result;
+    } catch (error) {
+      if (signal.aborted) throw signal.reason;
+      if (error instanceof EventActionFailure) throw error;
+      throw new EventActionFailure("unavailable");
+    }
+  }
+
+  async clearTasks(
+    eventId: string,
+    attempt: ClearAttempt,
+    signal: AbortSignal,
+  ): Promise<ClearResult> {
+    const event = id(eventId);
+    if (!validClearAttempt(attempt)) throw new EventActionFailure("invalid");
+    try {
+      const request = this.request;
+      const response = await request(`/api/events/${event}/tasks/clear`, {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: {
+          "content-type": "application/json",
+          "Idempotency-Key": attempt.commandId,
+        },
+        body: JSON.stringify({
+          expectedVersion: attempt.expectedVersion,
+          confirmationName: attempt.confirmationName,
+          scopeRevision: attempt.scopeRevision,
+        }),
+        signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
+      });
+      if (!response.ok) await clearResponseError(response);
+      const result = readClearResult(await response.json(), event, attempt);
+      signal.throwIfAborted();
+      return result;
+    } catch (error) {
+      if (signal.aborted) throw signal.reason;
+      if (error instanceof EventActionFailure) throw error;
+      throw new EventActionFailure("uncertain");
+    }
   }
 
   async archiveEvent(

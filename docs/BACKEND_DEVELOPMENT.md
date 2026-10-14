@@ -1,5 +1,43 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Stage 7 Clear operation — shared TECHNICAL PASS, 2026-10-15
+
+Additive `0010_event_clear_receipts.sql` is applied to the configured development
+PostgreSQL database (1 new / 9 existing). Old SQL/checksums stay immutable. No
+startup migration, database reset or business DELETE is added. Shared main now
+runs the reviewed implementation after exactly one authorized backend-only reload;
+the final migration rerun reports 0 applied / 10 already applied. Backend 7156
+runs without watch; shared Vite/PostgreSQL remained running. Live/ready are HTTP 200. Direct shared HTTP/browser and real registered reminder-worker checks pass.
+All original business/history/accounts and fresh-baseline sessions are preserved;
+the original 88/89 session discrepancy remains a documented author-approved
+exception with cause unestablished. Human Acceptance PENDING; Stage 7 NOT LOCKED.
+
+Organizer-only `GET /api/events/:eventId/tasks/clear-preview` returns canonical
+Event data, counts and a SHA-256 scope revision. `POST
+/api/events/:eventId/tasks/clear` requires UUID `Idempotency-Key` and only
+`{ expectedVersion, confirmationName, scopeRevision }`; bounded 200 outcome
+includes the accepted Event, operation UUID and cleared/completed/Change/reminder
+counts. Canonical exact name and current scope are server-enforced. Safe errors:
+400 invalid, 401 session, 403 role/lifecycle/Origin, 404 inaccessible scope,
+409 Event/Task-set/key/version-limit conflict. Responses use no-store.
+
+Actor/key advisory serialization precedes exclusive Event lock, current identity/
+membership SHARE locks and deterministic active Task locks. Nonempty soft
+removal increments Event once and every affected Task once; all updates, removal
+activities, Event summary and immutable receipt share one transaction/timestamp.
+Exact accepted replay retains the original outcome and never clears later Tasks.
+Current empty scope writes only a durable zero receipt. Worker Event-first locks
+and current eligibility prevent later deliveries; configuration/notifications stay.
+Changes retain removed links through subsequent editing, exposing bounded
+historical references separately from live impact. Active members may use
+`GET /api/events/:eventId/task-history/:taskId` for retained read-only Task context.
+It grants no active editing or new access. Existing History availability rules stay.
+
+New browser scripts use owned runtimes/controlled synthetic Events. Stage 7
+regression host overrides only loopback configuration; writer catalogs are
+confined to newly created fixtures. Credentials, sessions, environment files and
+screenshots are never committed. See the Stage 7 report for actual gates.
+
 ## Stage 6 Archive Event — TECHNICAL PASS, 2026-10-14
 
 Apply additive `0009_event_archive_receipts.sql` after 0008; never edit applied

@@ -1,5 +1,74 @@
 # BudoGraph Test Evidence
 
+## Event Management Stage 7 — shared TECHNICAL PASS, 2026-10-15
+
+Exactly one authorized backend-only reload promoted 43 hash-verified files to
+shared main. Actual shared browser results: Clear **15 groups / 0 matrix / 5
+stress**, History **8 / 0**, Duplicate **13 / 0**, Archive **14 / 0 / 1 stress**,
+Task reads **13 / 5 layouts**, Task authoring **11 / 20**, Task actions **16 / 40**,
+Changes **11 / 60 / 4 stress**. Total **101 browser groups / 125 layouts / 10
+stress cases**; no application errors. The already completed independent Clear,
+History, Duplicate and Archive matrices were deliberately not repeated; native
+critical-path and stress assertions remain. Commands/auth/data use real shared
+HTTP/PostgreSQL. Catalog isolation filters only real read DTOs to new fixtures;
+named transport/error/long-text fixtures remain explicitly labelled.
+
+Shared boundary checks pass **7 groups**, including concurrent UUID submissions,
+reviewed-set conflicts, create/edit/Clear/Archive/Duplicate races, inactive-user
+replay denial and the actual registered reminder worker. One additional archived
+receipt replay group passes. The HTTP helper records 71 primary calls, with five
+secondary concurrent calls and three cleanup calls; archived replay records six
+plus one cleanup. Real committed lost-response browser recovery preserves later
+Tasks; one guarded real 502-Task Clear is verified. Frozen references remain
+unchanged: **112 exact comparisons / 2 detected negative controls**.
+
+Promoted frontend **297 PASS**, backend **146 PASS / 26 expected opt-in skips**,
+typechecks/lint/builds/format pass. The independent **181 PASS** real PostgreSQL
+matrix below was not unnecessarily repeated. Migration rerun **0 applied / 10
+already applied**; all applied names/checksums and four prior LOCK hashes match.
+Final repeatable-read audit: original business/history/accounts PASS; all fresh
+protected rows/relationships unchanged and no writes in 772 protected Events.
+Original session result remains **88/89 MATCH — PRE-EXISTING DISCREPANCY**, cause
+unestablished, consistent with the author's login. No additional security anomalies;
+fresh session baseline **89/89 unchanged**, all owned test sessions closed.
+
+Final counts: 833 Events, 4643 Tasks, 5925 immutable ActivityEntries, 259 Changes,
+117 links, 101 reminders, 590 notifications, 214 receipts, 202 invitations, 1503
+memberships, 24 accounts, 89 sessions, 668 Users and 10 migrations. All 220 retained
+independent Events remain; 61 additional shared Events and one new inactive test
+identity/account are retained. Runtime verification finds no owned helper/browser
+or extra Vite listeners; backend 7156 and Vite 27776 remain unchanged and healthy.
+Ignored local reports preserve initial session stop, Windows import launch failure
+and false string/DateTime comparison rejection, followed by corrected helper runs.
+No product/assertion weakening or additional restart occurred. Human Acceptance
+PENDING; Stage 7 NOT LOCKED. The following independent record is historical.
+
+## Event Management Stage 7 — independent verification, 2026-10-14
+
+Prepared checkout: `C:/Users/Lenovo/.codex/worktrees/event-clear-stage7/noit-competition-site`.
+Frontend: **297 PASS**, zero failures/skips. Backend default: **146 PASS / 26
+expected opt-in skips**. Full serial real PostgreSQL: **181 PASS**, zero
+failures/skips, including Clear **11** and independent races **13** results;
+previous Archive/Duplicate/History/Task/Change/reminder/Profile/invitation/schema
+assertions remain. The new inventory assertion adds 0010 while retaining every
+0001–0009 name/checksum assertion. Migration application: **1 applied / 9
+existing**; schema-runner unchanged reruns recognize **0 / 10**.
+
+A complete real isolated Clear browser run passes **15 groups / 28 layouts / 5
+stress cases**, including one guarded **502-Task** removal with retained
+Team/Change/link/reminder/notification fingerprints and original-UUID recovery
+that preserves later Tasks. All twelve relevant preserved browser suites pass;
+the Stage 7 report records each exact count and labelled transport fixture.
+Frozen original screens: **112/112 pixel-identical**, **2/2 negative controls**
+detected, no reference regeneration. Format/lint/typechecks/both builds and
+source/compiled-output/log secret review pass. Final read-only audit preserves
+every original row/relationship, nine old checksums and four LOCK reports;
+no new writes in original Events. Original account/session counts remain 23/89.
+The 220 new synthetic Events and all fixture additions are retained and identified.
+Earlier partial/failed runs, including fourth/fifth URL failures and reminder
+adapter cleanup failure, remain traceable. Shared integration is PENDING;
+no commit/push or Human PASS is claimed. Earlier accepted records below remain.
+
 ## Event Management Stage 6 — final Human Acceptance and LOCK, 2026-10-14
 
 The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-14**

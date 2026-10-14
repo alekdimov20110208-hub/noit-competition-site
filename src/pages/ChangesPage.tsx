@@ -582,6 +582,38 @@ export function ChangesPage({
               </div>
             </dl>
             <h3>{t("change.tasks")}</h3>
+            {Boolean(selected.removedTasks?.length) && (
+              <div className="notice">
+                <p>
+                  {t("events.clear.removedLinks", {
+                    active: selected.affectedTasks.length,
+                    count:
+                      selected.removedTaskCount ??
+                      selected.removedTasks!.length,
+                  })}
+                </p>
+                <ul>
+                  {selected.removedTasks!.map((task) => (
+                    <li key={task.id}>
+                      <AppLink
+                        href={createTaskHref(task.id, event.id)}
+                        onNavigate={onNavigate}
+                      >
+                        {task.title}
+                      </AppLink>
+                    </li>
+                  ))}
+                </ul>
+                {(selected.removedTaskCount ?? 0) >
+                  selected.removedTasks!.length && (
+                  <p>
+                    {t("events.clear.referencesBound", {
+                      count: selected.removedTasks!.length,
+                    })}
+                  </p>
+                )}
+              </div>
+            )}
             {!selected.affectedTasks.length ? (
               <p>{t("change.tasks.empty")}</p>
             ) : (

@@ -18,6 +18,7 @@ import {
   type RemoteTask,
 } from "./RemoteWorkspaceService.ts";
 import type { TaskFields } from "./taskAuthoring.ts";
+import type { ClearAttempt } from "./eventClearing.ts";
 
 export interface TaskMutationState {
   taskId: string;
@@ -452,6 +453,18 @@ export class TaskReadController {
     }
     this.publish({ ...this.state, accessibleEvents: events });
   };
+
+  clearPreview = (eventId: string, signal?: AbortSignal) =>
+    this.eventRequest((cancellation) => {
+      if (!this.service.clearPreview)
+        throw new EventActionFailure("unavailable");
+      return this.service.clearPreview(eventId, cancellation);
+    }, signal);
+  clearTasks = (eventId: string, attempt: ClearAttempt, signal?: AbortSignal) =>
+    this.eventRequest((cancellation) => {
+      if (!this.service.clearTasks) throw new EventActionFailure("unavailable");
+      return this.service.clearTasks(eventId, attempt, cancellation);
+    }, signal);
 
   getTask = (
     eventId: string,

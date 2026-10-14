@@ -30,6 +30,8 @@ export interface RemoteChange {
   createdAt: string;
   updatedAt: string;
   affectedTasks: ChangeImpactTask[];
+  removedTasks?: { id: string; title: string }[];
+  removedTaskCount?: number;
   impact: { taskCount: number; people: TaskAssignee[]; deadlines: string[] };
 }
 export interface ChangeFields {
@@ -178,6 +180,14 @@ export function readRemoteChange(
     JSON.stringify(deadlines) !== JSON.stringify(expectedDates)
   )
     invalid();
+  if (
+    row.removedTaskCount !== undefined &&
+    (!Number.isSafeInteger(row.removedTaskCount) ||
+      (row.removedTaskCount as number) < array(row.removedTasks).length)
+  )
+    invalid();
+  if (row.removedTasks !== undefined && array(row.removedTasks).length > 50)
+    invalid();
   const title = text(row.title),
     context = text(row.context);
   if (!title.trim() || title.length > 200 || context.length > 5000) invalid();
@@ -210,6 +220,17 @@ export function readRemoteChange(
     createdAt: instant(row.createdAt),
     updatedAt: instant(row.updatedAt),
     affectedTasks,
+    ...(row.removedTaskCount === undefined
+      ? {}
+      : { removedTaskCount: row.removedTaskCount as number }),
+    ...(row.removedTasks === undefined
+      ? {}
+      : {
+          removedTasks: array(row.removedTasks).map((value) => {
+            const task = record(value);
+            return { id: id(task.id), title: text(task.title) };
+          }),
+        }),
     impact: { taskCount: affectedTasks.length, people, deadlines },
   };
 }
