@@ -1,27 +1,34 @@
 # Known Limitations
 
-## Stage 7 Clear All Tasks — shared TECHNICAL PASS, 2026-10-15
+## Stage 7 Clear All Tasks — LOCKED, 2026-10-15
 
 The reviewed package is available on shared main after exactly one authorized
-backend-only reload. Technical/shared gates pass; Human Acceptance is PENDING
-and Stage 7 is NOT LOCKED. No additional reload or later stage is authorized.
+backend-only reload. Technical/shared gates passed; the project author confirmed
+**HUMAN PASS — 6/6 on 2026-10-15**. Stage 7 is **LOCKED** at
+`c83e4a3123e64ea95c9fc95f912c99472e46a09f`; see the
+[FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md#final-lock-record).
+No additional reload or later stage is authorized. This LOCK task does not inspect
+live database/session state or repeat technical verification.
 
 The original session baseline remains **88/89 MATCH — PRE-EXISTING DISCREPANCY**.
 The new session's time/expected identity is consistent with the author's reported
 login. The original hash-only baseline and available logs cannot establish whether
 the old session was deleted, expired, rotated or modified. No additional security
 or protected-data anomalies were found; the separately accepted fresh 89-session
-baseline remains unchanged. This is a recorded exception, not a repaired check.
+baseline was preserved **89/89** in the accepted audit. **CAUSE UNESTABLISHED**
+remains the conclusion. Security PASS is under the documented author-approved
+narrow exception; the original 88/89 comparison is not PASS or repaired.
 
-Clear retains Task records and relationships; there is no Restore/Undo. Recovery
-hints are scoped to the identity/Event and held in tab storage, with memory
-fallback. Clearing/closing unavailable tab storage can lose the original UUID;
+Clear retains Task records and relationships; there is no Restore/Undo or hard
+Event deletion. Recovery hints are scoped to the identity/Event and held in tab
+storage, with memory fallback. Clearing/closing unavailable tab storage can lose the original UUID;
 no receipt directory, expiry or purge is introduced. A fresh conflict needs
 explicit new review; uncertain accepted operations use the original UUID.
 Current active identity/Organizer/Event eligibility is required for Clear recovery.
 Historical names/text are retained current values, not reconstructed past states.
 Change details show at most 50 retained references and the full retained count.
-The existing 500 kB bundle advisory remains. Physical-device, other-engine,
+The existing **616.87 kB JavaScript** bundle exceeds the 500 kB advisory.
+Physical-device, other-engine,
 formal accessibility and production least-privilege certification are unclaimed.
 Supplied NOIT 2025–2026 requirements need actual-year verification.
 

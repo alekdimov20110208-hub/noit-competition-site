@@ -1,6 +1,12 @@
 # BudoGraph
 
-## Event Management Stage 7 — TECHNICAL PASS, 2026-10-15
+## Event Management Stages 1–7 — LOCKED, 2026-10-15
+
+**EVENT MANAGEMENT STAGES 1–7: LOCKED.** The project author confirmed Stage 7
+**HUMAN PASS — 6/6** on **2026-10-15** at accepted implementation
+`c83e4a3123e64ea95c9fc95f912c99472e46a09f`. Technical/shared integration PASS;
+earlier LOCK records remain preserved. This documentation-only Final LOCK closes
+the approved seven-stage sequence and authorizes no subsequent phase.
 
 Clear All Tasks is implemented and verified on shared main. Same-Event
 Organizers review a canonical Task/reminder/Change digest and type the exact
@@ -11,9 +17,11 @@ browser verification passed 101 groups, 125 layouts and 10 stress cases; 112
 frozen comparisons and both negative controls passed. Original business/history/
 accounts remain preserved. The original session check remains **88/89 MATCH —
 PRE-EXISTING DISCREPANCY**, with cause unestablished; the author's limited exception
-was satisfied and the fresh 89-session baseline remains unchanged. Human Acceptance
-is PENDING; Stage 7 is NOT LOCKED. See
-[the Stage 7 report](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md).
+was satisfied and the recorded fresh 89-session baseline was preserved. Security
+PASS remains under that documented author-approved narrow exception. See
+[the Stage 7 FINAL LOCK RECORD](docs/BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md#final-lock-record).
+Earlier dated phase sections retain historical status snapshots; this current
+record governs the completed Event Management sequence.
 
 ## Event Management Stages 1–6 — LOCKED, 2026-10-14
 

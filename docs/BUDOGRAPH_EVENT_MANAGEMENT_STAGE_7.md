@@ -1,5 +1,178 @@
 # Event Management Stage 7 — Clear All Tasks
 
+## FINAL LOCK RECORD
+
+The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-15**
+and authorized this documentation-only Final LOCK. Accepted implementation:
+`c83e4a3123e64ea95c9fc95f912c99472e46a09f`
+(`feat(app): add safe event task clearing`), committed and pushed without force
+to synchronized main/origin/main. Documentation preflight verified that exact
+starting HEAD, clean tracked tree/index and the unchanged unrelated shortcut.
+
+| Accepted scope              | Technical gate                                         | Human gate                            | Final status         |
+| --------------------------- | ------------------------------------------------------ | ------------------------------------- | -------------------- |
+| Event Management Stages 1–6 | Existing PASS preserved                                | Existing acceptance preserved         | LOCKED — PRESERVED   |
+| Stage 7 — Clear All Tasks   | TECHNICAL PASS; shared integration PASS                | HUMAN PASS — 6/6, 2026-10-15          | LOCKED — YES         |
+| Stage 7 security            | PASS UNDER DOCUMENTED AUTHOR-APPROVED NARROW EXCEPTION | Original session discrepancy retained | Qualified acceptance |
+
+This record supersedes only earlier status snapshots. The implementation,
+independent preparation, shared technical acceptance, failed/intermediate runs
+and PENDING/NOT LOCKED records below remain intact as historical evidence.
+The seven-stage Event Management sequence is now **LOCKED**; no subsequent phase
+is authorized or started. The actual documentation commit SHA and non-force push
+outcome are recorded in the closing report after publication, not guessed here.
+
+### Author-confirmed Human Acceptance — 6/6 PASS
+
+These are the **project author's explicit confirmations**, not newly executed
+Codex tests. Acceptance date: **2026-10-15**.
+
+| Group                     | Author-confirmed accepted behavior                                                                                                                                                 | Result |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 1 — Permissions           | Active owner/non-owner same-Event Organizer eligible; Member, foreign and archived access denied.                                                                                  | PASS   |
+| 2 — Confirmation          | Canonical identity/name, reviewed count/set, invalid-name rejection, explicit stale-review renewal; Cancel/Escape execute nothing.                                                 | PASS   |
+| 3 — Clear Operation       | One reviewed-set Clear includes completed Tasks; active views refresh, other Events stay unchanged, source stays active, approved versions retained.                               | PASS   |
+| 4 — Data Retention        | Task/responsibility records, old ActivityEntries, Team, Changes/Decision/Response/Plan B, links, delivered notifications and read-only context retained; new reminders suppressed. | PASS   |
+| 5 — Recovery and Security | Rapid-submit guard, durable same-UUID/lost-response recovery, refresh/Back/Forward, safe changed-authorization denial; later Tasks survive replay.                                 | PASS   |
+| 6 — Usability             | BG/EN, Light/Dark/System, desktop/mobile including 320px, keyboard, accessible status/error feedback and focus handling/restoration.                                               | PASS   |
+
+No additional physical-device verification, browser-engine certification,
+penetration testing or formal accessibility certification is claimed.
+
+### Locked Clear scope
+
+**Authorization and review.** Clear requires an active authenticated User with
+active same-Event Organizer membership in an active Event, including non-owners.
+Ownership and operational responsibility do not grant alternative permission.
+Member, foreign, revoked, inactive and unauthenticated access fails safely.
+Current authorization and active lifecycle are checked before commands and receipt
+replay. A server canonical preview covers all non-deleted Tasks, including completed
+Tasks, their IDs/versions/status, reminder configuration and affected Change
+versions/links. Its server SHA-256 scope revision protects the reviewed set; count
+or Event version alone is insufficient. New/changed scope conflicts require a new
+preview and deliberate confirmation. The reviewed Event version and exact canonical
+Event name are server-enforced, case/whitespace-sensitive, without implicit
+trimming, fuzzy comparison or Unicode normalization.
+
+**Atomic soft deletion.** Eligible Tasks leave active operational views without
+physical deletion. Identities, contents and responsibility/history remain. Each
+affected Task version increments once; nonempty Clear increments Event once.
+Trusted actor and one server operation timestamp accompany one `task.removed`
+ActivityEntry per Task and one `EVENT_TASKS_CLEARED` summary per nonempty Clear,
+correlated by operation UUID. Effects/history/durable receipt commit atomically
+or roll back together. An empty scope returns the accepted zero result and durable
+receipt, without removal activity or Event version/timestamp change. No hard
+DELETE/TRUNCATE or hard Event deletion is introduced.
+
+**Durable recovery.** Accepted additive migration
+[`0010_event_clear_receipts.sql`](../server/migrations/0010_event_clear_receipts.sql)
+supports `EVENT_TASKS_CLEAR`: trusted actor/key scope, UUID `Idempotency-Key`,
+canonical SHA-256 request digest, source Event, reviewed version/name/scope and
+exact accepted outcome. Same-key changed content conflicts. Replay works across
+processes, rechecks eligibility and never clears Tasks created after acceptance.
+Existing `EVENT_DUPLICATE` and `EVENT_ARCHIVE` semantics remain unchanged; unrelated
+commands gain no generic idempotency guarantee.
+
+**Retention and UX.** Existing ActivityEntries, memberships, Tasks/responsibility,
+Changes/Decision/Response/Plan B, historical ChangeTask links, delivered notifications,
+personal read state and reminder configuration remain. Removed Tasks no longer
+qualify for reminders or active Change impact. Removed references remain read-only,
+bounded to 50 displayed links with the full count. Existing History target-availability
+semantics remain; unavailable historical prose/identities/full state are not
+reconstructed. Clear remains distinct from Archive in **Event Management → Danger
+zone**. Canonical counts/consequences, exact-name confirmation, pending/errors,
+stale review, success/zero and durable lost-response recovery are accepted. The
+Event stays active; Tasks/Dashboard/Team refresh, and new Tasks can be created.
+No Restore/Undo exists. Earlier locked workspace designs remain preserved.
+
+### Previously executed technical evidence — preserved, not rerun
+
+| Evidence                                           | Accepted recorded result                                       |
+| -------------------------------------------------- | -------------------------------------------------------------- |
+| Independent frontend                               | 297 PASS                                                       |
+| Independent backend                                | 146 PASS / 26 expected opt-in skips                            |
+| Full real PostgreSQL suite                         | 181 PASS, zero failures/skips                                  |
+| Independent Clear browser                          | 15 functional groups / 28 layouts / 5 stress cases             |
+| Direct shared browser                              | 101 functional groups / 125 executed layouts / 10 stress cases |
+| Supplementary shared HTTP                          | 8 groups, including the separate archived-replay group         |
+| Frozen visual references                           | 112/112 pixel-identical; 2/2 negative controls detected        |
+| Format/lint/typechecks/frontend and backend builds | PASS                                                           |
+| Secret/private-artifact review                     | PASS                                                           |
+| Migration inventory and final rerun                | 0001–0010; 0 newly applied / 10 already applied                |
+| Shared health/readiness                            | HTTP 200 at recorded verification time                         |
+| Controlled Stage 7 backend reloads                 | Exactly 1 during implementation; none in this LOCK task        |
+
+Independent and shared counts remain separate. The independent full PostgreSQL
+suite and full layout matrix were not rerun during shared continuation; skipped
+shared layouts are not counted as executed. The detailed inventories below retain
+actual failures, intermediate results and fixture/transport qualifications.
+
+### Permanent session-baseline qualification
+
+| Accepted audit field      | Recorded result                            |
+| ------------------------- | ------------------------------------------ |
+| ORIGINAL SESSION BASELINE | 88/89 MATCH — PRE-EXISTING DISCREPANCY     |
+| SESSION DISCREPANCY       | CAUSE UNESTABLISHED                        |
+| SESSION SECURITY REVIEW   | NO ADDITIONAL ANOMALIES FOUND              |
+| FRESH SESSION BASELINE    | CAPTURED READ ONLY, distinct from original |
+| NEW BASELINE PRESERVATION | PASS — 89/89 UNCHANGED                     |
+
+One original fingerprint did not match and a new session existed. The new session
+was created at **00:05:31 Europe/Kiev on 2026-10-15**, belonged to the expected
+existing Organizer and was consistent with the author's reported login during
+verification. No additional identity, membership or account anomalies were found.
+The hash-only original baseline and available logs could not establish whether
+the unmatched fingerprint resulted from expiration, rotation, modification or
+deletion. The cause is **not proven**. The original 88/89 comparison is **not PASS**
+and was not fixed or erased. No original session was restored, repaired or revoked
+to make the audit pass. The author approved only the narrow exception conditioned
+on additional review and a distinct read-only fresh baseline. Security PASS remains
+qualified by that exception permanently; this documentation task inspects no live
+session or database state.
+
+### Preservation, limitations and documentation boundary
+
+The historical original baseline was **552 Events, 423 Tasks, 2699 ActivityEntries,
+23 accounts and 89 session fingerprints**, not a statement of current live totals.
+The accepted final audit preserved all original protected business/history/accounts,
+relationships, previous migration checksums and LOCK records under the session
+qualification above. The independent suite retained 220 synthetic Events; shared
+verification retained 61 additional Events and associated fixtures. These records
+and all failed/intermediate evidence remain untouched. Additive 0010 is accepted;
+0001–0009 and all recorded checksums remain unchanged.
+
+The dedicated [Stage 1](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_1.md#stage-1-lock-record),
+[Stages 2 + 3](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_2_3.md#final-lock-record),
+[Stages 4 + 5](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_4_5.md#final-lock-record) and
+[Stage 6](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_6.md#final-lock-record) LOCK reports
+remain byte-for-byte unchanged, including their historical future-stage wording.
+Their listing/navigation, Create/Edit UX, History, Duplicate operation safety,
+metadata-only Duplicate and Archive contracts remain binding. The original 112
+reference-image hashes remain preserved.
+
+Remaining limits: no Restore/Undo or hard Event deletion; no receipt directory,
+expiry or purge; tab-storage loss/unavailability can lose the recovery hint;
+current identity/Organizer/active-Event eligibility is required for recovery;
+bounded retained-reference display and no complete historical-state reconstruction;
+session cause unestablished; existing **616.87 kB JavaScript** bundle advisory.
+No new physical-device/other-engine, formal accessibility or production
+least-privilege certification is claimed. NOIT **2025–2026** rules remain historical
+and require actual-competition-year verification.
+
+Only the nine authorized Markdown paths are eligible for this Final LOCK.
+Documentation/Git checks cover formatting, scope, hashes, links/anchors, acceptance
+date/SHA/groups/counts, session qualification and staged secret/private-artifact
+review. No product/test/migration/configuration changes, PostgreSQL connection or
+mutation, authentication flow, new test matrix/build, service restart, reference
+regeneration or ignored-evidence modification occurs. Final publication uses one
+`docs: lock event management stage 7` commit and non-force push after these gates.
+No later stage is started.
+
+## Historical shared technical acceptance record
+
+The following complete record retains its pre-Human-Acceptance status. The FINAL
+LOCK RECORD above governs current status; none of its historical evidence is erased.
+
 Implementation authorized on 2026-10-14; shared continuation completed on
 2026-10-15. **TECHNICAL PASS; SHARED INTEGRATION PASS; Human Acceptance PENDING;
 NOT LOCKED.** Exactly one authorized backend-only reload occurred. No later stage

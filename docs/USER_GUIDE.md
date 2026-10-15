@@ -1,6 +1,10 @@
 # BudoGraph User Guide
 
-## Stage 7 Clear All Tasks — available on shared main, 2026-10-15
+## Stage 7 Clear All Tasks — available and LOCKED, 2026-10-15
+
+Stage 7 is **LOCKED** with Technical/shared PASS and project-author-confirmed
+**HUMAN PASS — 6/6 on 2026-10-15**. See the
+[FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md#final-lock-record).
 
 Active Event Organizers (owner or non-owner) can open
 **Danger zone / Опасни действия** and **Clear all tasks / Изчистване на всички задачи**.
@@ -20,8 +24,9 @@ An accepted replay cannot clear newly created Tasks. Current eligibility is chec
 New Tasks can be created afterward. Retained notification/Change Task links open
 read-only removal context; existing notification read state remains usable.
 Current impact excludes removed Tasks. Historical reference lists show up to 50
-links with the full count. Shared technical verification passed. Project-author
-Human Acceptance remains PENDING; Stage 7 is NOT LOCKED.
+links with the full count. These accepted instructions remain unchanged by the
+documentation-only LOCK. Earlier dated sections retain their historical status;
+this Stage 7 record governs current availability. No later stage is authorized.
 
 ## Stage 6 Archive Event — available and LOCKED, 2026-10-14
 

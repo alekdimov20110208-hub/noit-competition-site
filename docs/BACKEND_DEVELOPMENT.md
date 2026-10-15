@@ -1,6 +1,14 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
-## Stage 7 Clear operation — shared TECHNICAL PASS, 2026-10-15
+## Stage 7 Clear operation — LOCKED, 2026-10-15
+
+The project author confirmed **HUMAN PASS — 6/6 on 2026-10-15** at implementation
+`c83e4a3123e64ea95c9fc95f912c99472e46a09f`. Technical/shared integration PASS;
+see the [FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md#final-lock-record).
+The following runtime/migration results are previously recorded evidence. This
+documentation-only task makes no database connection, migration/code/test change,
+new product verification or service restart. Stages 1–6 remain preserved; no later
+stage is authorized.
 
 Additive `0010_event_clear_receipts.sql` is applied to the configured development
 PostgreSQL database (1 new / 9 existing). Old SQL/checksums stay immutable. No
@@ -10,7 +18,8 @@ the final migration rerun reports 0 applied / 10 already applied. Backend 7156
 runs without watch; shared Vite/PostgreSQL remained running. Live/ready are HTTP 200. Direct shared HTTP/browser and real registered reminder-worker checks pass.
 All original business/history/accounts and fresh-baseline sessions are preserved;
 the original 88/89 session discrepancy remains a documented author-approved
-exception with cause unestablished. Human Acceptance PENDING; Stage 7 NOT LOCKED.
+exception with cause unestablished. That security qualification remains binding
+after Human Acceptance and LOCK.
 
 Organizer-only `GET /api/events/:eventId/tasks/clear-preview` returns canonical
 Event data, counts and a SHA-256 scope revision. `POST

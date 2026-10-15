@@ -1,5 +1,41 @@
 # BudoGraph Test Evidence
 
+## Event Management Stage 7 — FINAL LOCK, 2026-10-15
+
+The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-15**
+for Permissions, Confirmation, Clear Operation, Data Retention, Recovery and Security,
+and Usability. Accepted implementation: `c83e4a3123e64ea95c9fc95f912c99472e46a09f`
+(`feat(app): add safe event task clearing`), already committed/pushed. Stage 7 is
+**TECHNICAL PASS; shared integration PASS; LOCKED — YES**. Stages 1–6 remain
+**LOCKED — PRESERVED**. See the [FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md#final-lock-record).
+
+Previously executed evidence is preserved: independent frontend **297 PASS**;
+backend **146 PASS / 26 expected opt-in skips**; full real PostgreSQL **181 PASS,
+zero failures/skips**; independent Clear browser **15 groups / 28 layouts / 5
+stress**. Direct shared browser **101 groups / 125 executed layouts / 10 stress**;
+supplementary shared HTTP **8 groups**, including archived replay; frozen visuals
+**112/112 pixel-identical / 2/2 detected negative controls**. Format/lint/typechecks,
+both builds and secret/private-artifact review PASS. Recorded migration rerun:
+**0 newly applied / 10 already applied**, inventory 0001–0010. Recorded shared
+health/readiness HTTP 200; exactly **one** implementation backend reload. Independent
+full PostgreSQL/layout matrices were not rerun during shared continuation; counts
+are distinct, and skipped layouts are not executed cases.
+
+Original business/history/accounts/relationships and prior checksums/LOCK records
+were preserved at the accepted final audit. **ORIGINAL SESSION BASELINE: 88/89
+MATCH — PRE-EXISTING DISCREPANCY; SESSION DISCREPANCY: CAUSE UNESTABLISHED; SESSION
+SECURITY REVIEW: NO ADDITIONAL ANOMALIES FOUND; FRESH SESSION BASELINE: CAPTURED READ
+ONLY; NEW BASELINE PRESERVATION: PASS — 89/89 UNCHANGED.** The new expected Organizer
+session at 00:05:31 Europe/Kiev on 2026-10-15 is consistent with the author's login;
+the old fingerprint's disposition is unproven. Original 88/89 is not PASS, repaired
+or erased. Security PASS is under the documented author-approved narrow exception.
+
+These six Human PASS groups are author confirmations, not new Codex tests. This
+LOCK task runs only documentation/Git checks: no product/browser tests, builds,
+database connection/mutation/migrations, authentication flows or service restart.
+Prior evidence, retained fixtures and historical failures/PENDING records below
+remain intact. No later stage starts or new certification is claimed.
+
 ## Event Management Stage 7 — shared TECHNICAL PASS, 2026-10-15
 
 Exactly one authorized backend-only reload promoted 43 hash-verified files to

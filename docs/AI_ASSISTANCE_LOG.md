@@ -1,5 +1,34 @@
 # AI Assistance Log
 
+## Stage 7 author acceptance and documentation-only Final LOCK — 2026-10-15
+
+The project author explicitly confirmed **HUMAN PASS — 6/6 on 2026-10-15** for
+Permissions, Confirmation, Clear Operation, Data Retention, Recovery and Security,
+and Usability, and authorized one documentation-only LOCK. Accepted implementation:
+`c83e4a3123e64ea95c9fc95f912c99472e46a09f`
+(`feat(app): add safe event task clearing`), already pushed without force.
+Codex verified that starting main/origin/main, clean tracked tree/index, mandatory
+source continuity, prior LOCK/reference hashes and untouched unrelated shortcut,
+then reconciled only the nine allowed Markdown files. Stage 7 is **TECHNICAL PASS;
+HUMAN PASS — 6/6; LOCKED — YES**. Stages 1–6 remain byte-for-byte preserved; the
+approved seven-stage sequence is closed and no later stage begins.
+
+The original session result remains **88/89 MATCH — PRE-EXISTING DISCREPANCY**,
+**CAUSE UNESTABLISHED**, with **NO ADDITIONAL ANOMALIES FOUND**. The distinct fresh
+baseline was captured read-only and preserved **89/89** in the accepted technical
+audit. The new expected Organizer session is consistent with the author's login;
+the old fingerprint's disposition is unproven. No repair/revocation is claimed.
+Security PASS remains under the documented author-approved narrow exception.
+
+Human acceptance is the author's confirmation, not new Codex test execution.
+No product/test code, database connection/mutation, migration execution, account/
+session/credential/configuration change, service restart, product/browser matrix,
+build, ignored evidence or visual-reference change occurs. Only documentation/Git
+formatting, integrity, link/anchor, consistency and staged secret/artifact checks
+run. Earlier counts, failed/intermediate runs and PENDING snapshots remain below.
+The actual `docs: lock event management stage 7` commit SHA, non-force push and
+remote/clean-tree outcome are reported after publication in the closing report.
+
 ## Stage 7 shared continuation — technical acceptance, 2026-10-15
 
 The author authorized exactly one controlled backend-only reload and conditional

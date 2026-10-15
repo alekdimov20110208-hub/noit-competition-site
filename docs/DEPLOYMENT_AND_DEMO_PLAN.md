@@ -1,14 +1,21 @@
 # Installation, Deployment, and Demonstration Plan
 
-## Stage 7 Clear demonstration — shared TECHNICAL PASS, 2026-10-15
+## Stage 7 Clear demonstration — LOCKED, 2026-10-15
+
+The project author confirmed **HUMAN PASS — 6/6 on 2026-10-15** at implementation
+`c83e4a3123e64ea95c9fc95f912c99472e46a09f`; Stage 7 is **LOCKED** with
+Technical/shared PASS. See the [FINAL LOCK RECORD](BUDOGRAPH_EVENT_MANAGEMENT_STAGE_7.md#final-lock-record).
+This documentation task performs no runtime/database check, test, migration or
+restart. Earlier technical results below describe their recorded verification
+time. No subsequent phase is authorized.
 
 The exact reviewed package is available on shared main after one authorized
 backend-only reload. Both Stage 6 and Stage 7 reload permissions are consumed;
 no further restart is authorized. Shared backend/Vite/PostgreSQL remain healthy.
 Independent and direct shared verification, migration and preservation gates pass.
 The author-approved original 88/89 session exception remains recorded; the fresh
-89-session baseline is preserved. Human Acceptance remains PENDING and Stage 7
-is NOT LOCKED. No production deployment occurs.
+89-session baseline was preserved. Security PASS retains that narrow qualification.
+Stages 1–7 are LOCKED; no production deployment occurs.
 
 Demonstrate only with a newly owned synthetic Event. Add active/completed Tasks,
 a linked Change with Decision/Response/Plan B, assignment/acceptance, reminder
