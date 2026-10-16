@@ -1,5 +1,81 @@
 # BudoGraph Test Evidence
 
+## Accepted TLS/T1/T2 Git checkpoint — 2026-10-17
+
+The owner confirms **T1 HUMAN PASS — 6/6** and **T2 HUMAN PASS — 6/6** in the
+accepted-work checkpoint request. B.1 HUMAN PASS and Stages 1–7 LOCKs are preserved.
+Owner acceptance is distinct from the following fresh automated verification:
+
+- `pnpm test`: **319 PASS / 0 FAIL / 0 SKIP**.
+- `RUN_DATABASE_INTEGRATION=0; pnpm server:test`, with isolated test URL unset:
+  **171 PASS / 0 FAIL / 28 SKIP** (199 reported tests).
+- `pnpm typecheck`, `pnpm server:typecheck`, `pnpm lint`: **PASS**.
+- `pnpm build`, `pnpm server:build`: **PASS**. Frontend main chunk remains
+  656.77 kB (177.40 kB gzip), retaining the >500 kB warning.
+- Scoped formatting of the 58 accepted text files and `git diff --check`: **PASS**.
+  The staged bytes receive a separate whitespace/security review before committing;
+  no unrelated LOCKED frontend formatting repair is included.
+
+The separately executed real PostgreSQL acceptance remains **27/27 PASS**;
+see [its commands, isolation and activation evidence](BUDOGRAPH_EVENT_TEMPLATES_T2_ACTIVATION.md).
+It was not rerun during this checkpoint. No shared database integration suite,
+migration, live Apply, backend/Vite restart or database/session modification ran.
+Evidence outputs remain ignored under `tmp/checkpoint-*`; original historical
+source-only/T1/T2 reports are retained with explicit later-acceptance annotations.
+
+## Verified PostgreSQL TLS source patch — 2026-10-16
+
+Owner-authorized source implementation at baseline HEAD
+`3ba8852cc3592873b32a63f15b6d640ceebdb039`; initially clean tracked tree/index,
+with the existing unrelated untracked shortcut retained. This is a new transport
+patch, not activation or a revision of the Stage 1–7 LOCK evidence below.
+
+Commands use the installed Node 24.19.0 runtime and existing dependencies, without
+loading active environment files:
+
+```powershell
+node --test server/tests/env.test.ts server/tests/pool.test.ts server/tests/database-tls.test.ts server/tests/email.test.ts
+$unitFiles = Get-ChildItem server/tests -Filter '*.test.ts' -File | Where-Object {$_.Name -notlike '*.integration.test.ts'} | Sort-Object Name | ForEach-Object FullName
+node --test @unitFiles
+node node_modules/typescript/bin/tsc -p server/tsconfig.json --pretty false
+node node_modules/eslint/bin/eslint.js server/src/config/env.ts server/src/db/pool.ts server/src/db/tls.ts server/tests/env.test.ts server/tests/pool.test.ts server/tests/email.test.ts server/tests/database-tls.test.ts
+```
+
+- Focused checks: **30 PASS / 0 FAIL / 0 skipped**, including 14 new TLS tests.
+- All 25 backend non-integration unit files: **160 PASS / 0 FAIL / 0 skipped**.
+  Focused results are a subset, not 30 additional unique tests.
+- Backend TypeScript: **PASS**, exit 0. Scoped ESLint: **PASS**, exit 0.
+- Prettier check of all 12 changed/new TypeScript and Markdown files: **PASS**;
+  `git diff --check`: **PASS**. The example environment file contains placeholders.
+- An initial typecheck failed with four test-only type errors concerning installed
+  `@types/pg` SSL/error types; corrected with test-local narrowing/casts. An initial
+  lint check failed on a control-character regex; replaced with a string check.
+  These intermediate failures are retained here, not reported as successful runs.
+
+Tests use synthetic URLs, bundled public roots, mocks, OS temporary files and one
+ephemeral loopback protocol stub. The real pg client sends an eight-byte SSLRequest
+to that stub, which refuses TLS; no startup credentials, SQL or plaintext retry
+is sent. Other tests inspect actual pg options/parser and Node's hostname verifier.
+No private key or downloaded certificate fixture is introduced.
+
+**NOT RUN:** shared PostgreSQL integration suites, migrations/provisioning/auth/
+reminder integration, live application TLS handshake, new database metadata audit,
+browser/session flows, frontend matrix and builds. No shared DB connection or write,
+runtime restart, active environment change, Supabase setting change, deployment or
+demo setup occurs. Historical B.0.1 TLS 1.3 success is separate from this patch's
+unit results; application TLS remains **NOT FULLY TESTED** until separately approved
+activation and fresh read-only socket/identity verification. Client-to-pooler TLS
+does not prove pooler-to-PostgreSQL TLS. See [TLS policy](POSTGRESQL_TLS.md).
+
+Preservation audit: 400 baseline files checked; exactly the 10 authorized tracked
+files changed, 390 unchanged, no unexpected differences. Three new files are the
+TLS module, its test and the TLS policy document. Active environment files and
+the existing shortcut match their original SHA-256 values. Stage 1–7 implementation,
+LOCK records and migration files are unchanged. HEAD/index remain unchanged;
+Fastify PID 7156 and Vite PID 27776 retain their original creation times and
+loopback listeners on 3001/5173. Database/session/settings preservation is based
+on no interaction during this patch, not a new shared database checksum audit.
+
 ## Event Management Stage 7 — FINAL LOCK, 2026-10-15
 
 The project author explicitly confirmed **HUMAN PASS — 6/6** on **2026-10-15**

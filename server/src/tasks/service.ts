@@ -1,3 +1,4 @@
+import { insertAuthoredTaskRecord, saveTaskReminders } from "./creation.ts";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedUser } from "../auth/session.ts";
 import { UnauthorizedError } from "../auth/session.ts";
@@ -80,23 +81,6 @@ function scopedIds(eventId: string, taskId?: string) {
     throw new TaskCommandError(400, "INVALID_ID");
   }
   return { eventId: eventId.toLowerCase(), taskId: taskId?.toLowerCase() };
-}
-
-async function saveReminders(
-  database: TransactionDatabase,
-  taskId: string,
-  offsets: number[],
-) {
-  await database.query(
-    "DELETE FROM public.task_reminder WHERE task_id=$1 AND NOT (offset_minutes=ANY($2::INTEGER[]))",
-    [taskId, offsets],
-  );
-  for (const offset of offsets)
-    await database.query(
-      `INSERT INTO public.task_reminder (id,task_id,offset_minutes,due_at,trigger_at)
-    VALUES ($1,$2,$3,clock_timestamp(),clock_timestamp()) ON CONFLICT (task_id,offset_minutes) DO NOTHING`,
-      [randomUUID(), taskId, offset],
-    );
 }
 
 export function createTaskService(pool: TransactionPool) {
@@ -379,7 +363,7 @@ export function createTaskService(pool: TransactionPool) {
         );
         after = updated.rows[0] as TaskRow;
         if (!after) throw new TaskCommandError(409, "TASK_VERSION_CONFLICT");
-        await saveReminders(database, targetId, fields.reminderOffsets);
+        await saveTaskReminders(database, targetId, fields.reminderOffsets);
         after.reminderOffsets = fields.reminderOffsets;
         payload = {
           changes,
@@ -405,25 +389,13 @@ export function createTaskService(pool: TransactionPool) {
             throw error;
           }
         }
-        const inserted = await database.query(
-          `INSERT INTO public.task (id, event_id, title, category, context, deadline, priority, assigned_member_id, created_by, updated_by, deadline_time)
-           VALUES ($1, $2, $3, $4, $5, $6::DATE, $7, $8, $9, $9, $10::TIME) RETURNING ${taskColumns}`,
-          [
-            targetId,
-            eventId,
-            command.title,
-            command.category,
-            command.context,
-            command.deadline,
-            command.priority,
-            command.assignedMemberId,
-            actor.id,
-            command.deadlineTime,
-          ],
+        after = await insertAuthoredTaskRecord(
+          database,
+          eventId,
+          actor.id,
+          command,
+          targetId,
         );
-        after = inserted.rows[0] as TaskRow;
-        await saveReminders(database, targetId, command.reminderOffsets ?? []);
-        after.reminderOffsets = command.reminderOffsets ?? [];
         payload = {
           title: after.title,
           category: after.category,

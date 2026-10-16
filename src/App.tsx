@@ -21,6 +21,7 @@ import { EventHistoryPage } from "./pages/EventHistoryPage.tsx";
 import { auth } from "./auth/runtime.ts";
 import { ChangesPage } from "./pages/ChangesPage.tsx";
 import { AccountPage } from "./pages/AccountPage.tsx";
+import { StarterTemplatesPage } from "./pages/StarterTemplatesPage.tsx";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
 import {
   createTaskDetailHistoryState,
@@ -190,6 +191,7 @@ export default function App() {
       remoteTasks.status === "ready" &&
       !remoteTasks.workspace.currentEventId &&
       !currentLocation.eventId &&
+      currentLocation.path !== "/templates" &&
       currentLocation.eventMode === "workspace" &&
       !isGlobalAppPath(currentLocation.path)
     ) {
@@ -455,16 +457,16 @@ export default function App() {
       );
   } else if (currentLocation.path === "/templates") {
     page = (
-      <div className="page">
-        <PageHeader
-          title={t("templates.title")}
-          description={t("workspace.templates.description")}
-        />
-        <EmptyState
-          title={t("workspace.templates.title")}
-          description={t("workspace.templates.description")}
-        />
-      </div>
+      <StarterTemplatesPage
+        userId={identity.user!.id}
+        onRefresh={remoteTasks.refreshForTemplateApplication}
+        onUnauthorized={auth.expireSession}
+        key={`${identity.user?.id}:${currentLocation.eventId ?? remoteTasks.workspace.currentEventId}`}
+        readState={remoteTasks}
+        requestedEventId={currentLocation.eventId}
+        onRetry={() => void remoteTasks.retry()}
+        onNavigate={navigate}
+      />
     );
   }
 
@@ -557,6 +559,7 @@ export default function App() {
   } else if (
     remoteTasks.status === "ready" &&
     !remoteEvent &&
+    currentLocation.path !== "/templates" &&
     currentLocation.eventMode !== "edit" &&
     currentLocation.eventMode !== "duplicate"
   ) {

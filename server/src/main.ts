@@ -6,6 +6,7 @@ import { EnvironmentError, readServerEnv } from "./config/env.ts";
 import { createDatabasePool } from "./db/pool.ts";
 import { createShutdown } from "./shutdown.ts";
 import { createTaskService } from "./tasks/service.ts";
+import { createTemplateApplicationService } from "./templates/service.ts";
 import { createEventService } from "./events/service.ts";
 import { createInvitationService } from "./invitations/service.ts";
 import { createChangeService } from "./changes/service.ts";
@@ -75,6 +76,7 @@ async function main() {
       emailTasks,
     });
     app = createApp({
+      templates: createTemplateApplicationService(database),
       email,
       changes: createChangeService(database),
       tasks: createTaskService(database),

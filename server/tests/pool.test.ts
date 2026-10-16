@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createDatabasePool } from "../src/db/pool.ts";
+import { readDatabaseEnv } from "../src/config/env.ts";
 
 test("pool is lazy and forwards idle failures without the raw error or credentials", async () => {
   const notifications: unknown[][] = [];
   const pool = createDatabasePool(
-    { databaseUrl: "postgresql://database.invalid/SYNTHETIC_DATABASE" },
+    readDatabaseEnv({
+      DATABASE_URL: "postgresql://127.0.0.1/SYNTHETIC_DATABASE",
+    }),
     (...args: unknown[]) => notifications.push(args),
   );
   try {

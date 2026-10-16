@@ -1,5 +1,47 @@
 # Changelog
 
+## 2026-10-17 — Accepted TLS and Event Templates T1–T2 checkpoint
+
+- Record the owner's **T2 HUMAN PASS — 6/6**, confirmed in the Git checkpoint
+  request. Preserve T1 HUMAN PASS 6/6, B.1 HUMAN PASS and Event Management Stages
+  1–7 LOCK records. This is source control and acceptance documentation, not T3.
+- Record the later real PostgreSQL 17.11 acceptance: 27/27 PASS, real SQL rollback,
+  same-key concurrency and durable pool/process recovery. Include the expanded
+  isolated suite and strict loopback-address representation fix.
+- Record development migration 0011 activation (1 applied/10 existing; safe
+  repeat 0/11) and the one authorized non-watch backend replacement. Actual
+  application connections verified TLS 1.3, chain and hostname; active secrets,
+  CA material, local test data, backups and diagnostic artifacts stay outside Git.
+- Prepare one initially empty synthetic T2 acceptance Event through canonical
+  Event Create before the owner's personal acceptance. No live Apply or other
+  data operation is performed during this checkpoint.
+- Final non-destructive checks: frontend 319 PASS; backend 171 PASS/28 opt-in
+  database SKIP; TypeScript, lint and both builds PASS. Retain the >500 kB Vite
+  warning and unrelated locked frontend formatting limitation.
+
+## 2026-10-16 — Later TLS activation, B.1 and T1 acceptance
+
+- After the inactive source patch below, owner-authorized activation verified
+  actual client-to-pooler TLS with the external trusted CA and no plaintext fallback.
+- Record B.1 HUMAN PASS for its synthetic seminar demonstration and **T1 HUMAN
+  PASS — 6/6** for the curated catalog, selection and calendar-date preview.
+  Detailed provenance is in the B.1/T1 reports and the subsequent T2 activation
+  report. Historical source-only evidence below remains unchanged.
+
+## 2026-10-16 — Verified PostgreSQL TLS source patch, inactive
+
+- Require an external trusted CA bundle and full certificate/hostname verification
+  for remote and production PostgreSQL connections through the shared pool.
+  Reject URL query overrides and unsafe transport combinations; retain deliberate
+  non-production loopback plaintext compatibility and existing pool behavior.
+- Add 14 focused TLS tests, safe configuration placeholders and activation docs.
+  Focused suite: 30 PASS; backend unit suite: 160 PASS; typecheck/scoped lint PASS.
+  Live application TLS verification and shared integration are NOT RUN.
+- Source only: no backend/Vite restart, active environment edit, database write,
+  migration, Supabase setting change, browser session change or demo setup.
+  Event Management Stages 1–7 and historical LOCK evidence remain preserved.
+  Runtime activation requires separate owner authorization.
+
 ## 2026-10-15 — Event Management Stage 7 Final LOCK
 
 - Record project-author **HUMAN PASS — 6/6 on 2026-10-15** at accepted implementation

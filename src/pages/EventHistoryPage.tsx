@@ -13,6 +13,7 @@ import { revealFocusTarget } from "../navigationFocus.ts";
 import "./events/history.css";
 
 const ACTIONS: Record<string, MessageKey> = {
+  TEMPLATE_APPLIED: "history.template.applied",
   EVENT_CREATED: "history.event.created",
   EVENT_UPDATED: "history.event.updated",
   EVENT_ARCHIVED: "history.event.archived",
@@ -190,6 +191,15 @@ export function EventHistoryPage({
                     </time>
                   </div>
                   <p>{t("history.actor", { actor: entry.actor.name })}</p>
+                  {entry.templateApplication && (
+                    <p className="event-history__context">
+                      {t("history.template.origin", {
+                        template: entry.templateApplication.templateId,
+                        version: entry.templateApplication.templateVersion,
+                        operation: entry.templateApplication.operationId,
+                      })}
+                    </p>
+                  )}
                   {href ? (
                     <AppLink href={href} onNavigate={onNavigate}>
                       {label}

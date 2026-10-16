@@ -1,6 +1,11 @@
 import { WorkspaceReadFailure } from "./RemoteWorkspaceService.ts";
 
 export interface EventHistoryEntry {
+  templateApplication?: {
+    templateId: string;
+    templateVersion: number;
+    operationId: string;
+  };
   id: string;
   eventId: string;
   action: string;
@@ -94,7 +99,23 @@ export function readEventHistory(
       invalid();
     const targetId = id(target.id);
     if (type === "event" && targetId !== eventId) invalid();
+    let templateApplication: EventHistoryEntry["templateApplication"];
+    if (row.templateApplication !== undefined) {
+      const origin = record(row.templateApplication);
+      if (
+        !["task.created", "TEMPLATE_APPLIED"].includes(action) ||
+        origin.templateId !== "international-aikido-seminar" ||
+        origin.templateVersion !== 1
+      )
+        invalid();
+      templateApplication = {
+        templateId: origin.templateId,
+        templateVersion: origin.templateVersion,
+        operationId: id(origin.operationId),
+      };
+    }
     return {
+      ...(templateApplication ? { templateApplication } : {}),
       id: id(row.id),
       eventId,
       action,

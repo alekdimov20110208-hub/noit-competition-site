@@ -2,6 +2,7 @@ import { UnauthorizedError, type AuthenticatedUser } from "../auth/session.ts";
 import type { AuthorizationDatabase } from "../authorization/events.ts";
 import { uuidPattern } from "../tasks/model.ts";
 import { EventCommandError } from "./model.ts";
+import { templateHistoryOrigin } from "../templates/history.ts";
 
 export const HISTORY_PAGE_SIZE = 50;
 const historyFields = new Set([
@@ -135,7 +136,13 @@ export function createEventHistoryReadService(database: AuthorizationDatabase) {
       const payload = object(row.payload),
         after = object(payload.after),
         previous = object(payload.before);
+      const templateApplication = ["task.created", "TEMPLATE_APPLIED"].includes(
+        row.action_type,
+      )
+        ? templateHistoryOrigin(payload.templateApplication)
+        : undefined;
       return {
+        ...(templateApplication ? { templateApplication } : {}),
         id: row.id!,
         eventId: row.event_id,
         action: row.action_type,

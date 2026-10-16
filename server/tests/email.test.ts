@@ -107,6 +107,7 @@ test("production fail-fast email validation and deliberate disabled development"
   const env = {
     NODE_ENV: "production",
     DATABASE_URL: "postgres://database.invalid/synthetic",
+    DATABASE_TLS_CA_FILE: "SYNTHETIC_CA_FILE.pem",
     BETTER_AUTH_SECRET: randomBytes(32).toString("hex"),
     BETTER_AUTH_URL: origin,
     PUBLIC_APP_URL: origin,

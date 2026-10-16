@@ -68,6 +68,11 @@ export function useRemoteTasks(
   return {
     ...visible,
     retry: controller.load,
+    refreshForTemplateApplication: async () => {
+      await controller.load();
+      if (controller.getSnapshot().status !== "ready")
+        throw new Error("Workspace refresh failed");
+    },
     mutate: controller.mutate,
     refreshEvents: controller.refreshEvents,
     getEvent: controller.getEvent,

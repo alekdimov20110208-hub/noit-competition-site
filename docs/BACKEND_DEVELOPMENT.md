@@ -1,5 +1,25 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Accepted TLS and Templates T1–T2 — 2026-10-17
+
+Verified TLS and the T2-capable backend were subsequently activated in the approved
+development environment. Migration 0011 is applied; real isolated PostgreSQL
+acceptance passed 27/27. The owner confirms T1 and T2 HUMAN PASS, both 6/6.
+See [T2 activation and acceptance evidence](BUDOGRAPH_EVENT_TEMPLATES_T2_ACTIVATION.md).
+The source-only paragraph below records the earlier inactive patch and does not
+describe the current accepted runtime. Future restarts/configuration changes still
+require their applicable authorization and verified-TLS preflight.
+
+## Historical PostgreSQL verified TLS source patch - 2026-10-16
+
+Remote databases and all production connections now require `verify-full` with
+`DATABASE_TLS_CA_FILE`. Non-production loopback retains deliberate plaintext
+compatibility. URL query overrides are rejected. This source patch is **not
+activated**: the existing processes and active environment files remain unchanged.
+Review [the transport policy and separate activation gate](POSTGRESQL_TLS.md)
+before a later approved backend start. Historical startup instructions below do
+not authorize a restart or omit the new transport prerequisites.
+
 ## Stage 7 Clear operation — LOCKED, 2026-10-15
 
 The project author confirmed **HUMAN PASS — 6/6 on 2026-10-15** at implementation

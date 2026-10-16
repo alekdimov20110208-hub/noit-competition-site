@@ -1,5 +1,55 @@
 # AI Assistance Log
 
+## Accepted TLS/T1/T2 source-control checkpoint — 2026-10-17
+
+The owner explicitly authorized a reviewed commit and normal push of completed
+TLS, T1 and T2 work, confirming **T1 HUMAN PASS 6/6** and **T2 HUMAN PASS 6/6**.
+These are owner acceptance statements, not newly invented automated or manual
+test results. B.1 HUMAN PASS and Event Management Stages 1–7 remain preserved.
+
+Codex classified all 61 pending paths: 50 accepted source/test/example files,
+nine documentation files, immutable migration 0011 and one unrelated Windows
+shortcut excluded from staging. The intended origin is the private project repo;
+the fetched main matched the historical baseline before this checkpoint.
+Credential correlation and reviewed token/path checks exclude active environments,
+secrets, certificates, local database data, backups and generated diagnostics.
+
+Fresh non-destructive verification: frontend 319 PASS; backend 171 PASS/28 explicit
+database skips; frontend/backend TypeScript, ESLint and both builds PASS. Real
+isolated PostgreSQL 27/27 is earlier executed evidence, not rerun here. The known
+locked formatting issue and Vite chunk warning remain documented. Only acceptance
+and chronological documentation were updated; runtime implementation and migration
+bytes were preserved. No service restart, database operation, user/session change,
+T3 implementation or deployment forms part of this source-control checkpoint.
+
+## Verified PostgreSQL TLS source implementation — 2026-10-16
+
+The owner explicitly authorized a narrow backend transport patch, focused tests,
+safe examples/documentation and local non-destructive checks. Codex reviewed the
+mandatory master prompt, applicable 2025–2026 regulations, preservation baseline
+and installed pg configuration precedence. Those regulations do not confirm the
+2026–2027 competition requirements. No product architecture decision was reopened.
+
+The shared configuration/pool now require verified TLS for every remote or
+production target, with an operator-supplied external CA bundle, Node chain/name
+verification and no plaintext fallback. URL query overrides are rejected before
+pg parsing. Local non-production loopback plaintext remains explicitly supported.
+No credentials, private keys, provider-specific certificate asset or dependency
+are added. Existing pool limits and sanitized idle-error forwarding are preserved.
+
+Focused tests: 30 PASS; all 25 backend unit files: 160 PASS; no failures/skips in
+those final runs. Backend typecheck and scoped lint pass after correcting initial
+test-type and control-regex failures. Exact commands and omitted live/integration
+checks are in [TEST_EVIDENCE](TEST_EVIDENCE.md#verified-postgresql-tls-source-patch--2026-10-16).
+These checks do not establish a new application-to-Supabase TLS handshake.
+
+CODE IMPLEMENTED; unit/type checks TESTED; live application NOT FULLY TESTED;
+RUNTIME NOT ACTIVATED; DEMO PHASE B.1 NOT STARTED. Human review/activation approval
+is pending. Active environment files, running backend/Vite, browser sessions,
+Supabase settings and shared database/migrations are outside this action's scope.
+Stages 1–7 business semantics and LOCK records, including the qualified original
+88/89 session result, are preserved. No commit, push or deployment is performed.
+
 ## Stage 7 author acceptance and documentation-only Final LOCK — 2026-10-15
 
 The project author explicitly confirmed **HUMAN PASS — 6/6 on 2026-10-15** for

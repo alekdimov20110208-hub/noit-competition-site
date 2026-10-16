@@ -1,10 +1,15 @@
 import { isIP } from "node:net";
 
+export type DatabaseTls =
+  | { readonly mode: "disable" }
+  | { readonly mode: "verify-full"; readonly caFile: string };
+
 export interface DatabaseConfig {
   readonly nodeEnv: "development" | "test" | "production";
   readonly host: string;
   readonly port: number;
   readonly databaseUrl: string;
+  readonly databaseTls: DatabaseTls;
 }
 
 export interface ServerConfig extends DatabaseConfig {
@@ -61,8 +66,9 @@ export function readDatabaseEnv(
       "DATABASE_URL is required for server and database commands.",
     );
   }
+  let parsed: URL;
   try {
-    const parsed = new URL(databaseUrl);
+    parsed = new URL(databaseUrl);
     if (
       !["postgres:", "postgresql:"].includes(parsed.protocol) ||
       !parsed.hostname ||
@@ -79,11 +85,60 @@ export function readDatabaseEnv(
     );
   }
 
+  // pg parses URL query options after Pool options, potentially replacing ssl
+  // or even the host. Keep one configuration authority and reject all overrides
+  // before pg can parse them or read sslrootcert/sslkey files.
+  if (parsed.search) {
+    throw new EnvironmentError(
+      "DATABASE_URL must not contain query options; configure TLS with DATABASE_TLS_MODE and DATABASE_TLS_CA_FILE.",
+    );
+  }
+  const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(
+    parsed.hostname.toLowerCase(),
+  );
+  const mode =
+    environment.DATABASE_TLS_MODE ??
+    (nodeEnv !== "production" && loopback ? "disable" : "verify-full");
+  const caFile = environment.DATABASE_TLS_CA_FILE;
+  let databaseTls: DatabaseTls;
+  if (mode === "disable") {
+    if (nodeEnv === "production" || !loopback || caFile !== undefined) {
+      throw new EnvironmentError(
+        "DATABASE_TLS_MODE=disable requires a non-production loopback database and no DATABASE_TLS_CA_FILE.",
+      );
+    }
+    databaseTls = Object.freeze({ mode });
+  } else if (mode === "verify-full") {
+    if (
+      !caFile ||
+      !caFile.trim() ||
+      caFile !== caFile.trim() ||
+      caFile.length > 4096 ||
+      caFile.includes("\0") ||
+      /REPLACE_/i.test(caFile)
+    ) {
+      throw new EnvironmentError(
+        "DATABASE_TLS_CA_FILE must name a trusted PEM CA file for verify-full TLS.",
+      );
+    }
+    if (environment.NODE_TLS_REJECT_UNAUTHORIZED === "0") {
+      throw new EnvironmentError(
+        "NODE_TLS_REJECT_UNAUTHORIZED must not disable certificate verification.",
+      );
+    }
+    databaseTls = Object.freeze({ mode, caFile });
+  } else {
+    throw new EnvironmentError(
+      "DATABASE_TLS_MODE must be verify-full or disable.",
+    );
+  }
+
   return Object.freeze({
     nodeEnv: nodeEnv as DatabaseConfig["nodeEnv"],
     host,
     port,
     databaseUrl,
+    databaseTls,
   });
 }
 

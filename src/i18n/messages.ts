@@ -3,6 +3,14 @@ import {
   NOTIFICATION_BG_MESSAGES,
 } from "./notificationMessages.ts";
 import type { Language } from "../preferences/types.ts";
+import {
+  TEMPLATE_APPLICATION_EN_MESSAGES,
+  TEMPLATE_APPLICATION_BG_MESSAGES,
+} from "./templateApplicationMessages.ts";
+import {
+  TEMPLATE_EN_MESSAGES,
+  TEMPLATE_BG_MESSAGES,
+} from "./templateMessages.ts";
 import { PROFILE_EN_MESSAGES, PROFILE_BG_MESSAGES } from "./profileMessages.ts";
 import {
   SAFETY_EN_MESSAGES,
@@ -355,6 +363,8 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...TEMPLATE_APPLICATION_EN_MESSAGES,
+  ...TEMPLATE_EN_MESSAGES,
   ...NOTIFICATION_EN_MESSAGES,
   ...CHANGE_EN_MESSAGES,
   ...INVITATION_EN_MESSAGES,
@@ -702,6 +712,8 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...TEMPLATE_APPLICATION_BG_MESSAGES,
+  ...TEMPLATE_BG_MESSAGES,
   ...NOTIFICATION_BG_MESSAGES,
   ...CHANGE_BG_MESSAGES,
   ...INVITATION_BG_MESSAGES,

@@ -21,8 +21,11 @@ import type { ChangeService } from "./changes/service.ts";
 import type { TransactionalEmailService } from "./email/service.ts";
 import type { NotificationService } from "./notifications/service.ts";
 import { registerNotificationRoutes } from "./routes/notifications.ts";
+import { registerTemplateRoutes } from "./routes/templates.ts";
+import type { TemplateApplicationService } from "./templates/service.ts";
 
 export interface AppOptions {
+  templates?: TemplateApplicationService;
   checkDatabase: CheckDatabase;
   logger?: FastifyServerOptions["logger"];
   authentication?: AuthIntegration;
@@ -45,6 +48,7 @@ const standardMethods = new Set([
 ]);
 
 export function createApp({
+  templates,
   checkDatabase,
   logger = false,
   authentication,
@@ -136,6 +140,8 @@ export function createApp({
   });
 
   registerHealthRoutes(app, checkDatabase);
+  if (authentication && templates)
+    registerTemplateRoutes(app, authentication, templates);
   if (authentication && changes)
     registerChangeRoutes(app, authentication, changes);
   if (authentication) registerAuthRoutes(app, authentication);

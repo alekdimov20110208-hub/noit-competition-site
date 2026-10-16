@@ -10,10 +10,15 @@ import {
 // Reserved .invalid host and unmistakable synthetic test markers; no real credentials.
 const databaseUrl =
   "postgresql://SYNTHETIC_USER:SYNTHETIC_SECRET@database.invalid/SYNTHETIC_DATABASE";
+const databaseTls = {
+  mode: "verify-full" as const,
+  caFile: "SYNTHETIC_CA_FILE.pem",
+};
 
 test("environment uses safe local defaults and returns only typed configuration", () => {
   const config = readDatabaseEnv({
     DATABASE_URL: databaseUrl,
+    DATABASE_TLS_CA_FILE: databaseTls.caFile,
     UNRELATED_SECRET: "OMIT_ME",
   });
   assert.deepEqual(config, {
@@ -21,6 +26,7 @@ test("environment uses safe local defaults and returns only typed configuration"
     host: "127.0.0.1",
     port: 3001,
     databaseUrl,
+    databaseTls,
   });
   assert.ok(Object.isFrozen(config));
 });
@@ -34,12 +40,14 @@ test("environment accepts explicit supported runtime values", () => {
           HOST: host,
           PORT: "65535",
           DATABASE_URL: databaseUrl,
+          DATABASE_TLS_CA_FILE: databaseTls.caFile,
         }),
         {
           nodeEnv,
           host,
           port: 65535,
           databaseUrl,
+          databaseTls,
         },
       );
     }
@@ -48,6 +56,7 @@ test("environment accepts explicit supported runtime values", () => {
     readDatabaseEnv({
       PORT: "1",
       DATABASE_URL: "postgres://database.invalid/example",
+      DATABASE_TLS_CA_FILE: databaseTls.caFile,
     }).port,
     1,
   );
@@ -113,6 +122,7 @@ test("auth-capable runtime requires its secret and explicit URL", () => {
   const secret = randomBytes(32).toString("hex");
   const config = readServerEnv({
     DATABASE_URL: databaseUrl,
+    DATABASE_TLS_CA_FILE: databaseTls.caFile,
     BETTER_AUTH_SECRET: secret,
     BETTER_AUTH_URL: "http://127.0.0.1:3001/",
     UNRELATED_SECRET: "OMIT_ME",
@@ -122,6 +132,7 @@ test("auth-capable runtime requires its secret and explicit URL", () => {
     host: "127.0.0.1",
     port: 3001,
     databaseUrl,
+    databaseTls,
     betterAuthSecret: secret,
     betterAuthUrl: "http://127.0.0.1:3001",
     publicAppUrl: "http://127.0.0.1:3001",
@@ -132,6 +143,7 @@ test("auth-capable runtime requires its secret and explicit URL", () => {
     readServerEnv({
       NODE_ENV: "production",
       DATABASE_URL: databaseUrl,
+      DATABASE_TLS_CA_FILE: databaseTls.caFile,
       BETTER_AUTH_SECRET: secret,
       BETTER_AUTH_URL: "https://auth.example.invalid",
       EMAIL_FROM: "BudoGraph <no-reply@example.invalid>",
@@ -168,6 +180,7 @@ test("auth configuration failures never print rejected secrets or URL values", (
       () =>
         readServerEnv({
           DATABASE_URL: databaseUrl,
+          DATABASE_TLS_CA_FILE: databaseTls.caFile,
           BETTER_AUTH_SECRET: secret,
           BETTER_AUTH_URL: "http://127.0.0.1:3001",
           ...fields,

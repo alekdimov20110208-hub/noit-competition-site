@@ -1,0 +1,71 @@
+.template-application {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.template-application h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+.template-application h2:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 5px;
+}
+.template-application p {
+  color: var(--ink-soft);
+  line-height: 1.65;
+  font-size: 13px;
+}
+.template-application__review {
+  margin-top: 24px;
+  border-top: 1px solid var(--divider);
+  padding-top: 16px;
+}
+.template-application__review ol {
+  padding-inline-start: 24px;
+}
+.template-application__review li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.template-application__confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 16px 0;
+  line-height: 1.6;
+  font-size: 14px;
+  cursor: pointer;
+}
+.template-application__confirmation input {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+.template-application__confirmation input:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+.template-application__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.template-application__operation {
+  font-family: ui-monospace, monospace;
+}
+@media (max-width: 700px) {
+  .template-application {
+    padding: 16px;
+  }
+  .template-application .button {
+    min-height: 44px;
+    white-space: normal;
+    text-align: start;
+  }
+}
