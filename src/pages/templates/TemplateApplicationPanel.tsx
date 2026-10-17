@@ -14,6 +14,7 @@ import {
   templateSelection,
 } from "../../services/templateApplications.ts";
 import "./application.css";
+import type { PersonalTemplate } from "../../services/personalTemplates.ts";
 
 export function TemplateApplicationPanel({
   userId,
@@ -23,6 +24,7 @@ export function TemplateApplicationPanel({
   onRefresh,
   onUnauthorized,
   onNavigate,
+  personal,
 }: {
   userId: string;
   eventId: string;
@@ -31,6 +33,7 @@ export function TemplateApplicationPanel({
   onRefresh: () => Promise<void>;
   onUnauthorized: () => void;
   onNavigate: (href: string) => void;
+  personal?: PersonalTemplate;
 }) {
   const { t, language, formatTaskDeadline } = useI18n();
   const refreshRef = useRef(onRefresh);
@@ -42,11 +45,11 @@ export function TemplateApplicationPanel({
       new TemplateApplicationController(
         userId,
         eventId,
-        new TemplateApplicationService(),
+        new TemplateApplicationService(undefined, personal),
         () => refreshRef.current(),
         () => unauthorizedRef.current(),
       ),
-    [userId, eventId],
+    [userId, eventId, personal],
   );
   const state = useSyncExternalStore(
     controller.subscribe,
@@ -66,6 +69,7 @@ export function TemplateApplicationPanel({
   const review = state.review;
   const matches =
     review &&
+    review.templateId === (personal?.id ?? "international-aikido-seminar") &&
     review.language === language &&
     review.itemIds.length === selected.length &&
     review.itemIds.every((id) => selected.includes(id)) &&
@@ -137,6 +141,14 @@ export function TemplateApplicationPanel({
         </div>
       ) : state.attempt ? (
         <div>
+          <p>
+            {t(
+              state.attempt.templateId === "international-aikido-seminar"
+                ? "templates.t3.builtin"
+                : "templates.t3.mine",
+            )}{" "}
+            · {state.attempt.templateId} · v{state.attempt.templateVersion}
+          </p>
           <p>{t("templates.t2.recovery")}</p>
           <p className="template-application__operation">
             {t("templates.t2.operation", { id: state.attempt.operationId })}
@@ -165,7 +177,9 @@ export function TemplateApplicationPanel({
             disabled={!event || selected.length === 0 || Boolean(state.pending)}
             onClick={() => {
               setConfirmedRevision(null);
-              void controller.review(templateSelection(selected, language));
+              void controller.review(
+                templateSelection(selected, language, personal),
+              );
             }}
           >
             {t(

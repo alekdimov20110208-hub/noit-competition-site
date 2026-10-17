@@ -1,5 +1,13 @@
 # Third-Party Notices and License Register
 
+## Event Templates T3 license register update — 2026-10-17
+
+T3 introduces no dependency or third-party asset. New TypeScript, SQL, CSS,
+tests and localization are authored project code under the existing
+GPL-3.0-only license. PostgreSQL/Playwright/Chromium used for local verification
+remain external test tooling with their existing notices; portable binaries,
+credentials, screenshots and cluster data are not distributed in source.
+
 P4A (2026-10-06) adds **Resend as an external transactional delivery service** via
 native server HTTP. It adds no SDK/package, template framework or external asset;
 Better Auth 1.7.7 and `pnpm-lock.yaml` remain unchanged. Service account terms apply

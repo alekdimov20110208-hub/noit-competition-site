@@ -1,5 +1,23 @@
 # BudoGraph User Guide
 
+## My Templates / Моите шаблони — T3
+
+Development T3 is activated and **T3 HUMAN PASS — 8/8** is owner-confirmed.
+The owner personally completed live Save and Apply; the following remains the
+usage procedure, not a request to repeat acceptance. See the
+[exact source URL, two Task titles and date example](BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md#exact-owner-t3-human-acceptance).
+Open an active Organizer Event → Templates → My Templates.
+Select 1–50 source Tasks and review the fields. Descriptions begin empty. Include
+only reviewed/edited generic text, name the template, approve the selection and
+Save. Wait for the backend confirmation; refresh to check persistence.
+
+Choose another authorized active Event, reopen the saved template, select items,
+review destination dates, then explicitly confirm Apply. This adds new unassigned,
+unaccepted Tasks with no reminders. Save confirmation and Apply confirmation are
+separate. A lost response requires recovery of the **same** operation; do not
+start another Save/Apply to guess the result. Templates are private and do not
+grant Event access. Authored text keeps its language; UI supports BG/EN.
+
 ## Stage 7 Clear All Tasks — available and LOCKED, 2026-10-15
 
 Stage 7 is **LOCKED** with Technical/shared PASS and project-author-confirmed

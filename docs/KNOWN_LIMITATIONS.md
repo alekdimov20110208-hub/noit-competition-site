@@ -1,5 +1,24 @@
 # Known Limitations
 
+## Event Templates T3 — current boundary
+
+[Full report](BUDOGRAPH_EVENT_TEMPLATES_T3.md). Private CREATE/LIST/DETAIL/REUSE
+is implemented and verified with real isolated PostgreSQL. Development 0012 is
+applied and T3 is activated at PID 24392 after the owner clarified the separate
+one-item T2 test. [Activation evidence and personal acceptance](BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+The owner subsequently confirmed **T3 HUMAN PASS — 8/8**, personally completing
+live Save, stored-content review, refresh persistence, reuse/date preview, exactly
+two Tasks from one Apply and History/preservation checks. This is separate from
+the earlier isolated technical evidence; no destination IDs or timestamps are inferred.
+
+T3 has immutable v1 only, no template edit/archive/delete/sharing, no automatic
+translation or personal-data detection, and no AI/n8n. Versions have 1–50 items,
+offsets within ±3660 calendar days; list/source use 50-row cursor pages.
+Reviewed Save requests temporarily remain in this browser tab for uncertain-result
+recovery and are cleared on confirmation; the canonical library is PostgreSQL.
+Formal screen-reader, physical-device, Firefox/Safari and restore rehearsal tests
+are NOT RUN. Existing Vite chunk and LOCKED formatting warnings remain.
+
 ## Stage 7 Clear All Tasks — LOCKED, 2026-10-15
 
 The reviewed package is available on shared main after exactly one authorized

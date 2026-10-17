@@ -3,6 +3,7 @@ import { resolveTemplateDeadline } from "../domain/templateDates.ts";
 import { createI18n } from "../i18n/createI18n.ts";
 import { readRemoteEvent, type TaskEvent } from "./RemoteWorkspaceService.ts";
 import type { TaskFields } from "./taskAuthoring.ts";
+import { templateUuid, type PersonalTemplate } from "./personalTemplates.ts";
 
 export interface TemplateSelection {
   templateId: string;
@@ -65,8 +66,9 @@ function record(value: unknown): Record<string, unknown> {
 export function templateSelection(
   itemIds: readonly string[],
   language: "bg" | "en",
+  personal?: PersonalTemplate,
 ): TemplateSelection {
-  const ordered = catalog.items
+  const ordered = (personal?.items ?? catalog.items)
     .filter((item) => itemIds.includes(item.id))
     .map((item) => item.id);
   if (
@@ -76,9 +78,9 @@ export function templateSelection(
   )
     invalid();
   return {
-    templateId: catalog.id,
-    templateVersion: catalog.version,
-    itemIds: ordered,
+    templateId: personal?.id ?? catalog.id,
+    templateVersion: personal?.version ?? catalog.version,
+    itemIds: personal ? ordered.sort() : ordered,
     language,
   };
 }
@@ -86,6 +88,7 @@ export function readTemplateReview(
   value: unknown,
   eventId: string,
   selection: TemplateSelection,
+  personal?: PersonalTemplate,
 ): TemplateReview {
   try {
     const row = record(value),
@@ -98,12 +101,28 @@ export function readTemplateReview(
       "language",
     ] as const)
       if (!same(row[key], selection[key])) invalid();
-    const expected = catalog.items
+    if (
+      personal &&
+      (personal.id !== selection.templateId ||
+        personal.version !== selection.templateVersion)
+    )
+      invalid();
+    const content = personal
+      ? personal.items
+          .map((item) => ({
+            ...item,
+            titleKey: undefined,
+            categoryKey: undefined,
+            contextKey: undefined,
+          }))
+          .sort((a, b) => a.id.localeCompare(b.id))
+      : catalog.items;
+    const expected = content
       .filter((item) => selection.itemIds.includes(item.id))
       .map((item) => ({
-        title: i18n.t(item.titleKey),
-        category: i18n.t(item.categoryKey),
-        context: i18n.t(item.contextKey),
+        title: "title" in item ? item.title : i18n.t(item.titleKey),
+        category: "category" in item ? item.category : i18n.t(item.categoryKey),
+        context: "context" in item ? item.context : i18n.t(item.contextKey),
         priority: item.priority,
         ...resolveTemplateDeadline(
           event.startDate,
@@ -150,12 +169,26 @@ export function readTemplateReview(
 export function validTemplateAttempt(value: unknown): value is TemplateAttempt {
   try {
     const a = record(value),
-      selection = templateSelection(
-        a.itemIds as string[],
-        a.language as "bg" | "en",
-      );
+      selection =
+        typeof a.templateId === "string" && templateUuid.test(a.templateId)
+          ? {
+              templateId: a.templateId,
+              templateVersion: 1,
+              itemIds: a.itemIds,
+              language: a.language,
+            }
+          : templateSelection(a.itemIds as string[], a.language as "bg" | "en");
     return (
       ["bg", "en"].includes(String(a.language)) &&
+      Array.isArray(a.itemIds) &&
+      a.itemIds.length > 0 &&
+      a.itemIds.length <= 50 &&
+      new Set(a.itemIds).size === a.itemIds.length &&
+      (!templateUuid.test(String(a.templateId)) ||
+        (a.itemIds.every(
+          (id) => typeof id === "string" && templateUuid.test(id),
+        ) &&
+          same(a.itemIds, [...a.itemIds].sort()))) &&
       a.templateId === selection.templateId &&
       a.templateVersion === selection.templateVersion &&
       same(a.itemIds, selection.itemIds) &&
@@ -213,8 +246,13 @@ export function readTemplateResult(
 
 export class TemplateApplicationService {
   private readonly transport: typeof fetch;
-  constructor(transport: typeof fetch = (...args) => fetch(...args)) {
+  private readonly personal?: PersonalTemplate;
+  constructor(
+    transport: typeof fetch = (...args) => fetch(...args),
+    personal?: PersonalTemplate,
+  ) {
     this.transport = transport;
+    this.personal = personal;
   }
   private async request(
     eventId: string,
@@ -291,6 +329,7 @@ export class TemplateApplicationService {
       await this.request(eventId, "preview", selection, undefined, signal),
       eventId,
       selection,
+      this.personal,
     );
   }
   async apply(eventId: string, attempt: TemplateAttempt) {

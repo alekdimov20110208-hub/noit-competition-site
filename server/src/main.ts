@@ -7,6 +7,7 @@ import { createDatabasePool } from "./db/pool.ts";
 import { createShutdown } from "./shutdown.ts";
 import { createTaskService } from "./tasks/service.ts";
 import { createTemplateApplicationService } from "./templates/service.ts";
+import { createPersonalTemplateService } from "./templates/library.ts";
 import { createEventService } from "./events/service.ts";
 import { createInvitationService } from "./invitations/service.ts";
 import { createChangeService } from "./changes/service.ts";
@@ -76,6 +77,7 @@ async function main() {
       emailTasks,
     });
     app = createApp({
+      personalTemplates: createPersonalTemplateService(database),
       templates: createTemplateApplicationService(database),
       email,
       changes: createChangeService(database),

@@ -23,8 +23,11 @@ import type { NotificationService } from "./notifications/service.ts";
 import { registerNotificationRoutes } from "./routes/notifications.ts";
 import { registerTemplateRoutes } from "./routes/templates.ts";
 import type { TemplateApplicationService } from "./templates/service.ts";
+import type { PersonalTemplateService } from "./templates/library.ts";
+import { registerPersonalTemplateRoutes } from "./routes/personalTemplates.ts";
 
 export interface AppOptions {
+  personalTemplates?: PersonalTemplateService;
   templates?: TemplateApplicationService;
   checkDatabase: CheckDatabase;
   logger?: FastifyServerOptions["logger"];
@@ -48,6 +51,7 @@ const standardMethods = new Set([
 ]);
 
 export function createApp({
+  personalTemplates,
   templates,
   checkDatabase,
   logger = false,
@@ -142,6 +146,8 @@ export function createApp({
   registerHealthRoutes(app, checkDatabase);
   if (authentication && templates)
     registerTemplateRoutes(app, authentication, templates);
+  if (authentication && personalTemplates)
+    registerPersonalTemplateRoutes(app, authentication, personalTemplates);
   if (authentication && changes)
     registerChangeRoutes(app, authentication, changes);
   if (authentication) registerAuthRoutes(app, authentication);

@@ -1,5 +1,17 @@
 # BudoGraph Phase 2B.2 Presentation Outline
 
+## T3 demonstration addition
+
+Development is activated and the owner confirmed **T3 HUMAN PASS — 8/8**.
+An optional demonstration can show the accepted sequence:
+source Task selection → descriptions excluded by default → reviewed private Save
+→ refresh → another authorized Event → calendar preview → explicit Apply →
+two new Tasks and provenance. Explain immutable blueprints, session ownership,
+and the single reused T2 transaction. Evidence: real SQL rollback/concurrency/
+process recovery, plus the separate owner-confirmed live Save/Apply and refresh
+persistence acceptance. Do not describe automated tests as human verification. See the
+[T3 report](BUDOGRAPH_EVENT_TEMPLATES_T3.md) for activation/NOIT-year qualifications.
+
 ## P4A evidence boundary
 
 Explain invitation delivery, inbox ownership verification and password recovery

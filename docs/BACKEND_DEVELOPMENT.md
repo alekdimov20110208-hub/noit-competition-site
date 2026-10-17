@@ -1,5 +1,27 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Event Templates T3 — private library
+
+[API, schema and verification](BUDOGRAPH_EVENT_TEMPLATES_T3.md). Runtime wires
+`createPersonalTemplateService` to four private library/source/Save routes, while
+saved and curated Preview/Apply share `createTemplateApplicationService`.
+Apply remains one transaction and existing Task creation primitive. Owner checks
+come from Better Auth; browser owner IDs are never accepted.
+
+Additive migration `0012_personal_templates.sql` is **APPLIED** to the verified
+development target. Its no-op rerun passed; one graceful restart activated T3 at
+PID **24392**. That restart authorization is consumed. [Activation, backup and
+preservation evidence](BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+The isolated runner requires the existing strict disposable-loopback target and
+`BUDOGRAPH_T2_ISOLATED_DATABASE_URL` / `BUDOGRAPH_T2_ISOLATED_DB_CONFIRM` opt-ins;
+T3 reuses that guard. Never set them to development Supabase.
+
+For a verified owned disposable database with all migrations, run
+`pnpm server:test:templates-isolated` and `pnpm test:browser:personal-templates`.
+Browser execution additionally needs the installed Playwright module/Chromium
+paths; it intercepts all application APIs and uses synthetic identity with real
+isolated SQL. No local secrets or portable database files belong in Git.
+
 ## Accepted TLS and Templates T1–T2 — 2026-10-17
 
 Verified TLS and the T2-capable backend were subsequently activated in the approved

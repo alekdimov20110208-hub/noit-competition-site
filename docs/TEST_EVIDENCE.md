@@ -1,5 +1,68 @@
 # BudoGraph Test Evidence
 
+## T3 owner Human Acceptance — 2026-10-17
+
+**T3 HUMAN PASS — 8/8, owner-confirmed.** The owner personally selected the correct
+two source Tasks, reviewed reusable content/descriptions, saved a private template,
+confirmed persistence after refresh, opened it in another authorized Event, checked
+destination dates/time, applied once to create exactly two Tasks, and verified
+History with existing data intact. This attestation is separate from the technical
+results below. No new destination IDs or exact operation timestamps were supplied.
+T1/T2 HUMAN PASS 6/6, B.1 and Event Management Stages 1–7 LOCKED remain preserved.
+
+## T3 source-control checkpoint verification — 2026-10-17
+
+Fresh checks after the owner's acceptance, with no database URL loaded and
+`RUN_DATABASE_INTEGRATION=0`:
+
+- Frontend tests: **322 PASS / 0 FAIL / 0 SKIP**.
+- Backend tests: **174 PASS / 0 FAIL / 29 explicit DB opt-in SKIP** (203 total).
+- Frontend/backend TypeScript and builds, ESLint, formatting of the 38 changed
+  supported text files, and `git diff --check`: **PASS**. SQL migration bytes are
+  checked separately; 0012 retains SHA-256
+  `3a401ca6be72f60ec6698f05ecc582cb63fa40e30d3e46beb1c6d8a3bace76e1`.
+- All 39 intended paths classified: 14 documentation, 8 backend, 9 frontend,
+  6 tests/browser helpers, migration 0012 and package scripts. No dependencies
+  or lockfile changes. Secret-pattern and active-secret correlation scan: **PASS**.
+- Migrations 0001–0011 match the prior Git baseline byte-for-byte. The 372-file
+  activation source/environment/CA manifest still matches. The unrelated Windows
+  shortcut is excluded and its checksum is unchanged.
+- PostgreSQL integration and browser suites: **NOT RERUN in this checkpoint**;
+  the actual earlier SQL/browser evidence below is preserved. No shared DB test,
+  migration, live Save/Apply, service restart or deployment is performed.
+- Runtime inspection for this checkpoint finds backend **33596**, Vite **27776**,
+  unchanged throughout the checkpoint. Historical activation PID **24392** remains
+  the recorded PID of that earlier activation; this task does not restart it.
+
+The known Vite >500 kB chunk warning remains. Full-repository formatting was not
+rerun; its previously documented unchanged LOCKED `EventArchiveDialog.tsx` warning
+is preserved. Local fresh logs: ignored `tmp/t3-checkpoint-*`.
+
+## Event Templates T3 — 2026-10-17
+
+T1/T2 HUMAN PASS 6/6 and B.1 acceptance are prior owner attestations, preserved.
+[T3 report and exact commands/boundaries](BUDOGRAPH_EVENT_TEMPLATES_T3.md).
+
+- Real isolated PostgreSQL 17.11 T2/T3: **40 PASS, 0 FAIL, 0 SKIP**; actual SQL
+  rollback, owner isolation, same-key races, durable Save/process recovery and
+  saved-template Apply through T2. Migrations 0001–0012 and no-op verified.
+- Real isolated Event Management contracts: **77 PASS, 0 FAIL, 0 SKIP**.
+- Frontend **322 PASS**; default backend **174 PASS / 29 opt-in SKIP**.
+- TypeScript, lint, both builds and changed-file formatting: PASS. Full frontend
+  formatting retains the unchanged `EventArchiveDialog.tsx` baseline failure.
+- Browser: **7 T3 cases** use real isolated PostgreSQL/services with synthetic
+  identity; **34 T1** and **29 T2** use synthetic transport (T2 SQL double).
+- **112/112 original LOCKED interiors identical**, both negative controls detected;
+  no rebaseline. T3 reports no page errors/unexpected API requests.
+- Development continuation: **0012 APPLIED**, exact checksum/no-op PASS, verified
+  encrypted pre-0012 backup, one graceful restart to **24392**, actual runtime
+  TLS/identity and authenticated list/source/curated-preview/History smoke PASS.
+  At that pre-acceptance activation, four new tables were empty and 14 existing
+  table snapshots matched. Live personal Save/Apply was then **NOT RUN**, with
+  human T3 then **PENDING**; the subsequent owner PASS 8/8 above supersedes that status. [Activation report](BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+
+Local evidence is under ignored `tmp/t3-*` and `tmp/templates-t3/`.
+
 ## Accepted TLS/T1/T2 Git checkpoint — 2026-10-17
 
 The owner confirms **T1 HUMAN PASS — 6/6** and **T2 HUMAN PASS — 6/6** in the

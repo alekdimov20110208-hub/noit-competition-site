@@ -104,12 +104,14 @@ export function readEventHistory(
       const origin = record(row.templateApplication);
       if (
         !["task.created", "TEMPLATE_APPLIED"].includes(action) ||
-        origin.templateId !== "international-aikido-seminar" ||
+        !["international-aikido-seminar", "private-template"].includes(
+          String(origin.templateId),
+        ) ||
         origin.templateVersion !== 1
       )
         invalid();
       templateApplication = {
-        templateId: origin.templateId,
+        templateId: origin.templateId as string,
         templateVersion: origin.templateVersion,
         operationId: id(origin.operationId),
       };

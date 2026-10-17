@@ -1,5 +1,31 @@
 # Installation, Deployment, and Demonstration Plan
 
+## T3 template demonstration — development activated
+
+[Current gates and owner procedure](BUDOGRAPH_EVENT_TEMPLATES_T3.md).
+T3 development migration 0012 and its no-op verification passed after the owner
+clarified the separate one-item T2 test. One graceful restart activated backend
+PID 24392; Vite 27776, Supabase, CA and email-disabled mode remain unchanged.
+[Backup, preservation and exact owner procedure](BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+The earlier Stage 7 no-restart text below describes that historical LOCK task;
+the T3 request separately authorized one conditional restart, now consumed.
+
+The owner subsequently confirmed **T3 HUMAN PASS — 8/8**, personally completing
+reviewed private Save → refresh → another authorized Event → correct date/time
+preview → one Apply → exactly two new Tasks and expected History, preserving
+existing data. This is separate from technical activation; the current Git
+checkpoint changes neither the database nor running services. For later demos,
+the owner performs any live actions personally. Use original T2 receipt Task IDs to distinguish
+the two accepted Tasks from any separately confirmed additional demo Task.
+
+Offline backup: retain the current source, verified test logs and synthetic
+screenshots under `tmp/templates-t3`; do not present screenshots as live
+persistence. The restricted owned PostgreSQL cluster can support an explicitly
+verified local rehearsal with isolated synthetic data; no shared credentials
+or private user text should be exported for a presentation. It remains separate
+from development. Retain the existing encrypted recovery backup; do not delete
+cluster files or attempt a restore as part of T3.
+
 ## Stage 7 Clear demonstration — LOCKED, 2026-10-15
 
 The project author confirmed **HUMAN PASS — 6/6 on 2026-10-15** at implementation

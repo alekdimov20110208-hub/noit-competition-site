@@ -70,12 +70,12 @@ test(
       );
       await runMigrations(pool, directory);
       await t.test(
-        "all 11 migration names/checksums match; rerun has no effects; receipt is RLS protected",
+        "all migration names/checksums match; rerun has no effects; receipt is RLS protected",
         async () => {
           const expected = (await discoverMigrations(directory)).map(
             ({ version, name, checksum }) => ({ version, name, checksum }),
           );
-          assert.equal(expected.length, 11);
+          assert.equal(expected.length, 12);
           assert.deepEqual(
             (
               await pool.query(
@@ -86,7 +86,7 @@ test(
           );
           assert.deepEqual(await runMigrations(pool, directory), {
             applied: 0,
-            alreadyApplied: 11,
+            alreadyApplied: 12,
           });
           const protection = (
             await pool.query(`SELECT c.relrowsecurity,

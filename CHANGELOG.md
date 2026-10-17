@@ -1,5 +1,45 @@
 # Changelog
 
+## 2026-10-17 — T3 owner acceptance and Git checkpoint
+
+- Record **T3 HUMAN PASS — 8/8**, explicitly confirmed by the owner after technical
+  verification and activation: reviewed two-Task Save, refresh persistence, reuse
+  in another authorized Event, correct preview dates/time, one Apply producing
+  exactly two Tasks, and expected History with existing data preserved.
+- The owner personally performed live Save and Apply. No new destination IDs or
+  exact operation timestamps are inferred. Earlier activation/PENDING entries
+  below remain historical observations.
+- Preserve migration 0012 already applied in development, private storage, the
+  shared T2 engine, T1/T2 HUMAN PASS 6/6, B.1 and LOCKED Stages 1–7. Limit this
+  checkpoint to reviewed source control and documentation; no restart/deployment/T4.
+
+## 2026-10-17 — T3 controlled development activation
+
+- Record the owner's separate additional one-item T2 test without changing the
+  original HUMAN PASS 6/6. Read-only proof confirms 3 Tasks, 2 receipts, 6 History.
+- Verify development fingerprints/TLS, unchanged source/environment/CA and original
+  migrations; create and verify the encrypted pre-0012 recovery backup.
+- Apply only 0012 (1/11), verify checksum and no-op (0/12), then gracefully replace
+  backend 22316 → 24392 once. Vite 27776 and Supabase remain unchanged.
+- Verify actual new runtime TLS/readiness, owner-authenticated list/source reads,
+  curated preview and History. Preserve 14 existing table snapshots, B.1 and
+  all three T2 Tasks; four new private tables remain empty.
+- Leave live personal Save/Apply NOT RUN and T3 HUMAN ACCEPTANCE PENDING.
+  [Full activation and owner procedure](docs/BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+
+## 2026-10-17 — Event Templates T3
+
+- Implement private PostgreSQL CREATE/LIST/DETAIL/REUSE, immutable generated
+  blueprint versions/items, reviewed context opt-in and atomic idempotent Save.
+- Extend the accepted T2 engine for saved templates; preserve curated behavior,
+  destination permissions, receipts, normal initial Task state and safe History.
+- Add migration 0012 and BG/EN responsive My Templates workflow. No dependencies.
+- Verify real PostgreSQL T2/T3 40 PASS, Event Management 77 PASS, browser T3 7 PASS,
+  T1 34 PASS, T2 29 PASS and 112 unchanged LOCKED comparisons.
+- Stop development activation before writes/restart on an additional T2 demo
+  Task/receipt pending owner clarification. Human T3 pending; no live personal
+  Save/Apply, commit, push or deployment. See [T3 report](docs/BUDOGRAPH_EVENT_TEMPLATES_T3.md).
+
 ## 2026-10-17 — Accepted TLS and Event Templates T1–T2 checkpoint
 
 - Record the owner's **T2 HUMAN PASS — 6/6**, confirmed in the Git checkpoint

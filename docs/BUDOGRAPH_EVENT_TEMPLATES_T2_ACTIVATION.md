@@ -20,6 +20,16 @@ Its Templates route and review action were left ready for the owner; setup did n
 execute Apply. Those zero counts describe setup, not a claim about its state after
 the owner's acceptance. No existing B.1 or LOCKED data was modified by setup.
 
+## Later owner clarification — separate additional T2 test
+
+On 2026-10-17 the owner explicitly explained a second intentional Apply: after
+applying and inspecting the original two Tasks, the owner applied one additional
+training-preparation item. This is additional testing; **the original T2 HUMAN
+PASS 6/6 is unchanged**. Read-only T3 activation verification confirms all three
+Tasks, both distinct receipts and six History entries, including Event creation.
+Nothing was deleted, reset or rewritten. [Exact operations and preservation
+proof](BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+
 The remaining sections preserve the earlier technical activation observations.
 
 ## Local PostgreSQL and isolation

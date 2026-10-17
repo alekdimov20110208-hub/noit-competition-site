@@ -1,5 +1,49 @@
 # AI Assistance Log
 
+## T3 owner acceptance and Git checkpoint — 2026-10-17
+
+The owner explicitly confirmed **T3 HUMAN PASS — 8/8** after personally performing
+the live Save and Apply. Codex records that attestation in the authoritative T3
+reports, README, changelog and related guides; no destination identifiers or exact
+operation timestamps are invented. Earlier technical tests, activation checks and
+then-pending human acceptance remain distinct historical evidence.
+
+The owner authorized one reviewed T3 commit and normal push from the accepted
+baseline. The checkpoint audits every changed/untracked path, excludes the unrelated
+Windows shortcut and private runtime/environment/backup evidence, checks secrets
+and old migration preservation, and reruns targeted tests with DB opt-ins disabled,
+TypeScript, lint, builds, scoped formatting and whitespace checks. Results are
+recorded in TEST_EVIDENCE.md. No database operation, restart, deployment or T4 is
+part of this checkpoint. Product Human PASS is not a line-by-line human code audit.
+
+## T3 activation continuation — 2026-10-17
+
+The owner explicitly explained the separate one-item T2 Apply and authorized
+conditional activation. Codex verified all three Tasks, two receipts and six
+History records read-only; original T2 HUMAN PASS 6/6 remains unchanged. No runtime
+source changed. Verified identity/TLS/source/migrations, encrypted public-schema
+backup, migration 0012 and no-op, one graceful backend restart to PID 24392,
+actual runtime TLS and authenticated list/source/preview/History. B.1 and 14
+existing table snapshots match; all new private tables remain empty. No personal
+live Save/Apply, new auth session, commit, push or deployment was performed.
+[Historical activation evidence and subsequent owner acceptance](BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+
+## Event Templates T3 — 2026-10-17
+
+Owner-authorized development from `ff9edd97d06d86543dd5597b1136fae8659033f0`.
+Codex implemented private immutable template storage, reviewed atomic/idempotent
+Save, reuse of the existing T2 transaction, BG/EN UI and tests. T1/T2 HUMAN PASS
+6/6 and B.1 acceptance remain preserved. No invented research or human results.
+
+Fresh evidence: real PostgreSQL T2/T3 40 PASS; real Event Management 77 PASS;
+frontend 322 PASS; backend 174 PASS/29 explicit DB skips; T3 browser 7 PASS,
+T1 browser 34 PASS, T2 browser 29 PASS; 112 original frozen comparisons match.
+TypeScript, lint and builds pass. Existing LOCKED formatting and chunk warnings
+remain. [Full evidence, privacy and current limitations](BUDOGRAPH_EVENT_TEMPLATES_T3.md).
+Development activation stopped before writes/restart on an additional T2 demo
+Task/receipt pending owner clarification. No personal live Save/Apply, commit,
+push or deployment. Human code review and T3 acceptance are pending.
+
 ## Accepted TLS/T1/T2 source-control checkpoint — 2026-10-17
 
 The owner explicitly authorized a reviewed commit and normal push of completed

@@ -56,25 +56,41 @@ export function parseTemplateSelection(
     !["bg", "en"].includes(String(row.language)) ||
     !Array.isArray(row.itemIds) ||
     row.itemIds.length === 0 ||
-    row.itemIds.length > blueprint.items.length ||
+    row.itemIds.length > 50 ||
     row.itemIds.some((id) => typeof id !== "string" || id.length > 100) ||
     new Set(row.itemIds).size !== row.itemIds.length
   )
     throw new EventCommandError(400, "INVALID_TEMPLATE_COMMAND");
-  if (row.templateId !== blueprint.id)
+  const personal = uuidPattern.test(row.templateId);
+  if (row.templateId !== blueprint.id && !personal)
     throw new EventCommandError(400, "UNKNOWN_TEMPLATE");
-  if (row.templateVersion !== blueprint.version)
+  if (
+    (personal &&
+      ((row.templateVersion as number) < 1 ||
+        (row.templateVersion as number) > 2147483647)) ||
+    (!personal && row.templateVersion !== blueprint.version)
+  )
     throw new EventCommandError(409, "TEMPLATE_VERSION_CONFLICT");
-  if (row.itemIds.some((id) => !blueprint.items.some((item) => item.id === id)))
+  if (
+    row.itemIds.some((id) =>
+      personal
+        ? !uuidPattern.test(id as string)
+        : !blueprint.items.some((item) => item.id === id),
+    )
+  )
     throw new EventCommandError(400, "UNKNOWN_TEMPLATE_ITEM");
   const selection: TemplateSelection = {
-    templateId: blueprint.id,
-    templateVersion: blueprint.version,
-    itemIds: blueprint.items
-      .filter((item) => (row.itemIds as string[]).includes(item.id))
-      .map((item) => item.id),
+    templateId: personal ? row.templateId.toLowerCase() : blueprint.id,
+    templateVersion: row.templateVersion as number,
+    itemIds: personal
+      ? (row.itemIds as string[]).map((id) => id.toLowerCase()).sort()
+      : blueprint.items
+          .filter((item) => (row.itemIds as string[]).includes(item.id))
+          .map((item) => item.id),
     language: row.language as TemplateLanguage,
   };
+  if (new Set(selection.itemIds).size !== selection.itemIds.length)
+    throw new EventCommandError(400, "INVALID_TEMPLATE_COMMAND");
   if (!applying) return selection;
   if (
     !Number.isSafeInteger(row.expectedEventVersion) ||
@@ -96,7 +112,11 @@ export function parseTemplateSelection(
 // Uses UTC calendar fields only as a Gregorian calculator. No Event instant and
 // no 24-hour duration; parity tests protect the accepted T1 date contract.
 export function resolveBlueprintDate(start: string, offset: number) {
-  if (!validEventDate(start) || !Number.isSafeInteger(offset))
+  if (
+    !validEventDate(start) ||
+    !Number.isSafeInteger(offset) ||
+    Math.abs(offset) > 3660
+  )
     throw new EventCommandError(400, "INVALID_TEMPLATE_DATE");
   const [year, month, day] = start.split("-").map(Number);
   const calendar = new Date(0);
@@ -113,8 +133,34 @@ export function resolveBlueprintDate(start: string, offset: number) {
 export function resolveBlueprint(
   selection: TemplateSelection,
   startDate: string,
+  personalItems?: {
+    id: string;
+    title: string;
+    category: string;
+    context: string;
+    priority: TaskFields["priority"];
+    dayOffset: number;
+    deadlineTime: string | null;
+  }[],
 ): ResolvedTemplateItem[] {
-  return blueprint.items
+  const items = personalItems
+    ? personalItems.map((item) => ({
+        ...item,
+        text: {
+          bg: {
+            title: item.title,
+            category: item.category,
+            context: item.context,
+          },
+          en: {
+            title: item.title,
+            category: item.category,
+            context: item.context,
+          },
+        },
+      }))
+    : blueprint.items;
+  return items
     .filter((item) => selection.itemIds.includes(item.id))
     .map((item) => {
       const fields = {

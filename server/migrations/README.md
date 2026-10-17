@@ -152,3 +152,14 @@ sessions; it does not import demo business data. Exact executed results are in
 [test evidence](../../docs/TEST_EVIDENCE.md).
 
 `0007_task_reminders_notifications.sql`: additive Task reminder configuration and typed personal notification/read persistence, indexed schedules, recalculation triggers, recipient/Event constraints and delivery uniqueness. No defaults/backfill on existing Tasks. Requires 0006. Apply before reminder-enabled server startup.
+
+## 0012 — Private personal templates (T3)
+
+Adds owner-scoped immutable templates, versions, items and durable Save receipts;
+extends the existing T2 Apply receipt constraints without rewriting existing rows.
+No old migration is edited. All new tables deny direct browser access through
+RLS and revoked PUBLIC/anon/authenticated privileges. Runtime owner checks remain
+mandatory. PostgreSQL 17.11 acceptance verifies 0001–0012 checksums and safe no-op.
+Development 0012 is applied after the owner explained the separate one-item
+T2 test. First execution applied only 0012 (1/11); rerun safely applied none (0/12).
+[Activation evidence](../../docs/BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md). See [T3 API, safety and acceptance](../../docs/BUDOGRAPH_EVENT_TEMPLATES_T3.md).

@@ -1,5 +1,23 @@
 # BudoGraph
 
+## Event Templates T3 — HUMAN PASS 8/8, owner-confirmed
+
+T1 HUMAN PASS 6/6 and T2 HUMAN PASS 6/6 remain preserved. T3 adds a private
+PostgreSQL template library, reviewed Save from Event Tasks, and reuse through
+the accepted T2 engine. Real PostgreSQL T2/T3 suites: 40 PASS; real Event Management
+contracts: 77 PASS. [T3 implementation, API, privacy, setup and acceptance](docs/BUDOGRAPH_EVENT_TEMPLATES_T3.md).
+
+Development migration 0012 is **APPLIED**, and one controlled backend restart
+activated T3 at PID **24392**. The owner confirmed the separate one-Task T2 test;
+all three Tasks and both receipts are preserved. [Activation and exact personal
+acceptance procedure](docs/BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md).
+The owner personally completed live Save, refresh persistence, reuse in another
+authorized Event, correct date/time preview, one Apply creating exactly two Tasks,
+and History/preservation checks: **T3 HUMAN PASS — 8/8**. This later acceptance is
+separate from the earlier technical results. T1/T2, B.1 and LOCKED Stages 1–7
+remain preserved. The accepted T3 checkpoint includes source control only; no
+new migration, restart, deployment or T4.
+
 ## Event Management Stages 1–7 — LOCKED, 2026-10-15
 
 **EVENT MANAGEMENT STAGES 1–7: LOCKED.** The project author confirmed Stage 7
