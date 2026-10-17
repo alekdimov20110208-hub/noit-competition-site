@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-10-18 — T4.2 owner acceptance and final Event Templates checkpoint
+
+- Record **T4.2 HUMAN PASS — 8/8**, personally confirmed by the owner: 25 system
+  templates / 213 blueprint Tasks; one owner Apply in a new Event starting
+  2026-12-20 (Europe/Sofia) created exactly two Tasks and three application
+  History entries, with date-only deadlines 2026-10-25 / 2026-11-08.
+- Mark the initial-release Event Templates library complete and preserve earlier
+  HUMAN PASS, B.1, personal templates, receipts and LOCKED Stages 1–7. No new
+  record identifiers are inferred and Codex does not repeat the owner's Apply.
+- Limit this checkpoint to acceptance documentation, non-destructive final
+  regression checks, reviewed Git commit and normal push. Historical SQL/browser
+  results below remain implementation evidence, not fresh checkpoint reruns.
+- Preserve development runtime, TLS, database and migrations 0001–0013; no 0014,
+  restart, deployment, real email activation or new feature work.
+
+## 2026-10-17 — Event Templates T4.2
+
+- Add 12 distinct original BG/EN plans / 101 Tasks; preserve all accepted v1
+  blueprints. Total: 25 system templates including the separate starter.
+- Reuse the server catalog and T2 atomic Apply; no migration, dependencies or
+  new category values. Broaden the displayed Aikido/Logistics labels to match
+  the new scope. Extend content/filter/Review/browser regression checks.
+- Verify isolated PostgreSQL Templates 65 PASS, Event regressions 77 PASS,
+  frontend 329 PASS, backend 201 PASS / 54 opt-in skips, T4.1/T4.2 browser
+  26/26 PASS, T1/T2/T3 34/29/7 PASS and 112 unchanged LOCKED comparisons.
+- Activate development catalog with one backend-only restart to PID 39920,
+  verified actual TLS/readiness and preserved B.1/18 static table hashes.
+  No live Apply/Save, development migration, commit, push or deployment.
+- Update product roadmap; T4.2 Human Acceptance remains PENDING. Full evidence
+  and first-run test limitations: [T4.2 report](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_2.md).
+
 ## 2026-10-17 — T3 owner acceptance and Git checkpoint
 
 - Record **T3 HUMAN PASS — 8/8**, explicitly confirmed by the owner after technical

@@ -1,5 +1,52 @@
 # AI Assistance Log
 
+## T4.2 owner acceptance and Git checkpoint — 2026-10-18
+
+The owner authoritatively confirmed **T4.2 HUMAN PASS — 8/8** after personally
+checking the full 25-template library, BG/EN content, filters and interaction,
+and applying the first two multi-instructor items once in a new empty Event
+starting 2026-12-20, Europe/Sofia. Review dates were 2026-10-25 / 2026-11-08,
+date-only; exactly two new Tasks and three application History entries persisted
+after refresh. Exact Event/Task/History/operation IDs and Apply time were not
+provided and are not invented. Codex does not repeat that live Apply.
+
+Codex updates acceptance documentation and the initial-release roadmap, audits
+every changed/staged file and runs non-destructive frontend/backend default
+tests, TypeScript, builds, lint and scoped formatting before the authorized
+commit and normal push. Earlier isolated SQL/browser/LOCKED evidence is retained
+as historical implementation evidence; those suites are not rerun here.
+No new source feature, dependency, migration, development write, runtime restart,
+deployment or real email activation. Previous HUMAN PASS records, B.1, private
+templates, receipts, TLS and LOCKED Event Management remain preserved. The
+unrelated shortcut and ignored diagnostics/credentials/evidence are excluded.
+
+## T4.2 additive curated catalog — 2026-10-17
+
+Codex extended the accepted source-owned catalog with 12 original BG/EN plans
+and 101 Tasks, preserving all 13 accepted blueprints through whole-content hash
+checks. The interclub-day proposal was replaced after overlap review with an
+instructor-approved training-weapons organizational pack. Full plans and focused
+packs explicitly describe their scope and start-date anchors; local rules and
+qualified staff must be checked by organizers. No external checklist, asset or
+dependency was added. The two visible category labels are broadened to Aikido
+and Logistics while keeping their values and filtering behavior.
+
+Fresh checks: frontend 329 PASS, backend 201 PASS / 54 opt-in SQL skips,
+isolated PostgreSQL Templates 65 PASS, isolated Event regressions 77 PASS,
+Chromium T4.1/T4.2 26/26 PASS, T1/T2/T3 34/29/7 PASS, 112 pixel-identical
+LOCKED comparisons without rebaseline. An initial shared disposable-fixture
+concurrency failure and the clean separate-database repeat are documented in
+BUDOGRAPH_EVENT_TEMPLATES_T4_2.md, not hidden or called a product fix.
+
+After source, SQL and regression gates, Codex verified development identity,
+unchanged environment/CA and migration history, B.1 historical preservation and
+18 static table hashes, then performed one backend-only restart 33112 → 39920.
+Actual application-pool TLS 1.3/readiness and authenticated catalog reads are
+verified. No development migration, live Apply/Save, record editing, commit,
+push or deployment. Vite 27776 remains running. T1/T2/T3/T4.1 HUMAN PASS and
+LOCKED Stages 1–7 are preserved; T4.2 Human Acceptance and human code/content
+review remain PENDING. NOIT 2025–2026 rules require actual-year re-verification.
+
 ## T3 owner acceptance and Git checkpoint — 2026-10-17
 
 The owner explicitly confirmed **T3 HUMAN PASS — 8/8** after personally performing

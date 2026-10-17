@@ -1,5 +1,21 @@
 # BudoGraph
 
+## Event Templates T4.2 — HUMAN PASS 8/8, owner-confirmed
+
+The library now contains **24 curated plans / 209 Task definitions**, plus the
+preserved original four-Task starter: **25 system templates total**. T4.2 adds
+12 original BG/EN scenarios with 101 Tasks through the existing atomic T2 engine.
+Development catalog is activated without a new migration. Accepted T1–T4.1
+and Event Management Stages 1–7 remain preserved. The owner personally approved
+all eight checks on 18 October 2026, including one Apply creating exactly two
+Tasks and three application History entries in a new Event starting 2026-12-20,
+Europe/Sofia, with date-only deadlines 2026-10-25 / 2026-11-08. Codex did not run
+that live Apply. The initial-release Event Templates library is complete:
+**213 blueprint Task definitions**. Exact new record IDs are not inferred.
+See the [T4.2 acceptance and technical evidence](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_2.md).
+Public deployment and reliable email/accounts remain P0; no public deployment
+is claimed by this local catalog update.
+
 ## Event Templates T4.1 — HUMAN PASS 8/8, owner-confirmed
 
 The owner personally accepted all eight T4.1 checks: 12 new BG/EN curated plans with 108 Tasks, real search/category/difficulty filters, details and the shared server Review/Apply flow. There are 13 system templates including the preserved original starter. In a fresh empty Event, the owner verified 2026-10-23 / 2026-10-30 deadlines and personally applied exactly two Tasks with three application History entries. Migration 0013 is applied and controlled development activation is complete. T1/T2/T3, B.1 and LOCKED Event Management remain preserved. [Acceptance record](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1.md), [activation](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1_ACTIVATION.md), [internal product roadmap](docs/BUDOGRAPH_PRODUCT_ROADMAP.md).

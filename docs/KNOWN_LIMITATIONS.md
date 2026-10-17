@@ -531,3 +531,17 @@ The production frontend build still emits Vite's advisory for a single minified 
 ## T4.1 curated plans
 
 Offsets are editorial calendar-day suggestions relative to Event start; they do not automatically fit Event end or actual travel/examination deadlines. New items intentionally have no generic time or reminders. Organizers must confirm local rules and arrangements and deselect unsuitable items. Matching warns on localized active Task names, not semantic duplicates. T4.1 HUMAN PASS 8/8 is owner-confirmed; this acceptance does not imply formal accessibility certification or public production deployment. No Calendar/AI/n8n/Budget/PWA/custom-picker functionality is delivered by T4.1. Exact technical and activation evidence: BUDOGRAPH_EVENT_TEMPLATES_T4_1.md.
+
+## T4.2 expansion
+
+There are now 24 curated plans plus the original starter (25 system templates).
+Focused packs complement a complete Event plan. The review workshop starts at
+the review meeting, group travel at departure and the beginner course at its
+first class; later offsets do not infer an Event finish. No universal time,
+physical safety guarantee, legal/medical standard or instructor certification
+is supplied. Organizers verify local rules and competent supervision. Text has
+editorial and automated checks; **T4.2 HUMAN PASS 8/8** is personally confirmed
+by the owner on 18 October 2026. Human authors must still understand and defend
+the source code. Automated mobile/keyboard checks are not a formal
+accessibility audit or user study. No additional production workstream is
+implemented; exact evidence is in BUDOGRAPH_EVENT_TEMPLATES_T4_2.md.

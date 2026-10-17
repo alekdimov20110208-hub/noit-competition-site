@@ -13,6 +13,14 @@ import { createEventService } from "../server/src/events/service.ts";
 import { createTaskService } from "../server/src/tasks/service.ts";
 import { CURATED_TEMPLATES } from "../server/src/templates/curated.ts";
 import { createI18n } from "../src/i18n/createI18n.ts";
+import { resolveBlueprintDate } from "../server/src/templates/model.ts";
+
+// Run unchanged T4.1 flows by default, or exercise a new T4.2 blueprint through
+// the same real isolated SQL service. This never connects to development data.
+const primaryIndex = Number(process.env.BUDOGRAPH_CURATED_TEST_INDEX ?? 0);
+if (!Number.isInteger(primaryIndex) || !CURATED_TEMPLATES[primaryIndex])
+  throw Error("Invalid curated browser test index");
+const primary = CURATED_TEMPLATES[primaryIndex];
 
 const { chromium } = await import(
   process.env.BUDOGRAPH_PLAYWRIGHT_MODULE
@@ -195,7 +203,7 @@ try {
     const openLibrary = async () => {
       await button("templates.t4.library").click();
     };
-    const openTemplate = async (index = 0) => {
+    const openTemplate = async (index = primaryIndex) => {
       await page
         .getByRole("button", {
           name: `${i18n.t("templates.t4.open")}: ${CURATED_TEMPLATES[index].name[language]}`,
@@ -243,7 +251,32 @@ try {
         continue;
       }
       await page.locator(".curated-library__card").first().waitFor();
-      assert.equal(await page.locator(".curated-library__card").count(), 12);
+      assert.equal(await page.locator(".curated-library__card").count(), 24);
+      // Inspect all new detail lists in both languages at the narrowest width.
+      if (mode === "normal" && width === 320 && theme === "dark") {
+        for (let index = 12; index < CURATED_TEMPLATES.length; index++) {
+          await openTemplate(index);
+          const entry = CURATED_TEMPLATES[index];
+          assert.equal(
+            await page
+              .locator(".templates-t1__items input[type=checkbox]")
+              .count(),
+            entry.items.length,
+          );
+          for (const item of entry.items)
+            assert.ok(
+              await page
+                .getByText(item.text[language].title, { exact: true })
+                .count(),
+            );
+          assert.ok(
+            await page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+          );
+          await button("templates.t4.back").click();
+        }
+      }
       assert.ok(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,
@@ -277,7 +310,7 @@ try {
         });
       await openTemplate();
       const choices = page.locator(".templates-t1__items input[type=checkbox]");
-      assert.equal(await choices.count(), 8);
+      assert.equal(await choices.count(), primary.items.length);
       await button("templates.t1.none").click();
       assert.equal(
         await page.locator(".templates-t1__items input:checked").count(),
@@ -313,7 +346,7 @@ try {
       await openTemplate();
       assert.equal(
         await page.locator(".templates-t1__items input:checked").count(),
-        8,
+        primary.items.length,
       );
       await button("templates.t1.none").click();
       await choices.nth(0).press("Space");
@@ -324,7 +357,7 @@ try {
         await openTemplate();
         assert.equal(
           await page.locator(".templates-t1__items input:checked").count(),
-          8,
+          primary.items.length,
         );
         assert.equal(
           await panel.locator(".template-application__review").count(),
@@ -345,12 +378,15 @@ try {
       assert.equal(await panel.locator("li").count(), 2);
       assert.deepEqual(
         previews.at(-1).itemIds,
-        CURATED_TEMPLATES[0].items.slice(0, 2).map((i) => i.id),
+        primary.items.slice(0, 2).map((i) => i.id),
       );
       assert.ok(await panel.getByText("2026-11-20", { exact: false }).count());
       assert.ok(
         (await panel.innerText()).includes(
-          i18n.formatTaskDeadline("2026-10-23", null),
+          i18n.formatTaskDeadline(
+            resolveBlueprintDate("2026-11-20", primary.items[0].dayOffset),
+            primary.items[0].deadlineTime,
+          ),
         ),
       );
       if (mode === "member" || mode === "archived") {
@@ -455,7 +491,7 @@ try {
         )
       ).rows[0].outcome;
       assert.equal(outcome.createdCount, 2);
-      assert.equal(outcome.templateId, CURATED_TEMPLATES[0].id);
+      assert.equal(outcome.templateId, primary.id);
       await button("templates.t4.history").click();
       await page
         .getByRole("heading", {
@@ -467,7 +503,7 @@ try {
       assert.ok(
         (
           await page.locator(".event-history__entry").first().innerText()
-        ).includes(CURATED_TEMPLATES[0].id),
+        ).includes(primary.id),
       );
       report.cases.push({
         width,

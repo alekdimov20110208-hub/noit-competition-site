@@ -1,5 +1,55 @@
 # BudoGraph Test Evidence
 
+## T4.2 owner Human Acceptance and final Git checkpoint — 2026-10-18
+
+**T4.2 HUMAN PASS — 8/8, personally confirmed by the owner.** The owner checked
+25 system templates and My Templates, BG/EN content and plan/pack distinctions,
+search/category/difficulty/empty results, dates/counts/selection/keyboard/mobile
+and themes. In a new empty development Event starting **2026-12-20**, Europe/Sofia,
+the first two multi-instructor items reviewed to **2026-10-25 / 2026-11-08**,
+date-only. One owner-confirmed Apply created **exactly two new Tasks and three
+application History entries**; refresh and earlier T1–T4.1/My Templates passed.
+No uncaptured record IDs, timestamps or screenshots are inferred. Codex did not
+perform or repeat this live Apply. This is owner acceptance, separate from tests.
+
+Fresh Git checkpoint checks: frontend **329 PASS / 0 FAIL / 0 SKIP**; backend
+**201 PASS / 0 FAIL / 54 explicit opt-in DB SKIP**. Frontend/backend TypeScript
+checks and builds, lint, relevant curated unit regressions, scoped Prettier and
+diff whitespace checks pass. Vite retains its >500 kB chunk advisory (698.08 kB,
+186.92 kB gzip). Full-repository formatting is not claimed; the unrelated
+unchanged LOCKED `EventArchiveDialog.tsx` formatting limitation remains.
+
+Accepted implementation evidence below remains historical: real isolated
+PostgreSQL Templates **65 PASS**, Event regressions **77 PASS** after the
+documented fixture-conflict rerun, Chromium T4.1/T4.2 **26/26 PASS**, original
+LOCKED **112/112 unchanged**, no rebaseline. These SQL/browser suites are **not
+rerun in this Git checkpoint**. No mutating fixtures connect to development.
+
+## T4.2 curated catalog — 2026-10-17
+
+Fresh results: frontend **329 PASS / 0 FAIL / 0 SKIP**; backend **201 PASS /
+0 FAIL / 54 explicit opt-in DB SKIP**. Real isolated PostgreSQL Templates
+**65 PASS / 0 FAIL / 0 SKIP**, Event regressions clean repeat **77 PASS /
+0 FAIL / 0 SKIP**. Chromium T4.1/T4.2 **26/26 PASS**, T1/T2/T3 **34/29/7 PASS**;
+**112/112** original LOCKED comparisons pixel-identical, 2 negative controls
+detected, no rebaseline. Both TypeScript/build checks, lint and scoped formatting
+pass. Vite retains the >500 kB chunk advisory. A first Event run with competing
+disposable browser fixtures was 75 PASS / 2 FAIL; the suite was repeated alone
+in a second owned isolated database with no production or assertion change.
+
+Exactly 12 new bilingual templates / 101 Tasks; 25 system templates including
+the original starter. All existing blueprint fields are hash-preserved. Real
+SQL covers each curated plan in both languages, concurrency, exact Tasks and
+History, durable process replay and rollback. Browser data/auth boundaries and
+evidence paths are detailed in [T4.2 report](BUDOGRAPH_EVENT_TEMPLATES_T4_2.md).
+
+Development activation: one backend restart to **PID 39920**, verified actual
+TLS 1.3 and readiness; Vite **27776** unchanged. Existing 0013 applied/pending 0;
+**no development migration executed**. B.1 matches its historical persisted
+records and 18 static business/auth/private table snapshots remain identical.
+Authenticated live catalog/read/preview only; no live Apply or Save. T4.2
+**HUMAN ACCEPTANCE PENDING**; accepted T1/T2/T3/T4.1 and Stages 1–7 preserved.
+
 ## T3 owner Human Acceptance — 2026-10-17
 
 **T3 HUMAN PASS — 8/8, owner-confirmed.** The owner personally selected the correct

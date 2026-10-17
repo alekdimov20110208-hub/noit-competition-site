@@ -72,7 +72,7 @@ test("authoritative catalog API validates every field, BG/EN text, IDs, counts, 
 });
 test("catalog search uses localized names, audience and actual Task context and intersects real filters", () => {
   const templates = readCuratedCatalog(curatedCatalogResponse());
-  assert.equal(filterCuratedTemplates(templates, "", "", "", "bg").length, 12);
+  assert.equal(filterCuratedTemplates(templates, "", "", "", "bg").length, 24);
   assert.equal(
     filterCuratedTemplates(templates, "", "aikido", "beginner", "en").length,
     1,
@@ -120,7 +120,7 @@ test("catalog transport uses auth/no-store/abort and reports invalid, unavailabl
     assert.equal(init?.signal, signal);
     return Response.json(curatedCatalogResponse());
   });
-  assert.equal(result.length, 12);
+  assert.equal(result.length, 24);
   for (const [status, code] of [
     [401, "unauthenticated"],
     [503, "unavailable"],
@@ -133,6 +133,118 @@ test("catalog transport uses auth/no-store/abort and reports invalid, unavailabl
     fetchCuratedCatalog(signal, async () => Response.json({})),
     { code: "invalid" },
   );
+});
+test("T4.2 localized multi-keyword search finds every new scenario and intersects every category/difficulty", () => {
+  const templates = readCuratedCatalog(curatedCatalogResponse());
+  const queries = [
+    [
+      "curated-multi-instructor-seminar",
+      "инструктори преходи",
+      "instructor handovers",
+    ],
+    [
+      "curated-children-guardian-workshop",
+      "детска настойници",
+      "children guardian",
+    ],
+    [
+      "curated-inclusive-practice-workshop",
+      "приобщаваща достъп",
+      "inclusive access",
+    ],
+    [
+      "curated-instructor-development-workshop",
+      "развитие преподаване",
+      "development teaching",
+    ],
+    [
+      "curated-beginner-aikido-course",
+      "въвеждащ поредица",
+      "introductory series",
+    ],
+    [
+      "curated-external-sports-venue",
+      "външна подова",
+      "external floor protection",
+    ],
+    [
+      "curated-volunteer-reception-team",
+      "доброволци смени",
+      "volunteer shifts",
+    ],
+    ["curated-tatami-equipment-transport", "превоз товарене", "tatami loading"],
+    [
+      "curated-away-seminar-group-travel",
+      "групово отпътуване",
+      "group departure",
+    ],
+    [
+      "curated-community-fundraising-event",
+      "общностно даряване",
+      "fundraising donation",
+    ],
+    [
+      "curated-post-event-improvement-review",
+      "преглед подобрения",
+      "post-event improvement",
+    ],
+    ["curated-training-weapons-logistics", "учебни бокен", "weapons bokken"],
+  ];
+  for (const [id, bg, en] of queries) {
+    const entry = templates.find((t) => t.id === id)!;
+    for (const language of ["bg", "en"] as const) {
+      const matches = filterCuratedTemplates(
+        templates,
+        language === "bg" ? bg! : en!,
+        entry.category,
+        entry.difficulty,
+        language,
+      );
+      assert.ok(
+        matches.some((t) => t.id === id),
+        `${id} ${language}`,
+      );
+      assert.equal(
+        filterCuratedTemplates(
+          templates,
+          `${language === "bg" ? bg : en} impossible-no-result`,
+          "",
+          "",
+          language,
+        ).length,
+        0,
+      );
+    }
+  }
+  for (const category of [
+    "",
+    "aikido",
+    "examinations",
+    "camps",
+    "community",
+    "logistics",
+    "tournaments",
+    "workshops",
+    "courses",
+  ])
+    for (const difficulty of ["", "beginner", "standard", "advanced"])
+      for (const language of ["bg", "en"] as const)
+        assert.deepEqual(
+          filterCuratedTemplates(
+            templates,
+            "",
+            category,
+            difficulty,
+            language,
+          ).map((t) => t.id),
+          templates
+            .filter(
+              (t) =>
+                (!category || t.category === category) &&
+                (!difficulty || t.difficulty === difficulty),
+            )
+            .map((t) => t.id),
+        );
 });
 test("all curated plans validate actual server Review in both languages and recover bounded ID-only attempts", async () => {
   const f = templateFixture(),
