@@ -1,5 +1,24 @@
 # Third-Party Notices and License Register
 
+## Deployment D1 — 2026-10-18
+
+D1 adds **no application dependency or external asset**. Static serving uses
+Fastify and Node built-ins with a bounded, exact-route in-memory build inventory.
+No request input enters filesystem/glob resolution. New source remains
+GPL-3.0-only; existing package versions and license notices remain unchanged.
+
+An evaluated static plugin was removed after its glob chain promoted three
+brace-expansion advisories into the runtime tree. The advisory's patched version
+was unavailable from the installation registry. Neither that dependency nor a
+broken override remains. Final `pnpm audit --prod` reports **0 known runtime
+advisories** on 2026-10-18; this is feed-dependent evidence, not certification.
+
+Render/Railway/Supabase recommendations use provider documentation and service
+terms; no account or service was created. Disposable PostgreSQL, cryptography,
+Playwright/Chromium, Sharp and schema validation packages are local verification
+tooling only, not new distributed application dependencies. No certificates,
+keys, database files, credentials or synthetic dump are committed.
+
 ## Event Templates T3 license register update — 2026-10-17
 
 T3 introduces no dependency or third-party asset. New TypeScript, SQL, CSS,

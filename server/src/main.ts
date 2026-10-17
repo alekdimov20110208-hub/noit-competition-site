@@ -1,5 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import type { Pool } from "pg";
+import { fileURLToPath } from "node:url";
+import { readDeploymentEnv } from "./config/deployment.ts";
+import {
+  discoverMigrations,
+  validateAppliedMigrations,
+} from "./db/migrations.ts";
+import { exclusiveReminderWorker } from "./notifications/exclusive.ts";
 import { createApp } from "./app.ts";
 import { createAuth, trustedApplicationOrigins } from "./auth/auth.ts";
 import { EnvironmentError, readServerEnv } from "./config/env.ts";
@@ -61,6 +68,7 @@ async function main() {
 
   try {
     const config = readServerEnv();
+    const deployment = readDeploymentEnv();
     pool = createDatabasePool(config, () => {
       app?.log.error(
         { dependency: "postgresql" },
@@ -68,6 +76,26 @@ async function main() {
       );
     });
     const database = pool;
+    if (deployment.production) {
+      const directory = fileURLToPath(
+        new URL(
+          import.meta.url.endsWith(".ts")
+            ? "../migrations/"
+            : "../../migrations/",
+          import.meta.url,
+        ),
+      );
+      const files = await discoverMigrations(directory);
+      const query = {
+        text: "SELECT version, name, checksum FROM public.schema_migrations ORDER BY version",
+        query_timeout: 5000,
+      };
+      const result = await database.query(query);
+      if (validateAppliedMigrations(files, result.rows).length)
+        throw new EnvironmentError(
+          "Production migrations are pending; run the separate reviewed release step.",
+        );
+    }
     const email = createTransactionalEmailService(config, (kind) =>
       app?.log.warn({ kind }, "Transactional email delivery failed"),
     );
@@ -77,6 +105,20 @@ async function main() {
       emailTasks,
     });
     app = createApp({
+      production: deployment.production,
+      trustedProxyIps: deployment.trustedProxyIps,
+      ...(deployment.serveFrontend
+        ? {
+            frontendRoot: fileURLToPath(
+              new URL(
+                import.meta.url.endsWith(".ts")
+                  ? "../../dist/"
+                  : "../../../dist/",
+                import.meta.url,
+              ),
+            ),
+          }
+        : {}),
       personalTemplates: createPersonalTemplateService(database),
       templates: createTemplateApplicationService(database),
       email,
@@ -117,7 +159,11 @@ async function main() {
       logger: { level: "info" },
     });
 
-    registerReminderWorker(app, createReminderWorker(database));
+    if (deployment.reminderWorkerEnabled)
+      registerReminderWorker(
+        app,
+        exclusiveReminderWorker(database, createReminderWorker(database)),
+      );
     process.on("SIGINT", handleSignal);
     process.on("SIGTERM", handleSignal);
     await app.listen({ host: config.host, port: config.port });

@@ -1,5 +1,22 @@
 # Changelog
 
+## Deployment D1 — 2026-10-18, owner-confirmed HUMAN PASS 8/8
+
+- Add Fastify frontend serving with SPA/API separation, cache/CSP/security headers.
+- Add strict deployment flags/exact-IP proxy trust, safe auth forwarding,
+  production entry/build provenance and read-only migration startup checks.
+- Serialize reminder passes with PostgreSQL session advisory locks.
+- Add manual Render native recipe, production env example, local rehearsal and
+  release/recovery documentation; verify isolated SQL/TLS/restore and LOCKED UI.
+- Fix stale schema test expectation to the existing 13 immutable migrations.
+- Record **D1 HUMAN PASS — 8/8, owner-confirmed**, for locally verified
+  repository-side production readiness and authorize its Git checkpoint.
+- **PRODUCTION SECURITY GATES: PARTIAL**; public HTTPS/ingress/cookies, real email,
+  production grants, persistent abuse limits and provider recovery remain open.
+- No public provisioning, real email/DNS, shared DB writes, development restart
+  or migration-file change. Accepted Templates/Event Management are preserved;
+  Calendar C1 integration and D2 are not started.
+
 ## 2026-10-18 — T4.2 owner acceptance and final Event Templates checkpoint
 
 - Record **T4.2 HUMAN PASS — 8/8**, personally confirmed by the owner: 25 system

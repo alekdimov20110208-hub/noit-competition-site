@@ -25,8 +25,12 @@ import { registerTemplateRoutes } from "./routes/templates.ts";
 import type { TemplateApplicationService } from "./templates/service.ts";
 import type { PersonalTemplateService } from "./templates/library.ts";
 import { registerPersonalTemplateRoutes } from "./routes/personalTemplates.ts";
+import { registerFrontend } from "./hosting/frontend.ts";
 
 export interface AppOptions {
+  frontendRoot?: string;
+  production?: boolean;
+  trustedProxyIps?: readonly string[];
   personalTemplates?: PersonalTemplateService;
   templates?: TemplateApplicationService;
   checkDatabase: CheckDatabase;
@@ -51,6 +55,9 @@ const standardMethods = new Set([
 ]);
 
 export function createApp({
+  frontendRoot,
+  production = false,
+  trustedProxyIps = [],
   personalTemplates,
   templates,
   checkDatabase,
@@ -64,6 +71,10 @@ export function createApp({
   notifications,
 }: AppOptions) {
   const app = Fastify({
+    trustProxy: [...trustedProxyIps],
+    bodyLimit: 65_536,
+    requestTimeout: 30_000,
+    connectionTimeout: 10_000,
     requestIdHeader: false,
     frameworkErrors: (
       error: FastifyError,
@@ -97,9 +108,31 @@ export function createApp({
           },
   });
 
-  app.setNotFoundHandler((_request, reply) => {
-    return reply.code(404).send({ status: "not_found" });
+  app.addHook("onRequest", async (_request, reply) => {
+    reply.header("cache-control", "no-store");
+    reply.header("referrer-policy", "no-referrer");
+    reply.header("x-content-type-options", "nosniff");
+    reply.header("x-frame-options", "DENY");
+    reply.header(
+      "permissions-policy",
+      "camera=(), microphone=(), geolocation=()",
+    );
+    if (production)
+      reply.header("strict-transport-security", "max-age=31536000");
   });
+  app.addHook("onSend", async (request, reply, payload) => {
+    if (/^\/api(?:\/|\?|$)/i.test(request.url)) {
+      reply.header("cache-control", "no-store");
+      reply.header("pragma", "no-cache");
+      reply.header("expires", "0");
+    }
+    return payload;
+  });
+
+  if (!frontendRoot)
+    app.setNotFoundHandler((_request, reply) => {
+      return reply.code(404).send({ status: "not_found" });
+    });
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof ChangeCommandError) {
       return reply.code(error.statusCode).send({
@@ -158,5 +191,6 @@ export function createApp({
     registerEventReadRoutes(app, authentication, events);
   if (authentication && invitations)
     registerInvitationRoutes(app, authentication, invitations, email);
+  if (frontendRoot) registerFrontend(app, frontendRoot);
   return app;
 }

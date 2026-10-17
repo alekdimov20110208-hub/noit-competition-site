@@ -46,7 +46,10 @@
     "test:browser:event-clear": "node --env-file-if-exists=server/.env --env-file-if-exists=server/.env.p1b.local scripts/verify-event-clear-ui.mjs",
     "server:test:templates-isolated": "node --test --test-concurrency=1 server/tests/personal-templates.integration.test.ts server/tests/template-applications.integration.test.ts server/tests/template-acceptance.integration.test.ts server/tests/curated-templates.integration.test.ts",
     "test:browser:personal-templates": "node scripts/verify-personal-templates-ui.mjs",
-    "test:browser:curated-templates": "node scripts/verify-curated-templates-ui.mjs"
+    "test:browser:curated-templates": "node scripts/verify-curated-templates-ui.mjs",
+    "production:build": "node scripts/production-build.mjs",
+    "production:start": "node server/dist/src/production.js",
+    "production:migrate": "node server/dist/scripts/migrate.js"
   },
   "dependencies": {
     "better-auth": "1.7.7",

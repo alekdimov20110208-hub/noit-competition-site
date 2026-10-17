@@ -1,5 +1,17 @@
 # Installation, Deployment, and Demonstration Plan
 
+## Current production-readiness plan — D1, 2026-10-18
+
+Use [D1 deployment guide](BUDOGRAPH_DEPLOYMENT_D1.md) for the current same-origin
+production build/start, Render native recipe, environment/release/migration/
+rollback instructions and verified local TLS/restore evidence.
+`pnpm production:build` and `pnpm production:start` are the release commands.
+**D1 HUMAN PASS — 8/8, owner-confirmed** covers local repository-side readiness.
+Public hosting and sender/domain activation remain pending; **PRODUCTION SECURITY
+GATES: PARTIAL**. Only the D1 Git checkpoint is authorized, with D2 not started;
+no production resources were created. Historical stage instructions below do not
+authorize shared-development writes or restarts in D1.
+
 ## T3 template demonstration — development activated
 
 [Current gates and owner procedure](BUDOGRAPH_EVENT_TEMPLATES_T3.md).

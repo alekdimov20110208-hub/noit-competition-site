@@ -1,5 +1,17 @@
 # BudoGraph
 
+Production readiness D1 has a tested repository-side foundation: same-origin
+built React/Fastify serving, deployment security checks, a native hosting recipe
+and local PostgreSQL TLS/restore rehearsal. **D1 HUMAN PASS — 8/8, owner-confirmed.
+PRODUCTION SECURITY GATES: PARTIAL. Public deployment is not started.** See the
+[D1 deployment/release guide](docs/BUDOGRAPH_DEPLOYMENT_D1.md) for exact commands,
+evidence and owner prerequisites. Development runtime/database, accepted Templates
+and LOCKED Event Management remain preserved.
+Acceptance covers the locally verified repository-side implementation; public
+HTTPS/ingress/cookies, real email, production grants and provider recovery remain
+unverified. The owner authorized only the D1 Git checkpoint; D2 and Calendar C1
+integration are not started.
+
 ## Event Templates T4.2 — HUMAN PASS 8/8, owner-confirmed
 
 The library now contains **24 curated plans / 209 Task definitions**, plus the

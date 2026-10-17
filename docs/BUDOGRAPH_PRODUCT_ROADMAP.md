@@ -1,5 +1,25 @@
 # BudoGraph — продуктова пътна карта
 
+## Deployment D1 — owner-confirmed HUMAN PASS 8/8
+
+На 18.10.2026 D1 добавя и локално проверява same-origin production frontend/backend,
+deployment configuration/proxy/header/cache защити, worker lock, native hosting
+recipe и release/recovery инструкции. Frontend 329 PASS; backend 210 PASS / 54
+DB skips; isolated SQL 245 PASS / 1 skip; 112 LOCKED изображения идентични.
+Synthetic restore на 20 таблици/4931 реда и production-mode rehearsal с
+verify-full TLS са PASS. **D1 HUMAN PASS — 8/8, owner-confirmed** за локално
+проверения repository-side обхват. **PRODUCTION SECURITY GATES: PARTIAL.**
+
+Няма public deployment, real hosting/email/DNS activation, development DB writes,
+restart. Owner разрешава само D1 Git checkpoint. D2 зависи от owner budget/provider/hostname, отделна
+production DB/least-privilege grants, първи Organizer, verified email domain,
+устойчив abuse/proxy модел и provider backup/restore. Изпълнимият план и границите
+на evidence са в [D1 report](BUDOGRAPH_DEPLOYMENT_D1.md). Целта 30.11.2026 остава
+вътрешна; D1 не я отчита като постигнат public release.
+Owner не е стартирал повторно live production instance; финалният review не
+включва нов shared-DB row snapshot. Synthetic restore не доказва provider recovery.
+Calendar C1 остава отделен/недокоснат, real integration е NOT VERIFIED. D2 не е започнат.
+
 Актуализация: 18 октомври 2026 г. Всички дати по-долу са **вътрешни
 планови оценки**, договорени от собственика. Те не са официални срокове на НОИТ.
 Старият вътрешен срок 15 септември 2026 г. в master prompt е заменен за текущото

@@ -1,5 +1,32 @@
 # AI Assistance Log
 
+## 2026-10-18 — Deployment D1
+
+Codex inspected the accepted source and mandatory project/regulation documents,
+implemented production serving/config/security/release foundations, checked
+provider documentation and ran isolated SQL/TLS/restore/production/LOCKED tests.
+Changes, failures, reruns, evidence and release gates are in
+[D1 report](BUDOGRAPH_DEPLOYMENT_D1.md). New code remains GPL-3.0-only; dependency
+licenses are registered. The owner subsequently authoritatively confirmed
+**D1 HUMAN PASS — 8/8** and authorized only the D1 commit/normal push. This personal
+acceptance is distinct from automated tests and covers the locally verified
+repository-side scope. The owner did not rerun a live production instance; the
+final review did not take a new shared-DB row snapshot. Synthetic restore does not
+prove provider disaster recovery. **PRODUCTION SECURITY GATES: PARTIAL** remains
+accurate. Fresh safe checkpoint checks are logged separately in
+`tmp/d1-checkpoint/`; SQL/browser/restore evidence in `tmp/d1/` is preserved and
+referenced without rerunning it. No shared-development writes, runtime restart,
+real email or provisioning occurred. D2 and Calendar C1 integration are not started.
+
+Fresh checkpoint verification passed: frontend 329, default backend 210 with 54
+explicit DB skips, D1 tests 9/9, both TypeScript checks/builds, lint and scoped
+formatting. Compiled-artifact injection/negative-startup checks and manifest
+fingerprint verification passed without DB access or a new runtime listener.
+Prestage audit preserved all 13 migrations, accepted env/CA inputs and prior
+evidence, and found no active secrets in audited source/build/log outputs.
+The staged 26-file inventory, index-blob secret scan and cached diff check passed;
+runtime secrets, CA, backups, build outputs, local evidence and the shortcut are excluded.
+
 ## T4.2 owner acceptance and Git checkpoint — 2026-10-18
 
 The owner authoritatively confirmed **T4.2 HUMAN PASS — 8/8** after personally

@@ -1,5 +1,47 @@
 # BudoGraph Test Evidence
 
+## Deployment D1 — 2026-10-18
+
+D1 implementation evidence: frontend **329 PASS**; backend **210 PASS / 54 explicit DB skips**;
+all isolated PostgreSQL integration suites **245 PASS / 0 FAIL / 1 SKIP**.
+The SQL skip is Supabase browser-role coverage: those roles are absent on native
+local PG. First SQL run exposed a stale 10-migration expectation, corrected to
+the existing 13; final evidence is the clean serial rerun. SQL bytes are unchanged.
+
+Production-mode compiled Fastify + actual frontend build, verified DB TLS,
+SPA/API/cache/config/auth-denial gates and graceful handler: PASS. Original
+LOCKED screenshots: **112 identical**, both negative controls detected, no
+rebaseline. Production browser: 0 page errors/CSP violations. Synthetic dump →
+new empty DB → restore: **20 table hashes / 4931 rows identical**, followed by
+production smoke. TypeScript/lint/both builds/scoped formatting/diff checks PASS.
+
+See [D1 report](BUDOGRAPH_DEPLOYMENT_D1.md) for evidence paths and limitations.
+Real public HTTPS/email/provider restore are NOT RUN.
+Development data/runtime were not used for write tests or restarted. The unrelated
+`EventArchiveDialog.tsx` formatting issue and Vite chunk warning remain.
+
+**D1 HUMAN PASS — 8/8, owner-confirmed.** This is the owner's personal acceptance
+of locally verified repository-side readiness, distinct from automated results.
+The owner did not rerun a live production instance. Final review did not take a
+new shared-DB row-by-row snapshot; synthetic restore does not prove provider
+disaster recovery. **PRODUCTION SECURITY GATES: PARTIAL** remains accurate.
+Safe checkpoint reruns (frontend/default backend, TypeScript, lint, both builds,
+artifact/manifest, D1 routing/config/security/worker tests, scoped formatting,
+diff and staged secrets) are recorded separately in `tmp/d1-checkpoint/`.
+SQL/browser/restore evidence above remains **PREVIOUSLY VERIFIED**, without a
+new restoration or shared-DB test. D2 and Calendar C1 integration are not started.
+
+Fresh checkpoint rerun: **frontend 329/0/0; backend 210/0/54; D1 tests 9/0/0**
+(pass/fail/skip). Both TypeScript checks, lint, scoped formatting and production
+frontend/backend builds **PASS**. Manifest fingerprint matches current inputs;
+9 compiled-app/actual-build injection probes and 2 fail-closed compiled startup
+checks **PASS**, without a production listener or database connection. Prestage
+audit preserves 13 migrations, 3 accepted env/CA inputs and 167 prior evidence
+files, with zero active-secret or credential-pattern matches. The artifact has
+the pre-checkpoint base commit and dirty flag; it is not a clean public release.
+**Staged secret scan, exact 26-file inventory and `git diff --cached --check`:
+PASS**. Secrets, certificates, backups, build outputs and evidence remain excluded.
+
 ## T4.2 owner Human Acceptance and final Git checkpoint — 2026-10-18
 
 **T4.2 HUMAN PASS — 8/8, personally confirmed by the owner.** The owner checked

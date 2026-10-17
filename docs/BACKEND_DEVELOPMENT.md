@@ -1,5 +1,18 @@
 # Backend P1, P2A, P2B, P2C, P3A, P3B and P3C Development
 
+## Production foundation — D1, 2026-10-18
+
+[D1 deployment guide](BUDOGRAPH_DEPLOYMENT_D1.md) is the current release reference.
+Use `pnpm production:build` / `pnpm production:start` with process-environment
+secrets and no implicit development `.env` loading. Existing `server:start`
+remains development-compatible. Production checks migration history read-only,
+serves built frontend assets and adds explicit proxy/cache/header safeguards.
+Reminder passes use session advisory locks; direct/session pooling is required.
+Deployment settings are in `deploy/.env.example` and D1. Running development
+processes/settings have not been reloaded. Owner-confirmed D1 HUMAN PASS 8/8
+authorizes only the D1 Git checkpoint; shared-data writes, migrations and
+production activation remain outside this task. Production security gates remain PARTIAL.
+
 ## Event Templates T3 — private library
 
 [API, schema and verification](BUDOGRAPH_EVENT_TEMPLATES_T3.md). Runtime wires

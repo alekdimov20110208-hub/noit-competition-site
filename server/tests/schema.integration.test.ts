@@ -131,6 +131,9 @@ test(
           "0008_event_command_receipts.sql",
           "0009_event_archive_receipts.sql",
           "0010_event_clear_receipts.sql",
+          "0011_template_application_receipts.sql",
+          "0012_personal_templates.sql",
+          "0013_curated_template_catalog.sql",
         ],
       );
       client.release();
@@ -142,7 +145,7 @@ test(
           for (let index = 0; index < 2; index += 1) {
             assert.deepEqual(await runMigrations(pool, migrationDirectory), {
               applied: 0,
-              alreadyApplied: 10,
+              alreadyApplied: 13,
             });
           }
         },

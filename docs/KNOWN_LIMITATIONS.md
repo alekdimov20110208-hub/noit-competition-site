@@ -1,5 +1,21 @@
 # Known Limitations
 
+## Deployment D1 — 2026-10-18
+
+Repository-side production serving/configuration, native hosting recipe and
+isolated TLS/restore rehearsal are implemented and tested. Public hosting,
+HTTPS edge verification, production DB grants, initial Organizer bootstrap,
+durable abuse limits/trusted ingress, real email/domain and provider recovery
+remain P0 activation gates. Memory-only throttles reset at restart; worker locks
+do not solve rate limits or durable email. One steady-state replica is the
+deployment boundary. **D1 HUMAN PASS — 8/8, owner-confirmed** covers local
+repository-side readiness only; **PRODUCTION SECURITY GATES: PARTIAL**. The owner
+did not rerun live production; no new shared-DB row snapshot was taken at final
+review, and synthetic restore does not prove provider disaster recovery. See
+[D1 status and operations plan](BUDOGRAPH_DEPLOYMENT_D1.md). No public activation,
+shared-development writes or runtime restart occurred. Historical limits below
+retain their original stage context.
+
 ## Event Templates T3 — current boundary
 
 [Full report](BUDOGRAPH_EVENT_TEMPLATES_T3.md). Private CREATE/LIST/DETAIL/REUSE

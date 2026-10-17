@@ -95,6 +95,17 @@ export function registerAuthRoutes(
         return reply.code(400).send({ status: "error" });
       }
       const headers = fromNodeHeaders(request.headers);
+      // Fastify resolves client IP only through explicitly trusted proxy peers.
+      // Better Auth uses the configured origin and must not reinterpret forwarding.
+      for (const name of [
+        "forwarded",
+        "x-forwarded-for",
+        "x-forwarded-host",
+        "x-forwarded-proto",
+        "x-real-ip",
+      ])
+        headers.delete(name);
+      headers.set("host", new URL(origin).host);
       headers.set(
         "x-budograph-locale",
         emailLocale(request.headers["x-budograph-locale"]),
@@ -192,7 +203,7 @@ export function registerAuthRoutes(
           "callbackURL",
           new URL("/reset-password", publicAppUrl).href,
         );
-      // Fastify's default trustProxy=false resolves the direct peer address.
+      // Unconfigured proxy peers resolve to their direct socket address.
       // Clients cannot supply the IP header consumed by Better Auth.
       headers.set("x-budograph-client-ip", request.ip);
       if (accountId && pendingAccounts.has(accountId))

@@ -149,6 +149,7 @@ export function createAuth(
       cookieCache: { enabled: false },
     },
     advanced: {
+      trustedProxyHeaders: false,
       // Tests without PostgreSQL exercise HTTP/session boundaries separately;
       // real runtime instances validate the migrated schema read-only.
       database: { validateSchema: config.nodeEnv !== "test" },
