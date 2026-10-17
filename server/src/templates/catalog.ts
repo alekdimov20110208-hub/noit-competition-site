@@ -1,3 +1,5 @@
+import { curatedBlueprint } from "./curated.ts";
+
 // Authoritative immutable v1 snapshot of the accepted T1 blueprint.
 // Server tests enforce parity with T1; runtime never imports frontend modules.
 export const SEMINAR_BLUEPRINT = {
@@ -90,3 +92,7 @@ export const SEMINAR_BLUEPRINT = {
     },
   ],
 } as const;
+
+export function systemBlueprint(id: string) {
+  return id === SEMINAR_BLUEPRINT.id ? SEMINAR_BLUEPRINT : curatedBlueprint(id);
+}

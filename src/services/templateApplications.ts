@@ -4,6 +4,12 @@ import { createI18n } from "../i18n/createI18n.ts";
 import { readRemoteEvent, type TaskEvent } from "./RemoteWorkspaceService.ts";
 import type { TaskFields } from "./taskAuthoring.ts";
 import { templateUuid, type PersonalTemplate } from "./personalTemplates.ts";
+import {
+  isCuratedIdentity,
+  isCuratedItemId,
+  type CuratedTemplate,
+} from "../domain/curatedTemplates.ts";
+export type ReusableTemplate = PersonalTemplate | CuratedTemplate;
 
 export interface TemplateSelection {
   templateId: string;
@@ -66,7 +72,7 @@ function record(value: unknown): Record<string, unknown> {
 export function templateSelection(
   itemIds: readonly string[],
   language: "bg" | "en",
-  personal?: PersonalTemplate,
+  personal?: ReusableTemplate,
 ): TemplateSelection {
   const ordered = (personal?.items ?? catalog.items)
     .filter((item) => itemIds.includes(item.id))
@@ -80,7 +86,7 @@ export function templateSelection(
   return {
     templateId: personal?.id ?? catalog.id,
     templateVersion: personal?.version ?? catalog.version,
-    itemIds: personal ? ordered.sort() : ordered,
+    itemIds: personal && !("kind" in personal) ? ordered.sort() : ordered,
     language,
   };
 }
@@ -88,12 +94,19 @@ export function readTemplateReview(
   value: unknown,
   eventId: string,
   selection: TemplateSelection,
-  personal?: PersonalTemplate,
+  personal?: ReusableTemplate,
 ): TemplateReview {
   try {
     const row = record(value),
       event = readRemoteEvent(row.event),
       i18n = createI18n(selection.language);
+    if (
+      !same(
+        templateSelection(selection.itemIds, selection.language, personal),
+        selection,
+      )
+    )
+      invalid();
     for (const key of [
       "templateId",
       "templateVersion",
@@ -111,18 +124,28 @@ export function readTemplateReview(
       ? personal.items
           .map((item) => ({
             ...item,
+            ...("text" in item ? item.text[selection.language] : {}),
             titleKey: undefined,
             categoryKey: undefined,
             contextKey: undefined,
           }))
-          .sort((a, b) => a.id.localeCompare(b.id))
+          .sort((a, b) => ("kind" in personal ? 0 : a.id.localeCompare(b.id)))
       : catalog.items;
     const expected = content
       .filter((item) => selection.itemIds.includes(item.id))
       .map((item) => ({
-        title: "title" in item ? item.title : i18n.t(item.titleKey),
-        category: "category" in item ? item.category : i18n.t(item.categoryKey),
-        context: "context" in item ? item.context : i18n.t(item.contextKey),
+        title:
+          "title" in item && typeof item.title === "string"
+            ? item.title
+            : i18n.t(item.titleKey!),
+        category:
+          "category" in item && typeof item.category === "string"
+            ? item.category
+            : i18n.t(item.categoryKey!),
+        context:
+          "context" in item && typeof item.context === "string"
+            ? item.context
+            : i18n.t(item.contextKey!),
         priority: item.priority,
         ...resolveTemplateDeadline(
           event.startDate,
@@ -170,7 +193,8 @@ export function validTemplateAttempt(value: unknown): value is TemplateAttempt {
   try {
     const a = record(value),
       selection =
-        typeof a.templateId === "string" && templateUuid.test(a.templateId)
+        typeof a.templateId === "string" &&
+        (templateUuid.test(a.templateId) || isCuratedIdentity(a.templateId))
           ? {
               templateId: a.templateId,
               templateVersion: 1,
@@ -179,11 +203,28 @@ export function validTemplateAttempt(value: unknown): value is TemplateAttempt {
             }
           : templateSelection(a.itemIds as string[], a.language as "bg" | "en");
     return (
+      Object.keys(a).length === 8 &&
+      Object.keys(a).every((key) =>
+        [
+          "operationId",
+          "templateId",
+          "templateVersion",
+          "itemIds",
+          "language",
+          "expectedEventVersion",
+          "reviewRevision",
+          "confirmed",
+        ].includes(key),
+      ) &&
       ["bg", "en"].includes(String(a.language)) &&
       Array.isArray(a.itemIds) &&
       a.itemIds.length > 0 &&
       a.itemIds.length <= 50 &&
       new Set(a.itemIds).size === a.itemIds.length &&
+      (!isCuratedIdentity(String(a.templateId)) ||
+        a.itemIds.every(
+          (id) => typeof id === "string" && isCuratedItemId(id),
+        )) &&
       (!templateUuid.test(String(a.templateId)) ||
         (a.itemIds.every(
           (id) => typeof id === "string" && templateUuid.test(id),
@@ -246,10 +287,10 @@ export function readTemplateResult(
 
 export class TemplateApplicationService {
   private readonly transport: typeof fetch;
-  private readonly personal?: PersonalTemplate;
+  private readonly personal?: ReusableTemplate;
   constructor(
     transport: typeof fetch = (...args) => fetch(...args),
-    personal?: PersonalTemplate,
+    personal?: ReusableTemplate,
   ) {
     this.transport = transport;
     this.personal = personal;

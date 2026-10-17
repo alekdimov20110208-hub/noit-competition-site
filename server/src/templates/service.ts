@@ -1,5 +1,6 @@
 import { lockTemplateContext, type TemplateActor } from "./context.ts";
 import { loadPersonalBlueprint } from "./library.ts";
+import { systemBlueprint } from "./catalog.ts";
 import { randomUUID } from "node:crypto";
 import { UnauthorizedError, type AuthenticatedUser } from "../auth/session.ts";
 import {
@@ -37,10 +38,9 @@ async function reviewSnapshot(
   actor: TemplateActor,
   selection: TemplateSelection,
 ) {
-  const personalItems =
-    selection.templateId === "international-aikido-seminar"
-      ? undefined
-      : await loadPersonalBlueprint(db, user, selection);
+  const personalItems = systemBlueprint(selection.templateId)
+    ? undefined
+    : await loadPersonalBlueprint(db, user, selection);
   const items = resolveBlueprint(selection, event.start_date, personalItems);
   const matching = await db.query(
     `SELECT id,title,version FROM public.task WHERE event_id=$1 AND deleted_at IS NULL
@@ -122,7 +122,7 @@ export function createTemplateApplicationService(pool: TransactionPool) {
         eventId,
         true,
       );
-      if (command.templateId !== "international-aikido-seminar")
+      if (!systemBlueprint(command.templateId))
         await loadPersonalBlueprint(db, user, selection);
       // Replays always require CURRENT active Organizer authority and active Event.
       const receipts = await db.query(

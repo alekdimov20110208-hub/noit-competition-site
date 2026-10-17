@@ -517,3 +517,7 @@ product-market validation or proof of usability.
 ## In-app reminder phase
 
 Deploy additive migration 0007 before the backend. No new service or provider setup is needed. Keep at least one backend process running for reminders. Restart catch-up only occurs before the Task deadline. Demonstrate presets on a timed Task, current-recipient delivery, explicit read state and Event isolation; the verification script uses an injected clock locally. Keep its synthetic fixtures/evidence separate from production. Offline demo can show a recorded controlled flow; the local PostgreSQL/backend runtime remains required for durable delivery.
+
+## T4.1 library and fallback
+
+Activation requires verified development fingerprints/TLS/migration checksums, historical-data preservation, a restricted recoverable backup and passing isolated PostgreSQL acceptance before additive 0013 and a controlled backend-only restart. Do not restart Vite or Supabase or populate owner Events automatically. For an offline defense, use the separately isolated local database and synthetic browser evidence under tmp/templates-t4; do not present screenshots as proof of a currently live production service. Preserve the source catalog/build and prepare an owner-reviewed recording after Human Acceptance. See BUDOGRAPH_EVENT_TEMPLATES_T4_1.md.

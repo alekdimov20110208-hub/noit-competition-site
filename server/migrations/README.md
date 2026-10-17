@@ -163,3 +163,7 @@ mandatory. PostgreSQL 17.11 acceptance verifies 0001–0012 checksums and safe n
 Development 0012 is applied after the owner explained the separate one-item
 T2 test. First execution applied only 0012 (1/11); rerun safely applied none (0/12).
 [Activation evidence](../../docs/BUDOGRAPH_EVENT_TEMPLATES_T3_ACTIVATION.md). See [T3 API, safety and acceptance](../../docs/BUDOGRAPH_EVENT_TEMPLATES_T3.md).
+
+## 0013 — Curated system template identities
+
+Extends the existing receipt identity CHECK with bounded curated- slugs at version 1. Original starter v1, personal UUID versions, existing outcome bounds, receipts, RLS and immutability remain. No catalog table or data backfill. Runtime catalog lookup is mandatory. Historical files 0001–0012 must not change. T4.1 stage documentation records actual isolated acceptance and development activation; use the normal checksum-enforcing migration runner only against a verified target with a recoverable backup.

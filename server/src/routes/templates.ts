@@ -3,6 +3,7 @@ import { requireAuthenticatedUser } from "../auth/session.ts";
 import { EventCommandError } from "../events/model.ts";
 import type { TemplateApplicationService } from "../templates/service.ts";
 import type { AuthIntegration } from "./auth.ts";
+import { curatedCatalogResponse } from "../templates/curated.ts";
 
 export function registerTemplateRoutes(
   app: FastifyInstance,
@@ -17,6 +18,12 @@ export function registerTemplateRoutes(
   app.register(async (routes) => {
     routes.addHook("onRequest", async (_request, reply) => {
       reply.header("cache-control", "no-store");
+    });
+    routes.get("/api/templates/curated", async (request) => {
+      await requireAuthenticatedUser(authentication.auth, request);
+      if (Object.keys(request.query as object).length)
+        throw new EventCommandError(400, "INVALID_TEMPLATE_COMMAND");
+      return curatedCatalogResponse();
     });
     for (const operation of ["preview", "apply"] as const)
       routes.post<{ Params: { eventId: string } }>(

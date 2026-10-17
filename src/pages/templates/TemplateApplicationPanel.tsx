@@ -15,6 +15,10 @@ import {
 } from "../../services/templateApplications.ts";
 import "./application.css";
 import type { PersonalTemplate } from "../../services/personalTemplates.ts";
+import {
+  isCuratedIdentity,
+  type CuratedTemplate,
+} from "../../domain/curatedTemplates.ts";
 
 export function TemplateApplicationPanel({
   userId,
@@ -25,6 +29,7 @@ export function TemplateApplicationPanel({
   onUnauthorized,
   onNavigate,
   personal,
+  curated,
 }: {
   userId: string;
   eventId: string;
@@ -34,7 +39,9 @@ export function TemplateApplicationPanel({
   onUnauthorized: () => void;
   onNavigate: (href: string) => void;
   personal?: PersonalTemplate;
+  curated?: CuratedTemplate;
 }) {
+  const blueprint = curated ?? personal;
   const { t, language, formatTaskDeadline } = useI18n();
   const refreshRef = useRef(onRefresh);
   refreshRef.current = onRefresh;
@@ -45,11 +52,11 @@ export function TemplateApplicationPanel({
       new TemplateApplicationController(
         userId,
         eventId,
-        new TemplateApplicationService(undefined, personal),
+        new TemplateApplicationService(undefined, blueprint),
         () => refreshRef.current(),
         () => unauthorizedRef.current(),
       ),
-    [userId, eventId, personal],
+    [userId, eventId, blueprint],
   );
   const state = useSyncExternalStore(
     controller.subscribe,
@@ -69,7 +76,7 @@ export function TemplateApplicationPanel({
   const review = state.review;
   const matches =
     review &&
-    review.templateId === (personal?.id ?? "international-aikido-seminar") &&
+    review.templateId === (blueprint?.id ?? "international-aikido-seminar") &&
     review.language === language &&
     review.itemIds.length === selected.length &&
     review.itemIds.every((id) => selected.includes(id)) &&
@@ -111,6 +118,13 @@ export function TemplateApplicationPanel({
             >
               {t("templates.t2.openTasks")}
             </button>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => onNavigate(eventHref(eventId, "/history"))}
+            >
+              {t("templates.t4.history")}
+            </button>
             {state.result.taskIds.map((id, index) => (
               <button
                 type="button"
@@ -145,7 +159,9 @@ export function TemplateApplicationPanel({
             {t(
               state.attempt.templateId === "international-aikido-seminar"
                 ? "templates.t3.builtin"
-                : "templates.t3.mine",
+                : isCuratedIdentity(state.attempt.templateId)
+                  ? "templates.t4.library"
+                  : "templates.t3.mine",
             )}{" "}
             · {state.attempt.templateId} · v{state.attempt.templateVersion}
           </p>
@@ -178,7 +194,7 @@ export function TemplateApplicationPanel({
             onClick={() => {
               setConfirmedRevision(null);
               void controller.review(
-                templateSelection(selected, language, personal),
+                templateSelection(selected, language, blueprint),
               );
             }}
           >

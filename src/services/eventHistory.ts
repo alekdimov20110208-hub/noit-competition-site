@@ -1,4 +1,5 @@
 import { WorkspaceReadFailure } from "./RemoteWorkspaceService.ts";
+import { isCuratedIdentity } from "../domain/curatedTemplates.ts";
 
 export interface EventHistoryEntry {
   templateApplication?: {
@@ -104,9 +105,10 @@ export function readEventHistory(
       const origin = record(row.templateApplication);
       if (
         !["task.created", "TEMPLATE_APPLIED"].includes(action) ||
-        !["international-aikido-seminar", "private-template"].includes(
-          String(origin.templateId),
-        ) ||
+        (!isCuratedIdentity(String(origin.templateId)) &&
+          !["international-aikido-seminar", "private-template"].includes(
+            String(origin.templateId),
+          )) ||
         origin.templateVersion !== 1
       )
         invalid();

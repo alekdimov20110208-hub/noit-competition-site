@@ -13,6 +13,7 @@ import {
 import "./templates/templates.css";
 import { TemplateApplicationPanel } from "./templates/TemplateApplicationPanel.tsx";
 import { MyTemplates } from "./templates/MyTemplates.tsx";
+import { CuratedLibrary } from "./templates/CuratedLibrary.tsx";
 
 export function StarterTemplatesPage({
   readState,
@@ -33,7 +34,9 @@ export function StarterTemplatesPage({
 }) {
   const { t, plural, formatDate, formatTaskDeadline, formatNumber } = useI18n();
   const template = AIKIDO_SEMINAR_STARTER;
-  const [section, setSection] = useState<"builtin" | "mine">("builtin");
+  const [section, setSection] = useState<"builtin" | "curated" | "mine">(
+    "builtin",
+  );
   const [selected, setSelected] = useState(() =>
     template.items.map((item) => item.id),
   );
@@ -55,9 +58,17 @@ export function StarterTemplatesPage({
       onFocus={(e) => revealFocusTarget(e.target)}
     >
       <PageHeader
-        eyebrow={t("templates.t1.eyebrow")}
+        eyebrow={t(
+          section === "curated"
+            ? "templates.t4.eyebrow"
+            : "templates.t1.eyebrow",
+        )}
         title={t("templates.title")}
-        description={t("templates.t1.description")}
+        description={t(
+          section === "curated"
+            ? "templates.t4.description"
+            : "templates.t1.description",
+        )}
       />
       <div
         className="templates-library-tabs"
@@ -72,6 +83,14 @@ export function StarterTemplatesPage({
           {t("templates.t3.builtin")}
         </button>
         <button
+          type="button"
+          className="button button--secondary"
+          aria-pressed={section === "curated"}
+          onClick={() => setSection("curated")}
+        >
+          {t("templates.t4.library")}
+        </button>
+        <button
           className="button button--secondary"
           aria-pressed={section === "mine"}
           onClick={() => setSection("mine")}
@@ -79,7 +98,20 @@ export function StarterTemplatesPage({
           {t("templates.t3.mine")}
         </button>
       </div>
-      {section === "mine" ? (
+      {section === "curated" ? (
+        <CuratedLibrary
+          userId={userId}
+          eventId={
+            requestedEventId ?? readState.workspace.currentEventId ?? null
+          }
+          event={event}
+          readState={readState}
+          onRetry={onRetry}
+          onRefresh={onRefresh}
+          onUnauthorized={onUnauthorized}
+          onNavigate={onNavigate}
+        />
+      ) : section === "mine" ? (
         <MyTemplates
           targetEventId={
             requestedEventId ?? readState.workspace.currentEventId ?? null

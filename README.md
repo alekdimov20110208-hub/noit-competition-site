@@ -1,5 +1,9 @@
 # BudoGraph
 
+## Event Templates T4.1 — HUMAN PASS 8/8, owner-confirmed
+
+The owner personally accepted all eight T4.1 checks: 12 new BG/EN curated plans with 108 Tasks, real search/category/difficulty filters, details and the shared server Review/Apply flow. There are 13 system templates including the preserved original starter. In a fresh empty Event, the owner verified 2026-10-23 / 2026-10-30 deadlines and personally applied exactly two Tasks with three application History entries. Migration 0013 is applied and controlled development activation is complete. T1/T2/T3, B.1 and LOCKED Event Management remain preserved. [Acceptance record](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1.md), [activation](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1_ACTIVATION.md), [internal product roadmap](docs/BUDOGRAPH_PRODUCT_ROADMAP.md).
+
 ## Event Templates T3 — HUMAN PASS 8/8, owner-confirmed
 
 T1 HUMAN PASS 6/6 and T2 HUMAN PASS 6/6 remain preserved. T3 adds a private
@@ -625,3 +629,7 @@ The available NOIT regulation is for the **2025-2026 competition year** and is h
 BudoGraph source code is licensed under the GNU General Public License version 3 only (`GPL-3.0-only`). See [LICENSE](LICENSE). Third-party components retain their own licenses as recorded in [docs/THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md).
 
 Task reminders and current-Event in-app notifications are documented in [the phase contract](docs/BUDOGRAPH_TASK_REMINDERS.md). Apply immutable migration 0007 before starting this version.
+
+## Curated Template Library — T4.1
+
+Templates includes Built-in, Curated Library and My Templates. The authenticated server catalog contains 12 new BG/EN plans and 108 Tasks, with real search/category/difficulty filters and the existing explicit atomic Review/Apply flow. New system content is authored only on the server. See [T4.1 implementation, verification and owner acceptance](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1.md) and the [ten-workstream product roadmap](docs/BUDOGRAPH_PRODUCT_ROADMAP.md). T4.1 HUMAN PASS 8/8 is owner-confirmed; the current request authorizes the audited Git checkpoint. Migration 0013 extends receipt identity validation; development activation is recorded separately in the stage report.

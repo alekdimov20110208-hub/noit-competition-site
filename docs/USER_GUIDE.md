@@ -733,3 +733,7 @@ online-availability periods, declarations, and test-account requirements.
 ## Task reminders and notifications
 
 Organizers can select 1 day, 1 hour and/or 15 minutes before a timed Task deadline. Add a deadline time first; removing it clears reminders. The header bell shows your current Event notifications. Open an item to mark it read and open its Task, or use Mark all as read. Opening the panel alone does not mark items read. Switch Event to view that Event only. Refresh/open the panel to see newly generated reminders; delivery uses the current assignee and suppresses completed Tasks. There are no email/browser-push reminders.
+
+## Готови шаблони — T4.1
+
+Отворете Templates → „Библиотека с готови шаблони“. Търсете в имената, описанията и задачите; комбинирайте категория и ниво. „Преглед на плана“ показва предназначението, всички задачи и сроковете спрямо избраното Event. Отрицателните дни са подготовка преди началото. Изключете ненужните задачи и поискайте сървърен Review. Само активен Organizer в неархивирано Event може лично да потвърди Apply. Всяка нова потвърдена операция добавя Tasks; не заменя старите. При неясен отговор възстановете същата операция. След успех отворете Tasks или History. Built-in и My Templates остават отделни. Новата библиотека има 12 нови плана / 108 задачи (13 системни шаблона с оригиналния starter); T4.1 HUMAN PASS 8/8 е лично потвърден от собственика. Подробна процедура: BUDOGRAPH_EVENT_TEMPLATES_T4_1.md.

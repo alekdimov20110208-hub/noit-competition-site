@@ -1,0 +1,112 @@
+.curated-library {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.templates-library-tabs {
+  flex-wrap: wrap;
+}
+.curated-library h2,
+.curated-library h3 {
+  overflow-wrap: anywhere;
+}
+.curated-library p {
+  color: var(--ink-soft);
+  line-height: 1.65;
+  margin: 0;
+}
+.curated-library__filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.curated-library__filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+}
+.curated-library__filters input,
+.curated-library__filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  background: var(--surface);
+  font: inherit;
+}
+.curated-library__filters input:focus-visible,
+.curated-library__filters select:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.curated-library__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.curated-library__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.curated-library__card h3 {
+  font-size: 18px;
+  line-height: 1.4;
+  margin: 0;
+}
+.curated-library__card p {
+  font-size: 13px;
+}
+.curated-library__card .button {
+  align-self: flex-start;
+  margin-top: auto;
+}
+.curated-library__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 650;
+}
+.curated-library__count {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1100px) {
+  .curated-library__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .curated-library__filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .curated-library__filters label:first-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .curated-library__grid,
+  .curated-library__filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .curated-library__card {
+    padding: 18px;
+  }
+  .curated-library .button {
+    min-height: 44px;
+    white-space: normal;
+    text-align: start;
+  }
+}

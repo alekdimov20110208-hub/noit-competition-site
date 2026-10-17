@@ -184,3 +184,7 @@ added and the lockfile is unchanged. Browser verification reuses an existing
 Playwright runtime (Apache-2.0) and installed desktop browser; these are external
 development tools, not included application assets/dependencies. A final full
 transitive distribution audit and actual-year NOIT license check remain required.
+
+## T4.1 original editorial catalog — 2026-10-17
+
+The 12 new curated BG/EN plans, 108 Task texts and associated UI/source are original project content authored with Codex assistance, under the existing GPL-3.0-only project license. No external checklist text, image, font, asset or new dependency was imported. Existing React/Lucide and development-tool notices remain applicable. The owner has completed T4.1 editorial Human Acceptance 8/8. Actual-year NOIT requirements and legal/license certification remain separate checks; this entry is not legal certification.

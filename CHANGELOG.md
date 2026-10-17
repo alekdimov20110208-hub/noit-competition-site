@@ -258,3 +258,15 @@
 - Email delivery remains unconfigured; explicit one-time development links are available.
 - Preserved locked Dashboard/Tasks/Team composition and P1/P2A/P2B responsibility semantics.
 - Added focused automated/browser verification and setup/user/security documentation.
+
+## 2026-10-17 — Templates T4.1
+
+Added 12 versioned, bilingual curated plans (108 Tasks), an authenticated authoritative catalog read API, search/filters/detail/selection and shared T2 Review/Apply/recovery/History support for curated slugs. Original starter and owner-only personal templates remain. Added receipt migration 0013 and the persistent product roadmap with internal planning estimates. Technical evidence and pending Human Acceptance: docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1.md. No commit/push in this stage.
+
+### T4.1 development activation — 2026-10-17
+
+Owner clarified the additional T3 application. Preserved all five Tasks and three receipts; applied 0013 after verified TLS, recoverable backup and isolated acceptance. One graceful backend replacement is active (PID 33112); Vite is unchanged. Live catalog and original/private/curated Preview reads succeeded without Apply. Corrected the BG/EN duration label for singular/plural wording. Human Acceptance is pending; no commit/push. See docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1_ACTIVATION.md.
+
+### T4.1 final owner Human Acceptance and Git checkpoint — 2026-10-17
+
+**T4.1 HUMAN PASS — 8/8, owner-confirmed.** The owner personally verified all 12 new BG/EN templates (108 Tasks; 13 system templates including the unchanged starter), real search/category/difficulty filters, details and exactly two reviewed deadlines (2026-10-23 / 2026-10-30) in a fresh empty Event. One owner-confirmed Apply created exactly two new Tasks and three application History entries. Built-in/My Templates, T1/T2/T3, B.1 and LOCKED Event Management remain preserved. Migration 0013 is applied and controlled development activation completed. The internal ten-workstream roadmap is included. The owner authorized the audited commit and safe normal push; no T4.2, new live Apply, migration, runtime restart or deployment is part of this checkpoint.

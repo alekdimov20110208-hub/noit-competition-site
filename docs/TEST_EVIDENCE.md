@@ -6258,3 +6258,49 @@ legacy demo-only probe incompatibility, and outstanding P4A external human gate.
 Commit and push/sync results are reported in the completion response. Explicit
 human brand acceptance has already been given; no renewed brand approval gate
 is introduced. Stop after integration; do not continue into PWA or Web Push.
+
+## 2026-10-17 — T4.1 curated library
+
+Fresh checks: frontend 328 PASS / 0 FAIL / 0 SKIP; backend 188 PASS / 0 FAIL / 42 explicit opt-in DB skips. Separately executed real PostgreSQL Templates T2/T3/T4: 53 PASS; Event Management: 77 PASS. Isolated 0013 preserved original and personal receipts/blueprints and all business-table hashes; rerun 0 applied / 13 existing. Chromium T4.1 26 PASS; T1/T2/T3 34/29/7 PASS. LOCKED 112/112 pixel-identical with unchanged references and 2 detected negative controls. TypeScript, lint and frontend/backend builds pass; the existing >500 kB bundle warning remains. The source handoff initially stopped at historical-data preflight; the owner subsequently confirmed the additional T3 operation and authorized activation. Migration 0013 is now applied and the backend activated; see BUDOGRAPH_EVENT_TEMPLATES_T4_1_ACTIVATION.md. Exact findings, paths and pending owner acceptance: BUDOGRAPH_EVENT_TEMPLATES_T4_1.md.
+
+## 2026-10-17 — T4.1 development activation continuation
+
+Owner confirmed operation e6879dd5-4e12-4ed3-aedf-f2fcb4215767 as the T3 test. Preserved all 5 Tasks / 3 receipts / 9 History entries, B.1 and 18 business/auth/private table hashes. Verified target fingerprints, actual old/new backend TLS 1.3, checksum history 0001–0012, restricted DPAPI recoverable backup, additive 0013 (1 applied / 12 existing; repeat 0/13), unchanged receipt protections and exactly one controlled graceful backend restart (22076 → 33112; prior watch supervisor stopped after its serving child exited). Vite remains 27776. Authenticated catalog/search/filter, original T2 Preview (4), private T3 detail/Preview (2) and new curated Preview (2) succeeded without Apply. Frontend copy-only duration-label correction passed 328 tests, TypeScript, lint and build; prior backend/isolated SQL/browser counts above were not rerun in this activation. T4.1 HUMAN ACCEPTANCE remains PENDING. Detailed evidence: BUDOGRAPH_EVENT_TEMPLATES_T4_1_ACTIVATION.md.
+
+## T4.1 owner Human Acceptance — 2026-10-17
+
+**T4.1 HUMAN PASS — 8/8, owner-confirmed.** The owner personally verified the 12 new curated templates / 108 Tasks (13 system templates including the preserved original), real search, category/difficulty filters, appropriate BG/EN content, all eight beginner-plan items, exact selected deadlines **2026-10-23 and 2026-10-30** in a new empty Event, one confirmed Apply creating **exactly 2 new Tasks and 3 application History entries**, and unaffected Built-in/My Templates. No new Event/Task/operation IDs, Apply timestamp or screenshots are inferred from this attestation. Earlier isolated PostgreSQL and synthetic browser evidence remains distinct from this later human acceptance. T1/T2/T3, B.1 and LOCKED Stages 1–7 remain preserved. Migration 0013 and controlled development activation are complete; the product roadmap contains internal estimates.
+
+## T4.1 accepted source-control checkpoint — 2026-10-17
+
+Fresh non-destructive checkpoint checks: frontend **328 PASS / 0 FAIL / 0 SKIP**;
+backend **188 PASS / 0 FAIL / 42 explicit opt-in database skips**. Both TypeScript
+checks, frontend/backend builds and lint pass. Catalog tests validate all 12 new
+plans / 108 bilingual Task definitions, original starter parity, all-plan Review
+content, date offsets and shared atomic Apply using in-memory fixtures. The real
+isolated PostgreSQL and browser suites recorded above were **not rerun** for this
+Git checkpoint; no additional live Apply or fixture write was performed.
+
+The complete scope is **38 files**: 14 documentation, 6 backend, 10 frontend,
+6 tests, migration 0013 and package scripts. All supported scoped files pass
+Prettier. The pre-existing formatting issue in the unchanged LOCKED
+`src/components/EventArchiveDialog.tsx` remains; full-repository formatting is
+not claimed. The existing Vite bundle advisory remains: main JS **698.13 kB**
+(gzip **186.93 kB**), above the 500 kB advisory threshold.
+
+The pre-staging audit found no active-secret correlations or credential/certificate
+patterns in the intended files. Historical migrations 0001–0012 match the accepted
+Git checkpoint; 0013 SHA-256 remains
+`447b94f4487f28715b374778d15f77a384640f54132090f3c9a5e6a314e9b1c1` and matches
+the applied development history. All **383** entries in the activated-source,
+environment and CA hash manifest match. A verified-TLS, repeatable-read **READ ONLY**
+transaction recorded preservation hashes for 18 business/auth/private tables,
+including the owner's latest test data; notification worker tables are excluded
+from that comparison. Backend PID **33112** and Vite PID **27776** remain running.
+
+Only the audited allowlist is eligible for staging. The unrelated
+`docs/market-research/docs - Shortcut.lnk` is untouched and excluded; ignored
+diagnostics, logs, raw evidence, environment/CA files and backup material remain
+local. The staged secret/diff checks, final preservation comparison, commit and
+safe-push verification are reported in the checkpoint completion response.
+T4.2 and the roadmap's other future workstreams are not started.

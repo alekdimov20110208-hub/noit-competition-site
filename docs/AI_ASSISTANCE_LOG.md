@@ -1692,3 +1692,15 @@ the generated changes. No subagent was used. The supplied NOIT rules apply to
 ## 2026-10-08 — Task reminders and in-app notifications
 
 Codex inspected mandatory master/regulations, locked baseline and canonical Task/authorization contracts, implemented additive schema, backend worker/read APIs, typed BG/EN header/form UI and deterministic tests/browser verification. No new dependencies or external setup. Tests and concrete results are recorded in TEST_EVIDENCE.md; human authors must review and understand the generated SQL/TypeScript, DST behavior and concurrency before competition use. Human review is pending, not claimed complete.
+
+## 2026-10-17 — T4.1 curated library and roadmap
+
+Codex authored BG/EN content, server/client validation, receipt migration 0013, the library UI, tests and roadmap under the owner-provided T4.1 request. No external checklist was copied and no dependency was added. Automated evidence and editorial checks are in BUDOGRAPH_EVENT_TEMPLATES_T4_1.md; owner review, code understanding and Human Acceptance are PENDING. No claim of invented research, human review or owner-performed Apply is made.
+
+## 2026-10-17 — T4.1 activation after owner clarification
+
+Codex verified the owner-confirmed additional T3 operation, created and validated a restricted DPAPI backup, applied only additive migration 0013, performed one controlled graceful backend restart and checked actual TLS/readiness, 18-table preservation and authenticated read-only UI flows. A single frontend BG/EN duration label was corrected and reverified. No live Apply, account/Task/Event authoring, commit or push was performed. T4.1 Human Acceptance remains pending; see BUDOGRAPH_EVENT_TEMPLATES_T4_1_ACTIVATION.md.
+
+## 2026-10-17 — T4.1 final Human Acceptance and source-control checkpoint
+
+The owner authoritatively confirmed **T4.1 HUMAN PASS 8/8**, including a personal Apply of exactly two Tasks with three application History entries in a new empty Event. This is separate from Codex automated/isolated testing. No new test IDs, operation timestamp or screenshot was supplied in the attestation. Codex recorded acceptance, audited the complete T4.1 source/docs/test/migration scope and excluded the unrelated shortcut and ignored diagnostics/evidence. The current request authorizes a descriptive commit and safe normal push after checks. No new feature development, live Apply, database migration or runtime restart is performed in this checkpoint.

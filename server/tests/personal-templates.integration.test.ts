@@ -83,12 +83,12 @@ test(
     try {
       await runMigrations(pool, directory);
       await t.test(
-        "12 exact migration checksums, no-op rerun and RLS deny browser tables",
+        "13 exact migration checksums, no-op rerun and RLS deny browser tables",
         async () => {
           const expected = (await discoverMigrations(directory)).map(
             ({ version, name, checksum }) => ({ version, name, checksum }),
           );
-          assert.equal(expected.length, 12);
+          assert.equal(expected.length, 13);
           assert.deepEqual(
             (
               await pool.query(
@@ -99,7 +99,7 @@ test(
           );
           assert.deepEqual(await runMigrations(pool, directory), {
             applied: 0,
-            alreadyApplied: 12,
+            alreadyApplied: 13,
           });
           for (const name of [
             "personal_template",

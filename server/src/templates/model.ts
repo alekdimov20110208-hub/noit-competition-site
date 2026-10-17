@@ -5,7 +5,7 @@ import {
   uuidPattern,
   type TaskFields,
 } from "../tasks/model.ts";
-import { SEMINAR_BLUEPRINT as blueprint } from "./catalog.ts";
+import { systemBlueprint } from "./catalog.ts";
 
 export type TemplateLanguage = "bg" | "en";
 export interface TemplateSelection {
@@ -62,29 +62,30 @@ export function parseTemplateSelection(
   )
     throw new EventCommandError(400, "INVALID_TEMPLATE_COMMAND");
   const personal = uuidPattern.test(row.templateId);
-  if (row.templateId !== blueprint.id && !personal)
+  const blueprint = systemBlueprint(row.templateId);
+  if (!blueprint && !personal)
     throw new EventCommandError(400, "UNKNOWN_TEMPLATE");
   if (
     (personal &&
       ((row.templateVersion as number) < 1 ||
         (row.templateVersion as number) > 2147483647)) ||
-    (!personal && row.templateVersion !== blueprint.version)
+    (!personal && row.templateVersion !== blueprint!.version)
   )
     throw new EventCommandError(409, "TEMPLATE_VERSION_CONFLICT");
   if (
     row.itemIds.some((id) =>
       personal
         ? !uuidPattern.test(id as string)
-        : !blueprint.items.some((item) => item.id === id),
+        : !blueprint!.items.some((item) => item.id === id),
     )
   )
     throw new EventCommandError(400, "UNKNOWN_TEMPLATE_ITEM");
   const selection: TemplateSelection = {
-    templateId: personal ? row.templateId.toLowerCase() : blueprint.id,
+    templateId: personal ? row.templateId.toLowerCase() : blueprint!.id,
     templateVersion: row.templateVersion as number,
     itemIds: personal
       ? (row.itemIds as string[]).map((id) => id.toLowerCase()).sort()
-      : blueprint.items
+      : blueprint!.items
           .filter((item) => (row.itemIds as string[]).includes(item.id))
           .map((item) => item.id),
     language: row.language as TemplateLanguage,
@@ -159,7 +160,8 @@ export function resolveBlueprint(
           },
         },
       }))
-    : blueprint.items;
+    : systemBlueprint(selection.templateId)?.items;
+  if (!items) throw new EventCommandError(400, "UNKNOWN_TEMPLATE");
   return items
     .filter((item) => selection.itemIds.includes(item.id))
     .map((item) => {

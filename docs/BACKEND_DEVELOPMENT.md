@@ -1105,3 +1105,7 @@ choices are internal project decisions, not official competition rules.
 ## Task reminder worker
 
 Apply `0007_task_reminders_notifications.sql` with `pnpm.cmd db:migrate` before server startup. Fastify starts one in-process PostgreSQL-backed worker on readiness and drains it at close, with 30 seconds between completed passes and a 100-candidate bound. Run `pnpm.cmd test:browser:task-reminders` using the existing controlled-account/browser environment. No public deterministic-clock endpoint exists. See [Task reminders](BUDOGRAPH_TASK_REMINDERS.md) for API, atomicity, DST and dedupe contracts.
+
+## T4.1 curated catalog
+
+GET /api/templates/curated returns authenticated, no-store system-owned metadata and actual bilingual item blueprints. It rejects query parameters and exposes no personal identities. Curated slugs use the existing preview/apply transaction and durable receipts; server source is the sole content authority. Only additive migration 0013 extends the identity CHECK; 0001–0012 stay unchanged. See BUDOGRAPH_EVENT_TEMPLATES_T4_1.md for isolated PostgreSQL proof, completed development activation and owner-confirmed T4.1 HUMAN PASS 8/8. Do not point destructive fixtures at shared Supabase.

@@ -243,3 +243,7 @@ or an unperformed checklist into a passing claim.
   the official regulation for the actual competition year, including dates,
   category wording, procedures, deliverables, formats, declarations,
   online-availability periods, media restrictions, and test-account rules.
+
+## T4.1 demonstration addition
+
+Show the 12-plan curated library, meaningful localized search and combined filters, then select two Tasks and inspect the authoritative dates/content. Explain the one-transaction shared Apply, durable receipt and event-scoped History with real isolated SQL evidence. A live Apply is performed only by the owner during acceptance/demo. Distinguish the original starter, system-owned curated content and private personal templates; never describe internal roadmap dates as official NOIT deadlines.
