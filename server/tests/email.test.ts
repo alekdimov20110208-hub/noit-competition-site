@@ -11,6 +11,7 @@ import {
 } from "../src/email/service.ts";
 import { createEmailThrottle } from "../src/email/throttle.ts";
 import { readServerEnv, EnvironmentError } from "../src/config/env.ts";
+import { syntheticOperationalEnvironment } from "./helpers/operational-secrets.ts";
 import { createApp } from "../src/app.ts";
 import type { InvitationService } from "../src/invitations/service.ts";
 import { safeEmailReturnTo } from "../src/routes/auth.ts";
@@ -106,6 +107,7 @@ test("trusted email URLs reject foreign origins, callback poisoning and unknown 
 test("production fail-fast email validation and deliberate disabled development", () => {
   const env = {
     NODE_ENV: "production",
+    ...syntheticOperationalEnvironment(),
     DATABASE_URL: "postgres://database.invalid/synthetic",
     DATABASE_TLS_CA_FILE: "SYNTHETIC_CA_FILE.pem",
     BETTER_AUTH_SECRET: randomBytes(32).toString("hex"),

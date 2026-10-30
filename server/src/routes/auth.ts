@@ -5,6 +5,8 @@ import { createEmailThrottle } from "../email/throttle.ts";
 import { emailLocale } from "../email/service.ts";
 import { uuidPattern } from "../tasks/model.ts";
 import { profileName, profilePassword } from "../auth/profile.ts";
+import type { SharedControls } from "../operations/limits.ts";
+import { canonicalAuthPath } from "../auth/path.ts";
 
 export interface AuthIntegration {
   auth: SessionAuth & { handler(request: Request): Promise<Response> };
@@ -13,6 +15,7 @@ export interface AuthIntegration {
   publicAppUrl?: string;
   emailEnabled?: boolean;
   developmentInviteLinks?: boolean;
+  controls?: SharedControls;
 }
 export function safeEmailReturnTo(value: unknown) {
   if (
@@ -77,6 +80,7 @@ export function registerAuthRoutes(
     publicAppUrl = baseURL,
     emailEnabled,
     taskMutationOrigins,
+    controls,
   }: AuthIntegration,
 ) {
   const origin = new URL(baseURL).origin;
@@ -91,6 +95,7 @@ export function registerAuthRoutes(
       reply.header("cache-control", "no-store");
       reply.header("referrer-policy", "no-referrer");
       const url = new URL(request.url, origin);
+      const path = canonicalAuthPath(url.pathname);
       if (url.origin !== origin) {
         return reply.code(400).send({ status: "error" });
       }
@@ -115,13 +120,11 @@ export function registerAuthRoutes(
         [
           "/api/auth/request-password-reset",
           "/api/auth/send-verification-email",
-        ].includes(url.pathname.replace(/\/$/, ""));
+        ].includes(path);
       let body = request.body;
       const accountCommand =
         request.method === "POST" &&
-        ["/api/auth/update-user", "/api/auth/change-password"].includes(
-          url.pathname.replace(/\/$/, ""),
-        );
+        ["/api/auth/update-user", "/api/auth/change-password"].includes(path);
       let accountId: string | undefined;
       if (accountCommand) {
         accountId = (await requireAuthenticatedUser(auth, request)).id;
@@ -136,7 +139,7 @@ export function registerAuthRoutes(
           return reply
             .code(400)
             .send({ status: "error", code: "INVALID_PROFILE" });
-        if (url.pathname.replace(/\/$/, "").endsWith("update-user")) {
+        if (path.endsWith("update-user")) {
           const name = profileName(body);
           if (!name)
             return reply
@@ -161,13 +164,15 @@ export function registerAuthRoutes(
         )
           return reply.code(400).send({ status: "error" });
         // Throttle before identity lookup: existence and provider outcome do not affect it.
-        if (!throttle(request.ip, fields.email))
+        if (controls)
+          await controls.email("authmail", request.ip, fields.email);
+        else if (!throttle(request.ip, fields.email))
           return reply
             .code(429)
             .send({ status: "error", code: "RATE_LIMITED" });
         if (emailEnabled === false)
           return reply.code(503).send({ status: "error" });
-        body = url.pathname.includes("request-password-reset")
+        body = path.includes("request-password-reset")
           ? {
               email: fields.email.trim().toLowerCase(),
               redirectTo: new URL("/reset-password", publicAppUrl).href,
@@ -177,10 +182,7 @@ export function registerAuthRoutes(
               callbackURL: verificationCallback(publicAppUrl, fields.returnTo),
             };
       }
-      if (
-        request.method === "GET" &&
-        url.pathname === "/api/auth/verify-email"
-      ) {
+      if (request.method === "GET" && path === "/api/auth/verify-email") {
         const callback = url.searchParams.get("callbackURL");
         let returnTo = "/";
         try {
@@ -197,7 +199,7 @@ export function registerAuthRoutes(
       }
       if (
         request.method === "GET" &&
-        url.pathname.startsWith("/api/auth/reset-password/")
+        path.startsWith("/api/auth/reset-password/")
       )
         url.searchParams.set(
           "callbackURL",
@@ -206,11 +208,11 @@ export function registerAuthRoutes(
       // Unconfigured proxy peers resolve to their direct socket address.
       // Clients cannot supply the IP header consumed by Better Auth.
       headers.set("x-budograph-client-ip", request.ip);
-      if (accountId && pendingAccounts.has(accountId))
+      if (!controls && accountId && pendingAccounts.has(accountId))
         return reply.code(409).send({ status: "error", code: "ACCOUNT_BUSY" });
-      if (accountId && pendingAccounts.size >= 10_000)
+      if (!controls && accountId && pendingAccounts.size >= 10_000)
         return reply.code(429).send({ status: "error" });
-      if (accountId) pendingAccounts.add(accountId);
+      if (!controls && accountId) pendingAccounts.add(accountId);
       let response: Response;
       try {
         response = await auth.handler(

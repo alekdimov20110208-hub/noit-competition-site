@@ -8,6 +8,7 @@ import test from "node:test";
 import { createApp } from "../src/app.ts";
 import { readDeploymentEnv } from "../src/config/deployment.ts";
 import { readServerEnv, EnvironmentError } from "../src/config/env.ts";
+import { syntheticOperationalEnvironment } from "./helpers/operational-secrets.ts";
 
 const html =
   '<!doctype html><div id="root"></div><script>window.example = true;</script>';
@@ -245,6 +246,7 @@ test("production rejects HTTP, mismatched origins, disabled email and TLS downgr
     EMAIL_FROM: "no-reply@example.invalid",
     RESEND_API_KEY: "re_" + randomBytes(20).toString("hex"),
   };
+  Object.assign(base, syntheticOperationalEnvironment());
   assert.equal(readServerEnv(base).nodeEnv, "production");
   for (const fields of [
     { BETTER_AUTH_URL: "http://budograph.example.invalid" },

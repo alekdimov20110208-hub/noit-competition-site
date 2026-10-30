@@ -2,28 +2,20 @@ import type { FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { fileURLToPath } from "node:url";
 import { readDeploymentEnv } from "./config/deployment.ts";
-import {
-  discoverMigrations,
-  validateAppliedMigrations,
-} from "./db/migrations.ts";
+import { verifyProductionSchema } from "./db/production-schema.ts";
+import { registerEmailWorker } from "./email/worker.ts";
 import { exclusiveReminderWorker } from "./notifications/exclusive.ts";
 import { createApp } from "./app.ts";
-import { createAuth, trustedApplicationOrigins } from "./auth/auth.ts";
 import { EnvironmentError, readServerEnv } from "./config/env.ts";
 import { createDatabasePool } from "./db/pool.ts";
-import { createShutdown } from "./shutdown.ts";
-import { createTaskService } from "./tasks/service.ts";
-import { createTemplateApplicationService } from "./templates/service.ts";
-import { createPersonalTemplateService } from "./templates/library.ts";
-import { createEventService } from "./events/service.ts";
-import { createInvitationService } from "./invitations/service.ts";
-import { createChangeService } from "./changes/service.ts";
 import {
-  createEmailTasks,
-  createTransactionalEmailService,
-} from "./email/service.ts";
-import { verificationCallback } from "./routes/auth.ts";
-import { createNotificationService } from "./notifications/service.ts";
+  guardProductionDatabasePool,
+  readProductionDatabaseIdentity,
+  validateRuntimeConnection,
+} from "./db/identity.ts";
+import { createShutdown } from "./shutdown.ts";
+import { createEmailTasks } from "./email/service.ts";
+import { createApplicationServices } from "./runtime.ts";
 import {
   createReminderWorker,
   registerReminderWorker,
@@ -69,6 +61,10 @@ async function main() {
   try {
     const config = readServerEnv();
     const deployment = readDeploymentEnv();
+    const identity = deployment.production
+      ? readProductionDatabaseIdentity()
+      : undefined;
+    if (identity) validateRuntimeConnection(config.databaseUrl, identity);
     pool = createDatabasePool(config, () => {
       app?.log.error(
         { dependency: "postgresql" },
@@ -76,6 +72,7 @@ async function main() {
       );
     });
     const database = pool;
+    if (identity) guardProductionDatabasePool(database, identity);
     if (deployment.production) {
       const directory = fileURLToPath(
         new URL(
@@ -85,25 +82,14 @@ async function main() {
           import.meta.url,
         ),
       );
-      const files = await discoverMigrations(directory);
-      const query = {
-        text: "SELECT version, name, checksum FROM public.schema_migrations ORDER BY version",
-        query_timeout: 5000,
-      };
-      const result = await database.query(query);
-      if (validateAppliedMigrations(files, result.rows).length)
-        throw new EnvironmentError(
-          "Production migrations are pending; run the separate reviewed release step.",
-        );
+      await verifyProductionSchema(database, directory);
     }
-    const email = createTransactionalEmailService(config, (kind) =>
-      app?.log.warn({ kind }, "Transactional email delivery failed"),
-    );
-    const registration = createAuth(database, config, {
-      invitationRegistration: true,
-      email,
+    const { emailOperations, ...services } = createApplicationServices(
+      database,
+      config,
       emailTasks,
-    });
+      (kind) => app?.log.warn({ kind }, "Transactional email delivery failed"),
+    );
     app = createApp({
       production: deployment.production,
       trustedProxyIps: deployment.trustedProxyIps,
@@ -119,45 +105,11 @@ async function main() {
             ),
           }
         : {}),
-      personalTemplates: createPersonalTemplateService(database),
-      templates: createTemplateApplicationService(database),
-      email,
-      changes: createChangeService(database),
-      tasks: createTaskService(database),
-      notifications: createNotificationService(database),
-      events: createEventService(database),
-      invitations: createInvitationService(
-        database,
-        async (fields, locale, returnTo) => {
-          await registration.api.signUpEmail({
-            body: {
-              ...fields,
-              callbackURL: verificationCallback(
-                config.publicAppUrl,
-                returnTo,
-                locale ?? "bg",
-              ),
-            },
-            headers: new Headers({ "x-budograph-locale": locale ?? "bg" }),
-          });
-        },
-        email.enabled,
-      ),
-      authentication: {
-        auth: createAuth(database, config, { email, emailTasks }),
-        baseURL: config.betterAuthUrl,
-        taskMutationOrigins: trustedApplicationOrigins(config),
-        publicAppUrl: config.publicAppUrl,
-        emailEnabled: email.enabled,
-        developmentInviteLinks: config.nodeEnv !== "production",
-      },
-      checkDatabase: async () => {
-        // pg supports per-query timeouts; @types/pg omits this config field.
-        const query = { text: "SELECT 1", query_timeout: 5_000 };
-        await database.query(query);
-      },
+      ...services,
       logger: { level: "info" },
     });
+
+    if (emailOperations) registerEmailWorker(app, emailOperations);
 
     if (deployment.reminderWorkerEnabled)
       registerReminderWorker(

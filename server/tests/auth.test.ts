@@ -150,15 +150,17 @@ test("session creation hook checks active User using only server-derived ID", as
   const auth = createAuth(pool, testConfig());
   const hook = auth.options.databaseHooks.session.create.before;
   let active: boolean | undefined = true;
-  const queries: unknown[][] = [];
-  const originalQuery = pool.query;
-  t.after(() => {
-    pool.query = originalQuery;
-  });
-  pool.query = (async (...args: unknown[]) => {
-    queries.push(args);
-    return { rows: active === undefined ? [] : [{ active }] };
-  }) as typeof pool.query;
+  const queries: string[] = [];
+  const context = {
+    context: {
+      internalAdapter: {
+        findUserById: async (id: string) => {
+          queries.push(id);
+          return active === undefined ? null : { active };
+        },
+      },
+    },
+  } as unknown as Parameters<typeof hook>[1];
   const session = {
     userId: "synthetic-user",
     id: "synthetic-session",
@@ -167,17 +169,19 @@ test("session creation hook checks active User using only server-derived ID", as
     createdAt: new Date(),
     updatedAt: new Date(),
   };
-  assert.equal(await hook(session), undefined);
+  assert.equal(await hook(session, context), undefined);
   active = false;
-  assert.equal(await hook(session), false);
+  assert.equal(await hook(session, context), false);
   active = undefined;
-  assert.equal(await hook(session), false);
+  assert.equal(await hook(session, context), false);
   assert.deepEqual(
     queries,
-    Array.from({ length: 3 }, () => [
-      'SELECT active FROM public."user" WHERE id = $1',
-      ["synthetic-user"],
-    ]),
+    Array.from({ length: 3 }, () => "synthetic-user"),
+  );
+  assert.equal(
+    pool.totalCount,
+    0,
+    "The hook must reuse the current adapter, not pool.query",
   );
 });
 

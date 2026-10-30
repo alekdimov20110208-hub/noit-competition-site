@@ -1,5 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-# Migration checksums must match across Windows and Linux checkouts.
-server/migrations/*.sql text eol=lf
+# Preserve original SQL bytes, including the immutable R2 line endings.
+server/migrations/*.sql -text

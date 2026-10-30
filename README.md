@@ -1,5 +1,23 @@
 # BudoGraph
 
+**D2.2 safe staging branch:** local branch `staging/render-free-d2-2` preserves
+D2/D2.1 and prepares a separate database target with fail-closed staging identity
+checks. No push or cloud resource creation is authorized. The current
+[D2.2 runbook](docs/BUDOGRAPH_SAFE_STAGING_D2_2.md) supersedes the earlier hosting
+target instructions and includes the Vercel pre-push gate and owner checklist.
+
+**D2.1 Free staging preparation:** `render.yaml` now defines one Render Free
+service with manual deploy and reminders disabled. No service has been created.
+See the [Free staging runbook](docs/BUDOGRAPH_RENDER_FREE_D2_1.md) for environment
+inputs, CA upload, remaining owner prerequisites and targeted local evidence.
+
+**D2 runtime integration is locally verified against the exact 16-migration R2
+schema.** Persistent Fastify now composes Better Auth, database identity checks,
+durable transactional email, shared rate limits and both workers. Production
+deployment has not been performed. See the [D2 runtime handoff](docs/BUDOGRAPH_RUNTIME_D2.md)
+for required secrets, separately approved owner bootstrap operations, local tests
+and the manual Render hosting action. Do not rerun Production migrations.
+
 Production readiness D1 has a tested repository-side foundation: same-origin
 built React/Fastify serving, deployment security checks, a native hosting recipe
 and local PostgreSQL TLS/restore rehearsal. **D1 HUMAN PASS — 8/8, owner-confirmed.
@@ -9,8 +27,8 @@ evidence and owner prerequisites. Development runtime/database, accepted Templat
 and LOCKED Event Management remain preserved.
 Acceptance covers the locally verified repository-side implementation; public
 HTTPS/ingress/cookies, real email, production grants and provider recovery remain
-unverified. The owner authorized only the D1 Git checkpoint; D2 and Calendar C1
-integration are not started.
+unverified in that D1 record. D2 local runtime implementation is documented above;
+Calendar C1 integration is not part of this checkout's D2 work.
 
 ## Event Templates T4.2 — HUMAN PASS 8/8, owner-confirmed
 

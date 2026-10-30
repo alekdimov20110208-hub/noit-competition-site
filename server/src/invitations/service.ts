@@ -8,6 +8,7 @@ import {
 } from "../db/transaction.ts";
 import type { AuthorizationDatabase } from "../authorization/events.ts";
 import { uuidPattern } from "../tasks/model.ts";
+import { OperationalError } from "../operations/limits.ts";
 import {
   exactInput,
   generateInvitationToken,
@@ -30,7 +31,8 @@ export type RegisterInvitedAccount = (
   },
   locale?: "bg" | "en",
   returnTo?: string,
-) => Promise<void>;
+  database?: TransactionDatabase,
+) => Promise<void | (() => Promise<void>)>;
 const columns = `id, event_id, invited_email, inviter_user_id, created_at, expires_at,
   accepted_at, accepted_user_id, revoked_at, expires_at <= clock_timestamp() AS expired`;
 function authenticated(user: AuthenticatedUser) {
@@ -97,6 +99,16 @@ export function createInvitationService(
   database: Database,
   registerAccount?: RegisterInvitedAccount,
   requireVerifiedEmail = false,
+  prepareRegistration: () => Promise<void> = async () => {},
+  recordEmail?: (
+    tx: TransactionDatabase,
+    result: {
+      invitation: ReturnType<typeof invitationDto>;
+      token: string;
+      eventName: string;
+    },
+    locale?: "bg" | "en",
+  ) => Promise<string>,
 ) {
   async function lockedToken<T>(
     token: string,
@@ -126,7 +138,12 @@ export function createInvitationService(
     });
   }
   return {
-    async create(user: AuthenticatedUser, scope: string, input: unknown) {
+    async create(
+      user: AuthenticatedUser,
+      scope: string,
+      input: unknown,
+      locale?: "bg" | "en",
+    ) {
       authenticated(user);
       const id = eventId(scope),
         email = parseInvitedEmail(exactInput(input, ["email"]).email);
@@ -171,7 +188,17 @@ export function createInvitationService(
         const row = result.rows[0] as InvitationRow;
         await activity(tx, row, user, actor, "invitation.created");
         // One response only. No token retrieval, raw-token persistence or history.
-        return { invitation: invitationDto(row), token, eventName: event.name };
+        const created = {
+          invitation: invitationDto(row),
+          token,
+          eventName: event.name,
+        };
+        return {
+          ...created,
+          ...(recordEmail
+            ? { emailJob: await recordEmail(tx, created, locale) }
+            : {}),
+        };
       });
     },
     async list(user: AuthenticatedUser, scope: string) {
@@ -188,7 +215,12 @@ export function createInvitationService(
         return (result.rows as InvitationRow[]).map(invitationDto);
       });
     },
-    async resend(user: AuthenticatedUser, scope: string, invitationId: string) {
+    async resend(
+      user: AuthenticatedUser,
+      scope: string,
+      invitationId: string,
+      locale?: "bg" | "en",
+    ) {
       authenticated(user);
       const id = eventId(scope),
         invite = eventId(invitationId);
@@ -214,7 +246,17 @@ export function createInvitationService(
           [invite, hashInvitationToken(token)],
         );
         // Latest resend invalidates old links; original expiry and invitation ID remain.
-        return { invitation: invitationDto(row), token, eventName: event.name };
+        const resent = {
+          invitation: invitationDto(row),
+          token,
+          eventName: event.name,
+        };
+        return {
+          ...resent,
+          ...(recordEmail
+            ? { emailJob: await recordEmail(tx, resent, locale) }
+            : {}),
+        };
       });
     },
     async revoke(
@@ -289,12 +331,14 @@ export function createInvitationService(
       )
         throw new InvitationError(400, "INVALID_REGISTRATION");
       if (!registerAccount) throw new InvitationError(503, "UNAVAILABLE");
-      await lockedToken(token, async (_tx, row, event) => {
+      await prepareRegistration();
+      const dispatch = await lockedToken(token, async (tx, row, event) => {
         joinable(row, event.archived_at);
-        // Better Auth owns a SEPARATE account transaction. A failed/expired join
-        // may leave an account; no membership or consumption occurs here.
+        // The runtime callback binds Better Auth to this owned transaction.
+        // Only a post-COMMIT email effect may escape the transaction callback.
+        let afterCommit: void | (() => Promise<void>);
         try {
-          await registerAccount(
+          afterCommit = await registerAccount(
             {
               email: row.invited_email,
               name: fields.name!.toString().trim(),
@@ -302,11 +346,21 @@ export function createInvitationService(
             },
             locale,
             `/invite/${token}`,
+            tx,
           );
-        } catch {
+        } catch (error) {
+          if (error instanceof OperationalError) throw error;
           throw new InvitationError(400, "REGISTRATION_FAILED");
         }
+        // Clock-based expiry can change while hashing, even with the row locked.
+        const refreshed = await tx.query(
+          `SELECT ${columns} FROM public.event_invitation WHERE id=$1`,
+          [row.id],
+        );
+        joinable(refreshed.rows[0] as InvitationRow, event.archived_at);
+        return afterCommit;
       });
+      await dispatch?.();
       return {
         status: verificationRequired
           ? "verification_required"

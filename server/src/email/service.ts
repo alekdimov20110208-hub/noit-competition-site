@@ -1,4 +1,5 @@
 import type { ServerConfig } from "../config/env.ts";
+import type { TransactionDatabase } from "../db/transaction.ts";
 export type EmailLocale = "bg" | "en";
 export type EmailKind = "invitation" | "verification" | "reset";
 export interface TransactionalEmail {
@@ -12,6 +13,15 @@ export interface TransactionalEmail {
 export interface TransactionalEmailService {
   enabled: boolean;
   send(message: TransactionalEmail): Promise<void>;
+  enqueue?(
+    database: TransactionDatabase,
+    message: TransactionalEmail,
+  ): Promise<string>;
+  reserve?(database: TransactionDatabase): Promise<void>;
+  dispatch?(
+    target?: string,
+    batch?: number,
+  ): Promise<{ accepted: number; deferred: number }>;
 }
 export class EmailDeliveryError extends Error {
   constructor() {

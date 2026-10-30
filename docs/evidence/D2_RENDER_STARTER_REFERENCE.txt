@@ -1,0 +1,62 @@
+HISTORICAL D2 PAID RECIPE - REFERENCE ONLY - DO NOT APPLY
+Paid provisioning is NOT AUTHORIZED. Active configuration: root render.yaml (Free).
+Saved byte-for-byte below from the pre-D2.1 checkout.
+
+# D2 persistent single-process recipe. Owner approval is required before applying
+# this PAID service. No preDeployCommand: the 16 migrations are already applied.
+# Upload database-ca.pem as a Render secret file before the first start.
+services:
+  - type: web
+    name: budograph
+    runtime: node
+    plan: 0.5c-512mb
+    region: frankfurt
+    numInstances: 1
+    maxShutdownDelaySeconds: 120
+    autoDeployTrigger: off
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm production:build
+    startCommand: pnpm production:start
+    healthCheckPath: /api/health/ready
+    envVars:
+      - key: NODE_VERSION
+        value: 24.16.0
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: SERVE_FRONTEND
+        value: "true"
+      - key: REMINDER_WORKER_ENABLED
+        value: "true"
+      - key: DATABASE_TLS_MODE
+        value: verify-full
+      - key: DATABASE_TLS_CA_FILE
+        value: /etc/secrets/database-ca.pem
+      - key: DATABASE_URL
+        sync: false
+      - key: EXPECTED_DATABASE_ID
+        sync: false
+      - key: EXPECTED_SUPABASE_PROJECT_REF
+        value: bdcjascqqvzmmlvabhgv
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: BETTER_AUTH_URL
+        sync: false
+      - key: PUBLIC_APP_URL
+        sync: false
+      - key: EMAIL_MODE
+        value: resend
+      - key: EMAIL_FROM
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RATE_LIMIT_HMAC_KEY
+        sync: false
+      - key: EMAIL_OUTBOX_KEY_ID
+        sync: false
+      - key: EMAIL_OUTBOX_KEYS
+        sync: false

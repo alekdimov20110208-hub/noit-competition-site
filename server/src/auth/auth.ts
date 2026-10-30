@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, type BetterAuthOptions } from "better-auth";
 import type { Pool } from "pg";
 import type { ServerConfig } from "../config/env.ts";
 import {
@@ -6,6 +6,8 @@ import {
   type TransactionalEmailService,
   type EmailKind,
 } from "../email/service.ts";
+import { createAuthTransactions } from "./transactions.ts";
+import type { SharedControls } from "../operations/limits.ts";
 
 export type AuthConfig = Pick<
   ServerConfig,
@@ -18,7 +20,8 @@ export interface AuthOptions {
   // Private server API instance only; its handler is never attached to HTTP.
   invitationRegistration?: true;
   email?: TransactionalEmailService;
-  emailTasks?: { submit(work: () => Promise<void>): void };
+  emailTasks?: { submit(work: () => Promise<void>): void | Promise<void> };
+  sharedControls?: SharedControls;
 }
 
 export function trustedApplicationOrigins(
@@ -35,15 +38,17 @@ export function trustedApplicationOrigins(
 
 // The provisioning instance is created only by an explicit local CLI command.
 // The HTTP server always uses the default instance with registration disabled.
-export function createAuth(
-  pool: Pool,
+function createAuthInstance(
+  database: BetterAuthOptions["database"],
   config: AuthConfig,
   {
     developmentProvisioning,
     invitationRegistration,
     email,
     emailTasks,
+    sharedControls,
   }: AuthOptions = {},
+  validateSchema = config.nodeEnv !== "test",
 ) {
   if (developmentProvisioning && config.nodeEnv !== "development") {
     throw new Error("Account provisioning requires NODE_ENV=development.");
@@ -53,7 +58,7 @@ export function createAuth(
     new URL(config.betterAuthUrl).protocol === "https:";
   const verificationRequired = email?.enabled === true;
   const appOrigin = config.publicAppUrl ?? config.betterAuthUrl;
-  const send = (
+  const send = async (
     kind: EmailKind,
     user: { email: string },
     url: string,
@@ -74,14 +79,14 @@ export function createAuth(
       request?.headers.get("x-budograph-locale") ??
         callback.searchParams.get("lang"),
     );
-    emailTasks.submit(() =>
+    await emailTasks.submit(() =>
       email.send({ kind, to: user.email, url: trusted, locale }),
     );
   };
 
   return betterAuth({
     appName: "BudoGraph",
-    database: pool,
+    database,
     secret: config.betterAuthSecret,
     baseURL: config.betterAuthUrl,
     basePath: "/api/auth",
@@ -97,7 +102,7 @@ export function createAuth(
       ...(verificationRequired
         ? {
             sendResetPassword: async ({ user, url }, request) => {
-              send("reset", user, url, request);
+              await send("reset", user, url, request);
             },
           }
         : {}),
@@ -110,7 +115,7 @@ export function createAuth(
       ...(verificationRequired
         ? {
             sendVerificationEmail: async ({ user, url }, request) => {
-              send("verification", user, url, request);
+              await send("verification", user, url, request);
             },
           }
         : {}),
@@ -128,18 +133,21 @@ export function createAuth(
     databaseHooks: {
       session: {
         create: {
-          before: async (session) => {
-            const result = await pool.query<{
-              active: boolean;
-              emailVerified: boolean;
-            }>(
-              verificationRequired
-                ? 'SELECT active,"emailVerified" FROM public."user" WHERE id = $1'
-                : 'SELECT active FROM public."user" WHERE id = $1',
-              [session.userId],
-            );
-            if (result.rows[0]?.active !== true) return false;
-            if (verificationRequired && result.rows[0]?.emailVerified !== true)
+          before: async (session, context) => {
+            // internalAdapter resolves Better Auth's current transaction adapter.
+            // A pool.query here would acquire another client and miss uncommitted
+            // identity state. No session may be created without endpoint context.
+            const identity =
+              await context?.context.internalAdapter.findUserById(
+                session.userId,
+              );
+            if (
+              !identity ||
+              !("active" in identity) ||
+              identity.active !== true
+            )
+              return false;
+            if (verificationRequired && identity.emailVerified !== true)
               return false;
           },
         },
@@ -152,7 +160,7 @@ export function createAuth(
       trustedProxyHeaders: false,
       // Tests without PostgreSQL exercise HTTP/session boundaries separately;
       // real runtime instances validate the migrated schema read-only.
-      database: { validateSchema: config.nodeEnv !== "test" },
+      database: { validateSchema },
       useSecureCookies: secureCookies,
       defaultCookieAttributes: {
         httpOnly: true,
@@ -163,7 +171,9 @@ export function createAuth(
       ipAddress: { ipAddressHeaders: ["x-budograph-client-ip"] },
     },
     rateLimit: {
-      enabled: true,
+      // C4 consumes the pinned rules atomically BEFORE the owned transaction,
+      // including failed login attempts. Never roll counters back with auth SQL.
+      enabled: !sharedControls,
       storage: "memory",
     },
     // Library diagnostics can include DB errors, cookies or request bodies.
@@ -171,6 +181,50 @@ export function createAuth(
     logger: { disabled: true },
     telemetry: { enabled: false },
   });
+}
+
+export type AuthInstance = ReturnType<typeof createAuthInstance>;
+
+export function createAuth(
+  pool: Pool,
+  config: AuthConfig,
+  options: AuthOptions = {},
+) {
+  if (options.developmentProvisioning && config.nodeEnv !== "development")
+    throw new Error("Account provisioning requires NODE_ENV=development.");
+  if (
+    config.nodeEnv === "production" &&
+    (!options.sharedControls ||
+      !options.email?.enqueue ||
+      !options.email.reserve ||
+      !options.email.dispatch)
+  )
+    throw new Error(
+      "Production auth requires durable email and shared operational controls.",
+    );
+  const raw = createAuthInstance(pool, config, options);
+  const transactions = createAuthTransactions(
+    pool,
+    raw,
+    (database, email) =>
+      createAuthInstance(
+        database,
+        config,
+        { ...options, email, emailTasks: { submit: (work) => work() } },
+        false,
+      ),
+    options.email,
+    options.emailTasks,
+    config.nodeEnv !== "test",
+    options.sharedControls,
+    config.betterAuthSecret,
+  );
+  return {
+    ...raw,
+    handler: transactions.handler,
+    fetch: transactions.handler,
+    registration: transactions.registration,
+  };
 }
 
 export type Auth = ReturnType<typeof createAuth>;

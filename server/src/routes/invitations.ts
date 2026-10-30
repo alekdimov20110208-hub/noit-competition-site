@@ -29,7 +29,15 @@ export function registerInvitationRoutes(
   ) {
     const development = authentication.developmentInviteLinks ?? false;
     let status = "development_link";
-    if (email?.enabled) {
+    if (result.emailJob && email?.dispatch) {
+      try {
+        status = (await email.dispatch(result.emailJob, 1)).accepted
+          ? "sent"
+          : "failed";
+      } catch {
+        status = "failed";
+      }
+    } else if (email?.enabled) {
       try {
         await email.send({
           kind: "invitation",
@@ -62,7 +70,17 @@ export function registerInvitationRoutes(
   );
   // Bounded single-process abuse control. Production scaling needs shared storage.
   const attempts = new Map<string, { count: number; expires: number }>();
-  function limit(request: FastifyRequest, registration = false) {
+  async function limit(request: FastifyRequest, registration = false) {
+    if (authentication.controls) {
+      await authentication.controls.invitation(
+        request.ip,
+        registration,
+        registration
+          ? ((request.params as { token?: string }).token ?? "")
+          : "",
+      );
+      return;
+    }
     const now = Date.now(),
       key = `${registration ? "registration" : "invitation"}:${request.ip}`;
     for (const [id, value] of attempts)
@@ -93,7 +111,7 @@ export function registerInvitationRoutes(
     routes.addHook("onRequest", async (request, reply) => {
       reply.header("cache-control", "no-store");
       reply.header("referrer-policy", "no-referrer");
-      limit(request);
+      await limit(request);
     });
     type Scoped = { eventId: string; invitationId: string };
     type Token = { token: string };
@@ -111,12 +129,19 @@ export function registerInvitationRoutes(
       { bodyLimit: 1024 },
       async (request, reply) => {
         const user = await actor(request, true);
-        if (!throttleEmail(request.ip, user.id))
+        if (authentication.controls)
+          await authentication.controls.email(
+            "invitation-mail",
+            request.ip,
+            user.id,
+          );
+        else if (!throttleEmail(request.ip, user.id))
           throw new InvitationError(429, "RATE_LIMITED");
         const result = await service.create(
           user,
           request.params.eventId,
           request.body,
+          emailLocale(request.headers["x-budograph-locale"]),
         );
         const response = await delivery(
           result,
@@ -130,7 +155,13 @@ export function registerInvitationRoutes(
       { bodyLimit: 1024 },
       async (request) => {
         const user = await actor(request, true);
-        if (!throttleEmail(request.ip, user.id))
+        if (authentication.controls)
+          await authentication.controls.email(
+            "invitation-mail",
+            request.ip,
+            user.id,
+          );
+        else if (!throttleEmail(request.ip, user.id))
           throw new InvitationError(429, "RATE_LIMITED");
         if (request.body && Object.keys(request.body).length)
           throw new InvitationError(400, "INVALID_INPUT");
@@ -139,6 +170,7 @@ export function registerInvitationRoutes(
             user,
             request.params.eventId,
             request.params.invitationId,
+            emailLocale(request.headers["x-budograph-locale"]),
           ),
           request.headers["x-budograph-locale"],
         );
@@ -164,7 +196,7 @@ export function registerInvitationRoutes(
       { bodyLimit: 4096 },
       async (request) => {
         origin(request);
-        limit(request, true);
+        await limit(request, true);
         if (await getAuthenticatedUser(authentication.auth, request))
           throw new InvitationError(403, "SIGN_OUT_REQUIRED");
         return service.register(

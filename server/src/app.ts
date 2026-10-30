@@ -26,6 +26,7 @@ import type { TemplateApplicationService } from "./templates/service.ts";
 import type { PersonalTemplateService } from "./templates/library.ts";
 import { registerPersonalTemplateRoutes } from "./routes/personalTemplates.ts";
 import { registerFrontend } from "./hosting/frontend.ts";
+import { OperationalError } from "./operations/limits.ts";
 
 export interface AppOptions {
   frontendRoot?: string;
@@ -134,6 +135,12 @@ export function createApp({
       return reply.code(404).send({ status: "not_found" });
     });
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof OperationalError) {
+      if (error.retryAfter) reply.header("retry-after", error.retryAfter);
+      return reply
+        .code(error.statusCode)
+        .send({ status: "error", code: error.code });
+    }
     if (error instanceof ChangeCommandError) {
       return reply.code(error.statusCode).send({
         status: "error",

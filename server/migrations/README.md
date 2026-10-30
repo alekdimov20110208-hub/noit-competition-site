@@ -1,5 +1,16 @@
 # SQL migrations
 
+## D2 production baseline — 2026-10-30
+
+Production already contains **0001–0016**. Its migration and independent
+verification attempts are consumed. **Do not run the migration CLI against
+Production again.** The historical CLI examples below are not D2 release steps.
+`production-manifest.json` pins all original R2 file bytes to the consumed
+verification input; startup only SELECTs history and rejects any mismatch.
+0014/0015/0016 are copied unchanged from the approved R2 local baseline.
+In particular, 0014 requires the approved creator/session/database identities
+and preserves inherited PUBLIC TEMP; do not rewrite it for another environment.
+
 ## 0006 — Optional Task due time
 
 `0006_task_deadline_time.sql` is additive and immutable. It adds nullable
@@ -59,9 +70,8 @@ previously applied file must still exist with the same filename and checksum
 before any pending migration starts. Editing even whitespace or line endings
 changes the checksum. Fix schema changes with a new migration; do not edit or
 delete applied files or reset metadata to bypass validation.
-Keep SQL files with LF line endings, including on Windows; the repository's
-`.gitattributes` enforces LF for these files so deployment checkouts retain the
-same checksum.
+SQL files are byte-preserved by `.gitattributes` (`-text`); Git must not normalize
+their line endings. Never run a formatter or encoding conversion on these files.
 
 Each file and its parameterized metadata insert run in a separate transaction.
 A failure rolls back that file and stops the run; earlier committed migrations

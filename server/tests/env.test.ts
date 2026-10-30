@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { randomBytes } from "node:crypto";
+import { syntheticOperationalEnvironment } from "./helpers/operational-secrets.ts";
 import {
   EnvironmentError,
   readDatabaseEnv,
@@ -142,6 +143,7 @@ test("auth-capable runtime requires its secret and explicit URL", () => {
   assert.equal(
     readServerEnv({
       NODE_ENV: "production",
+      ...syntheticOperationalEnvironment(),
       DATABASE_URL: databaseUrl,
       DATABASE_TLS_CA_FILE: databaseTls.caFile,
       BETTER_AUTH_SECRET: secret,

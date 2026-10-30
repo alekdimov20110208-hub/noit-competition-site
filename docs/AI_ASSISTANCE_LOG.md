@@ -1,5 +1,50 @@
 # AI Assistance Log
 
+## 2026-10-30 — D2.2 local safe staging branch
+
+Under explicit local-only approval, Codex preserved the uncommitted D2/D2.1
+checkout on `staging/render-free-d2-2`, prepared an isolated Free Render recipe
+and added staging-specific preconnection/checkout identity checks. Immutable
+SQL 0001–0016 and original Production/D2/D2.1 evidence are unchanged. Migration
+0015's production-only CHECK requires a separately reviewed future staging-only
+overlay; no SQL or bootstrap was executed. The D2.2 runbook records this gate,
+all owner inputs and a future Vercel prevention procedure before any push.
+Targeted verification and the reviewed file inventory are in
+`docs/evidence/D2_2_SAFE_STAGING_RESULT.json`. Local commit is authorized only
+after successful checks and staged secret review. No push, service/project
+creation, Production SQL/user creation, email, DNS/Vercel mutation or paid
+provisioning is authorized. No subagent or dependency was added. Human code
+review and hosted acceptance remain pending. NOIT 2025–2026 rules require
+verification for the actual competition year.
+
+## 2026-10-30 — D2.1 Free Render staging preparation
+
+Codex changed only the hosting recipe, local verification tooling and handoff
+documentation for one manual Render Free service with reminders disabled.
+Official Render documentation was checked for Free limits, separate build
+compute and Secret Files. D2 runtime/auth/database source, all migration bytes
+and original D2 evidence remain preserved. Targeted results and limitations are
+recorded in `docs/evidence/D2_1_FREE_STAGING_RESULT.json` and the D2.1 runbook.
+No database connection, Production SQL, migration/verification retry, user
+creation, real mail, hosting provisioning, payment method, commit/push, Vercel or
+DNS change occurred. Human review/code understanding and hosted acceptance are
+pending. No subagent or new dependency was used. The supplied NOIT regulation
+is for 2025–2026 and needs separate verification for the actual competition year.
+
+## 2026-10-30 — D2 production runtime integration
+
+Codex synchronized immutable R2 migrations 0014–0016 and checked all 16 hashes
+against local baseline and consumed Production verification inputs. It reused
+local BudoGraph auth/operational modules, integrated identity checks, durable
+transactional email/shared limits and a persistent outbox worker, adjusted Render
+configuration and added disposable PostgreSQL/compiled startup verification.
+No Event Management/Template or frontend source was changed. No Production SQL,
+credentials readout, user creation, migration retry, push, hosting provisioning,
+DNS change or real mail occurred. Automated evidence is in
+`docs/evidence/D2_RUNTIME_RESULT.json`; owner review/code understanding and live
+hosting acceptance remain pending. No subagent was used. NOIT year-specific
+requirements remain subject to the actual competition-year regulations.
+
 ## 2026-10-18 — Deployment D1
 
 Codex inspected the accepted source and mandatory project/regulation documents,

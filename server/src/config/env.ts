@@ -1,4 +1,8 @@
 import { isIP } from "node:net";
+import {
+  readOperationalSecrets,
+  type OperationalSecrets,
+} from "../operations/secrets.ts";
 
 export type DatabaseTls =
   | { readonly mode: "disable" }
@@ -19,6 +23,7 @@ export interface ServerConfig extends DatabaseConfig {
   readonly publicAppUrl: string;
   readonly emailFrom?: string;
   readonly resendApiKey?: string;
+  readonly operations?: OperationalSecrets;
 }
 
 export class EnvironmentError extends Error {
@@ -223,12 +228,22 @@ export function readServerEnv(
       throw new EnvironmentError(
         "Resend mode requires valid EMAIL_FROM and RESEND_API_KEY; replace placeholders and verify the sending domain.",
       );
+    let operations: OperationalSecrets | undefined;
+    try {
+      operations = readOperationalSecrets(
+        environment,
+        database.nodeEnv === "production",
+      );
+    } catch (error) {
+      throw new EnvironmentError((error as Error).message);
+    }
     return Object.freeze({
       ...database,
       betterAuthSecret,
       betterAuthUrl: url.origin,
       publicAppUrl: app.origin,
       emailMode: emailMode as ServerConfig["emailMode"],
+      ...(operations ? { operations } : {}),
       ...(emailMode === "resend" ? { emailFrom, resendApiKey } : {}),
     });
   } catch (error) {

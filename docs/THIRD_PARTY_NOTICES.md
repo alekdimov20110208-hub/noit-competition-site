@@ -1,5 +1,17 @@
 # Third-Party Notices and License Register
 
+## Runtime D2 — 2026-10-30
+
+`@better-auth/kysely-adapter` **1.7.7** is now an explicit pinned direct dependency
+for the transaction-bound native Better Auth adapter. It was already present in
+the locked transitive dependency tree; no transitive version changed. License:
+**MIT**, retained in the installed package's `LICENSE.md` and package metadata.
+[Upstream source](https://github.com/better-auth/better-auth/tree/main/packages/kysely-adapter).
+It is used in `server/src/auth/transactions.ts`, unmodified, with its MIT notice
+retained on redistribution. It is compatible with the project's GPL-3.0-only
+distribution. No image, font, email SDK or other package was added. Reused local
+BudoGraph modules and newly authored D2 code remain GPL-3.0-only.
+
 ## Deployment D1 — 2026-10-18
 
 D1 adds **no application dependency or external asset**. Static serving uses

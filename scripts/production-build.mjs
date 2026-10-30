@@ -1,7 +1,14 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  realpathSync,
+  lstatSync,
+  rmSync,
+} from "node:fs";
+import { join, resolve, dirname, sep } from "node:path";
 
 // A build never needs runtime credentials. Vite's implicit .env loading is also
 // excluded: release worktrees must have no root .env files or VITE_* variables.
@@ -23,6 +30,21 @@ for (const [key, value] of Object.entries(process.env))
   )
     environment[key] = value;
 environment.NODE_ENV = "production";
+// Never ship stale compiled modules from an earlier stage. Resolve and verify
+// the two fixed build targets before recursive removal, including on Windows.
+const root = realpathSync(".");
+for (const relative of ["dist", "server/dist"]) {
+  const target = resolve(root, relative);
+  if (
+    !target.startsWith(root + sep) ||
+    realpathSync(dirname(target)) !== dirname(target)
+  )
+    throw new Error("Build output must remain inside the real workspace.");
+  const entry = lstatSync(target, { throwIfNoEntry: false });
+  if (entry?.isSymbolicLink())
+    throw new Error("Build output must not be a symlink.");
+  rmSync(target, { recursive: true, force: true });
+}
 function run(args) {
   const result = spawnSync(process.execPath, args, {
     env: environment,
@@ -73,6 +95,7 @@ for (const path of [
   "server/tsconfig.json",
   "server/tsconfig.build.json",
   "scripts/production-build.mjs",
+  "render.yaml",
 ]) {
   hash.update(path);
   hash.update("\0");
@@ -89,7 +112,7 @@ const state = git(["status", "--porcelain", "--untracked-files=normal"]);
 if (state.status !== 0) throw new Error("Could not inspect release checkout.");
 const manifest = {
   baseCommit: commit,
-  // D1 is deliberately uncommitted; never label its artifact as the accepted base.
+  // Local changes must never be mislabeled as the accepted base commit.
   workingTreeModified: Boolean(state.stdout.trim()),
   sourceSha256: hash.digest("hex"),
   node: process.version,

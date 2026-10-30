@@ -48,10 +48,12 @@
     "test:browser:personal-templates": "node scripts/verify-personal-templates-ui.mjs",
     "test:browser:curated-templates": "node scripts/verify-curated-templates-ui.mjs",
     "production:build": "node scripts/production-build.mjs",
+    "production:test:local": "node scripts/verify-d2-runtime.mjs --all",
     "production:start": "node server/dist/src/production.js",
     "production:migrate": "node server/dist/scripts/migrate.js"
   },
   "dependencies": {
+    "@better-auth/kysely-adapter": "1.7.7",
     "better-auth": "1.7.7",
     "fastify": "5.12.5",
     "lucide-react": "^0.468.0",

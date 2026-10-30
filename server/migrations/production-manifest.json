@@ -1,0 +1,94 @@
+{
+  "baseline": "C:/NOIT-R4A-BASELINE-CANDIDATE-20261019-R2",
+  "verificationId": "5d6d11b5-a836-46ac-9b99-069f9af60418",
+  "verificationStatus": "POSTSTOP_INDEPENDENT_READONLY_MATCH",
+  "catalogStatus": "APPLICATION_CATALOG_MATCH",
+  "pins": [
+    {
+      "version": "0001",
+      "name": "0001_better_auth_core.sql",
+      "checksum": "3eea6d946b15cfc651e83f32d454c3f5b4bae28062421f9fa2ba2eeea14c3d91"
+    },
+    {
+      "version": "0002",
+      "name": "0002_budograph_core.sql",
+      "checksum": "f6bba034c1f709cb4f6768c5350823aae7c01f384ab5ce9dd652a23deb5b9785"
+    },
+    {
+      "version": "0003",
+      "name": "0003_event_invitations.sql",
+      "checksum": "0f258dffc80bdb6906e30949684b9c862aac5d12d33eab2f43c8f2f72e194c45"
+    },
+    {
+      "version": "0004",
+      "name": "0004_event_changes.sql",
+      "checksum": "287c21634e1ebc273a129d5d03f0e3971243fcee1e5de569c45f92a3d2f9fd47"
+    },
+    {
+      "version": "0005",
+      "name": "0005_change_response.sql",
+      "checksum": "cc663124454c886e70bf9d064cebc8eae398a6c68b0713fa7e23f0761138e363"
+    },
+    {
+      "version": "0006",
+      "name": "0006_task_deadline_time.sql",
+      "checksum": "dd52fc49097a02276c4eb0749925b7b707d1ff475e45a6eb407ae08b20a22d50"
+    },
+    {
+      "version": "0007",
+      "name": "0007_task_reminders_notifications.sql",
+      "checksum": "b584b3779451a1b710d126925f7437c2795daf3bb29f0439fef09ef7e0fb5592"
+    },
+    {
+      "version": "0008",
+      "name": "0008_event_command_receipts.sql",
+      "checksum": "b77ae56e9e713e77777a044b1c6923f633833a154b65ac67d3a85f6d85863bb0"
+    },
+    {
+      "version": "0009",
+      "name": "0009_event_archive_receipts.sql",
+      "checksum": "6979511f91c4ad41dfaa674401e7fa073d0fae8d5e1943419f787f8a500c1a71"
+    },
+    {
+      "version": "0010",
+      "name": "0010_event_clear_receipts.sql",
+      "checksum": "7dbf798951f132e540ea4a45920dbde989b947b410c4b45b83c00626850c800c"
+    },
+    {
+      "version": "0011",
+      "name": "0011_template_application_receipts.sql",
+      "checksum": "1dfe28462fed8f05c356c2ca0efa07e8f0602cd2e1bb83651799bf1764232594"
+    },
+    {
+      "version": "0012",
+      "name": "0012_personal_templates.sql",
+      "checksum": "3a401ca6be72f60ec6698f05ecc582cb63fa40e30d3e46beb1c6d8a3bace76e1"
+    },
+    {
+      "version": "0013",
+      "name": "0013_curated_template_catalog.sql",
+      "checksum": "447b94f4487f28715b374778d15f77a384640f54132090f3c9a5e6a314e9b1c1"
+    },
+    {
+      "version": "0014",
+      "name": "0014_production_runtime_access.sql",
+      "checksum": "67e9ea6fef2c5a400c972ef8c6ef9bc7a42e866f15dd05bc9cb939549b0f53c2"
+    },
+    {
+      "version": "0015",
+      "name": "0015_environment_identity.sql",
+      "checksum": "82fd4b528417685dd04a5f4e64135b448255060d616658b05bcc794472c19420"
+    },
+    {
+      "version": "0016",
+      "name": "0016_durable_email_operational_controls.sql",
+      "checksum": "3f75402a9e3ee78bc3d58427e27c4c6e17c27dd4fed74ab5992164a2a9e9c826"
+    }
+  ],
+  "evidenceSha256": {
+    "baselineManifest": "c2c9edd7ee228fb8b66d3bdea74f0493674e9cfdc2b54680ebc4240a0a6f3e62",
+    "verificationPins": "b4fb1e40104f06dd8bf2309d70cc198146ef18d615fbcc42bca1a3a4799c9029",
+    "verificationResult": "938c3f2c22fdbacfa25fd4cefe8a87469b878c63aeda38f9fde10715e0e41fb4"
+  },
+  "consumedMigrationAttempt": "3ffd42da-c299-495a-81c8-1c5c96e7f915"
+}

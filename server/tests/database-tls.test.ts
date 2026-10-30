@@ -185,7 +185,7 @@ test("real pg options retain CA validation, normal hostname verification and poo
     assert.equal(tls.checkServerIdentity, checkServerIdentity);
     assert.equal(tls.key, undefined);
     assert.equal(tls.cert, undefined);
-    assert.equal(options(pool).max, 10);
+    assert.equal(options(pool).max, 4);
     assert.equal(options(pool).connectionTimeoutMillis, 5000);
     assert.equal(options(pool).idleTimeoutMillis, 30000);
     // Construct the installed pg Client to exercise its actual URL merge.
