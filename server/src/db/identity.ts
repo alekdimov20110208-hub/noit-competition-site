@@ -1,5 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 import { EnvironmentError } from "../config/env.ts";
+import { assertStagingIdentity } from "../staging/target.ts";
 
 export interface ProductionDatabaseIdentity {
   readonly databaseId: string;
@@ -27,6 +28,7 @@ export function validateRuntimeConnection(
       "Production requires budograph_runtime credentials and a direct or session-mode database connection.",
     );
   if (expected.environment === "staging") {
+    assertStagingIdentity(expected.projectRef, expected.databaseId);
     const direct = url.hostname === `db.${expected.projectRef}.supabase.co`;
     const session =
       /^aws-\d+-[a-z\d-]+\.pooler\.supabase\.com$/.test(url.hostname) &&
@@ -65,6 +67,11 @@ export function readProductionDatabaseIdentity(
       "Production requires valid EXPECTED_DATABASE_ID and EXPECTED_SUPABASE_PROJECT_REF.",
     );
   const databaseHost = env.EXPECTED_DATABASE_HOST;
+  if (environment === "staging")
+    assertStagingIdentity(
+      env.EXPECTED_SUPABASE_PROJECT_REF!,
+      env.EXPECTED_DATABASE_ID!.toLowerCase(),
+    );
   if (
     environment === "staging" &&
     (env.NODE_ENV !== "production" ||
@@ -93,6 +100,8 @@ export async function verifyProductionDatabaseIdentity(
   expected: ProductionDatabaseIdentity,
 ): Promise<void> {
   try {
+    if (expected.environment === "staging")
+      assertStagingIdentity(expected.projectRef, expected.databaseId);
     const query = {
       text: `SELECT i.database_id::text, i.project_ref, i.environment,
         current_user AS runtime_role,

@@ -1,37 +1,35 @@
-HISTORICAL D2 PAID RECIPE - REFERENCE ONLY - DO NOT APPLY
-Paid provisioning is NOT AUTHORIZED. Active configuration: root render.yaml (Free).
-Saved byte-for-byte below from the pre-D2.1 checkout.
-
-# D2 persistent single-process recipe. Owner approval is required before applying
-# this PAID service. No preDeployCommand: the 16 migrations are already applied.
-# Upload database-ca.pem as a Render secret file before the first start.
+# D3 separate staging service. Manual deployment requires owner approval.
+# Upload database-ca.pem as a Secret File. No migration/pre-deploy command.
 services:
   - type: web
-    name: budograph
+    name: budograph-staging-d3
     runtime: node
-    plan: 0.5c-512mb
+    plan: free
     region: frankfurt
     numInstances: 1
+    branch: staging/render-free-d2-2
     maxShutdownDelaySeconds: 120
     autoDeployTrigger: off
-    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm production:build
-    startCommand: pnpm production:start
+    buildCommand: corepack enable && corepack pnpm install --frozen-lockfile --prod=false && corepack pnpm production:build
+    startCommand: node server/dist/src/production.js
     healthCheckPath: /api/health/ready
     envVars:
       - key: NODE_VERSION
         value: 24.16.0
       - key: NODE_ENV
         value: production
+      - key: BUDOGRAPH_DEPLOYMENT_ENV
+        value: staging
       - key: HOST
         value: 0.0.0.0
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: WEB_CONCURRENCY
         value: "1"
       - key: SERVE_FRONTEND
         value: "true"
       - key: REMINDER_WORKER_ENABLED
-        value: "true"
+        value: "false"
       - key: DATABASE_TLS_MODE
         value: verify-full
       - key: DATABASE_TLS_CA_FILE
@@ -39,9 +37,11 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: EXPECTED_DATABASE_ID
-        sync: false
+        value: bce50118-4829-42e0-86cd-1cb41de8b1ba
       - key: EXPECTED_SUPABASE_PROJECT_REF
-        value: bdcjascqqvzmmlvabhgv
+        value: jlladwdqdillryyfvndo
+      - key: EXPECTED_DATABASE_HOST
+        value: aws-1-eu-central-1.pooler.supabase.com
       - key: BETTER_AUTH_SECRET
         sync: false
       - key: BETTER_AUTH_URL

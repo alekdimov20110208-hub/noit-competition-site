@@ -143,3 +143,10 @@ dist
 
 # Project-local generated and scratch output
 tmp/
+
+# Local database/hosting receipts and credentials are never release inputs.
+docs/evidence/
+*.credential.xml
+*.claim
+*.pfx
+*.p12

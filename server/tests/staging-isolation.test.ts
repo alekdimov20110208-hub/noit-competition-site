@@ -3,6 +3,9 @@ import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { resolve } from "node:path";
 import test from "node:test";
+import { readServerEnv } from "../src/config/env.ts";
+import { trustedApplicationOrigins } from "../src/auth/auth.ts";
+import { STAGING } from "../src/staging/target.ts";
 import {
   readProductionDatabaseIdentity,
   validateRuntimeConnection,
@@ -10,19 +13,80 @@ import {
 } from "../src/db/identity.ts";
 
 // Synthetic identity only. These tests never connect to PostgreSQL or Resend.
-const projectRef = "abcdefghijklmnopqrst";
+const projectRef = STAGING.projectRef;
 const productionRef = "bdcjascqqvzmmlvabhgv";
 const host = `db.${projectRef}.supabase.co`;
 const sessionHost = "aws-0-eu-central-1.pooler.supabase.com";
 const env = {
   NODE_ENV: "production",
   BUDOGRAPH_DEPLOYMENT_ENV: "staging",
-  EXPECTED_DATABASE_ID: "00000000-0000-4000-8000-000000000002",
+  EXPECTED_DATABASE_ID: STAGING.databaseId,
   EXPECTED_SUPABASE_PROJECT_REF: projectRef,
   EXPECTED_DATABASE_HOST: host,
 };
 const url = (hostname = host, username = "budograph_runtime", port = "5432") =>
   `postgresql://${username}:synthetic@${hostname}:${port}/postgres`;
+
+test("staging Render and Vercel proxy use one exact public/auth origin", () => {
+  const inputs = {
+    ...env,
+    DATABASE_URL: url(),
+    DATABASE_TLS_MODE: "verify-full",
+    DATABASE_TLS_CA_FILE: "/etc/secrets/database-ca.pem",
+    BETTER_AUTH_SECRET: randomBytes(32).toString("base64"),
+    REMINDER_WORKER_ENABLED: "false",
+    EMAIL_MODE: "resend",
+    EMAIL_FROM: "sender@example.invalid",
+    RESEND_API_KEY: "re_" + randomBytes(20).toString("hex"),
+    RATE_LIMIT_HMAC_KEY: randomBytes(32).toString("base64"),
+    EMAIL_OUTBOX_KEY_ID: "staging",
+    EMAIL_OUTBOX_KEYS: JSON.stringify({
+      staging: randomBytes(32).toString("base64"),
+    }),
+  };
+  for (const origin of [
+    "https://budograph-staging-d3.onrender.com",
+    "https://budograph-staging.vercel.app",
+  ]) {
+    const exact = {
+      ...inputs,
+      BETTER_AUTH_URL: origin,
+      PUBLIC_APP_URL: origin,
+    };
+    const config = readServerEnv(exact);
+    assert.deepEqual(trustedApplicationOrigins(config), [origin]);
+    for (const change of [
+      { PUBLIC_APP_URL: "https://other-staging.vercel.app" },
+      { REMINDER_WORKER_ENABLED: "true" },
+    ])
+      assert.throws(() => readServerEnv({ ...exact, ...change }));
+  }
+  for (const origin of [
+    "https://budograph.com",
+    "https://www.budograph.com",
+    "https://budograph-staging.vercel.app.attacker.invalid",
+    "https://*.vercel.app",
+    "http://budograph-staging.vercel.app",
+    "https://budograph-staging.vercel.app:8443",
+  ])
+    assert.throws(() =>
+      readServerEnv({
+        ...inputs,
+        BETTER_AUTH_URL: origin,
+        PUBLIC_APP_URL: origin,
+      }),
+    );
+  assert.throws(
+    () =>
+      readServerEnv({
+        ...inputs,
+        BUDOGRAPH_DEPLOYMENT_ENV: "production",
+        BETTER_AUTH_URL: "https://budograph.com",
+        PUBLIC_APP_URL: "https://budograph-staging.vercel.app",
+      }),
+    /same-origin/,
+  );
+});
 
 test("staging retains production security and accepts only its pinned direct/session target", () => {
   const expected = readProductionDatabaseIdentity(env);
@@ -156,8 +220,9 @@ test(
       DATABASE_TLS_MODE: "verify-full",
       DATABASE_TLS_CA_FILE: resolve("tmp/d2-2-intentionally-absent-ca.pem"),
       BETTER_AUTH_SECRET: randomBytes(32).toString("hex"),
-      BETTER_AUTH_URL: "https://staging.example.invalid",
-      PUBLIC_APP_URL: "https://staging.example.invalid",
+      BETTER_AUTH_URL: "https://budograph-staging-test.onrender.com",
+      PUBLIC_APP_URL: "https://budograph-staging-test.onrender.com",
+      REMINDER_WORKER_ENABLED: "false",
       EMAIL_MODE: "resend",
       EMAIL_FROM: "sender@example.invalid",
       RESEND_API_KEY: "re_" + randomBytes(20).toString("hex"),

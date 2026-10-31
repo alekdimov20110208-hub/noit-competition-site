@@ -202,6 +202,16 @@ export function readServerEnv(
       throw new EnvironmentError(
         "Production PUBLIC_APP_URL must match BETTER_AUTH_URL (same-origin deployment).",
       );
+    if (
+      environment.BUDOGRAPH_DEPLOYMENT_ENV === "staging" &&
+      (!/^https:\/\/[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.(?:onrender\.com|vercel\.app)$/.test(
+        app.origin,
+      ) ||
+        environment.REMINDER_WORKER_ENABLED !== "false")
+    )
+      throw new EnvironmentError(
+        "Staging requires its exact HTTPS onrender.com or vercel.app origin and REMINDER_WORKER_ENABLED=false.",
+      );
     const emailMode =
       environment.EMAIL_MODE ??
       (database.nodeEnv === "production" ? "resend" : "disabled");

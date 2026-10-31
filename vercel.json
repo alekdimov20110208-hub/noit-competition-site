@@ -1,0 +1,7 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "staging/render-free-d2-2": false
+    }
+  }
+}

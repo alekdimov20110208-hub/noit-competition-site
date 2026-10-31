@@ -162,6 +162,7 @@ function createAuthInstance(
       // real runtime instances validate the migrated schema read-only.
       database: { validateSchema },
       useSecureCookies: secureCookies,
+      crossSubDomainCookies: { enabled: false },
       defaultCookieAttributes: {
         httpOnly: true,
         sameSite: "lax",
