@@ -1,5 +1,10 @@
 # BudoGraph
 
+**D2.3 staging database package:** executable local preparation for
+`jlladwdqdillryyfvndo`; original 16 migrations remain unchanged. No remote SQL
+or online login has been performed. Follow the [D2.3 procedure](docs/BUDOGRAPH_STAGING_DATABASE_D2_3.md)
+for the next read-only inspect approval and subsequent fingerprint-pinned apply.
+
 **D2.2 safe staging branch:** local branch `staging/render-free-d2-2` preserves
 D2/D2.1 and prepares a separate database target with fail-closed staging identity
 checks. No push or cloud resource creation is authorized. The current
@@ -657,6 +662,7 @@ regression checks are in [TEST_EVIDENCE](docs/TEST_EVIDENCE.md).
 
 ## Documentation
 
+- [D2.3 executable staging database preparation and owner approval procedure](docs/BUDOGRAPH_STAGING_DATABASE_D2_3.md) — local package only; no remote SQL authorized or executed. Use `pnpm staging:test:local` for disposable verification. Hosted SQL begins only with separately approved `pnpm staging:db inspect`.
 - [Phase 1 record and Phase 2A/2B architecture boundary](docs/BUDOGRAPH_PHASE_1.md)
 - [Current user guide](docs/USER_GUIDE.md)
 - [Installation, deployment, and demonstration plan](docs/DEPLOYMENT_AND_DEMO_PLAN.md)
@@ -679,3 +685,5 @@ Task reminders and current-Event in-app notifications are documented in [the pha
 ## Curated Template Library — T4.1
 
 Templates includes Built-in, Curated Library and My Templates. The authenticated server catalog contains 12 new BG/EN plans and 108 Tasks, with real search/category/difficulty filters and the existing explicit atomic Review/Apply flow. New system content is authored only on the server. See [T4.1 implementation, verification and owner acceptance](docs/BUDOGRAPH_EVENT_TEMPLATES_T4_1.md) and the [ten-workstream product roadmap](docs/BUDOGRAPH_PRODUCT_ROADMAP.md). T4.1 HUMAN PASS 8/8 is owner-confirmed; the current request authorizes the audited Git checkpoint. Migration 0013 extends receipt identity validation; development activation is recorded separately in the stage report.
+
+D5-B1 public registration is implemented locally behind an OFF-by-default server gate. Deployed staging/production signup remains closed. See [registration behavior, isolated tests, review and future deployment prerequisites](docs/BUDOGRAPH_D5_B1_PUBLIC_REGISTRATION.md).

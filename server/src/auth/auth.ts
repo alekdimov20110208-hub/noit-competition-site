@@ -22,6 +22,7 @@ export interface AuthOptions {
   email?: TransactionalEmailService;
   emailTasks?: { submit(work: () => Promise<void>): void | Promise<void> };
   sharedControls?: SharedControls;
+  onMailEnqueueFailure?: () => void;
 }
 
 export function trustedApplicationOrigins(
@@ -219,6 +220,8 @@ export function createAuth(
     config.nodeEnv !== "test",
     options.sharedControls,
     config.betterAuthSecret,
+    config.publicAppUrl ?? config.betterAuthUrl,
+    options.onMailEnqueueFailure,
   );
   return {
     ...raw,

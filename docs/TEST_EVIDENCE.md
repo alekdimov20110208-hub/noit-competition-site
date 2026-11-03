@@ -6396,3 +6396,7 @@ diagnostics, logs, raw evidence, environment/CA files and backup material remain
 local. The staged secret/diff checks, final preservation comparison, commit and
 safe-push verification are reported in the checkpoint completion response.
 T4.2 and the roadmap's other future workstreams are not started.
+
+## D5-B1 local public registration — 2026-11-01
+
+PASS: 230 server unit tests; 329 existing frontend tests plus 2 new signup client tests; 31 isolated D5-B0/B1 PostgreSQL tests (including the real browser signup, native verification, login, empty Dashboard and first Event); 48 isolated TLS/identity/startup/operational/runtime tests. No failures or skips in these final runs. The separate mocked browser suite passed 16 BG/EN/width/theme cases and interactions. TypeScript, production frontend/backend build, scoped ESLint/Prettier and diff checks passed. All 16 accepted migration checksums are unchanged. Initial failed browser attempts remain recorded; this is local synthetic evidence, not live staging evidence. No actual D2.5/D3/D4 operational launcher, hosted database or real email was used. Exact files, commands and evidence paths: [D5-B1 report](BUDOGRAPH_D5_B1_PUBLIC_REGISTRATION.md).

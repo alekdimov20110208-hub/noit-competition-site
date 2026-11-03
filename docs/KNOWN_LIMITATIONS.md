@@ -561,3 +561,7 @@ by the owner on 18 October 2026. Human authors must still understand and defend
 the source code. Automated mobile/keyboard checks are not a formal
 accessibility audit or user study. No additional production workstream is
 implemented; exact evidence is in BUDOGRAPH_EVENT_TEMPLATES_T4_2.md.
+
+## D5-B1 public signup
+
+The implementation is local-only, gated OFF by default and explicitly forbidden in production mode, including deployed staging. A hosted gate/identity integration and independent review need separate approval. No hosted signup, ingress timing or inbox delivery has been tested. The 750ms floor is not constant-time behavior during arbitrary stalls. Browser evidence covers Chromium, BG/EN and 320/390/768/1440px light/dark fixtures; Safari/Firefox and formal assistive-technology audits remain unverified. Existing finite delivery budgets, Render Free sleep behavior and Vite's >500kB chunk warning remain. See [D5-B1 evidence and review checklist](BUDOGRAPH_D5_B1_PUBLIC_REGISTRATION.md).

@@ -282,6 +282,21 @@ test(
           .at(-1)!
           .text.match(/https:\/\/www\.budograph\.com\/[^\s<>"']+/)![0],
       );
+    // Auth commands now return after durable COMMIT. Delivery is an explicit
+    // worker pass in tests; a successful HTTP response does not imply provider I/O.
+    const deliverAuthMail = async (
+      email: string,
+      kind: "verification" | "reset" = "verification",
+    ) => {
+      const jobs = await db.migrator.query(
+        "SELECT id FROM budograph_private.email_outbox WHERE kind=$1 AND subject_key=$2 AND ciphertext IS NOT NULL ORDER BY created_at DESC LIMIT 1",
+        [kind, privateIdentifier(secrets.hmacKey, `${kind}-subject`, email)],
+      );
+      assert.equal(jobs.rows.length, 1);
+      await clearLimits();
+      await due(jobs.rows[0].id);
+      await outB.dispatch!(jobs.rows[0].id, 1);
+    };
     t.afterEach(async () => {
       outcome = "success";
       resume.resolve();
@@ -1067,7 +1082,9 @@ test(
         "expired verification/reset and consumed reset links are suppressed; retention deletes bounded old receipts",
         async () => {
           const email = org.email,
-            token = jwt(email, config.betterAuthSecret, 1);
+            // JWT timestamps have whole-second precision. Leave enough time for
+            // the real TLS/identity checks before enqueue; expire only afterward.
+            token = jwt(email, config.betterAuthSecret, 5);
           const id = await inTransaction(poolA, (tx) =>
             outA.enqueue!(tx, {
               kind: "verification",
@@ -1076,7 +1093,7 @@ test(
               locale: "en",
             }),
           );
-          await db.migrator.query("SELECT pg_sleep(1.1)");
+          await db.migrator.query("SELECT pg_sleep(5.1)");
           const before = attempts.length;
           await outA.dispatch!(id, 1);
           assert.equal((await row(id)).state, "expired");
@@ -1146,6 +1163,7 @@ test(
             ).rows.length,
             0,
           );
+          await deliverAuthMail(registeredEmail);
           verification = link(registeredEmail);
           await clearLimits();
           const verified = await appB.inject({
@@ -1401,6 +1419,7 @@ test(
             email: registeredEmail,
           });
           assert.equal(resetRequest.statusCode, 200);
+          await deliverAuthMail(registeredEmail, "reset");
           const resetLink = link(registeredEmail, "reset-password"),
             token = resetLink.pathname.split("/").at(-1)!;
           const blocker = await control.connect(),
@@ -1473,6 +1492,7 @@ test(
             ).statusCode,
             200,
           );
+          await deliverAuthMail(email);
           const verify = link(email);
           await clearLimits();
           const results = await Promise.all([
@@ -1561,7 +1581,7 @@ test(
               )
             ).rows;
             assert.equal(jobs.length, 1);
-            assert.ok(["accepted", "retry"].includes(jobs[0].state));
+            assert.equal(jobs[0].state, "pending");
             if (cookies.length < 2) {
               await clearLimits();
               await due(jobs[0].id);

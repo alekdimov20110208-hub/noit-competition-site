@@ -8,6 +8,7 @@ import {
   EventCommandError,
   type AccessibleEvent,
 } from "../src/events/model.ts";
+import { OperationalError } from "../src/operations/limits.ts";
 
 const source = "11111111-1111-4111-8111-111111111111",
   key = "22222222-2222-4222-8222-222222222222";
@@ -186,6 +187,46 @@ test("Event operation writes receipt within the business transaction and exact r
     outcome,
   );
   assert.equal(replay.effects(), 0);
+});
+
+test("quota denial permits only authorized exact receipts and never a new business effect", async () => {
+  const rejection = new OperationalError(429, "RATE_LIMITED", 60);
+  const replay = fixture({ receipt: true });
+  assert.deepEqual(
+    await runEventOperation(
+      replay.pool,
+      user,
+      source,
+      key,
+      input,
+      replay.work,
+      rejection,
+    ),
+    outcome,
+  );
+  assert.equal(replay.effects(), 0);
+  for (const options of [
+    {},
+    { receipt: true, mismatch: true },
+    { receipt: true, role: "MEMBER" },
+    { receipt: true, absent: true },
+    { receipt: true, revokedDestination: true },
+  ]) {
+    const f = fixture(options);
+    await assert.rejects(
+      runEventOperation(f.pool, user, source, key, input, f.work, rejection),
+      (error: unknown) =>
+        options.mismatch
+          ? denied("IDEMPOTENCY_KEY_REUSED")(error)
+          : options.role
+            ? denied("FORBIDDEN")(error)
+            : options.absent || options.revokedDestination
+              ? denied("NOT_FOUND")(error)
+              : error === rejection,
+    );
+    assert.equal(f.effects(), 0);
+    assert.ok(!f.calls.some((sql) => sql.startsWith("INSERT")));
+  }
 });
 
 test("Current source authority precedes receipt lookup, conflict/revocation never run effects", async () => {

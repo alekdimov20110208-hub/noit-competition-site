@@ -1823,3 +1823,680 @@ Codex verified the owner-confirmed additional T3 operation, created and validate
 ## 2026-10-17 — T4.1 final Human Acceptance and source-control checkpoint
 
 The owner authoritatively confirmed **T4.1 HUMAN PASS 8/8**, including a personal Apply of exactly two Tasks with three application History entries in a new empty Event. This is separate from Codex automated/isolated testing. No new test IDs, operation timestamp or screenshot was supplied in the attestation. Codex recorded acceptance, audited the complete T4.1 source/docs/test/migration scope and excluded the unrelated shortcut and ignored diagnostics/evidence. The current request authorizes a descriptive commit and safe normal push after checks. No new feature development, live Apply, database migration or runtime restart is performed in this checkpoint.
+
+## 2026-10-30 — D2.3 staging database activation preparation
+
+Codex prepared a target-pinned staging owner CLI, separate bootstrap/0015 identity
+overlay, disposable catalog reference and least-privilege verification. It reuses
+the original checksum-enforcing migration runner and preserves all 16 SQL files.
+The proposed non-secret UUID was generated once with crypto.randomUUID(); owner
+approval remains pending. Targeted disposable PostgreSQL/compiled startup,
+negative target/identity/privilege/checksum and configuration checks are recorded
+in evidence/D2_3_STAGING_DATABASE_RESULT.json. Only staging project metadata was
+read remotely; no remote SQL, accounts, email, push, hosting or paid operations.
+No subagents/dependencies/assets added. Human review/code understanding is PENDING.
+See BUDOGRAPH_STAGING_DATABASE_D2_3.md for the read-only inspect approval boundary.
+
+## 2026-10-30 — D2.4 one-shot staging read-only inspect preflight
+
+The owner authorized exactly one `pnpm staging:db inspect` against
+`jlladwdqdillryyfvndo`, with the proposed UUID used only as a future configuration
+pin. Codex read the mandatory master/regulations, D2.3 procedure/evidence and the
+actual CLI, reachable SQL, target/TLS/pool guards and installed driver behavior.
+The 24 D2.3 file hashes matched at preflight; all 16 original migration pins and
+three staging package pins were verified. The 15 selected local target/TLS tests
+passed; CLI-invoking and socket-connecting test cases were excluded by name.
+
+Result: **D2.4 STAGING READ-ONLY INSPECT: BLOCKED**. No protected staging owner
+credential, independently supplied CA file/SHA-256 or current independently
+confirmed selected host/port was supplied. Required inputs were absent in the
+Process, User and Machine environment. No staging CLI command, remote SQL,
+database connection, mutation, activation, push, deployment or retry occurred.
+No existing hosted inspect report/claim was found in the documented local report
+location or the scoped local evidence search. The one-shot permission is unused;
+the CLI has per-path `wx` reservation, not a global attempt registry.
+
+Sanitized facts, source audit, test scope, blockers and unknown live results are
+recorded in `evidence/D2_4_STAGING_READ_ONLY_INSPECT_RESULT.json`. There is no
+claim that history/catalog/identity were empty or that hosted TLS, ROLLBACK or
+connection closure were observed. Protected staging inputs must be supplied
+before the existing single-inspect authorization can be used. Any later apply
+requires separate owner approval of the real inspected fingerprint and exact
+package. No source/SQL/dependency changes or subagents were used. Supplied NOIT
+2025-2026 year-specific rules require verification for the actual later year.
+
+## 2026-10-30 — D2.4 resume with owner-supplied Session Pooler and CA
+
+Codex verified the attached public CA file outside the repository: exact file
+SHA-256, X.509 fingerprint/CN, CA flag, self-signature and current validity pass.
+The existing staging Dashboard Connect dialog independently matches the owner's
+Session Pooler host/5432/database/project-qualified username. The CA bytes match
+the official Download certificate link on that same staging Dashboard. A fresh
+read-only Supabase project metadata call confirms the exact staging ref, region
+and ACTIVE_HEALTHY status. No Production tab/settings or SQL was accessed.
+
+The source/package and 16 original migration hashes remain unchanged. The only
+remaining blocker is actual password input: no staging credential is supplied in
+Process/User/Machine environment or a supplied protected store. Codex prepared
+an input-only PowerShell helper under the current user's LocalAppData, outside
+Git, with a current-user-only directory ACL. It uses masked SecureString input
+and Windows DPAPI CurrentUser encrypted storage, refuses arguments/overwrite,
+and cannot run inspect or connect to a database. Parsing and a synthetic
+in-memory DPAPI round trip pass; the helper has not been run with real input.
+
+Result remains **BLOCKED**, with cumulative inspect execution count **0**. The
+owner must enter the password in that local helper, never in chat. The existing
+one-inspect permission remains valid and unused; no renewed approval is needed
+for it. Evidence is `evidence/D2_4_STAGING_READ_ONLY_INSPECT_RESUME_RESULT.json`;
+the previous BLOCKED evidence is preserved. No live catalog/identity/history,
+endpoint TLS, ROLLBACK or close result is claimed. No staging/Production SQL,
+mutations, activation, migrations, push, merge, deployment or retry occurred.
+
+## 2026-10-30 — D2.4 local credential-helper path verification and repair
+
+The owner reported that Windows PowerShell could not find the previously
+prepared helper. Native Windows PowerShell 5.1 on DESKTOP-MPV1Q5K, user Lenovo,
+found and read the exact requested LocalAppData path at the start of this turn.
+No alternate copy was found in the scoped filename search; the earlier missing
+file error could not be reproduced, so its original cause is not invented.
+Codex rewrote the identical approved script bytes through native Windows file
+APIs, preserved its SHA-256 and verified Test-Path=True and current-user-only ACL.
+
+The original masked SecureString/DPAPI CurrentUser mechanism is unchanged.
+PowerShell 5.1 syntax/AST and an exact synthetic in-memory DPAPI round trip pass.
+A native -File invocation was blocked by the existing Restricted execution
+policy before reaching the helper's own argument guard; no full helper execution
+or real-password acceptance is claimed. Codex did not change execution policy.
+The owner-run command explicitly uses RemoteSigned only for the new process,
+as documented by the installed powershell.exe help; it has not been run by Codex.
+
+No real password prompt, credential file, database connection, inspect, SQL,
+Production change, staging write, migration, push or deployment occurred.
+The user explicitly prohibited inspect for this turn. Sanitized verification is
+in `evidence/D2_4_CREDENTIAL_HELPER_REPAIR_RESULT.json`. No new storage method or
+repository runtime change was introduced.
+
+## 2026-10-30 — D2.4 direct credential-to-inspect launcher integration
+
+The owner identified the missing DPAPI reader and explicitly requested a complete
+Windows PowerShell 5.1 launcher. Codex reviewed the real CLI inputs and prepared
+an owner-copyable installer and integrated launcher in ignored tmp/d2-4-launcher.
+The launcher reads a masked password, percent-encodes it in memory and passes the
+exact STAGING_MIGRATOR_URL and eight non-secret inputs only to a clean child
+process running the unchanged pnpm staging:db inspect command. It neither reads
+nor writes the old DPAPI credential JSON. The installer only writes/verifies the
+launcher; it cannot prompt for a password or start inspect.
+
+Preflight pins reviewed source/manifests, 16 original SQL hashes, staging package,
+branch, installed prerequisites and the owner's actual local CA file by both
+confirmed SHA-256 values and certificate validity. A fixed local CreateNew claim
+is retained once the attempt is reserved, and prior report/claim blocks another
+launch. Child output is suppressed; finally clears its environment and disposes
+credential resources. No runtime/CLI/migration source change was necessary.
+
+Six isolated native PowerShell 5.1 scenarios pass using a fake pnpm/CLI with no
+database/network calls. They cover reserved and Unicode password characters,
+success/failure, ambient environment isolation, error-output suppression, wrong
+CA, source drift, prior report, empty password and blocked second launches after
+both success and failure. Installer tests verify exact bytes/hash and no prompt,
+inspect or write after a changed copy. The Get-Command first-match correction
+was verified in the final tests. This evidence concerns only the Codex-visible
+test environment, not the owner's host filesystem.
+
+Real inspect/SQL/password input/staging writes/Production changes/push/deployment
+remain zero; the existing one-inspect permission is unused. Stable sanitized
+details are in evidence/D2_4_CREDENTIAL_LAUNCHER_RESULT.json. Hosted results and
+actual owner-host execution remain unverified until the owner runs the delivered
+launcher. No new storage mechanism, dependency or subagent was introduced.
+
+## 2026-10-30 — D2.4.1 safe diagnostic fix (local only)
+
+Owner authorized a local diagnostic correction after the first real D2.4 attempt
+returned FAILED_OR_UNKNOWN. Added closed-vocabulary phase/error classification,
+first-failure retention, observed transaction/rollback/close acknowledgements and
+safe CLI stdout diagnostics. The separate Windows launcher retains the actual
+child exit code and validates individual diagnostic field types before copying
+any values. Raw child output and Error text are never persisted or printed.
+
+Codex used local source inspection, TypeScript, blocked-network Node tests and
+native Windows PowerShell 5.1 fixtures. Results: 18/18 Node tests, 11/11 simulated
+launcher scenarios, two installation passes in one disposable fixture, and server
+typecheck PASS. Fifty existing query call arguments across activation/catalog
+match original pinned local source fixtures. All 16 SQL migration hashes match.
+The real first claim/report and original owner-location launcher hashes remain
+unchanged. The first attempt's missing error cannot be retroactively recovered.
+
+Delivery: scripts/windows/Invoke-StagingInspect-D2.4.1.ps1 and its installation-only
+script; procedure and source pins in BUDOGRAPH_STAGING_DIAGNOSTICS_D2_4_1.md and
+evidence/D2_4_1_SAFE_DIAGNOSTIC_FIX_RESULT.json. Human review and real owner-host
+installation remain pending. No claim of owner-host filesystem equivalence is
+made. A future separate attempt is technically prepared and remains unauthorized;
+its default launcher blocks before credential input without an operator switch.
+
+This change performed zero real inspect executions, remote SQL, staging writes,
+migrations, overlays, real password prompts, Production changes, retries, push or
+deployment. No dependency, storage mechanism or subagent was added.
+
+## 2026-10-30 — D2.4.3 server identity compatibility (local only)
+
+Owner supplied a second-attempt SERVER_IDENTITY_MISMATCH with confirmed rollback
+and close. Reviewed the retained files, current pinned code, official PostgreSQL,
+Supavisor and Node TLS documentation and the Supabase changelog. The failed
+predicate remains unknown. Proved that pg_stat_ssl observes the database-facing
+leg and cannot establish client TLS through Session Pooler.
+
+Added an actual pg TLS socket/options/hostname gate before SQL and a private
+lease-bound connection-mode proof. Session Pooler records upstream false as
+not_encrypted only with verified client TLS; Direct and unregistered callers keep
+the ssl=true guard. Database/role/PostgreSQL-17/system-ID predicates remain strict
+and each now emits only passed/failed/unknown. Updated diagnostic propagation,
+source pins and a separate D2.4.3 Windows distribution with retained evidence
+hashes and a default-blocked third-attempt guard.
+
+41 offline tests and server typecheck passed. Tests use unconnected installed pg
+clients with synthetic TLS streams, in-memory SQL fixtures, blocked networking,
+static source/AST checks and two extracted pure PowerShell validator functions
+(8 scenarios). Neither launcher main, installer main nor CLI inspect was run.
+Historical D2.4/D2.4.2 files and old launchers are unchanged. Original SQL hashes
+and query arguments are verified separately in the result evidence.
+
+Human review and owner-host installation remain pending. The actual D2.4.2 row,
+hosted upstream configuration and outcome of any future inspect remain unknown.
+A third inspect requires separate owner authorization and was not performed.
+Remote SQL, migrations/bootstrap/overlay, Production changes, real credentials,
+Git push, deployment and retries in this stage are zero. No dependency was added.
+
+## 2026-10-30 — D2.5 authorized staging activation launcher
+
+Owner explicitly authorized one staging-only activation for project
+jlladwdqdillryyfvndo, fixed environment UUID and exact successful D2.4.3 snapshot.
+Read the mandatory master prompt/regulations and required activation sources.
+Read-only Supabase get_project confirmed staging metadata; no MCP SQL was used.
+Verified the retained successful D2.4.3 report and recomputed its approved digest.
+The existing client-TLS-only Session Pooler policy permits the recorded plaintext
+backend leg; no end-to-end encryption claim or transport-policy change is made.
+
+Added Invoke-StagingApply-D2.5.ps1 with exact source/history/CA/fingerprint gates,
+CreateNew claim/report boundaries, clean child environment, masked current owner
+password input and independent 32-byte runtime password. Runtime escrow uses
+Windows DPAPI CurrentUser in a protected owner-only directory outside Git, with
+round-trip validation before claiming the apply. Existing activation engine,
+all original migrations/manifests and historical D2.4 artifacts are unchanged.
+Added 15 full PowerShell launcher fixture scenarios and a focused four-check
+disposable PostgreSQL boundary via --staging-d2-5. All passed; server typecheck,
+PowerShell AST parsing and real local PreflightOnly passed. No broad old frontend
+or backend suites were rerun. No dependency or asset was added.
+
+A visible owner-host PowerShell process was launched once for masked credential
+input. It subsequently ended without a D2.5 claim, report, private directory or
+runtime escrow. Its exit cause was not captured and is not inferred. Therefore
+no real CLI apply is demonstrated or reported as performed. No second process
+or apply retry was launched. The final current status, precise omissions, source
+hashes and test evidence are recorded in D2_5_STAGING_DATABASE_ACTIVATION_RESULT.json.
+Owner input is requested only to identify the missing secure-input outcome,
+not to renew the already granted one-apply approval. No passwords are requested
+in chat. Human review/understanding of the new scripts/tests remains pending.
+
+## 2026-10-30 — D2.5 local preflight display; SQL held for owner confirmation
+
+Owner clarified that the original password window was closed manually before
+reading its text, with no password entry and no second start. Owner now requires
+confirmation before any apply or SQL. This later instruction supersedes the
+earlier permission to proceed automatically. The original displayed message
+cannot be reconstructed and is not described as an identified error.
+
+Repeated local evidence checks found no D2.5 claim, activation report/receipt,
+runtime escrow/metadata, private activation directory or original process.
+Added Open-StagingPreflight-D2.5.cmd and Show-StagingPreflight-D2.5.ps1. The .cmd
+uses -NoExit plus a fallback pause. Its parent script never exits explicitly;
+it starts only the hash-pinned original launcher with mandatory -PreflightOnly,
+-NonInteractive, fixed CA path and a clean environment. No mode/credential
+arguments or child output are forwarded. Closed-schema diagnostics go to a
+separate CreateNew local display receipt, retaining status/phase/child exit code.
+This is not an activation report and cannot authorize SQL.
+
+Actual local preflight returned PREFLIGHT_PASS, exit 0, without credentials,
+claim or database connection. Eleven focused fake-child tests passed, including
+success/failure keep-open checks in real Windows PowerShell subprocesses, source
+pin refusal, existing-claim preservation and hostile-output suppression. The
+keep-open tests explicitly exit their own isolated parent sessions after checking
+they remain alive. PowerShell AST parsing passed. No database tests or old
+activation fixtures were rerun because this stage permits no SQL. The double-click
+entry was prepared for the owner; no new visible owner apply window was opened.
+
+Original apply launcher, D2.5 historical result, owner-window record and D2.4
+evidence remain unchanged. New facts and hashes are in
+evidence/D2_5_PREFLIGHT_DISPLAY_RESULT.json. No dependency/asset was added.
+
+## 2026-10-31 — D2.5 minimal offline connection classification
+
+Owner authorized local comparison/fix only, without networking, SQL, inspect or
+apply. Compared D2.4.3 and D2.5 connection inputs, URI/password processing,
+environment isolation, child invocation, shared pool/TLS configuration and the
+unchanged five-second timeout. The command chain differs (pnpm wrapper versus
+direct Node), but no connection-breaking defect or historical runtime mismatch
+was proven. Actual typed passwords were not read or compared.
+
+Proved a diagnostic gap: installed pg-pool emits code-less timeout errors that
+the original classifier reports UNKNOWN. Added a connect-boundary classifier
+returning only fixed reason/code/source categories, including exact known driver
+timeout literals. No raw Error fields are returned; own-data-property access
+avoids hostile getters. General classification, pool configuration, TLS,
+Production/identity guards, activation logic and all migrations remain unchanged.
+The historical hosted failure remains UNKNOWN; no successful connection is claimed.
+
+Seven focused offline tests passed, including actual pg-pool with a fake Client
+without sockets, extracted CLI catch behavior, unconnected SSL/target equality,
+PowerShell URL/secret isolation and child environment survival after parent clear.
+Node socket/TLS/DNS/fetch are blocked in the suite. TypeScript passed. No staging
+entrypoint, launcher main, live pool connection or database test was run. Existing
+D2.5 claim/report/escrow and historical D2.4 evidence were preserved byte-for-byte.
+No new Windows launcher, dependency, asset, push or deployment was created.
+
+The proposed next operation is a separately approved one-shot connection-only
+staging probe with verified client TLS and confirmed close, no SQL or retry.
+Historical launcher pins remain unchanged and intentionally reject changed source;
+a future probe needs its own short entrypoint/current pins and new report path.
+Details: BUDOGRAPH_D2_5_CONNECTION_DIAGNOSTICS.md and its evidence JSON.
+
+## 2026-10-31 — D2.5 one-shot connection-only probe preparation
+
+Owner approved exactly one staging connection-only probe, manually initiated on
+Windows, with no SQL or retry. Added a small pinned PowerShell launcher and a
+separate Node entrypoint using the existing pool, pg library, client socket TLS
+verification and unchanged 5000 ms timeout. Exact staging ref/host/username/CA
+guards precede the connection. Only one pool.connect call exists; no query calls
+or activation/migration imports exist. Separate CreateNew claim/report paths
+retain all previous evidence and do not reuse the consumed apply claim.
+
+Password input is masked and transient, with no secret persistence. Reports
+retain only fixed connection categories, elapsed time and truthful close status.
+Failed connection without a leased client reports pool-closed-no-client rather
+than claiming observed socket closure. No server identity/schema acceptance is
+inferred from a successful TLS connection.
+
+Only the seven new probe offline tests were run; all passed. Tests block Node
+network APIs, use synthetic TLS metadata, exercise one-shot local files and a
+fake-child PowerShell fixture. Existing tests were not repeated. TypeScript,
+PowerShell parsing and actual local PreflightOnly passed with D:/prod-ca-2021.crt.
+The real probe has not been run: new claim/report/private directory remain absent.
+Historical D2.4/D2.5 evidence and escrow, common runtime sources and 16 migrations
+were preserved. No new dependencies, push, deployment or Production access.
+Manual command, launcher hash and limits are in BUDOGRAPH_D2_5_CONNECTION_PROBE.md.
+
+## 2026-10-31 — D2.5 fresh read-only preactivation inspect preparation
+
+Observed the owner's real connection probe PASS report (CONNECTED in 1023 ms,
+verified client TLS, close confirmed, zero SQL). Owner then authorized exactly
+one new read-only inspect, manually executed in Windows, to confirm the current
+initial catalog and the previously approved f626b9d5...4c53 fingerprint.
+
+Added a small pinned PowerShell entrypoint for the existing unchanged inspect
+mode. It reuses the successful probe connection configuration, original pg/pool
+and verify-full protections, a 5000 ms connection timeout and masked transient
+password. New CreateNew claim/report/receipt names preserve the consumed probe
+and apply attempts. There is no apply approval, runtime secret or retry path.
+Acceptance requires successful read-only inspection, confirmed ROLLBACK and
+connection close, and exact fingerprint match. The final receipt records STOP
+on mismatch and separates actual inspect failurePhase from local validation.
+
+Only six new offline tests were run, all PASS after correcting a synthetic CA
+literal in the test fixture. Tests block networking, exercise the existing inspect
+core in memory and use a fake child for launcher PASS, mismatch, failure and replay
+cases. Actual local PreflightOnly and PowerShell parsing also passed. All 20 old
+evidence files retain their hashes; no old escrow was decrypted. New actual claim,
+report and receipt remain absent. No remote connection, SQL, apply, Production
+access, push or deployment was performed. Procedure and exact manual command:
+BUDOGRAPH_D2_5_PREACTIVATION_INSPECT.md; local readiness evidence:
+evidence/D2_5_PREACTIVATION_INSPECT_READY.json.
+
+## 2026-10-31 — D2.5 separately authorized activation attempt 2 preparation
+
+Owner's real fresh inspect report and final receipt are PASS with confirmed
+ROLLBACK/close. Independently recomputed the approved f626b9d5...4c53 fingerprint
+from their witness/catalog locally. Owner explicitly approved ONE new staging
+activation, manually run in Windows; no automatic apply from Codex.
+
+Prepared a new attempt-specific launcher by reusing the original activation
+launcher and unchanged activation engine. Updated only the entrypoint's source
+pins/prerequisite evidence pins, fixed proven CA path, unique attempt artifact
+names and safe failure reporting. Validates the fresh inspect receipt/report,
+current source pins, original migrations/package, target and CA before masked
+input. Existing engine performs both live initial fingerprint checks before
+bootstrap and its original migration/overlay/permissions/password pipeline.
+New independent runtime credential uses a separate DPAPI escrow and private ACL.
+No old claim/report/escrow is reused, overwritten or decrypted.
+
+Six new offline launcher tests passed, with blocked network APIs, synthetic
+credentials/DPAPI and fake children only. They cover success/replay, timeout
+failure phase, fingerprint/history mismatch, close/missing report, prerequisite
+and Production refusals, SQL/source drift and preflight-only. AST and actual
+local PreflightOnly passed. All 23 previous evidence files retain their hashes;
+actual attempt-2 claim/report/receipt/escrow and directory remain absent.
+No remote SQL, apply, Production access, push or deployment was performed.
+Procedure: BUDOGRAPH_D2_5_ACTIVATION_ATTEMPT_2.md. Readiness evidence:
+evidence/D2_5_ACTIVATION_ATTEMPT_2_READY.json. Hosted runtime login is not claimed.
+
+## 2026-10-31 — D2.5 confirmed runtime role permission fix, offline only
+
+Owner supplied the exact hosted SQLSTATE 42501 and rejected SET LOCAL ROLE
+budograph_runtime statement, plus an empty BudoGraph catalog. The failure is
+before bootstrap COMMIT and the migration runner: Attempt 2 committed zero
+migrations and did not execute identity overlay or runtime password activation.
+
+Confirmed PostgreSQL 17 role semantics from official documentation: a non-superuser
+CREATEROLE creator has automatic ADMIN TRUE, SET FALSE, INHERIT FALSE membership.
+Bootstrap had enabled SET only for the migrator. Added one local runtime-to-postgres
+membership statement WITH INHERIT FALSE, SET TRUE, preserving automatic ADMIN for
+password management and all runtime restrictions. Updated the bootstrap package
+checksum; original migrations, identity, TLS and Production guards are unchanged.
+
+Fixed diagnostic capture before connection finally and passed optional diagnostics
+through the activation engine. SQL denial phase is bootstrap_runtime_role and is
+recorded before rollback/cleanup. No raw errors, credentials or SQL parameters are
+serialized. Real close failures retain connection_close and do not mask a primary
+SQL error. Existing launcher source pins remain historical and unchanged.
+
+Six new offline regressions and 18 relevant existing diagnostics/activation tests
+passed; TypeScript passed. Tests use a PG17 membership model and actual CLI with
+in-memory clients, not a real PostgreSQL server. No database, roles or GRANTs were
+created/executed. All 26 historical evidence files retain their hashes; no old
+escrow was decrypted. No remote SQL, apply, Production access, push or deployment.
+Another activation requires separate owner approval, new artifacts/current pins,
+and a live exact fingerprint check. Details: BUDOGRAPH_D2_5_RUNTIME_ROLE_FIX.md;
+evidence/D2_5_RUNTIME_ROLE_FIX_RESULT.json.
+
+## 2026-10-31 — D2.5 Attempt 3 manual activation preparation
+
+Owner approved exactly one new staging-only attempt using the confirmed PG17
+runtime SET membership fix and corrected failure-phase reporting. Created a new
+attempt-specific launcher from the preserved Attempt 2 entrypoint, with current
+source/package pins and unique CreateNew claim/report/DPAPI names. Updated its
+closed failure-phase list and required retained server-witness/rollback/close
+acknowledgements for PASS. Existing activation engine, original migrations,
+identity, TLS and target guards are unchanged in this preparation.
+
+Actual local PreflightOnly and PowerShell parsing passed. Eight new offline tests
+passed, with synthetic credentials/DPAPI, fake children and blocked network APIs.
+Tests validate the new artifact paths, secret isolation, successful result/replay,
+all relevant refusals, bootstrap_runtime_role phase preservation and actual engine
+catalog/fingerprint refusal before bootstrap. Prior suites were not rerun.
+All 32 prior private/evidence/Attempt 2 source files retain their hashes, including
+both previous escrow/metadata pairs. No old escrow was decrypted. Actual Attempt 3
+directory, claim, report, receipt and escrow remain absent. No remote connection,
+SQL, apply, Production access, push or deployment was performed.
+Exact manual command and SHA-256: BUDOGRAPH_D2_5_ACTIVATION_ATTEMPT_3.md;
+evidence/D2_5_ACTIVATION_ATTEMPT_3_READY.json.
+
+## 2026-10-31 — D2.5 catalog primary-error preservation, offline only
+
+Applied the requested minimal source fix: fixed catalog operation IDs, validated
+SQLSTATE and first-failure phase are captured before cleanup. Search-path restore
+and ROLLBACK outcomes are separate. Cleanup failures cannot replace the identical
+primary thrown value; cleanup-only failures still stop execution. Existing CLI
+reports receive the safe fields. SQL text/order, migrations, bootstrap, identity,
+TLS and permissions are unchanged.
+
+Twelve new offline regression tests and 62 related offline tests passed (74 total);
+TypeScript and Prettier passed. Network APIs are blocked in the new tests and the
+CLI pool is intercepted with in-memory clients. All 26 catalog SQL literals retain
+their ordered digest. All 65 baselined old evidence/immutable files are unchanged.
+No old claims/reports/escrow were modified or decrypted. No database connection,
+remote SQL, apply, new launcher, Attempt 4, Production access, push or deployment.
+
+The actual prior catalog cause remains unknown: the existing Attempt 3 local
+reports discarded its original SQLSTATE/operation. Existing retained PostgreSQL
+logs may identify it without another activation; no remote logs were accessed.
+Details: BUDOGRAPH_D2_5_PRIMARY_ERROR_FIX.md;
+evidence/D2_5_PRIMARY_ERROR_FIX_RESULT.json.
+
+## 2026-10-31 — D2.5 targeted initial catalog review, no execution
+
+Reviewed only initialSnapshot/applicationCatalog and the inspectStaging call path.
+Documented all 25 snapshot SQL operations plus the caller's server witness,
+their empty-application/provider-catalog expectations and their stop conditions.
+Checked the PG17 membership/policy/configuration definitions in public official
+documentation. No deterministic defect or actual hosted failure cause is proven;
+no source code, SQL, permissions, timeouts or old evidence were changed.
+
+Prepared only a short procedure for one separately approved read-only inspect,
+using the preserved primary error/operation ID and independent future claim/report
+paths. No launcher, command, claim or report was created for a real probe. Existing
+74/74 offline result is historical and was not rerun for documentation changes.
+No database connection, remote SQL, probe, apply, Attempt 4, Production access,
+Git push or deployment. Owner approval for real probe execution remains required.
+Details: BUDOGRAPH_D2_5_TARGETED_CATALOG_DIAGNOSIS.md.
+
+## 2026-10-31 — one manual D2.5 catalog diagnostic probe prepared
+
+Owner explicitly approved one staging-only read-only catalog diagnostic and asked
+for manual execution. Created an independent launcher from the prior inspect
+entrypoint, with 18 current source pins and new CreateNew claim/report/receipt
+paths. The existing engine and connection/TLS/timeouts are unchanged. Final
+receipt retains first failure phase, fixed operation ID and safe SQLSTATE plus
+separate search-path restoration, ROLLBACK and connection-close outcomes. Closed
+validation prevents raw errors or arbitrary labels entering the receipt.
+
+Ten new offline launcher tests passed using synthetic input, fake children and
+blocked network APIs; the actual inspect engine ran only with an in-memory client.
+Windows PowerShell AST and actual PreflightOnly passed. All 75 baselined old
+evidence/source/dependency files are unchanged, including private old escrow and
+the existing detailed reports. No old escrow was decrypted. No real probe claim,
+report or receipt was created, and no database connection or remote SQL occurred.
+No apply, Attempt 4, Production access, push or deployment. Prior suites were not
+rerun. Manual command/hash: BUDOGRAPH_D2_5_CATALOG_DIAGNOSTIC_PROBE.md;
+evidence/D2_5_CATALOG_DIAGNOSTIC_PROBE_READY.json.
+
+## 2026-10-31 — D2.5 Attempt 4 manual activation preparation
+
+Owner approved exactly one new staging-only activation, to be started manually.
+Validated the successful catalog diagnostic receipt/report/claim and recomputed
+the approved fingerprint locally. Created an independent Attempt 4 launcher from
+the preserved Attempt 3 entrypoint, with current source pins and unique CreateNew
+claim/report/receipt/DPAPI names. No old artifact is reused or overwritten.
+
+Extended diagnostics only: capture migration SQLSTATE before runner sanitization
+and identity verification errors before cleanup; report transaction ROLLBACK and
+activation reset-role/unlock separately. Primary failures remain first when
+cleanup fails. SQL sequence, original migrations, bootstrap, staging identity,
+permissions, TLS and connection configuration remain unchanged. The final receipt
+retains safe failurePhase/failureOperation/SQLSTATE and explicit activation PASS.
+
+48/48 unique targeted offline tests passed: 5 new activation diagnostics, 10 new
+launcher tests and 33 related regressions. PASS receipt addition was rechecked.
+TypeScript, PowerShell AST and actual PreflightOnly passed. Tests block networking
+and use in-memory clients/fake children and synthetic DPAPI credentials. All 103
+baselined old evidence/launcher/migration/package/TLS/target files are unchanged.
+Real Attempt 4 private directory/claim/report/receipt/escrow remain absent. No old
+escrow was decrypted; no real connection, SQL, apply, Production access, Git push
+or deployment was performed. Historical launcher pins were not changed.
+Command/hash: BUDOGRAPH_D2_5_ACTIVATION_ATTEMPT_4.md;
+evidence/D2_5_ACTIVATION_ATTEMPT_4_READY.json.
+
+## 2026-10-31 — D3 separate Render Free staging preparation
+
+D2.5 is complete. Reviewed only deployment entrypoints/build/start/environment
+contracts and runtime authentication requirements. Prepared render.staging-d3.yaml
+for a new isolated Free service, fixed staging target, auto-deploy off and no
+pre-deploy/migration command. Existing root Render configuration and runtime
+source/Production settings are unchanged. Listed environment names/purposes only.
+
+Prepared a one-shot runtime-role LOGIN launcher using the saved Attempt 4 DPAPI
+credential only after future approval. Default/PreflightOnly does not decrypt or
+connect. The future operation uses one verified TLS Session Pooler connection,
+BEGIN READ ONLY, the existing runtime identity SELECT, ROLLBACK and observed close.
+Independent claim/report, isolated environment, no raw errors/credentials and no
+retry. Offline tests use newly generated synthetic DPAPI credentials exclusively;
+the actual historical escrow was never decrypted or changed.
+
+Full local production build and a separate local clone with only six proposed
+release files both passed, using installed dependencies without network install.
+38 targeted offline tests, TypeScript, PowerShell AST/PreflightOnly and five
+compiled release routing/health checks passed. Authentication/DB were fake in
+smoke tests; real runtime LOGIN and hosted login are not claimed. One compiled
+startup test skipped in the first test batch was explicitly run and passed.
+Synthetic test credential setup initially inherited PowerShell 7 module paths;
+the test harness now uses the same clean environment as the real launcher.
+
+All 93 baselined D2 evidence/launcher and protected runtime/configuration files
+retain their hashes. No remote SQL, migration, real DPAPI decryption, account
+creation, email, push, Render service creation/deploy or Production changes.
+Remaining inputs: runtime LOGIN evidence, actual Render URL/secure email/runtime
+settings, first test Organizer provisioning and publishing/deployment approval.
+The existing account provisioning CLI remains development-only; no auth/security
+guard was weakened to bypass initial account creation.
+Details and narrow publish allowlist: BUDOGRAPH_D3_RENDER_FREE.md;
+evidence/D3_RENDER_FREE_PREPARATION.json.
+
+## 2026-10-31 — approved D3 runtime LOGIN probe, local verification only
+
+Owner approved exactly one runtime-role staging LOGIN probe, manually triggered.
+Reused the existing launcher without source changes. Verified 11 source pins,
+three pinned Attempt 4 credential/metadata/receipt inputs, the staging target,
+matching PowerShell/Node CA paths and absent one-shot claim/report. PowerShell AST
+and actual PreflightOnly passed. Ten focused offline probe/launcher tests passed
+using intercepted pools, blocked sockets and synthetic DPAPI credentials only.
+All 93 previously baselined evidence/protected files remain unchanged.
+
+No real credential was decrypted, no claim was reserved and no database/SQL,
+Production, user creation, push, Render/Vercel deployment or budograph.com change
+was performed. The manual command uses the existing -RunApproved flag under this
+owner approval. Safe readiness record: evidence/D3_RUNTIME_LOGIN_READY.json.
+
+## 2026-10-31 — D3 minimal Render staging release preparation
+
+Read the owner's real RUNTIME_LOGIN_PASS report without repeating DB login or
+SQL. Prepared an eight-file release allowlist, exact staging commit/push commands
+and the isolated Render service procedure in BUDOGRAPH_D3_RELEASE.md. Production
+hosting/root render.yaml, original migrations and historical escrow/receipts are
+unchanged. Four already tracked historical machine evidence files are proposed
+for Git-only untracking in the future commit; local originals are preserved.
+The actual index/branch/HEAD were not changed and no commit/push occurred.
+
+Extended only the staging public-origin guard to accept one explicitly configured
+vercel.app origin for a future same-origin Vercel API reverse proxy. Kept deployed
+same-origin enforcement, exact trusted origin, secure host-only cookies, disabled
+public signup and Production behavior. No Vercel project/config was deployed.
+
+Prepared a Git-ignored, local-only DPAPI-to-clipboard helper for owner-triggered
+private Render DATABASE_URL entry. It validates hashes, successful receipts,
+staging target and expiry; it prints/writes no secret and never connects. Its real
+preflight passed without decrypting the escrow. Six tests used synthetic DPAPI
+and mocked clipboard exclusively, including clearing, replacement preservation,
+pin/history refusal and safe failure output.
+
+The isolated release snapshot built successfully using installed dependencies;
+server TypeScript and 30 targeted offline tests passed with no skips. Snapshot
+secret/path scan excludes machine evidence and real credentials; only known
+synthetic/placeholder connection literals remain. Forty-seven baselined evidence,
+SQL/launcher and private artifact files retain their original hashes. Hosted
+deployment, new dependencies installation, private secret transfer and test-account
+provisioning remain pending owner action/approval. No remote database operation,
+email, Render/Vercel deployment, Production modification or credential output.
+
+## 2026-10-31 — D4 private first staging account preparation
+
+Added a local-only one-shot Windows launcher, stdin-only Node CLI and private
+Better Auth registration module. Native password hashing and user/account creation
+share one externally owned transaction; actual hosted identity/role safety is
+checked before every command/write and COMMIT, with pinned CA and verified TLS.
+The exact staging project/UUID and runtime identity are mandatory. A fixed exclusive
+local claim plus advisory lock and empty-account/Event gates refuse repetition.
+No public registration route, auth bypass, role/schema change or Event is added.
+
+The account remains unverified with no session. Its first email is deliberately
+requested through the existing live application's verification page, preserving
+the deployed Better Auth secret, durable outbox and Resend path without copying
+server secrets locally. Verification and subsequent login compatibility were
+tested entirely with synthetic data, including the actual existing auth factory.
+
+Sixteen new D4 tests and ten existing auth tests passed; server TypeScript and
+real Windows PowerShell 5.1 syntax/preflight passed. The PowerShell UTF-8 pipe was
+tested with synthetic Unicode only. Preparation did not decrypt the actual DPAPI
+escrow, connect to a database, send email or create a real account/claim. No push,
+deployment, Production modification or change to previous evidence was performed.
+Real creation remains subject to separate owner approval.
+
+## 2026-10-31 — D5-B0 local authentication security baseline
+
+Following the D5-A audit and explicit owner authorization, separated auth HTTP
+responses from durable provider dispatch; removed native verification resend
+sleeps from account/outbox locks using the pinned Better Auth JWT generator;
+added a shared response floor and inactive-account handling. Reset requests now
+atomically replace older tokens; successful reset removes legacy siblings and
+retains native expiry, single use and session revocation. Added durable signup
+admission primitives, shared invitation registration budgets, Create/Duplicate
+quotas, IPv6 network normalization and a serialized 100-owned-Event storage cap.
+Public signup remains disabled. No new dependency, migration or application grant.
+
+Verification: 224 selected server tests and 14 dedicated isolated PostgreSQL
+tests passed with no failures/skips; server TypeScript/build and scoped ESLint
+passed. The dedicated runner used a new loopback-only synthetic cluster and the
+16 unchanged baseline migrations; all provider HTTP was mocked and the cluster
+was stopped/removed. The legacy operational integration expectations were
+adapted but its full separate TLS fixture was not rerun. See
+BUDOGRAPH_D5_B0_SECURITY_BASELINE.md for scope, files and limitations.
+
+No cloud database operation, existing credential access/change, real account or
+mail/invitation, D2.5/D3/D4 operation, commit, push or deployment was performed.
+Prior unsaved changes were preserved. Local technical verification does not
+replace owner code review or approved staging E2E. Supplied NOIT 2025-2026 rules
+require actual-year verification.
+
+## 2026-11-01 — D5-B0-F1 security findings remediation (local only)
+
+Implemented only the three confirmed D5-B0-R findings: canonical reset token
+resolution with mandatory account gate; generic mail responses after rolled-back
+recipient-dependent enqueue failure with safe diagnostics; quota-denied Duplicate
+recovery restricted to authorized exact accepted receipts. Native Better Auth,
+existing migration/permission contracts and public signup closure are preserved.
+
+Validation: 226 server unit tests, 17 dedicated isolated PostgreSQL tests and
+48 full isolated TLS/identity/startup/operational/runtime tests passed. The first
+full run failed at the old one-second expiry fixture; its enqueue window was
+increased to five seconds, with the expiry assertion retained. Both full-run
+logs remain in separate new task-owned evidence directories. No hosted behavior
+or real inbox delivery is claimed. See BUDOGRAPH_D5_B0_F1_REMEDIATION.md.
+
+No cloud/staging/production mutation, real account/email/invitation, native package
+change, new application migration/grant/role, credentials change, D2.5/D3/D4
+operation, commit, push or deployment occurred. Prior modified/untracked files
+and historical evidence are preserved. Ready for a new independent local review;
+D5-B1 remains separately authorized work.
+
+## 2026-11-01 — D5-B1 public registration, local implementation
+
+Codex implemented the explicitly authorized gated signup flow using pinned Better Auth 1.7.7, the existing owned transaction adapter, durable outbox and B0 controls. Added a narrow field-whitelisted HTTP command, local DB witness, OFF-by-default gate with production veto, BG/EN signup form and verification continuation. Empty-account Dashboard now has a direct Create Event link. Existing account credentials, Event authority and private invitation contracts are preserved. No new dependency or asset was added.
+
+Validation: 230 server unit tests, 329 existing frontend tests, 2 new client tests, 31 isolated PostgreSQL tests including actual browser continuation, 48 isolated TLS/identity/runtime tests and 16 mocked BG/EN/width/theme browser cases passed. TypeScript, build and scoped style/diff checks passed. Browser tests exposed and fixed an empty-Dashboard redirect and a 42px show/hide target. Missing Chromium revision was resolved by selecting the existing installed executable. Failure logs were retained. Human review and independent D5-B1 review are pending; no human acceptance is invented. See BUDOGRAPH_D5_B1_PUBLIC_REGISTRATION.md.
+
+No actual environment file/secret was read or changed, no cloud access or staging/production writes occurred, no real account/email/invitation was created, no new application migration/role/grant was added, and no commit/push/deployment/public activation occurred. Fresh test fixtures reproduced only accepted migrations/permissions with synthetic credentials. Historical evidence and unrelated initial modifications were preserved.
+
+## 2026-11-01 — D5-B1-F1 registration final remediation (local only)
+
+Codex resolved only the two D5-B1-R findings. Explicit staging/production
+labels now require production runtime security and unknown labels are rejected;
+signup remains OFF by default and the production veto is unchanged. Client
+email checks now enforce the existing server's 64-character local-part and
+63-character domain-label limits. Backend acceptance, normalization, uniqueness,
+native Better Auth 1.7.7 and prior security contracts were not changed.
+
+Regression tests reproduced both findings before the fixes. Verification passed:
+233 server unit tests, 329 existing frontend tests plus three signup client
+tests, 31 isolated PostgreSQL/browser tests, 48 isolated TLS/runtime tests and
+16 BG/EN/theme/width UI combinations with new 320px localized email/keyboard
+boundary checks. Targeted signup tests passed 10/10; an additional static
+staging-boundary run passed 32 with one separate compiled-staging opt-in skipped.
+TypeScript, production build, scoped lint/formatting and diff/checksum checks
+passed. An initial strict-index type error was fixed and its log preserved.
+The existing large-bundle warning remains. No new regression was found.
+
+No real accounts/emails, actual env files, staging/Production DB, cloud changes,
+new application migrations/grants/roles, D2.5/D3/D4 operations, commit, push,
+deployment or public activation occurred. Isolated fixtures used only synthetic
+accounts/mail and the accepted schema/permissions. Existing source changes and
+historical evidence were preserved. Hosted activation remains blocked by both
+the production parser veto and local-only DB witness; a separately approved
+staging-only strategy is documented, not implemented. Focused independent
+review is next. See BUDOGRAPH_D5_B1_F1_REMEDIATION.md and the unique task evidence
+directory recorded there. No human acceptance is claimed.

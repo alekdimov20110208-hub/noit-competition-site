@@ -3,3 +3,14 @@
 
 # Preserve original SQL bytes, including the immutable R2 line endings.
 server/migrations/*.sql -text
+
+# D2.3 package checksums cover exact overlay/bootstrap/catalog bytes.
+server/staging/* -text
+
+# D2.4.1 Windows distribution pins cover exact diagnostic source/launcher bytes.
+server/scripts/staging-database.ts -text
+server/src/staging/activation.ts -text
+server/src/staging/catalog.ts -text
+server/src/staging/diagnostics.ts -text
+server/src/staging/client-tls.ts -text
+scripts/windows/*.ps1 -text

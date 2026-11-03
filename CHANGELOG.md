@@ -318,3 +318,10 @@ Owner clarified the additional T3 application. Preserved all five Tasks and thre
 ### T4.1 final owner Human Acceptance and Git checkpoint — 2026-10-17
 
 **T4.1 HUMAN PASS — 8/8, owner-confirmed.** The owner personally verified all 12 new BG/EN templates (108 Tasks; 13 system templates including the unchanged starter), real search/category/difficulty filters, details and exactly two reviewed deadlines (2026-10-23 / 2026-10-30) in a fresh empty Event. One owner-confirmed Apply created exactly two new Tasks and three application History entries. Built-in/My Templates, T1/T2/T3, B.1 and LOCKED Event Management remain preserved. Migration 0013 is applied and controlled development activation completed. The internal ten-workstream roadmap is included. The owner authorized the audited commit and safe normal push; no T4.2, new live Apply, migration, runtime restart or deployment is part of this checkpoint.
+
+## 2026-11-01 — D5-B1 local public registration
+
+- Added gated local self-service registration with native Better Auth credentials, atomic verification outbox and durable abuse admission.
+- Added BG/EN signup, safe verification continuation and direct Create Event from the empty Dashboard.
+- Public signup remains OFF by default; hosted activation is blocked pending separate approval and independent review.
+- Added isolated security/SQL/browser tests and [implementation evidence](docs/BUDOGRAPH_D5_B1_PUBLIC_REGISTRATION.md). No deployment or new migration/dependency.

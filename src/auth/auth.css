@@ -146,6 +146,10 @@
 .login-message {
   color: var(--ink-soft);
 }
+.auth-workspace .signup-visibility {
+  min-height: 44px;
+  margin-bottom: 16px;
+}
 .auth-check {
   color: var(--ink-soft);
 }

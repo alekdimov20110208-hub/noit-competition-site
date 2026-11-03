@@ -62,6 +62,7 @@ export async function runEventOperation(
     source: EventRow,
     commandId: string,
   ) => Promise<AccessibleEvent>,
+  creationDenied?: Error,
 ): Promise<AccessibleEvent> {
   const command = parseEventOperation(user, source, key, input);
   return inTransaction(pool, async (database) => {
@@ -120,6 +121,9 @@ export async function runEventOperation(
         throw new EventCommandError(404, "NOT_FOUND");
       return receipt.outcome;
     }
+    // A denied creation budget may recover ONLY a currently authorized exact
+    // receipt. Keep this check under the existing actor/key lock, before writes.
+    if (creationDenied) throw creationDenied;
     // Archived sources are eligible. A new command still needs the reviewed
     // version; an accepted exact replay survives later source metadata changes.
     if (event.version !== command.fields.expectedVersion)

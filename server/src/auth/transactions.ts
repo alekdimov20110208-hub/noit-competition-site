@@ -1,5 +1,6 @@
 import { createKyselyAdapter } from "@better-auth/kysely-adapter";
 import type { BetterAuthOptions } from "better-auth";
+import { createEmailVerificationToken } from "better-auth/api";
 import type { Pool } from "pg";
 import type { AuthInstance, AuthOptions } from "./auth.ts";
 import { inTransaction, type TransactionDatabase } from "../db/transaction.ts";
@@ -7,9 +8,18 @@ import type {
   TransactionalEmailService,
   TransactionalEmail,
 } from "../email/service.ts";
+import { emailLocale } from "../email/service.ts";
 import { OperationalError, type SharedControls } from "../operations/limits.ts";
 import { verificationMetadata } from "../operations/crypto.ts";
 import { canonicalAuthPath } from "./path.ts";
+import {
+  authMailResponse,
+  canonicalResetToken,
+  genericAuthMailResponse,
+  invalidateResetTokens,
+  isAuthMailRequest,
+} from "./safety.ts";
+import type { SignupFields } from "./signup.ts";
 
 type Build = (
   database: BetterAuthOptions["database"],
@@ -98,6 +108,9 @@ export function createAuthTransactions(
   verifySchema: boolean,
   sharedControls?: SharedControls,
   authSecret?: string,
+  publicAppUrl?: string,
+  onMailEnqueueFailure: () => void = () =>
+    console.error("Authentication mail enqueue failed"),
 ) {
   const prepare = async () => {
     // Settle the shared, cached production schema check before taking a client.
@@ -130,11 +143,9 @@ export function createAuthTransactions(
         return failure;
       },
       async dispatch() {
-        if (email?.dispatch) {
-          // Pending work is already durable. Provider/budget failure never
-          // erases it or changes committed registration into a rollback claim.
-          for (const id of jobs) await email.dispatch(id, 1);
-        }
+        // Durable jobs are already committed. The registered email worker claims
+        // them (also after restart); no provider promise belongs to this response.
+        if (email?.enqueue) return;
         // This must be invoked only after actual COMMIT and physical release.
         for (const message of pending) {
           if (!email || !tasks)
@@ -143,6 +154,32 @@ export function createAuthTransactions(
         }
       },
     };
+  };
+  const enqueueVerification = async (
+    delivery: ReturnType<typeof mail>,
+    address: string,
+    callbackURL: string | undefined,
+    locale: "bg" | "en",
+  ) => {
+    if (!authSecret || !publicAppUrl) throw new OperationalError();
+    const url = new URL("/api/auth/verify-email", publicAppUrl);
+    url.searchParams.set(
+      "token",
+      await createEmailVerificationToken(
+        authSecret,
+        address,
+        undefined,
+        raw.options.emailVerification.expiresIn,
+      ),
+    );
+    if (callbackURL) url.searchParams.set("callbackURL", callbackURL);
+    await delivery.service.send({
+      kind: "verification",
+      to: address,
+      url: url.href,
+      locale,
+    });
+    if (delivery.failure) throw delivery.failure;
   };
   const normalizedEmail = (value: unknown) =>
     typeof value === "string" &&
@@ -162,8 +199,7 @@ export function createAuthTransactions(
       )?.email;
     }
     if (path.endsWith("/reset-password")) {
-      const token =
-        body.token ?? new URL(request.url).searchParams.get("token");
+      const token = body.token;
       if (typeof token !== "string" || token.length > 256) return;
       const context = await raw.$context;
       const value = await context.internalAdapter.findVerificationValue(
@@ -185,7 +221,7 @@ export function createAuthTransactions(
     }
     return normalizedEmail(body.email);
   };
-  const handler = async (request: Request) => {
+  const handle = async (request: Request) => {
     const path = authPath(request);
     // Disabled signup stays disabled even when operational storage is down.
     if (path === "/api/auth/sign-up/email") return raw.handler(request);
@@ -273,12 +309,30 @@ export function createAuthTransactions(
     } catch {
       /* The library validates malformed input. */
     }
+    const reset =
+      request.method === "POST" && path === "/api/auth/reset-password";
+    if (reset) {
+      const url = new URL(request.url);
+      const token = canonicalResetToken(body, url.searchParams);
+      if (!token)
+        return Response.json({ code: "INVALID_TOKEN" }, { status: 400 });
+      body = { ...body, token };
+      url.searchParams.delete("token");
+      request = new Request(url, {
+        method: request.method,
+        headers: request.headers,
+        body: JSON.stringify(body),
+      });
+    }
     // Sequential lookups only; no lease is held while resolving the gate key.
     // They never authorize the command: the bound endpoint validates again.
     const account = await commandEmail(request, body);
+    if (reset && !account)
+      return Response.json({ code: "INVALID_TOKEN" }, { status: 400 });
     if (path === "/api/auth/sign-out" && !account) return raw.handler(request);
     const profile =
       path === "/api/auth/change-password" || path === "/api/auth/update-user";
+    const publicMail = isAuthMailRequest(request, path);
     if (account && profile && sharedControls)
       await sharedControls.account(
         request.headers.get("x-budograph-client-ip") ?? "",
@@ -290,34 +344,144 @@ export function createAuthTransactions(
       response = await inTransaction(pool, async (database) => {
         if (account)
           await lockAccount(database, account, profile && !!sharedControls);
-        if (
-          path === "/api/auth/request-password-reset" ||
-          path === "/api/auth/send-verification-email"
-        )
-          await email?.reserve?.(database);
+        if (publicMail) await email?.reserve?.(database);
+        let identity:
+          { id: string; active: boolean; emailVerified: boolean } | undefined;
+        if (account && (publicMail || path === "/api/auth/reset-password")) {
+          const result = await database.query(
+            'SELECT id,active,"emailVerified" FROM public."user" WHERE lower(email)=$1',
+            [account],
+          );
+          identity = result.rows[0] as typeof identity;
+          // This branch neither mints credentials nor enqueues mail. Capacity is
+          // checked for every identity first; the outer response floor is shared.
+          if (
+            publicMail &&
+            (!identity?.active ||
+              (path === "/api/auth/send-verification-email" &&
+                identity.emailVerified))
+          )
+            return genericAuthMailResponse();
+          if (!publicMail && !identity?.active)
+            return Response.json({ code: "INVALID_TOKEN" }, { status: 400 });
+          if (path === "/api/auth/request-password-reset" && identity)
+            await invalidateResetTokens(database, identity.id);
+        }
         delivery = mail(database);
+        if (
+          path === "/api/auth/send-verification-email" &&
+          identity &&
+          account &&
+          email?.enabled &&
+          authSecret &&
+          publicAppUrl
+        ) {
+          // The native anonymous endpoint's 500ms floor runs INSIDE its handler.
+          // Holding the shared outbox admission lock through that sleep exposes
+          // identity-dependent contention. Use its exported native JWT generator
+          // with our server-pinned URL; the common floor runs only after COMMIT.
+          await enqueueVerification(
+            delivery,
+            account,
+            typeof body.callbackURL === "string" ? body.callbackURL : undefined,
+            emailLocale(request.headers.get("x-budograph-locale")),
+          );
+          return genericAuthMailResponse();
+        }
         const bound = await boundAuth(database, build, delivery.service);
         try {
           const result = await bound.auth.handler(request);
           if (delivery.failure) throw delivery.failure;
           if (!result.ok && result.status >= 400)
             throw new RejectedAuthResponse(result);
+          if (path === "/api/auth/reset-password" && identity)
+            await invalidateResetTokens(database, identity.id);
           return result;
         } finally {
           await bound.close();
         }
       });
     } catch (error) {
+      if (publicMail && delivery?.failure) {
+        // The owned transaction has rolled back and released its client. A
+        // recipient-dependent enqueue failure must not become an HTTP oracle.
+        // This generic response makes no assertion that an email was queued/sent.
+        try {
+          onMailEnqueueFailure();
+        } catch {
+          console.error("Authentication mail enqueue failed");
+        }
+        return genericAuthMailResponse();
+      }
       if (error instanceof RejectedAuthResponse) return error.response;
       throw error;
     }
     await delivery?.dispatch();
     return response;
   };
+  const handler = (request: Request) =>
+    isAuthMailRequest(request, authPath(request))
+      ? authMailResponse(() => handle(request))
+      : handle(request);
   return {
     handler,
     registration: {
       prepare,
+      async publicSignup(
+        fields: SignupFields,
+        locale: "bg" | "en",
+        callbackURL: string,
+        verifyIdentity: (database: TransactionDatabase) => Promise<void>,
+      ) {
+        if (
+          !sharedControls ||
+          !email?.enabled ||
+          !email.enqueue ||
+          !email.reserve ||
+          !authSecret ||
+          !publicAppUrl ||
+          raw.options.emailAndPassword.disableSignUp
+        )
+          throw new OperationalError();
+        await prepare();
+        let admitted = false;
+        try {
+          await inTransaction(pool, async (database) => {
+            await verifyIdentity(database);
+            await lockAccount(database, fields.email);
+            // Check capacity for every recipient before native existence lookup.
+            await email.reserve!(database);
+            admitted = true;
+            const delivery = mail(database);
+            const bound = await boundAuth(database, build, delivery.service);
+            try {
+              await bound.auth.api.signUpEmail({
+                body: {
+                  name: fields.name,
+                  email: fields.email,
+                  password: fields.password,
+                  callbackURL,
+                },
+                headers: new Headers({ "x-budograph-locale": locale }),
+              });
+              if (delivery.failure) throw delivery.failure;
+            } finally {
+              await bound.close();
+            }
+          });
+        } catch {
+          // Identity/capacity failures are common for all recipients. Once
+          // admitted, native/write/enqueue/unknown-commit failures must not reveal
+          // account existence. Rollback/release precedes the caller's 750ms floor.
+          // Never retry an unknown commit; resend uses the established mail flow.
+          if (!admitted) throw new OperationalError();
+          try {
+            onMailEnqueueFailure();
+          } catch {
+            console.error("Authentication mail enqueue failed");
+          }
+        }
+      },
       async withinTransaction(
         database: TransactionDatabase,
         fields: { name: string; email: string; password: string },
@@ -351,10 +515,12 @@ export function createAuthTransactions(
               )?.active &&
               !(identity.rows[0] as { emailVerified: boolean }).emailVerified
             )
-              await bound.auth.api.sendVerificationEmail({
-                body: { email: fields.email, callbackURL },
-                headers: new Headers({ "x-budograph-locale": locale }),
-              });
+              await enqueueVerification(
+                delivery,
+                fields.email,
+                callbackURL,
+                locale,
+              );
           }
         } finally {
           await bound.close();

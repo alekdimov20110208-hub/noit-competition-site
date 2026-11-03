@@ -17,6 +17,7 @@ export interface DatabaseConfig {
 }
 
 export interface ServerConfig extends DatabaseConfig {
+  readonly publicSignupEnabled?: boolean;
   readonly betterAuthSecret: string;
   readonly betterAuthUrl: string;
   readonly emailMode: "disabled" | "resend";
@@ -151,6 +152,27 @@ export function readServerEnv(
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): ServerConfig {
   const database = readDatabaseEnv(environment);
+  const deployment = environment.BUDOGRAPH_DEPLOYMENT_ENV;
+  if (
+    deployment !== undefined &&
+    !["production", "staging"].includes(deployment)
+  )
+    throw new EnvironmentError(
+      "BUDOGRAPH_DEPLOYMENT_ENV must be production or staging when set.",
+    );
+  // Hosted deployment labels must retain production security, even with signup OFF.
+  if (deployment !== undefined && database.nodeEnv !== "production")
+    throw new EnvironmentError(
+      "BUDOGRAPH_DEPLOYMENT_ENV requires NODE_ENV=production.",
+    );
+  const signup = environment.BUDOGRAPH_PUBLIC_SIGNUP_ENABLED ?? "false";
+  if (
+    !["true", "false"].includes(signup) ||
+    (signup === "true" && database.nodeEnv === "production")
+  )
+    throw new EnvironmentError(
+      "Public signup is local-only in D5-B1; the gate defaults to false.",
+    );
   const betterAuthSecret = environment.BETTER_AUTH_SECRET;
   if (
     !betterAuthSecret ||
@@ -249,6 +271,7 @@ export function readServerEnv(
     }
     return Object.freeze({
       ...database,
+      publicSignupEnabled: signup === "true",
       betterAuthSecret,
       betterAuthUrl: url.origin,
       publicAppUrl: app.origin,

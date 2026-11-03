@@ -136,6 +136,8 @@ export function createApp({
     });
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof OperationalError) {
+      if (error.statusCode >= 500)
+        request.log.error("Operational control unavailable");
       if (error.retryAfter) reply.header("retry-after", error.retryAfter);
       return reply
         .code(error.statusCode)

@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { requireAuthenticatedUser } from "../auth/session.ts";
 import type { EventService } from "../events/service.ts";
 import { EventCommandError } from "../events/model.ts";
+import { OperationalError } from "../operations/limits.ts";
 import type { AuthIntegration } from "./auth.ts";
 
 export function registerEventReadRoutes(
@@ -92,6 +93,7 @@ export function registerEventReadRoutes(
         { bodyLimit: 4096 },
         async (request, reply) => {
           const user = await actor(request);
+          await authentication.controls?.eventCreation(request.ip, user.id);
           const event = await events.create!(user, request.body);
           return reply.code(201).send({ event });
         },
@@ -147,11 +149,23 @@ export function registerEventReadRoutes(
         { bodyLimit: 4096 },
         async (request, reply) => {
           const user = await actor(request);
+          let creationDenied: OperationalError | undefined;
+          try {
+            await authentication.controls?.eventCreation(request.ip, user.id);
+          } catch (error) {
+            if (
+              !(error instanceof OperationalError) ||
+              error.statusCode !== 429
+            )
+              throw error;
+            creationDenied = error;
+          }
           const event = await events.duplicate!(
             user,
             request.params.eventId,
             request.headers["idempotency-key"],
             request.body,
+            creationDenied,
           );
           // Exact accepted replay has the same response shape/status as success.
           return reply.code(201).send({ event });

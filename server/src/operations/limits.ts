@@ -19,6 +19,35 @@ export interface LimitRule {
   windowMs: number;
   mode: "fixed" | "rolling" | "day" | "month";
 }
+
+// Input must come from Fastify's resolved socket/trusted-peer boundary. Coalesce
+// IPv4-mapped addresses and IPv6 /64s so address spelling/rotation cannot reset a quota.
+export function clientNetwork(ip: string) {
+  const family = isIP(ip);
+  if (family === 4) return ip;
+  if (family !== 6) throw new OperationalError();
+  const canonical = new URL(`http://[${ip}]`).hostname.slice(1, -1);
+  const [left, right] = canonical.split("::");
+  const head = left ? left.split(":") : [];
+  const tail = right ? right.split(":") : [];
+  const words =
+    right === undefined
+      ? head
+      : [
+          ...head,
+          ...Array<string>(8 - head.length - tail.length).fill("0"),
+          ...tail,
+        ];
+  const parts = words.map((word) => Number.parseInt(word, 16));
+  if (parts.slice(0, 5).every((word) => word === 0) && parts[5] === 65535)
+    return `${parts[6]! >> 8}.${parts[6]! & 255}.${parts[7]! >> 8}.${parts[7]! & 255}`;
+  return (
+    parts
+      .slice(0, 4)
+      .map((word) => word.toString(16))
+      .join(":") + "::/64"
+  );
+}
 export function createSharedControls(
   database: AuthorizationDatabase,
   hmacKey: string,
@@ -64,13 +93,18 @@ export function createSharedControls(
   }
   function peer(ip: string) {
     if (!trustedClientIp || !isIP(ip)) throw new OperationalError();
-    return ip.toLowerCase();
+    return clientNetwork(ip);
   }
   function identity(value: string) {
     if (!value || value.length > 512 || /\s/.test(value.trim()))
       throw new OperationalError(400, "INVALID_INPUT");
     return value.trim().toLowerCase();
   }
+  const registrationRules = (ip: string): LimitRule[] => [
+    rule("registration:network", peer(ip), 5, 900000),
+    rule("registration:network-day", peer(ip), 20, 86400000, "day"),
+    rule("registration:global-day", "all", 80, 86400000, "day"),
+  ];
   return {
     consume,
     rule,
@@ -98,6 +132,24 @@ export function createSharedControls(
         ...(registration && token
           ? [rule(`${scope}:token`, identity(token), 5, 60000)]
           : []),
+        ...(registration ? registrationRules(ip) : []),
+      ]);
+    },
+    // Prepared for B1's validated, trusted HTTP entry point. No public signup
+    // handler is exposed here. Invite-only registration already shares its network budgets.
+    async registration(ip: string, email: string) {
+      await requireLimit([
+        ...registrationRules(ip),
+        rule("registration:email", identity(email), 3, 3600000),
+      ]);
+    },
+    async eventCreation(ip: string, userId: string) {
+      await requireLimit([
+        rule("event-create:account", identity(userId), 5, 60000),
+        rule("event-create:account-day", identity(userId), 20, 86400000, "day"),
+        rule("event-create:network", peer(ip), 10, 60000),
+        rule("event-create:network-day", peer(ip), 100, 86400000, "day"),
+        rule("event-create:global-day", "all", 200, 86400000, "day"),
       ]);
     },
     async account(ip: string, email: string) {

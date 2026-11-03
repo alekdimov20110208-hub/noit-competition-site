@@ -9,9 +9,11 @@ import { replaceAuthLocation, safeReturnTo } from "../auth/routing.ts";
 export function LoginPage({
   bootstrapError,
   expired,
+  signupEnabled = false,
 }: {
   bootstrapError: AuthError | null;
   expired: boolean;
+  signupEnabled?: boolean;
 }) {
   const { t } = useI18n();
   const [submitting, setSubmitting] = useState(false);
@@ -143,6 +145,14 @@ export function LoginPage({
         <a className="auth-secondary-link" href="/forgot-password">
           {t("safety.forgot")}
         </a>
+        {signupEnabled && (
+          <a
+            className="auth-secondary-link"
+            href={`/signup?returnTo=${encodeURIComponent(safeReturnTo(new URLSearchParams(window.location.search).get("returnTo")))}`}
+          >
+            {t("signup.title")}
+          </a>
+        )}
       </section>
     </AuthShell>
   );

@@ -17,6 +17,9 @@ import { join, resolve } from "node:path";
 import pg from "pg";
 import { runMigrations } from "../server/src/db/migrations.ts";
 
+const staging = process.argv.includes("--staging");
+const stagingD25 = process.argv.includes("--staging-d2-5");
+const stagingReference = process.argv.includes("--staging-reference");
 const bin = resolve(process.env.BUDOGRAPH_TEST_POSTGRES_BIN ?? "MISSING");
 const python = process.env.BUDOGRAPH_TEST_PYTHON;
 assert.ok(
@@ -113,7 +116,7 @@ ca=rsa.generate_private_key(public_exponent=65537,key_size=2048)
 name=x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,'BudoGraph V1C disposable CA')])
 cert=x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(ca.public_key()).serial_number(x509.random_serial_number()).not_valid_before(now-timedelta(minutes=5)).not_valid_after(now+timedelta(days=2)).add_extension(x509.BasicConstraints(ca=True,path_length=0),critical=True).sign(ca,hashes.SHA256())
 key=rsa.generate_private_key(public_exponent=65537,key_size=2048)
-leaf=x509.CertificateBuilder().subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,'localhost')])).issuer_name(name).public_key(key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(now-timedelta(minutes=5)).not_valid_after(now+timedelta(days=1)).add_extension(x509.SubjectAlternativeName([x509.DNSName('localhost'),x509.IPAddress(ipaddress.ip_address('127.0.0.1'))]),critical=False).sign(ca,hashes.SHA256())
+leaf=x509.CertificateBuilder().subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,'localhost')])).issuer_name(name).public_key(key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(now-timedelta(minutes=5)).not_valid_after(now+timedelta(days=1)).add_extension(x509.SubjectAlternativeName([x509.DNSName('localhost'),x509.DNSName('db.jlladwdqdillryyfvndo.supabase.co'),x509.IPAddress(ipaddress.ip_address('127.0.0.1'))]),critical=False).sign(ca,hashes.SHA256())
 (p/'ca.pem').write_bytes(cert.public_bytes(serialization.Encoding.PEM))
 (p/'server.crt').write_bytes(leaf.public_bytes(serialization.Encoding.PEM))
 (p/'server.key').write_bytes(key.private_bytes(serialization.Encoding.PEM,serialization.PrivateFormat.TraditionalOpenSSL,serialization.NoEncryption()))
@@ -190,7 +193,26 @@ try {
   await admin.query(
     "CREATE ROLE service_role NOLOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION",
   );
-  await admin.query(`CREATE ROLE budograph_migrator NOLOGIN NOINHERIT NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION;
+  if (stagingD25) {
+    evidence.mode = "staging-d2-5";
+    evidence.checks = await (
+      await import("../server/tests/helpers/staging-d2-5-rehearsal.ts")
+    ).runD25Rehearsal({ admin, root, port: evidence.port, clean });
+    evidence.testExitCode = 0;
+  } else if (staging) {
+    evidence.mode = "staging";
+    evidence.checks = await (
+      await import("../server/tests/helpers/staging-rehearsal.ts")
+    ).runStagingRehearsal({
+      admin,
+      root,
+      port: evidence.port,
+      passwords,
+      clean,
+    });
+    evidence.testExitCode = 0;
+  } else {
+    await admin.query(`CREATE ROLE budograph_migrator NOLOGIN NOINHERIT NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION;
     CREATE ROLE budograph_runtime LOGIN NOINHERIT NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '${passwords.budograph_runtime}';
     GRANT budograph_migrator TO postgres WITH ADMIN FALSE, INHERIT TRUE, SET TRUE;
     GRANT CONNECT,CREATE ON DATABASE postgres TO budograph_migrator;
@@ -199,174 +221,210 @@ try {
     GRANT USAGE ON SCHEMA public TO budograph_runtime;
     ALTER DEFAULT PRIVILEGES FOR ROLE budograph_migrator REVOKE ALL ON TABLES FROM PUBLIC,budograph_runtime,anon,authenticated,service_role;
     ALTER DEFAULT PRIVILEGES FOR ROLE budograph_migrator REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC,budograph_runtime,anon,authenticated,service_role;`);
-  const migrator = new pg.Pool({
-    host: "127.0.0.1",
-    port: evidence.port,
-    user: "postgres",
-    password: adminPassword,
-    database: "postgres",
-    ssl,
-    max: 2,
-    options: "-c role=budograph_migrator",
-    connectionTimeoutMillis: 4000,
-  });
-  pools.push(migrator);
-  const pins = JSON.parse(
-    readFileSync("server/migrations/production-manifest.json", "utf8"),
-  ).pins;
-  assert.equal(pins.length, 16);
-  for (const pin of pins)
-    assert.equal(
-      createHash("sha256")
-        .update(readFileSync(join("server/migrations", pin.name)))
-        .digest("hex"),
-      pin.checksum,
-    );
-  evidence.freshBaseline = await runMigrations(
-    migrator,
-    resolve("server/migrations"),
-  );
-  assert.deepEqual(evidence.freshBaseline, { applied: 16, alreadyApplied: 0 });
-  evidence.allMigrationChecksums = (
-    await migrator.query(
-      "SELECT version,name,checksum FROM public.schema_migrations ORDER BY version",
-    )
-  ).rows;
-  const databaseId = randomUUID(),
-    projectRef = `local-v1c-${nonce.slice(0, 8)}`;
-  await migrator.query(
-    "INSERT INTO budograph_private.environment_identity(database_id,environment,project_ref) VALUES($1,'production',$2)",
-    [databaseId, projectRef],
-  );
-  writeFileSync(
-    ownerFile,
-    JSON.stringify({
-      purpose: "V1-C2 disposable local cluster",
-      ...evidence,
-      databaseId,
-      projectRef,
-    }),
-  );
-  const url = (role) =>
-    `postgresql://${role}:${passwords[role]}@127.0.0.1:${evidence.port}/${evidence.database}`;
-  const env = {
-    ...clean,
-    NODE_ENV: "test",
-    V1C_OWNER_FILE: ownerFile,
-    V1C_NONCE: nonce,
-    V1C_CA_FILE: join(root, "ca.pem"),
-    V1C_RUNTIME_URL: url("budograph_runtime"),
-    V1C_MIGRATOR_URL: url("postgres"),
-    V1C_ANON_URL: url("anon"),
-    V1C_AUTHENTICATED_URL: url("authenticated"),
-    V1C_PUBLIC_URL: url("public_probe"),
-    EXPECTED_DATABASE_ID: databaseId,
-    EXPECTED_SUPABASE_PROJECT_REF: projectRef,
-  };
-  const mode = process.argv.includes("--all")
-    ? "all"
-    : process.argv.includes("--operations")
-      ? "operations"
-      : process.argv.includes("--startup")
-        ? "startup"
-        : "runtime";
-  const files =
-    mode === "all"
-      ? [
-          "server/tests/d2-startup.integration.test.ts",
-          "server/tests/operational-controls.integration.test.ts",
-          "server/tests/runtime-access.integration.test.ts",
-        ]
-      : [
-          mode === "operations"
-            ? "server/tests/operational-controls.integration.test.ts"
-            : mode === "startup"
-              ? "server/tests/d2-startup.integration.test.ts"
-              : "server/tests/runtime-access.integration.test.ts",
-        ];
-  console.log(
-    `Verified NEW disposable PostgreSQL ${witness.version.split(" ")[1]} cluster; loopback, independent system identifier, non-owner runtime, TLS verification. Running ${mode} tests.`,
-  );
-  const child = spawn(
-    process.execPath,
-    ["--test", "--test-concurrency=1", ...files],
-    { env, stdio: ["ignore", "pipe", "pipe"], windowsHide: true },
-  );
-  const log = [];
-  for (const stream of [child.stdout, child.stderr])
-    stream.on("data", (bytes) => {
-      let text = bytes.toString();
-      for (const secret of Object.values(passwords))
-        text = text.replaceAll(secret, "[synthetic credential redacted]");
-      // Even a failing assertion must not persist token-bearing URLs/bodies.
-      text = text
-        .replace(/https?:\/\/[^\s<>"']+/g, "[URL redacted]")
-        .replace(/\/invite\/[A-Za-z0-9_-]{43}/g, "[invitation path redacted]")
-        .replace(
-          /(?:token|password)\s*[:=]\s*[^\s,"'}]+/gi,
-          "[sensitive field redacted]",
-        );
-      log.push(text);
-      process.stdout.write(text);
+    const migrator = new pg.Pool({
+      host: "127.0.0.1",
+      port: evidence.port,
+      user: "postgres",
+      password: adminPassword,
+      database: "postgres",
+      ssl,
+      max: 2,
+      options: "-c role=budograph_migrator",
+      connectionTimeoutMillis: 4000,
     });
-  const code = await new Promise((r) => child.on("exit", r));
-  writeFileSync(`tmp/v1c5/${mode}-sql-tests.log`, log.join(""));
-  evidence.mode = mode;
-  evidence.testExitCode = code;
-  assert.equal(code, 0, "Disposable SQL suite failed.");
-  evidence.policies = (
-    await migrator.query(
-      "SELECT schemaname,tablename,policyname,roles,cmd,qual,with_check FROM pg_policies WHERE schemaname IN ('public','budograph_private') ORDER BY schemaname,tablename,policyname",
-    )
-  ).rows;
-  assert.equal(evidence.policies.length, 54);
-  evidence.columnGrants = (
-    await migrator.query(
-      "SELECT table_schema,table_name,column_name,grantee,privilege_type FROM information_schema.column_privileges WHERE grantee IN ('budograph_runtime','anon','authenticated','PUBLIC') AND table_schema IN ('public','budograph_private') ORDER BY table_schema,table_name,column_name,grantee,privilege_type",
-    )
-  ).rows;
-  assert.ok(
-    evidence.columnGrants.every((r) => r.grantee === "budograph_runtime"),
-  );
-  evidence.roles = (
-    await migrator.query(
-      "SELECT rolname,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,rolreplication,rolcanlogin FROM pg_roles WHERE rolname IN ('v1c_migrator','budograph_runtime','anon','authenticated','public_probe') ORDER BY rolname",
-    )
-  ).rows;
-  evidence.operationalFunctions = (
-    await migrator.query(`SELECT p.proname,pg_get_function_identity_arguments(p.oid) AS arguments,
+    pools.push(migrator);
+    const pins = JSON.parse(
+      readFileSync("server/migrations/production-manifest.json", "utf8"),
+    ).pins;
+    assert.equal(pins.length, 16);
+    for (const pin of pins)
+      assert.equal(
+        createHash("sha256")
+          .update(readFileSync(join("server/migrations", pin.name)))
+          .digest("hex"),
+        pin.checksum,
+      );
+    evidence.freshBaseline = await runMigrations(
+      migrator,
+      resolve("server/migrations"),
+    );
+    assert.deepEqual(evidence.freshBaseline, {
+      applied: 16,
+      alreadyApplied: 0,
+    });
+    evidence.allMigrationChecksums = (
+      await migrator.query(
+        "SELECT version,name,checksum FROM public.schema_migrations ORDER BY version",
+      )
+    ).rows;
+    if (stagingReference) {
+      evidence.mode = "staging-reference";
+      const { applicationCatalog } =
+        await import("../server/src/staging/catalog.ts");
+      const original = await applicationCatalog(migrator);
+      const c = await migrator.connect();
+      try {
+        await c.query("BEGIN");
+        await c.query(
+          "SELECT set_config('budograph.verified_project_ref','jlladwdqdillryyfvndo',true),set_config('budograph.staging_database_id','bce50118-4829-42e0-86cd-1cb41de8b1ba',true)",
+        );
+        await c.query(
+          readFileSync("server/staging/identity-overlay.sql", "utf8"),
+        );
+        await c.query("COMMIT");
+      } finally {
+        c.release();
+      }
+      const stagingCatalog = await applicationCatalog(migrator);
+      writeFileSync(
+        "server/staging/catalog-reference.json",
+        JSON.stringify({ original, staging: stagingCatalog }, null, 2) + "\n",
+      );
+      evidence.testExitCode = 0;
+      console.log(
+        "Disposable original/staging catalog reference generated from 16 pinned migrations.",
+      );
+    } else {
+      const databaseId = randomUUID(),
+        projectRef = `local-v1c-${nonce.slice(0, 8)}`;
+      await migrator.query(
+        "INSERT INTO budograph_private.environment_identity(database_id,environment,project_ref) VALUES($1,'production',$2)",
+        [databaseId, projectRef],
+      );
+      writeFileSync(
+        ownerFile,
+        JSON.stringify({
+          purpose: "V1-C2 disposable local cluster",
+          ...evidence,
+          databaseId,
+          projectRef,
+        }),
+      );
+      const url = (role) =>
+        `postgresql://${role}:${passwords[role]}@127.0.0.1:${evidence.port}/${evidence.database}`;
+      const env = {
+        ...clean,
+        NODE_ENV: "test",
+        V1C_OWNER_FILE: ownerFile,
+        V1C_NONCE: nonce,
+        V1C_CA_FILE: join(root, "ca.pem"),
+        V1C_RUNTIME_URL: url("budograph_runtime"),
+        V1C_MIGRATOR_URL: url("postgres"),
+        V1C_ANON_URL: url("anon"),
+        V1C_AUTHENTICATED_URL: url("authenticated"),
+        V1C_PUBLIC_URL: url("public_probe"),
+        EXPECTED_DATABASE_ID: databaseId,
+        EXPECTED_SUPABASE_PROJECT_REF: projectRef,
+      };
+      const mode = process.argv.includes("--all")
+        ? "all"
+        : process.argv.includes("--operations")
+          ? "operations"
+          : process.argv.includes("--startup")
+            ? "startup"
+            : "runtime";
+      const files =
+        mode === "all"
+          ? [
+              "server/tests/d2-startup.integration.test.ts",
+              "server/tests/operational-controls.integration.test.ts",
+              "server/tests/runtime-access.integration.test.ts",
+            ]
+          : [
+              mode === "operations"
+                ? "server/tests/operational-controls.integration.test.ts"
+                : mode === "startup"
+                  ? "server/tests/d2-startup.integration.test.ts"
+                  : "server/tests/runtime-access.integration.test.ts",
+            ];
+      console.log(
+        `Verified NEW disposable PostgreSQL ${witness.version.split(" ")[1]} cluster; loopback, independent system identifier, non-owner runtime, TLS verification. Running ${mode} tests.`,
+      );
+      const child = spawn(
+        process.execPath,
+        ["--test", "--test-concurrency=1", ...files],
+        { env, stdio: ["ignore", "pipe", "pipe"], windowsHide: true },
+      );
+      const log = [];
+      for (const stream of [child.stdout, child.stderr])
+        stream.on("data", (bytes) => {
+          let text = bytes.toString();
+          for (const secret of Object.values(passwords))
+            text = text.replaceAll(secret, "[synthetic credential redacted]");
+          // Even a failing assertion must not persist token-bearing URLs/bodies.
+          text = text
+            .replace(/https?:\/\/[^\s<>"']+/g, "[URL redacted]")
+            .replace(
+              /\/invite\/[A-Za-z0-9_-]{43}/g,
+              "[invitation path redacted]",
+            )
+            .replace(
+              /(?:token|password)\s*[:=]\s*[^\s,"'}]+/gi,
+              "[sensitive field redacted]",
+            );
+          log.push(text);
+          process.stdout.write(text);
+        });
+      const code = await new Promise((r) => child.on("exit", r));
+      writeFileSync(`tmp/v1c5/${mode}-sql-tests.log`, log.join(""));
+      evidence.mode = mode;
+      evidence.testExitCode = code;
+      assert.equal(code, 0, "Disposable SQL suite failed.");
+      evidence.policies = (
+        await migrator.query(
+          "SELECT schemaname,tablename,policyname,roles,cmd,qual,with_check FROM pg_policies WHERE schemaname IN ('public','budograph_private') ORDER BY schemaname,tablename,policyname",
+        )
+      ).rows;
+      assert.equal(evidence.policies.length, 54);
+      evidence.columnGrants = (
+        await migrator.query(
+          "SELECT table_schema,table_name,column_name,grantee,privilege_type FROM information_schema.column_privileges WHERE grantee IN ('budograph_runtime','anon','authenticated','PUBLIC') AND table_schema IN ('public','budograph_private') ORDER BY table_schema,table_name,column_name,grantee,privilege_type",
+        )
+      ).rows;
+      assert.ok(
+        evidence.columnGrants.every((r) => r.grantee === "budograph_runtime"),
+      );
+      evidence.roles = (
+        await migrator.query(
+          "SELECT rolname,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,rolreplication,rolcanlogin FROM pg_roles WHERE rolname IN ('v1c_migrator','budograph_runtime','anon','authenticated','public_probe') ORDER BY rolname",
+        )
+      ).rows;
+      evidence.operationalFunctions = (
+        await migrator.query(`SELECT p.proname,pg_get_function_identity_arguments(p.oid) AS arguments,
     p.prosecdef AS security_definer,p.proconfig AS settings,pg_get_userbyid(p.proowner) AS owner,p.proacl::text AS acl,
     has_function_privilege('budograph_runtime',p.oid,'EXECUTE') AS runtime,
     has_function_privilege('anon',p.oid,'EXECUTE') AS anon,
     has_function_privilege('authenticated',p.oid,'EXECUTE') AS authenticated,
     has_function_privilege('public_probe',p.oid,'EXECUTE') AS public
     FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='budograph_private' ORDER BY p.proname`)
-  ).rows;
-  assert.equal(evidence.operationalFunctions.length, 8);
-  assert.ok(
-    evidence.operationalFunctions.every(
-      (f) =>
-        f.security_definer &&
-        f.runtime &&
-        !f.anon &&
-        !f.authenticated &&
-        !f.public &&
-        f.settings.includes("search_path=pg_catalog, pg_temp"),
-    ),
-  );
-  evidence.operationalTables = (
-    await migrator.query(`SELECT c.relname,c.relrowsecurity,pg_get_userbyid(c.relowner) AS owner,
+      ).rows;
+      assert.equal(evidence.operationalFunctions.length, 8);
+      assert.ok(
+        evidence.operationalFunctions.every(
+          (f) =>
+            f.security_definer &&
+            f.runtime &&
+            !f.anon &&
+            !f.authenticated &&
+            !f.public &&
+            f.settings.includes("search_path=pg_catalog, pg_temp"),
+        ),
+      );
+      evidence.operationalTables = (
+        await migrator.query(`SELECT c.relname,c.relrowsecurity,pg_get_userbyid(c.relowner) AS owner,
     has_table_privilege('budograph_runtime',c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE') AS runtime_direct,
     pg_total_relation_size(c.oid)::text AS total_bytes
     FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
     WHERE n.nspname='budograph_private' AND c.relname IN ('email_outbox','rate_counter') ORDER BY c.relname`)
-  ).rows;
-  assert.equal(evidence.operationalTables.length, 2);
-  assert.ok(
-    evidence.operationalTables.every(
-      (table) => table.relrowsecurity && !table.runtime_direct,
-    ),
-  );
+      ).rows;
+      assert.equal(evidence.operationalTables.length, 2);
+      assert.ok(
+        evidence.operationalTables.every(
+          (table) => table.relrowsecurity && !table.runtime_direct,
+        ),
+      );
+    }
+  }
 } finally {
   await Promise.allSettled(pools.map((p) => p.end()));
   if (started) {

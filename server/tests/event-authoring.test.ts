@@ -36,6 +36,7 @@ function harness(role = "ORGANIZER") {
     destroy: false,
     version: 1,
     loseUpdate: false,
+    ownedEvents: 0,
   };
   const row = (): EventRow => ({
     id: eventId,
@@ -55,6 +56,8 @@ function harness(role = "ORGANIZER") {
       throw new Error("SYNTHETIC_DATABASE_DETAIL");
     if (sql.startsWith('SELECT id FROM public."user"'))
       return { rows: state.active ? [{ id: user.id }] : [] };
+    if (sql.startsWith("SELECT count(*)::int AS total FROM public.event"))
+      return { rows: [{ total: state.ownedEvents }] };
     if (sql.startsWith("SELECT public.is_valid_event_timezone"))
       return { rows: [{ valid: state.timezone }] };
     if (sql.startsWith("INSERT INTO public.event ("))
@@ -168,6 +171,20 @@ test("Event creation atomically creates trusted owner, active Organizer and serv
   assert.equal(h.state.released, true);
   assert.ok(h.calls.some(({ sql }) => sql.includes("active = TRUE FOR SHARE")));
   assert.ok(!h.calls.some(({ sql }) => /public\.task|bootstrap/i.test(sql)));
+});
+
+test("Event storage cap refuses creation before writes and includes archived owned Events", async () => {
+  const h = harness();
+  h.state.ownedEvents = 100;
+  await assert.rejects(
+    h.service.create(user, input),
+    denied(409, "EVENT_CAPACITY_REACHED"),
+  );
+  assert.equal(writes(h).length, 0);
+  assert.ok(
+    h.calls.some(({ sql }) => sql.startsWith("SELECT pg_advisory_xact_lock")),
+  );
+  assert.equal(h.calls.at(-1)?.sql, "ROLLBACK");
 });
 
 test("Event creation authenticates and validates before touching SQL and rejects inactive identity", async () => {

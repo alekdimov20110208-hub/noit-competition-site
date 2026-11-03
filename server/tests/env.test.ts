@@ -137,6 +137,7 @@ test("auth-capable runtime requires its secret and explicit URL", () => {
     betterAuthSecret: secret,
     betterAuthUrl: "http://127.0.0.1:3001",
     publicAppUrl: "http://127.0.0.1:3001",
+    publicSignupEnabled: false,
     emailMode: "disabled",
   });
   assert.ok(Object.isFrozen(config));

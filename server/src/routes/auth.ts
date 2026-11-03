@@ -7,6 +7,9 @@ import { uuidPattern } from "../tasks/model.ts";
 import { profileName, profilePassword } from "../auth/profile.ts";
 import type { SharedControls } from "../operations/limits.ts";
 import { canonicalAuthPath } from "../auth/path.ts";
+import { signupFields, type SignupFields } from "../auth/signup.ts";
+import { authMailResponse } from "../auth/safety.ts";
+import { OperationalError } from "../operations/limits.ts";
 
 export interface AuthIntegration {
   auth: SessionAuth & { handler(request: Request): Promise<Response> };
@@ -16,6 +19,11 @@ export interface AuthIntegration {
   emailEnabled?: boolean;
   developmentInviteLinks?: boolean;
   controls?: SharedControls;
+  publicSignup?: (
+    fields: SignupFields,
+    locale: "bg" | "en",
+    callbackURL: string,
+  ) => Promise<void>;
 }
 export function safeEmailReturnTo(value: unknown) {
   if (
@@ -81,12 +89,48 @@ export function registerAuthRoutes(
     emailEnabled,
     taskMutationOrigins,
     controls,
+    publicSignup,
   }: AuthIntegration,
 ) {
   const origin = new URL(baseURL).origin;
   const mutationOrigins = new Set(taskMutationOrigins ?? [origin]);
   const pendingAccounts = new Set<string>();
   const throttle = createEmailThrottle();
+  app.get("/api/registration", async () => ({
+    enabled: !!publicSignup && !!controls && emailEnabled === true,
+  }));
+  app.post("/api/registration", { bodyLimit: 4096 }, async (request, reply) => {
+    if (!publicSignup || !controls || emailEnabled !== true)
+      return reply.code(404).send({ status: "not_found" });
+    if (
+      !mutationOrigins.has(request.headers.origin ?? "") ||
+      request.headers["sec-fetch-site"] === "cross-site"
+    )
+      return reply
+        .code(403)
+        .send({ status: "error", code: "UNTRUSTED_ORIGIN" });
+    const fields = signupFields(request.body);
+    if (!fields || new URL(request.url, origin).search)
+      return reply.code(400).send({ status: "error", code: "INVALID_SIGNUP" });
+    await authMailResponse(async () => {
+      // Fastify owns peer/proxy resolution. No submitted header supplies this IP.
+      await controls.registration(request.ip, fields.email);
+      try {
+        await publicSignup(
+          fields,
+          emailLocale(request.headers["x-budograph-locale"]),
+          verificationCallback(
+            publicAppUrl,
+            (request.body as Record<string, unknown>).returnTo,
+            emailLocale(request.headers["x-budograph-locale"]),
+          ),
+        );
+      } catch {
+        throw new OperationalError();
+      }
+    });
+    return reply.send({ status: true });
+  });
   app.route({
     method: ["GET", "POST"],
     url: "/api/auth/*",
@@ -155,6 +199,13 @@ export function registerAuthRoutes(
         }
       }
       if (mailRequest) {
+        if (
+          !mutationOrigins.has(request.headers.origin ?? "") ||
+          request.headers["sec-fetch-site"] === "cross-site"
+        )
+          return reply
+            .code(403)
+            .send({ status: "error", code: "UNTRUSTED_ORIGIN" });
         const fields = body as Record<string, unknown> | undefined;
         if (
           !fields ||
@@ -227,6 +278,11 @@ export function registerAuthRoutes(
       } finally {
         if (accountId) pendingAccounts.delete(accountId);
       }
+      if (response.status >= 500)
+        request.log.error(
+          { statusCode: response.status },
+          "Authentication operation unavailable",
+        );
       if (
         mailRequest &&
         response.status !== 403 &&

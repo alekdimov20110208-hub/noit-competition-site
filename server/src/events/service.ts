@@ -62,6 +62,8 @@ export function createEventReadService(database: AuthorizationDatabase) {
 
 export type EventReadService = ReturnType<typeof createEventReadService>;
 
+export const maxOwnedEvents = 100;
+
 async function requireStoredTimezone(
   database: TransactionDatabase,
   timezone: string,
@@ -104,6 +106,20 @@ async function insertEvent(
     operationId: string;
   },
 ): Promise<AccessibleEvent> {
+  // Shared by Create and Duplicate. Serialize the count+insert across processes;
+  // archived events still occupy storage and therefore count toward this cap.
+  await transaction.query(
+    "SELECT pg_advisory_xact_lock(hashtextextended($1,0))",
+    [JSON.stringify(["budograph-event-capacity", userId])],
+  );
+  const capacity = await transaction.query(
+    "SELECT count(*)::int AS total FROM public.event WHERE owner_user_id=$1",
+    [userId],
+  );
+  const total = (capacity.rows[0] as { total: number } | undefined)?.total;
+  if (!Number.isInteger(total)) throw new Error("Event capacity unavailable.");
+  if (total! >= maxOwnedEvents)
+    throw new EventCommandError(409, "EVENT_CAPACITY_REACHED");
   await requireStoredTimezone(transaction, fields.timezone);
   const eventId = randomUUID(),
     memberId = randomUUID();
@@ -263,6 +279,7 @@ export function createEventService(
       sourceId: string,
       key: unknown,
       input: unknown,
+      creationDenied?: Error,
     ) {
       return runEventOperation(
         database,
@@ -285,6 +302,7 @@ export function createEventService(
             operationId,
           });
         },
+        creationDenied,
       );
     },
     clearPreview: (user: AuthenticatedUser, sourceId: string) =>

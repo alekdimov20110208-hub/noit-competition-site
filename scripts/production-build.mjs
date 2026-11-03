@@ -81,6 +81,7 @@ for (const path of [
   "server/src",
   "server/scripts",
   "server/migrations",
+  "server/staging",
 ])
   fingerprint(path);
 for (const path of [

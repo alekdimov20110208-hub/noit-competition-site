@@ -13,6 +13,8 @@ import "./auth.css";
 import { InvitationPage } from "../pages/InvitationPage.tsx";
 import { readInvitationToken } from "../services/invitations.ts";
 import { AccountSafetyPage } from "../pages/AccountSafetyPage.tsx";
+import { SignupPage } from "../pages/SignupPage.tsx";
+import { signupAvailability } from "./signup.ts";
 
 export function AuthBoundary({ children }: { children: ReactNode }) {
   const state = useAuth();
@@ -21,6 +23,17 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
   const hadSession = useRef(false);
   const url = new URL(location);
   const atLogin = isLoginPath(url.pathname);
+  const atSignup = url.pathname === "/signup";
+  const [signupEnabled, setSignupEnabled] = useState<boolean | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    void signupAvailability(
+      AbortSignal.any([controller.signal, AbortSignal.timeout(10_000)]),
+    ).then((enabled) => {
+      if (!controller.signal.aborted) setSignupEnabled(enabled);
+    });
+    return () => controller.abort();
+  }, []);
   const atInvitation = url.pathname.startsWith("/invite/");
   const safety =
     url.pathname === "/forgot-password"
@@ -63,10 +76,11 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (state.status === "authenticated") {
       hadSession.current = true;
-      if (atLogin) replaceAuthLocation(returnTo);
+      if (atLogin || atSignup) replaceAuthLocation(returnTo);
     } else if (
       state.status === "unauthenticated" &&
       !atLogin &&
+      !atSignup &&
       !atInvitation &&
       !safety
     ) {
@@ -78,11 +92,19 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
       );
       hadSession.current = false;
     }
-  }, [state.status, atLogin, atInvitation, returnTo, location, safety]);
+  }, [
+    state.status,
+    atLogin,
+    atSignup,
+    atInvitation,
+    returnTo,
+    location,
+    safety,
+  ]);
 
   if (
     state.status === "loading" ||
-    (state.status === "authenticated" && atLogin)
+    (state.status === "authenticated" && (atLogin || atSignup))
   ) {
     return (
       <AuthShell>
@@ -94,6 +116,7 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
   }
   if (safety)
     return <AccountSafetyPage key={url.pathname + url.search} mode={safety} />;
+  if (atSignup) return <SignupPage enabled={signupEnabled} />;
   if (atInvitation)
     return (
       <InvitationPage
@@ -104,6 +127,7 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
   if (state.status === "unauthenticated") {
     return (
       <LoginPage
+        signupEnabled={signupEnabled === true}
         bootstrapError={state.error}
         expired={url.searchParams.get("reason") === "expired"}
       />

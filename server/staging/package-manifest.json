@@ -1,0 +1,11 @@
+{
+  "purpose": "D2.3 staging-only package; proposed for explicit owner approval",
+  "projectRef": "jlladwdqdillryyfvndo",
+  "databaseId": "bce50118-4829-42e0-86cd-1cb41de8b1ba",
+  "identityGeneration": "Node.js v24.16.0 crypto.randomUUID(), one generation on 2026-10-30; owner approval pending",
+  "sha256": {
+    "bootstrap.sql": "942508cfcd50b9f696c2549a6c0fead5b2c10e21f933530e44e7b9e3d32710b4",
+    "identity-overlay.sql": "3d6849cd656413a619b462f41b7f310fa1d421514b42e3d13e295e5671e5a9a2",
+    "catalog-reference.json": "0138b6293b19efe6e9c9f592842d722989b334db76ccc2196817de45bad98e73"
+  }
+}

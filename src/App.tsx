@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "./components/AppShell.tsx";
+import { AppLink } from "./components/AppLink.tsx";
 import {
   readDashboardContext,
   withDashboardContext,
@@ -191,6 +192,7 @@ export default function App() {
       remoteTasks.status === "ready" &&
       !remoteTasks.workspace.currentEventId &&
       !currentLocation.eventId &&
+      currentLocation.path !== "/" &&
       currentLocation.path !== "/templates" &&
       currentLocation.eventMode === "workspace" &&
       !isGlobalAppPath(currentLocation.path)
@@ -573,13 +575,13 @@ export default function App() {
           title={t("events.none")}
           description={t("events.empty.description")}
           action={
-            <button
+            <AppLink
               className="button button--primary"
-              type="button"
-              onClick={() => navigate("/events")}
+              href="/events/new"
+              onNavigate={navigate}
             >
-              {t("events.manage")}
-            </button>
+              {t("events.create")}
+            </AppLink>
           }
         />
       </div>

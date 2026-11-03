@@ -20,6 +20,7 @@ import { createNotificationService } from "./notifications/service.ts";
 import { verificationCallback } from "./routes/auth.ts";
 import { createSharedControls } from "./operations/limits.ts";
 import { createEmailOutbox } from "./email/outbox.ts";
+import { localSignupIdentity } from "./auth/signup.ts";
 
 // Shared composition only. No listener, timer, signal handler, environment load,
 // provisioning or migration execution belongs in this module.
@@ -71,7 +72,16 @@ export function createApplicationServices(
     email,
     emailTasks,
     sharedControls: controls,
+    onMailEnqueueFailure: () => safeEmailLog("outbox"),
   });
+  const signupIdentity = localSignupIdentity(config);
+  if (
+    signupIdentity &&
+    (!controls || !email.enabled || !email.enqueue || !email.reserve)
+  )
+    throw new Error(
+      "Local public signup requires durable email and shared controls.",
+    );
   return {
     ...(email.dispatch && controls
       ? {
@@ -118,6 +128,7 @@ export function createApplicationServices(
         email,
         emailTasks,
         sharedControls: controls,
+        onMailEnqueueFailure: () => safeEmailLog("outbox"),
       }),
       baseURL: config.betterAuthUrl,
       taskMutationOrigins: trustedApplicationOrigins(config),
@@ -125,6 +136,17 @@ export function createApplicationServices(
       emailEnabled: email.enabled,
       developmentInviteLinks: config.nodeEnv !== "production",
       controls,
+      ...(signupIdentity
+        ? {
+            publicSignup: (fields, locale, callbackURL) =>
+              registration.registration.publicSignup(
+                fields,
+                locale,
+                callbackURL,
+                signupIdentity,
+              ),
+          }
+        : {}),
     },
     checkDatabase: async () => {
       const query = { text: "SELECT 1", query_timeout: 5_000 };
