@@ -289,6 +289,18 @@ export function TasksPage({
     taskAuthoringAllowed(remoteWorkspace?.events[0]);
   const affordances = taskAffordances(remoteWorkspace?.events[0], remoteTask);
   const mutation = readState?.mutation;
+  const taskActionsBlocked = Boolean(
+    mutation?.pending || mutation?.needsRefresh,
+  );
+  const movableTaskIds = new Set(
+    view === "board" && onTaskAction
+      ? remoteWorkspace?.tasks
+          .filter(
+            (task) => taskAffordances(remoteWorkspace.events[0], task).status,
+          )
+          .map((task) => task.id)
+      : [],
+  );
   const selectedMutation =
     mutation && (mutation.taskId === selectedTaskId || mutation.needsRefresh)
       ? mutation
@@ -298,7 +310,7 @@ export function TasksPage({
       ? {
           ...affordances,
           members: remoteWorkspace?.assignableMembers ?? [],
-          disabled: Boolean(mutation?.pending || mutation?.needsRefresh),
+          disabled: taskActionsBlocked,
           mutation: selectedMutation,
           onAssign: (assignedMemberId: string | null) => {
             if (selectedTaskId)
@@ -609,6 +621,13 @@ export function TasksPage({
               timeZone={timeZone}
               selectedTaskId={selectedTaskId}
               onOpen={onOpenTask}
+              movableTaskIds={movableTaskIds}
+              moveDisabled={
+                taskActionsBlocked || Boolean(selectedTask || authoring)
+              }
+              onMove={(taskId, status) =>
+                onTaskAction?.(taskId, { kind: "status", status })
+              }
             />
           ) : remoteEmpty ? (
             <EmptyState
@@ -686,6 +705,18 @@ export function TasksPage({
             taskList
           )}
         </div>
+        {view === "board" && !selectedTask && (
+          <div
+            role="status"
+            className={mutation?.pending ? "notice" : "sr-only"}
+          >
+            {mutation?.pending
+              ? t("tasks.actions.pending")
+              : mutation && !mutation.message
+                ? t("tasks.board.updated")
+                : ""}
+          </div>
+        )}
       </div>
 
       <TaskDrawer

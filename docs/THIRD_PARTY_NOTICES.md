@@ -1,5 +1,17 @@
 # Third-Party Notices and License Register
 
+## Kanban K1-B
+
+| Package | Version | License | Use |
+| --- | --- | --- | --- |
+| [@dnd-kit/core](https://github.com/clauderic/dnd-kit) | 6.3.1 | MIT | Pointer and keyboard sensors, draggable handles, column targets and announcements |
+| [@dnd-kit/accessibility](https://github.com/clauderic/dnd-kit) | 3.1.1 | MIT | Transitive screen-reader support |
+| [@dnd-kit/utilities](https://github.com/clauderic/dnd-kit) | 3.2.2 | MIT | Transitive React and DOM helpers |
+| [tslib](https://github.com/microsoft/tslib) | 2.9.1 | 0BSD | Transitive runtime helpers |
+
+The packages are used unmodified. Their notices are included in the installed
+distributions and apply when redistributing them with the GPL-3.0-only project.
+
 ## Runtime D2 — 2026-10-30
 
 `@better-auth/kysely-adapter` **1.7.7** is now an explicit pinned direct dependency

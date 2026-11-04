@@ -10,6 +10,7 @@
   grid-template-columns: repeat(4, minmax(min(13rem, 88%), 1fr));
   gap: 10px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   padding: 3px 3px 12px;
 }
 
@@ -34,6 +35,12 @@
   color: var(--ink-soft);
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
+}
+
+.task-board__column[data-drop-target="true"] {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+  background: color-mix(in srgb, var(--focus-ring) 11%, var(--surface-soft));
 }
 
 .task-board__empty {
@@ -63,6 +70,53 @@
 
 .task-board__card[data-selected="true"] {
   border-color: var(--accent);
+}
+
+.task-board__card[data-dragging="true"] {
+  opacity: 0.65;
+}
+
+.task-board__card[data-movable="true"] .task-board__link {
+  display: block;
+  padding-inline-end: 40px;
+}
+
+.task-board__handle {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--ink-soft);
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.task-board__handle[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: default;
+  touch-action: auto;
+}
+
+.task-board__preview {
+  padding: 10px;
+  border: 1px solid var(--focus-ring);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 4px 12px #0002;
+  font-size: 0.875rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  pointer-events: none;
 }
 
 .task-board__card:focus-within {

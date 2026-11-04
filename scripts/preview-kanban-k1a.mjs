@@ -253,7 +253,10 @@ if (
 ) {
   const fixture = await kanbanFixtureHost({
     accessRole: process.argv.includes("--member") ? "MEMBER" : "ORGANIZER",
-    port: process.argv.includes("--member") ? 5189 : 5187,
+    port: Number(
+      process.env.BUDOGRAPH_KANBAN_PREVIEW_PORT ??
+        (process.argv.includes("--member") ? 5189 : 5187),
+    ),
   });
   console.log(fixture.origin + workshopPath);
   process.once("SIGINT", () => void fixture.close());

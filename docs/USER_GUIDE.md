@@ -559,6 +559,14 @@ and use the arrow keys. Select a card or press Enter on its link to open the
 Task Drawer. When you close the drawer after a status change, focus follows
 the card to its current column if it still matches the filters.
 
+In K1-B, authorized users can move a card by its grip. Drag it to the
+highlighted status column and release. On a narrow board, hold the grip near
+the left or right edge to reach a column outside the viewport. Swipe the board
+away from the grip to scroll normally. With a keyboard, focus the grip, press
+Space or Enter, choose a column with the left or right arrow, then press Space
+or Enter again. Escape cancels. The existing Task Drawer also supports status
+changes. If the server asks you to refresh, use **Refresh task** before retrying.
+
 See the [local K1-A preview instructions](BUDOGRAPH_KANBAN_K1_A.md) for a
 synthetic walkthrough.
 
