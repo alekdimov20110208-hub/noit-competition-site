@@ -4,6 +4,7 @@ import type { Task, TeamMember } from "../../domain/types.ts";
 import {
   filterTasks,
   getTaskCategories,
+  groupTasksByStatus,
   hasActiveTaskFilters,
   type TaskFilters,
 } from "./helpers.ts";
@@ -49,6 +50,63 @@ const allFilters: TaskFilters = {
   ownerId: "all",
   category: "all",
 };
+
+test("Board always has four columns, including when the Event has no tasks", () => {
+  assert.deepEqual(groupTasksByStatus([]), [
+    { status: "not-started", tasks: [] },
+    { status: "in-progress", tasks: [] },
+    { status: "blocked", tasks: [] },
+    { status: "completed", tasks: [] },
+  ]);
+});
+
+test("Board preserves the filtered List's tasks and operational ordering within each status", () => {
+  const fixtures = [
+    makeTask("later", { deadline: "2026-08-27", ownerId: "" }),
+    makeTask("overdue-b", { deadline: "2026-08-10" }),
+    makeTask("overdue-a", { deadline: "2026-08-10", acknowledged: true }),
+    makeTask("blocked", { status: "blocked" }),
+    makeTask("progress", { status: "in-progress", ownerId: "member-lina" }),
+    makeTask("done", {
+      status: "completed",
+      deadline: "2026-08-10",
+      category: "Travel",
+    }),
+  ];
+  const list = filterTasks(fixtures, members, allFilters, NOW);
+  const board = groupTasksByStatus(list);
+  assert.deepEqual(
+    board.map(({ tasks }) => tasks.length),
+    [3, 1, 1, 1],
+  );
+  assert.deepEqual(
+    board[0].tasks.map(({ id }) => id),
+    ["overdue-a", "overdue-b", "later"],
+  );
+  assert.equal(board[0].tasks[0].acknowledged, true);
+  assert.equal(board[0].tasks[2].ownerId, "");
+  assert.equal(board[3].tasks[0].id, "done");
+
+  for (const filters of [
+    { search: "ЛИНА" },
+    { status: "blocked" as const },
+    { ownerId: "member-mira", category: "Venue", search: "overdue" },
+    { category: "missing" },
+  ]) {
+    const visible = filterTasks(
+      fixtures,
+      members,
+      { ...allFilters, ...filters },
+      NOW,
+    );
+    const columns = groupTasksByStatus(visible);
+    for (const { status, tasks } of columns)
+      assert.deepEqual(
+        tasks,
+        visible.filter((task) => task.status === status),
+      );
+  }
+});
 
 test("task search matches localized title, context, category, and owner", () => {
   const tasks = [

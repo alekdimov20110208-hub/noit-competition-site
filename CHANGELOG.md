@@ -1,5 +1,11 @@
 # Changelog
 
+## Kanban K1-A — local
+
+- Tasks now offers List and Board views within the selected Event. The views
+  share filters, task links and the existing Task Drawer.
+- See the [local verification and acceptance procedure](docs/BUDOGRAPH_KANBAN_K1_A.md).
+
 ## Deployment D1 — 2026-10-18, owner-confirmed HUMAN PASS 8/8
 
 - Add Fastify frontend serving with SPA/API separation, cache/CSP/security headers.

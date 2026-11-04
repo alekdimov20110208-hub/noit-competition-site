@@ -15,10 +15,44 @@ import {
   resolveTaskLocation,
   TASK_DETAIL_HISTORY_STATE,
   eventHref,
+  tasksHref,
   eventEditHref,
   isGlobalAppPath,
   APP_ROUTES,
 } from "./routes.ts";
+
+test("Board deep links preserve Event and task through parsing and sign-in", () => {
+  const eventId = randomUUID();
+  const taskId = "Задача / 50%";
+  for (const scope of [eventId, null]) {
+    const href = tasksHref(scope, taskId, "board");
+    const url = new URL(href, "https://budograph.invalid");
+    assert.deepEqual(parseAppLocation(url.pathname, url.search), {
+      path: "/tasks",
+      eventMode: "workspace",
+      eventId: scope,
+      taskId,
+      taskView: "board",
+    });
+    assert.equal(safeReturnTo(href + "&unrecognized=discard"), href);
+  }
+  assert.equal(
+    safeReturnTo(tasksHref(eventId, null, "board")),
+    tasksHref(eventId, null, "board"),
+  );
+  for (const search of [
+    "",
+    "?view=list",
+    "?view=week",
+    "?view=board&view=list",
+  ])
+    assert.equal("taskView" in parseAppLocation("/tasks", search), false);
+  assert.equal(
+    "taskView" in
+      parseAppLocation(eventHref(eventId, "/calendar"), "?view=board"),
+    false,
+  );
+});
 
 test("Event history deep links retain scope and stay outside workspace navigation", () => {
   const id = randomUUID(),

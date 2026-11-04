@@ -4,6 +4,24 @@ import { isTaskOverdue } from "../../domain/workspace.ts";
 
 export type TaskStatusFilter = TaskStatus | "all";
 
+export const TASK_STATUSES = [
+  "not-started",
+  "in-progress",
+  "blocked",
+  "completed",
+] as const satisfies readonly TaskStatus[];
+
+export function groupTasksByStatus(tasks: readonly Task[]) {
+  const groups: Record<TaskStatus, Task[]> = {
+    "not-started": [],
+    "in-progress": [],
+    blocked: [],
+    completed: [],
+  };
+  for (const task of tasks) groups[task.status].push(task);
+  return TASK_STATUSES.map((status) => ({ status, tasks: groups[status] }));
+}
+
 export interface TaskFilters {
   search: string;
   status: TaskStatusFilter;

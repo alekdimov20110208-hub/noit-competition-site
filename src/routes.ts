@@ -24,6 +24,8 @@ export type AppPath =
   | "/events"
   | "/history";
 
+export type TaskView = "list" | "board";
+
 export function isGlobalAppPath(path: AppPath): boolean {
   return path === "/account" || path === "/events";
 }
@@ -32,6 +34,7 @@ export type AppLocation = (
   | {
       path: "/tasks";
       taskId: string | null;
+      taskView?: TaskView;
     }
   | {
       path: Exclude<AppPath, "/tasks">;
@@ -165,7 +168,16 @@ export function parseAppLocation(
     : normalizePath(pathname);
 
   if (path === "/tasks") {
-    return { path, taskId: getTaskId(search), eventId, eventMode };
+    const views = new URLSearchParams(search).getAll("view");
+    return {
+      path,
+      taskId: getTaskId(search),
+      eventId,
+      eventMode,
+      ...(views.length === 1 && views[0] === "board"
+        ? { taskView: "board" as const }
+        : {}),
+    };
   }
 
   const calendar = path === "/calendar" ? parseCalendarLocation(search) : null;
@@ -227,10 +239,22 @@ export function createTaskHref(
   taskId: string,
   eventId?: string | null,
 ): string {
-  if (eventId) return eventHref(eventId, "/tasks", taskId);
-  return taskId.trim().length > 0
-    ? `/tasks?task=${encodeURIComponent(taskId)}`
-    : "/tasks";
+  return tasksHref(eventId, taskId);
+}
+
+export function tasksHref(
+  eventId?: string | null,
+  taskId?: string | null,
+  view: TaskView = "list",
+): string {
+  const href = eventId
+    ? eventHref(eventId, "/tasks", taskId)
+    : taskId?.trim()
+      ? `/tasks?task=${encodeURIComponent(taskId)}`
+      : "/tasks";
+  return view === "board"
+    ? `${href}${href.includes("?") ? "&" : "?"}view=board`
+    : href;
 }
 
 export interface TaskRouteTarget {

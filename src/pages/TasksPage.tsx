@@ -35,22 +35,17 @@ import type { TaskAction } from "../services/RemoteWorkspaceService.ts";
 import { taskAffordances } from "../services/taskAffordances.ts";
 import { getTaskCounts, isTaskOverdue } from "../domain/workspace.ts";
 import { useI18n } from "../i18n/index.ts";
-import { createTaskHref } from "../routes.ts";
+import { createTaskHref, type TaskView } from "../routes.ts";
 import { getInitials } from "../utils/format.ts";
 import { getTaskStatusTone } from "../utils/statusTone.ts";
 import {
   filterTasks,
   getTaskCategories,
   hasActiveTaskFilters,
+  TASK_STATUSES,
   type TaskFilters,
 } from "./tasks/helpers.ts";
-
-const TASK_STATUSES: readonly TaskStatus[] = [
-  "not-started",
-  "in-progress",
-  "blocked",
-  "completed",
-];
+import { TaskBoard } from "./tasks/TaskBoard.tsx";
 
 interface TasksPageProps {
   now: Date;
@@ -60,6 +55,8 @@ interface TasksPageProps {
     tasks: Task[];
     teamMembers: Pick<TeamMember, "id" | "name" | "role">[];
   };
+  view: TaskView;
+  onViewChange: (view: TaskView) => void;
   selectedTaskId: string | null;
   invalidTaskId: string | null;
   onOpenTask: (taskId: string) => void;
@@ -200,6 +197,8 @@ function TaskList({
 export function TasksPage({
   now,
   state,
+  view,
+  onViewChange,
   selectedTaskId,
   invalidTaskId,
   onOpenTask,
@@ -312,20 +311,21 @@ export function TasksPage({
         }
       : undefined;
   const knownMemberIds = new Set(state.teamMembers.map((member) => member.id));
-  const groupedTasks = groupByOwner
-    ? [
-        ...state.teamMembers.map((member) => ({
-          member,
-          tasks: filteredTasks.filter((task) => task.ownerId === member.id),
-        })),
-        {
-          member: null,
-          tasks: filteredTasks.filter(
-            (task) => !knownMemberIds.has(task.ownerId),
-          ),
-        },
-      ].filter((group) => group.tasks.length > 0)
-    : [];
+  const groupedTasks =
+    view === "list" && groupByOwner
+      ? [
+          ...state.teamMembers.map((member) => ({
+            member,
+            tasks: filteredTasks.filter((task) => task.ownerId === member.id),
+          })),
+          {
+            member: null,
+            tasks: filteredTasks.filter(
+              (task) => !knownMemberIds.has(task.ownerId),
+            ),
+          },
+        ].filter((group) => group.tasks.length > 0)
+      : [];
   const filtersActive = hasActiveTaskFilters(filters);
   const statusOptions = useMemo<
     readonly BudoSelectOption<TaskStatus | "all">[]
@@ -467,6 +467,22 @@ export function TasksPage({
       )}
 
       <div className="task-workspace">
+        <div className="task-views" role="group" aria-label={t("tasks.views")}>
+          {(["list", "board"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={`button button--${view === option ? "primary" : "secondary"}`}
+              aria-pressed={view === option}
+              aria-controls="task-results"
+              onClick={() => {
+                if (view !== option) onViewChange(option);
+              }}
+            >
+              {t(`tasks.view.${option}`)}
+            </button>
+          ))}
+        </div>
         <section className="task-filters" aria-label={t("tasks.filters.label")}>
           <div className="task-search">
             <Search size={17} aria-hidden="true" />
@@ -520,15 +536,17 @@ export function TasksPage({
               popupMinWidth={260}
             />
 
-            <button
-              type="button"
-              className={`group-toggle ${groupByOwner ? "is-active" : ""}`}
-              aria-pressed={groupByOwner}
-              onClick={() => setGroupByOwner((current) => !current)}
-            >
-              <Layers3 size={15} aria-hidden="true" />{" "}
-              {t("tasks.filters.groupByOwner")}
-            </button>
+            {view === "list" && (
+              <button
+                type="button"
+                className={`group-toggle ${groupByOwner ? "is-active" : ""}`}
+                aria-pressed={groupByOwner}
+                onClick={() => setGroupByOwner((current) => !current)}
+              >
+                <Layers3 size={15} aria-hidden="true" />{" "}
+                {t("tasks.filters.groupByOwner")}
+              </button>
+            )}
 
             {filtersActive && (
               <button
@@ -555,7 +573,7 @@ export function TasksPage({
         <div id="task-results">
           {!dataReady ? (
             <>
-              {taskList}
+              {view === "list" && taskList}
               <div
                 className="notice"
                 role={readState?.status === "error" ? "alert" : "status"}
@@ -582,6 +600,16 @@ export function TasksPage({
                 )}
               </div>
             </>
+          ) : view === "board" && event ? (
+            <TaskBoard
+              eventId={event.id}
+              now={now}
+              tasks={filteredTasks}
+              members={state.teamMembers}
+              timeZone={timeZone}
+              selectedTaskId={selectedTaskId}
+              onOpen={onOpenTask}
+            />
           ) : remoteEmpty ? (
             <EmptyState
               title={t(

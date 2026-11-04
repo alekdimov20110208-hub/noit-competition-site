@@ -27,7 +27,7 @@ import { StarterTemplatesPage } from "./pages/StarterTemplatesPage.tsx";
 import { isVisibleFocusTarget, revealFocusTarget } from "./navigationFocus.ts";
 import {
   createTaskDetailHistoryState,
-  createTaskHref,
+  tasksHref,
   eventHref,
   calendarHref,
   isGlobalAppPath,
@@ -210,17 +210,17 @@ export default function App() {
       currentLocation.eventMode === "workspace" &&
       !isGlobalAppPath(currentLocation.path)
     ) {
+      const eventId = remoteTasks.workspace.currentEventId;
       navigate(
         currentLocation.path === "/calendar" && currentLocation.calendar
-          ? calendarHref(
-              remoteTasks.workspace.currentEventId,
-              currentLocation.calendar,
-            )
-          : eventHref(
-              remoteTasks.workspace.currentEventId,
-              currentLocation.path,
-              currentLocation.taskId,
-            ),
+          ? calendarHref(eventId, currentLocation.calendar)
+          : currentLocation.path === "/tasks"
+            ? tasksHref(
+                eventId,
+                currentLocation.taskId,
+                currentLocation.taskView,
+              )
+            : eventHref(eventId, currentLocation.path),
         { replace: true, scroll: false },
       );
     }
@@ -251,10 +251,11 @@ export default function App() {
           ? document.activeElement
           : null;
       const focusKey = trigger?.dataset.taskFocusKey ?? null;
-      if (
-        parseAppLocation(window.location.pathname, window.location.search)
-          .path === "/"
-      ) {
+      const location = parseAppLocation(
+        window.location.pathname,
+        window.location.search,
+      );
+      if (location.path === "/") {
         window.history.replaceState(
           withDashboardContext(window.history.state, {
             ...readDashboardContext(window.history.state),
@@ -268,20 +269,24 @@ export default function App() {
         taskId,
         trigger,
       };
-      navigate(createTaskHref(taskId, remoteTasks.workspace.currentEventId), {
-        scroll: false,
-        state: createTaskDetailHistoryState(focusKey),
-      });
+      navigate(
+        tasksHref(
+          remoteTasks.workspace.currentEventId,
+          taskId,
+          location.path === "/tasks" ? location.taskView : undefined,
+        ),
+        { scroll: false, state: createTaskDetailHistoryState(focusKey) },
+      );
     },
     [navigate, remoteTasks.workspace.currentEventId],
   );
   const closeTask = useCallback(() => {
     const historyState = window.history.state;
+    const location = parseAppLocation(
+      window.location.pathname,
+      window.location.search,
+    );
     if (!pendingTaskFocusRef.current) {
-      const location = parseAppLocation(
-        window.location.pathname,
-        window.location.search,
-      );
       pendingTaskFocusRef.current = {
         focusKey: isTaskDetailHistoryState(historyState)
           ? (historyState.taskFocusKey ?? null)
@@ -294,7 +299,14 @@ export default function App() {
       window.history.back();
       return;
     }
-    navigate("/tasks", { replace: true, scroll: false });
+    navigate(
+      tasksHref(
+        location.eventId,
+        null,
+        location.path === "/tasks" ? location.taskView : undefined,
+      ),
+      { replace: true, scroll: false },
+    );
   }, [navigate]);
 
   useEffect(() => {
@@ -315,9 +327,12 @@ export default function App() {
     const animationFrame = window.requestAnimationFrame(() => {
       pendingTaskFocusRef.current = null;
       const taskHref = pendingFocus.taskId
-        ? createTaskHref(
+        ? tasksHref(
+            currentLocation.eventId,
             pendingFocus.taskId,
-            currentLocation.eventId ?? undefined,
+            currentLocation.path === "/tasks"
+              ? currentLocation.taskView
+              : undefined,
           )
         : null;
       const remountedExactTrigger = pendingFocus.focusKey
@@ -345,6 +360,10 @@ export default function App() {
               ?.closest("details:not([open])")
               ?.querySelector<HTMLElement>(":scope > summary") ??
             remountedTaskLink ??
+            (currentLocation.path === "/tasks" &&
+            currentLocation.taskView === "board"
+              ? document.getElementById("task-search")
+              : null) ??
             document.querySelector<HTMLElement>(
               ".operational-focus button[aria-expanded]",
             ) ??
@@ -353,6 +372,13 @@ export default function App() {
         window.scrollTo({ top: pendingFocus.scrollY, behavior: "instant" });
       }
       focusTarget?.focus({ preventScroll: true });
+      if (focusTarget?.closest(".task-board")) {
+        focusTarget.scrollIntoView({
+          behavior: "instant",
+          block: "nearest",
+          inline: "nearest",
+        });
+      }
       if (focusTarget) revealFocusTarget(focusTarget);
     });
 
@@ -403,6 +429,15 @@ export default function App() {
         }
         now={now}
         state={remoteTasks.workspace}
+        view={currentLocation.taskView ?? "list"}
+        onViewChange={(view) =>
+          navigate(
+            tasksHref(currentLocation.eventId, currentLocation.taskId, view),
+            {
+              scroll: false,
+            },
+          )
+        }
         selectedTaskId={selectedTaskId}
         onNavigate={navigate}
         invalidTaskId={invalidTaskId}

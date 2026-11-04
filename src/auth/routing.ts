@@ -1,6 +1,6 @@
 import {
   APP_ROUTES,
-  createTaskHref,
+  tasksHref,
   calendarHref,
   parseAppLocation,
   eventHref,
@@ -28,6 +28,8 @@ export function safeReturnTo(value: string | null): string {
     if (path === "/events/new") return path;
     if (location.path === "/calendar" && location.calendar)
       return calendarHref(location.eventId, location.calendar);
+    if (location.path === "/tasks")
+      return tasksHref(location.eventId, location.taskId, location.taskView);
     if (location.eventId) {
       if (location.changeId)
         return changeHref(location.eventId, location.changeId);
@@ -38,9 +40,7 @@ export function safeReturnTo(value: string | null): string {
           : eventHref(location.eventId, location.path, location.taskId);
     }
     if (!APP_ROUTES.some((route) => route.path === path)) return "/";
-    return location.path === "/tasks" && location.taskId
-      ? createTaskHref(location.taskId)
-      : location.path;
+    return location.path;
   } catch {
     return "/";
   }

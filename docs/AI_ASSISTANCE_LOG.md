@@ -1,5 +1,12 @@
 # AI Assistance Log
 
+## Kanban K1-A
+
+Codex implemented the Board, URL navigation and automated checks on the
+accepted Calendar commit. The [K1-A verification record](BUDOGRAPH_KANBAN_K1_A.md)
+identifies the synthetic preview and browser scenarios. Owner code review and
+HUMAN acceptance are pending.
+
 ## 2026-10-30 — D2.2 local safe staging branch
 
 Under explicit local-only approval, Codex preserved the uncommitted D2/D2.1

@@ -552,6 +552,16 @@ task list.
 
 ## Tasks operational workspace
 
+Choose **List / Списък** or **Board / Табло** above the filters. List opens by
+default. Board groups the same matching tasks into four status columns, each
+with a visible count. Swipe sideways on a narrow screen, or focus the board
+and use the arrow keys. Select a card or press Enter on its link to open the
+Task Drawer. When you close the drawer after a status change, focus follows
+the card to its current column if it still matches the filters.
+
+See the [local K1-A preview instructions](BUDOGRAPH_KANBAN_K1_A.md) for a
+synthetic walkthrough.
+
 The Tasks page is a responsibility register rather than a set of isolated task
 cards. The compact header shows total, active, blocked, and overdue counts.
 Overdue is a timing flag that may overlap an active or blocked task; it is not a
