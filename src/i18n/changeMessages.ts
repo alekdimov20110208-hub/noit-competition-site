@@ -32,6 +32,7 @@ export const CHANGE_EN_MESSAGES = {
   "change.planB.help":
     "Fallback if the primary response cannot proceed. Used only by explicit coordination.",
   "change.planB.empty": "No Plan B recorded.",
+  "change.planB.recorded": "Fallback text recorded.",
   "change.validation.decision":
     "Enter 1–2,000 characters for the decision, or clear the field.",
   "change.validation.response":
@@ -58,9 +59,27 @@ export const CHANGE_EN_MESSAGES = {
   "change.created": "Recorded",
   "change.updated": "Updated",
   "change.what": "What changed",
+  "change.next.title": "What needs to happen next?",
+  "change.next.needs-owner":
+    "Assign a response owner to coordinate this change.",
+  "change.next.needs-decision": "Coordinate and record a decision.",
+  "change.next.needs-response":
+    "Record the operational response to the decision.",
+  "change.next.follow-through":
+    "Review the affected tasks and follow through on the agreed response.",
+  "change.next.organizer":
+    "Coordinate with an Organizer to record this step in Changes.",
+  "change.next.archived":
+    "This event is archived. Use this guidance for review.",
   "change.impact": "Operational impact",
   "change.impact.help":
     "People, deadlines and statuses reflect the tasks as they are now.",
+  "change.impact.group.blocked": "Blocked",
+  "change.impact.group.overdue": "Overdue and unblocked",
+  "change.impact.group.incomplete": "Other incomplete",
+  "change.impact.group.completed": "Completed",
+  "change.impact.overlap":
+    "Blocked tasks that are also overdue appear in Blocked with an Overdue badge.",
   "change.tasks": "Affected tasks",
   "change.tasks.count": "Affected tasks: {count}",
   "change.tasks.empty": "No affected tasks selected.",
@@ -140,6 +159,7 @@ export const CHANGE_BG_MESSAGES = {
   "change.planB.help":
     "Резервен вариант, ако основната реакция не може да се осъществи. Прилага се само след изрична координация.",
   "change.planB.empty": "Няма записан План Б.",
+  "change.planB.recorded": "Има записан резервен вариант.",
   "change.validation.decision":
     "Въведете решение от 1 до 2 000 знака или изчистете полето.",
   "change.validation.response":
@@ -166,9 +186,25 @@ export const CHANGE_BG_MESSAGES = {
   "change.created": "Регистрирана",
   "change.updated": "Обновена",
   "change.what": "Какво се промени",
+  "change.next.title": "Какво следва?",
+  "change.next.needs-owner":
+    "Определете отговорник, който да координира реакцията към промяната.",
+  "change.next.needs-decision": "Координирайте и запишете решение.",
+  "change.next.needs-response": "Запишете оперативната реакция по решението.",
+  "change.next.follow-through":
+    "Прегледайте засегнатите задачи и изпълнете договорената реакция.",
+  "change.next.organizer":
+    "Координирайте се с организатор, за да отрази тази стъпка в „Промени“.",
+  "change.next.archived": "Събитието е архивирано. Насоката е за справка.",
   "change.impact": "Въздействие върху работата",
   "change.impact.help":
     "Хората, сроковете и статусите отразяват текущото състояние на задачите.",
+  "change.impact.group.blocked": "Блокирани",
+  "change.impact.group.overdue": "Просрочени без блокиране",
+  "change.impact.group.incomplete": "Други незавършени",
+  "change.impact.group.completed": "Завършени",
+  "change.impact.overlap":
+    "Блокираните задачи с изтекъл срок са в „Блокирани“ и имат обозначение „Просрочена“.",
   "change.tasks": "Засегнати задачи",
   "change.tasks.count": "Засегнати задачи: {count}",
   "change.tasks.empty": "Няма избрани засегнати задачи.",

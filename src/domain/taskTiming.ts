@@ -39,9 +39,13 @@ export function getDeadlineTiming(deadline: string, now: Date): DeadlineTiming {
   return days <= 7 ? "near" : "later";
 }
 
-export function isTaskOverdue(task: Task, now = new Date()): boolean {
+export function isTaskOverdue(
+  task: { status: Task["status"]; deadline: string | null },
+  now = new Date(),
+): boolean {
   return (
     task.status !== "completed" &&
+    task.deadline !== null &&
     getDeadlineTiming(task.deadline, now) === "overdue"
   );
 }

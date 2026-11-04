@@ -104,6 +104,129 @@ async function open(account, event, change) {
   await account.page.locator(".page--changes:not([aria-busy=true])").waitFor();
   if (change) await account.page.locator(".change-detail").waitFor();
 }
+async function nextAction(page, text) {
+  const guidance = page.getByRole("region", {
+    name: "What needs to happen next?",
+    exact: true,
+  });
+  await guidance.getByText(text, { exact: true }).waitFor();
+  return guidance;
+}
+
+async function verifyOperationalImpact(organizer, member, event, memberId) {
+  const tasks = [];
+  for (const [title, deadline, status] of [
+    ["Delayed venue access", "2020-10-01", "blocked"],
+    ["Late signage", "2020-10-02", "not-started"],
+    ["Open rehearsal", "2099-10-01", "not-started"],
+    ["Confirmed venue booking", "2020-10-03", "completed"],
+  ]) {
+    const task = (
+      await api(organizer, `/api/events/${event.id}/tasks`, "POST", {
+        title: `${title} ${run}`,
+        deadline,
+        priority: "normal",
+        assignedMemberId: memberId,
+      })
+    ).task;
+    if (status !== "not-started")
+      await api(
+        organizer,
+        `/api/events/${event.id}/tasks/${task.id}/status`,
+        "PATCH",
+        {
+          expectedVersion: task.version,
+          status,
+        },
+      );
+    tasks.push(task);
+    report.tasks.push(task.id);
+  }
+  const { change } = await api(organizer, changePath(event.id), "POST", {
+    title: `Operational briefing ${run}`,
+    responseOwnerMemberId: memberId,
+    affectedTaskIds: tasks.map(({ id }) => id),
+  });
+  report.changes.push(change.id);
+  await open(member, event.id, change.id);
+  const guidance = await nextAction(
+    member.page,
+    "Coordinate and record a decision.",
+  );
+  await guidance
+    .getByText("Coordinate with an Organizer to record this step in Changes.", {
+      exact: true,
+    })
+    .waitFor();
+  assert.equal(
+    await member.page
+      .getByRole("button", { name: "Edit change", exact: true })
+      .count(),
+    0,
+  );
+
+  await open(organizer, event.id, change.id);
+  const { page } = organizer;
+  const counts = () =>
+    page.locator(".change-impact-breakdown dd").allTextContents();
+  assert.deepEqual(await counts(), ["1", "1", "1", "1"]);
+  assert.equal(await page.locator(".change-impact-task").count(), tasks.length);
+  const row = (group, task) =>
+    page
+      .locator(`[aria-labelledby="change-impact-${group}"] .change-impact-task`)
+      .filter({ hasText: task.title });
+  await row("blocked", tasks[0])
+    .getByText("Blocked", { exact: true })
+    .waitFor();
+  await row("blocked", tasks[0])
+    .getByText("Overdue", { exact: true })
+    .waitFor();
+  await row("overdue", tasks[1])
+    .getByText("Overdue", { exact: true })
+    .waitFor();
+  await row("incomplete", tasks[2]).waitFor();
+  assert.equal(
+    await row("completed", tasks[3])
+      .getByText("Overdue", { exact: true })
+      .count(),
+    0,
+  );
+
+  const link = row("blocked", tasks[0]).getByRole("link");
+  const href = await link.getAttribute("href");
+  assert.equal(href, `/events/${event.id}/tasks?task=${tasks[0].id}`);
+  await link.focus();
+  await page.keyboard.press("Enter");
+  await page.waitForURL(origin + href);
+  await page
+    .locator(".task-drawer__identity")
+    .getByText(tasks[0].title, { exact: true })
+    .waitFor();
+  await page.goBack();
+  await page.locator(".change-detail").waitFor();
+  const path = `/api/events/${event.id}/tasks/${tasks[0].id}`;
+  const { task } = await api(member, path);
+  await api(member, path + "/status", "PATCH", {
+    expectedVersion: task.version,
+    status: "completed",
+  });
+  await page
+    .getByRole("button", { name: "Refresh impact", exact: true })
+    .click();
+  await row("completed", task).waitFor();
+  assert.deepEqual(await counts(), ["0", "1", "1", "2"]);
+  assert.equal(
+    await row("completed", task).getByText("Overdue", { exact: true }).count(),
+    0,
+  );
+  const refreshed = (await api(organizer, changePath(event.id, change.id)))
+    .change;
+  assert.equal(refreshed.version, change.version);
+  assert.equal(refreshed.impact.taskCount, tasks.length);
+  checked(
+    "C1-A Member owner guidance, exclusive Task groups with dual labels, keyboard Task Drawer link, and cross-session canonical status refresh",
+  );
+}
 async function form(page, edit = false) {
   await page
     .getByRole("button", {
@@ -472,6 +595,30 @@ async function verifyReadChecks() {
   checked(
     "explicit failed-save transport doubles retain and announce the draft without replay or private error details",
   );
+  report.step = "invalid Change detail projection";
+  await open(organizer, event.id, change.id);
+  const detailPath = `**${changePath(event.id, change.id)}`;
+  const invalidProjection = (route) =>
+    route.fulfill({
+      json: { change: { ...change, affectedTasks: [null] } },
+    });
+  await organizer.page.route(detailPath, invalidProjection);
+  await organizer.page
+    .getByRole("button", { name: "Refresh impact", exact: true })
+    .click();
+  const alert = organizer.page.locator(".page--changes").getByRole("alert");
+  await alert
+    .getByText("The change could not be verified. Refresh and try again.", {
+      exact: true,
+    })
+    .waitFor();
+  assert.equal(await organizer.page.locator(".change-detail").count(), 0);
+  await organizer.page.unroute(detailPath, invalidProjection);
+  await alert.getByRole("button", { name: "Try again", exact: true }).click();
+  await organizer.page.locator(".change-detail").waitFor();
+  checked(
+    "malformed Change GET suppresses guidance and impact until a verified retry",
+  );
   assert.equal(report.applicationErrors, 0);
   assert.equal(report.consoleErrors, 0);
 }
@@ -547,6 +694,13 @@ try {
     await organizer.page
       .getByText("No Plan B recorded.", { exact: true })
       .waitFor();
+    await nextAction(
+      organizer.page,
+      "Assign a response owner to coordinate this change.",
+    );
+    await organizer.page
+      .getByText("No affected tasks selected.", { exact: true })
+      .waitFor();
     checked(
       "Organizer empty state, validation/focus/Escape and zero-Task Change creation",
     );
@@ -620,6 +774,7 @@ try {
       [memberId],
     );
     assert.equal(change.responseOwner.id, event.membership.id);
+    await nextAction(organizer.page, "Coordinate and record a decision.");
     assert.equal(
       await organizer.page.locator(".change-impact-task").count(),
       2,
@@ -655,6 +810,10 @@ try {
         taskState,
       );
       if (key === "decision") {
+        await nextAction(
+          organizer.page,
+          "Record the operational response to the decision.",
+        );
         assert.equal(change.decision.authoredBy.id, event.membership.id);
         assert.equal(change.response, null);
         assert.equal(change.planB, null);
@@ -663,10 +822,24 @@ try {
           .waitFor();
       }
       if (key === "response") {
+        await nextAction(
+          organizer.page,
+          "Review the affected tasks and follow through on the agreed response.",
+        );
         assert.equal(change.planB, null);
         await organizer.page
           .getByText("No Plan B recorded.", { exact: true })
           .waitFor();
+      }
+      if (key === "planB") {
+        const fallback = organizer.page.getByRole("region", {
+          name: "Plan B",
+          exact: true,
+        });
+        await fallback
+          .getByText("Fallback text recorded.", { exact: true })
+          .waitFor();
+        assert.equal(await fallback.getByRole("button").count(), 0);
       }
     }
     await organizer.page.reload();
@@ -1140,6 +1313,45 @@ try {
     await organizer.page.unroute(`**${changePath(event.id, change.id)}`);
     checked(
       "four explicitly mocked long Bulgarian Task/title/member-name mobile detail cases",
+    );
+    report.step = "C1-A operational impact";
+    await organizer.page.setViewportSize({ width: 320, height: 900 });
+    await verifyOperationalImpact(organizer, member, event, memberId);
+
+    report.step = "C1-A archived detail";
+    const archive = await organizer.context.request.post(
+      origin + `/api/events/${empty.id}/archive`,
+      {
+        headers: { origin, "Idempotency-Key": randomUUID() },
+        data: { expectedVersion: empty.version, confirmationName: empty.name },
+      },
+    );
+    assert.equal(archive.status(), 200);
+    await open(organizer, empty.id, zero.id);
+    const archivedGuidance = await nextAction(
+      organizer.page,
+      "Assign a response owner to coordinate this change.",
+    );
+    await archivedGuidance
+      .getByText("This event is archived. Use this guidance for review.", {
+        exact: true,
+      })
+      .waitFor();
+    assert.equal(
+      await organizer.page
+        .getByRole("button", { name: "Edit change", exact: true })
+        .count(),
+      0,
+    );
+    await api(
+      organizer,
+      changePath(empty.id, zero.id),
+      "PATCH",
+      { expectedVersion: zero.version, title: "Denied" },
+      403,
+    );
+    checked(
+      "C1-A archived Event keeps review guidance and denies editing in the UI and API",
     );
     assert.equal(report.applicationErrors, 0);
     assert.equal(report.consoleErrors, 0);

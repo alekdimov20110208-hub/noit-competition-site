@@ -1,5 +1,12 @@
 # AI Assistance Log
 
+## 2026-11-05 — Changes & Plan B C1-A
+
+Codex added next-action guidance and grouped canonical Task impact to the existing
+Change detail on the requested local branch. The review focused on Organizer and
+Member permissions, Event-local overdue timing, double-counting, and explicit
+fallback text. Owner code review and human acceptance are pending.
+
 ## Kanban K1-A
 
 Codex implemented the Board, URL navigation and automated checks on the

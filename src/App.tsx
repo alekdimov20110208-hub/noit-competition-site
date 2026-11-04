@@ -507,6 +507,7 @@ export default function App() {
         <ChangesPage
           key={`${remoteEvent.id}:${currentLocation.changeId ?? "list"}`}
           event={remoteEvent}
+          now={now}
           changeId={currentLocation.changeId}
           workspace={remoteTasks.workspace}
           onNavigate={navigate}

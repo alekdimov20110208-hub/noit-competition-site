@@ -211,8 +211,8 @@ Missing Plan B alone never creates attention. A Member response owner still read
 only and coordinates with an Organizer; ownership does not grant editing permission.
 Affected Tasks do not gain Task attention merely because a Change links them.
 
-Read a detail in order: Change/context → current affected Tasks, people and deadlines
-→ response owner → Decision → Response → optional Plan B. The owner coordinates the
+The Change detail shows the suggested next action above the context, current impact
+and coordination details. The owner coordinates the
 response and does not replace Task assignees. Decision is the agreed approach,
 Response describes action/coordination, and Plan B is a fallback. A short list label
 summarizes authored presence (Decision pending, Decision recorded, or Plan B prepared);
@@ -224,6 +224,15 @@ Open **Changes / Промени** in the current Event. The list shows operation
 response owners and affected Task counts. Open a title to inspect context/reporter,
 current responsible people, deadlines and Task status. Task titles open the existing
 Task detail. Use **Refresh impact** after Task changes; dates stay Event-local.
+
+**What needs to happen next? / Какво следва?** guides you from choosing a response
+owner to recording the Decision and operational Response, then to following through
+on the affected Tasks. Members coordinate with an Organizer to record these steps.
+In archived Events, the guidance is available for review.
+
+The affected Tasks are grouped into Blocked, Overdue and unblocked, Other incomplete
+and Completed. A Task that is both blocked and overdue appears once in Blocked with
+both labels. The overdue label uses the same Event-local calendar as Tasks.
 
 As Organizer choose **Record change**, enter title/context, optionally choose a
 response owner, and check affected Tasks. Each choice shows its current responsibility,
@@ -237,7 +246,8 @@ approach; **Response / Реакция** records coordination or action underway;
 **Plan B / План Б** records the fallback if the primary approach cannot proceed.
 Leave fields empty while deciding. Clear an existing field to remove it explicitly.
 Decision records show the author of its current revision and server update time.
-Plan B is a fallback and never activates automatically. Editing these fields never
+Plan B indicates whether fallback text is recorded. The section shows the text
+when available. Editing these fields never
 changes Task assignment, acceptance, deadline or status. Edit Tasks through their
 existing commands. A Member selected as response owner remains read-only.
 

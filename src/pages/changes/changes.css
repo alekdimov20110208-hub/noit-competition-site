@@ -91,6 +91,18 @@
   line-height: 1.7;
   margin: 0 0 24px;
 }
+.page--changes .change-next {
+  margin-bottom: 24px;
+  padding: 16px;
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+}
+.page--changes .change-next :is(h2, p) {
+  margin: 0;
+}
+.page--changes .change-next p {
+  margin-top: 8px;
+}
 .page--changes .change-metadata {
   display: flex;
   flex-wrap: wrap;
@@ -134,6 +146,26 @@
   font-size: 2rem;
   font-weight: 750;
   color: var(--ink);
+}
+.page--changes .change-impact-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+  gap: 12px;
+}
+.page--changes .change-impact-breakdown > div {
+  padding: 10px;
+  border: 1px solid var(--line);
+}
+.page--changes .change-impact-breakdown dd {
+  font-weight: 700;
+}
+.page--changes .change-impact-group h4 {
+  margin: 24px 0 0;
+}
+.page--changes .change-task-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 .page--changes .change-impact-tasks {
   list-style: none;

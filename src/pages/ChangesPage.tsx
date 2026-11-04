@@ -12,7 +12,11 @@ import { PageHeader } from "../components/PageHeader.tsx";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 import { TASK_STATUS_MESSAGE_KEYS } from "../domain/labels.ts";
 import { useI18n, type MessageKey } from "../i18n/index.ts";
-import { getChangeCoordinationState } from "../domain/changeCoordination.ts";
+import {
+  getChangeCoordinationState,
+  getChangeNextAction,
+  groupChangeAffectedTasks,
+} from "../domain/changeCoordination.ts";
 import { auth } from "../auth/runtime.ts";
 import { changeHref, createTaskHref, eventHref } from "../routes.ts";
 import {
@@ -33,6 +37,7 @@ import { getTaskStatusTone } from "../utils/statusTone.ts";
 import "./changes/changes.css";
 
 const service = new ChangeService();
+const impactGroups = ["blocked", "overdue", "incomplete", "completed"] as const;
 const fieldMessages = {
   title: "change.validation.title",
   context: "change.validation.context",
@@ -360,11 +365,13 @@ function ChangeForm({
 
 export function ChangesPage({
   event,
+  now,
   changeId,
   workspace,
   onNavigate,
 }: {
   event: TaskEvent;
+  now: Date;
   changeId?: string | null;
   workspace: TasksWorkspace;
   onNavigate: (href: string) => void;
@@ -416,6 +423,10 @@ export function ChangesPage({
     };
   }, [editing, load]);
   const selected = changeId ? data?.[0] : undefined;
+  const nextAction = selected ? getChangeNextAction(selected) : null;
+  const taskGroups = selected
+    ? groupChangeAffectedTasks(selected.affectedTasks, now)
+    : null;
   function closeForm() {
     setEditing(false);
     requestAnimationFrame(() => action.current?.focus());
@@ -489,8 +500,17 @@ export function ChangesPage({
           onSuccess={saved}
           onCancel={closeForm}
         />
-      ) : selected ? (
+      ) : selected && nextAction && taskGroups ? (
         <article className="change-detail">
+          <section className="change-next" aria-labelledby="change-next-title">
+            <h2 id="change-next-title">{t("change.next.title")}</h2>
+            <p>{t(`change.next.${nextAction}`)}</p>
+            {event.archived ? (
+              <p className="change-help">{t("change.next.archived")}</p>
+            ) : !authoring && nextAction !== "follow-through" ? (
+              <p className="change-help">{t("change.next.organizer")}</p>
+            ) : null}
+          </section>
           <section className="change-narrative" aria-labelledby="change-what">
             <div>
               <h2 id="change-what">{t("change.what")}</h2>
@@ -617,51 +637,84 @@ export function ChangesPage({
             {!selected.affectedTasks.length ? (
               <p>{t("change.tasks.empty")}</p>
             ) : (
-              <ul className="change-impact-tasks">
-                {selected.affectedTasks.map((task) => (
-                  <li className="change-impact-task" key={task.id}>
-                    <AppLink
-                      className="change-task-title"
-                      href={createTaskHref(task.id, event.id)}
-                      onNavigate={onNavigate}
+              <>
+                <dl className="change-impact-breakdown">
+                  {impactGroups.map((group) => (
+                    <div key={group}>
+                      <dt>{t(`change.impact.group.${group}`)}</dt>
+                      <dd>{formatNumber(taskGroups[group].length)}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="change-help">{t("change.impact.overlap")}</p>
+                {impactGroups
+                  .filter((group) => taskGroups[group].length > 0)
+                  .map((group) => (
+                    <section
+                      key={group}
+                      className="change-impact-group"
+                      aria-labelledby={`change-impact-${group}`}
                     >
-                      {task.title}
-                    </AppLink>
-                    <dl>
-                      <div>
-                        <dt>{t("change.responsible")}</dt>
-                        <dd>
-                          {task.assignedMember?.name ?? t("common.unassigned")}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>{t("change.deadline")}</dt>
-                        <dd>
-                          {task.deadline ? (
-                            <time dateTime={task.deadline}>
-                              {formatTaskDeadline(
-                                task.deadline,
-                                task.deadlineTime,
-                              )}
-                            </time>
-                          ) : (
-                            t("change.noDeadline")
-                          )}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>{t("change.status")}</dt>
-                        <dd>
-                          <StatusBadge
-                            tone={getTaskStatusTone(task.status)}
-                            label={t(TASK_STATUS_MESSAGE_KEYS[task.status])}
-                          />
-                        </dd>
-                      </div>
-                    </dl>
-                  </li>
-                ))}
-              </ul>
+                      <h4 id={`change-impact-${group}`}>
+                        {t(`change.impact.group.${group}`)}
+                      </h4>
+                      <ul className="change-impact-tasks">
+                        {taskGroups[group].map(({ task, overdue }) => (
+                          <li className="change-impact-task" key={task.id}>
+                            <AppLink
+                              className="change-task-title"
+                              href={createTaskHref(task.id, event.id)}
+                              onNavigate={onNavigate}
+                            >
+                              {task.title}
+                            </AppLink>
+                            <dl>
+                              <div>
+                                <dt>{t("change.responsible")}</dt>
+                                <dd>
+                                  {task.assignedMember?.name ??
+                                    t("common.unassigned")}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>{t("change.deadline")}</dt>
+                                <dd>
+                                  {task.deadline ? (
+                                    <time dateTime={task.deadline}>
+                                      {formatTaskDeadline(
+                                        task.deadline,
+                                        task.deadlineTime,
+                                      )}
+                                    </time>
+                                  ) : (
+                                    t("change.noDeadline")
+                                  )}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>{t("change.status")}</dt>
+                                <dd className="change-task-status">
+                                  <StatusBadge
+                                    tone={getTaskStatusTone(task.status)}
+                                    label={t(
+                                      TASK_STATUS_MESSAGE_KEYS[task.status],
+                                    )}
+                                  />
+                                  {overdue && (
+                                    <StatusBadge
+                                      tone="warning"
+                                      label={t("taskDetails.overdue")}
+                                    />
+                                  )}
+                                </dd>
+                              </div>
+                            </dl>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+              </>
             )}
           </section>
           <section
@@ -740,13 +793,16 @@ export function ChangesPage({
               <p className="change-help" id="change-planB-description">
                 {t("change.planB.description")}
               </p>
-              <p
-                className={
-                  selected.planB ? "change-authored-text" : "change-help"
-                }
-              >
-                {selected.planB ?? t("change.planB.empty")}
+              <p className="change-help">
+                {t(
+                  selected.planB
+                    ? "change.planB.recorded"
+                    : "change.planB.empty",
+                )}
               </p>
+              {selected.planB && (
+                <p className="change-authored-text">{selected.planB}</p>
+              )}
             </section>
           </section>
           {!authoring && <p className="change-help">{t("change.readOnly")}</p>}

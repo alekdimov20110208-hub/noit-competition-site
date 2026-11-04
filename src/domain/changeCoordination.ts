@@ -1,5 +1,6 @@
 import type { RemoteChange } from "../services/changes.ts";
 import type { TaskEvent } from "../services/RemoteWorkspaceService.ts";
+import { isTaskOverdue } from "./taskTiming.ts";
 
 export type ChangeCoordinationState =
   "decision-pending" | "decision-recorded" | "plan-b-prepared";
@@ -8,6 +9,40 @@ export type ChangeAttentionReason =
 export interface ChangeAttentionItem {
   change: RemoteChange;
   reason: ChangeAttentionReason;
+}
+
+export function getChangeNextAction(
+  change: Pick<RemoteChange, "responseOwner" | "decision" | "response">,
+): ChangeAttentionReason | "follow-through" {
+  if (!change.responseOwner) return "needs-owner";
+  if (!change.decision) return "needs-decision";
+  if (!change.response) return "needs-response";
+  return "follow-through";
+}
+
+export function groupChangeAffectedTasks(
+  tasks: Readonly<RemoteChange["affectedTasks"]>,
+  now: Date,
+) {
+  type Entry = { task: (typeof tasks)[number]; overdue: boolean };
+  const groups = {
+    blocked: [] as Entry[],
+    overdue: [] as Entry[],
+    incomplete: [] as Entry[],
+    completed: [] as Entry[],
+  };
+  for (const task of tasks) {
+    const overdue = isTaskOverdue(task, now);
+    // A blocked task stays in one group and retains its overdue badge.
+    const group =
+      task.status === "blocked" || task.status === "completed"
+        ? task.status
+        : overdue
+          ? "overdue"
+          : "incomplete";
+    groups[group].push({ task, overdue });
+  }
+  return groups;
 }
 
 export function getEventChanges(

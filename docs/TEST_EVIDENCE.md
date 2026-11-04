@@ -1,5 +1,30 @@
 # BudoGraph Test Evidence
 
+## Changes & Plan B C1-A — 2026-11-05
+
+Local worktree `C:/NOIT/budograph-changes-c1a`, branch
+`codex/budograph-changes-c1a`, baseline
+`038628f232672f77904258625b41ad315919b383`.
+
+- Frontend tests **334 PASS**, including **24 PASS** in the focused Change
+  coordination, Task timing and Change service suites. Server Change tests **4 PASS**.
+- Chromium with real Fastify, Better Auth and isolated loopback PostgreSQL
+  **13 checks PASS**. The run includes all four next actions, both access roles,
+  archived review, zero Tasks, fallback presence, Event switching, keyboard Task
+  links, cross-session Task status refresh and explicit 409 recovery. The layout
+  matrix covers 60 cases in BG/EN and light/dark down to 320px. Four additional
+  long-text cases use an explicitly intercepted response.
+- Chromium read checks **3 PASS**. These include 12 contrast and validation-focus
+  cases, failed-save recovery and a malformed GET fixture. Both browser reports
+  record zero application and unexpected console errors.
+- Frontend and server TypeScript and builds, scoped ESLint, scoped formatting and
+  diff checks passed. Full ESLint reported 11 errors in baseline staging files.
+
+Local evidence lives in `tmp/c1a-evidence/browser/report.json` and
+`tmp/c1a-evidence/read-checks/report.json`. The preview uses synthetic accounts
+and data in a separate local database initialized with the accepted schema.
+Human acceptance is pending.
+
 ## Deployment D1 — 2026-10-18
 
 D1 implementation evidence: frontend **329 PASS**; backend **210 PASS / 54 explicit DB skips**;

@@ -3,12 +3,15 @@ import test from "node:test";
 import type { RemoteChange } from "../services/changes.ts";
 import {
   getChangeCoordinationState,
+  getChangeNextAction,
   getEventChanges,
   getPersonalChangeAttention,
+  groupChangeAffectedTasks,
 } from "./changeCoordination.ts";
 import { changeHref } from "../routes.ts";
 import { getAttentionTasks } from "./workspace.ts";
 import type { Task } from "./types.ts";
+import { eventCalendarNow } from "../services/taskReadState.ts";
 
 const uid = (n: number) =>
   `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -46,6 +49,74 @@ function change(n: number, fields: Partial<RemoteChange> = {}): RemoteChange {
     ...fields,
   };
 }
+
+test("detail guidance follows owner, decision and response independently of Plan B", () => {
+  const recorded = { responseOwner: member, decision, response: "Move setup" };
+  assert.equal(
+    getChangeNextAction(change(4, { ...recorded, responseOwner: null })),
+    "needs-owner",
+  );
+  assert.equal(
+    getChangeNextAction(
+      change(4, { ...recorded, decision: null, planB: "Fallback" }),
+    ),
+    "needs-decision",
+  );
+  assert.equal(
+    getChangeNextAction(change(4, { ...recorded, response: null })),
+    "needs-response",
+  );
+  assert.equal(getChangeNextAction(change(4, recorded)), "follow-through");
+});
+
+test("affected work is partitioned once, retaining overdue on blocked rows", () => {
+  const now = eventCalendarNow(
+    new Date("2026-10-05T22:00:00Z"),
+    "Europe/Sofia",
+  );
+  function affected(
+    id: number,
+    status: Task["status"],
+    deadline: string | null,
+  ) {
+    return {
+      id: uid(id),
+      title: String(id),
+      status,
+      deadline,
+      deadlineTime: null,
+      assignedMember: null,
+    };
+  }
+  const tasks = [
+    affected(10, "blocked", "2026-10-05"),
+    affected(11, "blocked", "2026-10-06"),
+    affected(12, "in-progress", "2026-10-05"),
+    { ...affected(13, "in-progress", "2026-10-06"), deadlineTime: "00:01" },
+    affected(14, "in-progress", null),
+    affected(15, "completed", "2026-10-05"),
+  ];
+  const { blocked, overdue, incomplete, completed } = groupChangeAffectedTasks(
+    tasks,
+    now,
+  );
+  assert.deepEqual(blocked, [
+    { task: tasks[0], overdue: true },
+    { task: tasks[1], overdue: false },
+  ]);
+  assert.deepEqual(overdue, [{ task: tasks[2], overdue: true }]);
+  assert.deepEqual(incomplete, [
+    { task: tasks[3], overdue: false },
+    { task: tasks[4], overdue: false },
+  ]);
+  assert.deepEqual(completed, [{ task: tasks[5], overdue: false }]);
+  assert.deepEqual(groupChangeAffectedTasks([], now), {
+    blocked: [],
+    overdue: [],
+    incomplete: [],
+    completed: [],
+  });
+});
 
 test("Operational Changes use current Event, updated time rather than creation, stable ID and durable routes without mutating input", () => {
   const values = [
