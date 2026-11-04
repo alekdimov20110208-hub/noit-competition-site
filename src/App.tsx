@@ -14,6 +14,7 @@ import { WorkspaceReadNotice } from "./components/WorkspaceReadNotice.tsx";
 import { EmptyState } from "./components/EmptyState.tsx";
 import { PageHeader } from "./components/PageHeader.tsx";
 import { DashboardPage } from "./pages/DashboardPage.tsx";
+import { CalendarPage } from "./pages/CalendarPage.tsx";
 import { TasksPage } from "./pages/TasksPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
 import { EventFormPage } from "./pages/EventFormPage.tsx";
@@ -28,6 +29,7 @@ import {
   createTaskDetailHistoryState,
   createTaskHref,
   eventHref,
+  calendarHref,
   isGlobalAppPath,
   isTaskDetailHistoryState,
   parseAppLocation,
@@ -194,6 +196,7 @@ export default function App() {
       !currentLocation.eventId &&
       currentLocation.path !== "/" &&
       currentLocation.path !== "/templates" &&
+      currentLocation.path !== "/calendar" &&
       currentLocation.eventMode === "workspace" &&
       !isGlobalAppPath(currentLocation.path)
     ) {
@@ -208,11 +211,16 @@ export default function App() {
       !isGlobalAppPath(currentLocation.path)
     ) {
       navigate(
-        eventHref(
-          remoteTasks.workspace.currentEventId,
-          currentLocation.path,
-          currentLocation.taskId,
-        ),
+        currentLocation.path === "/calendar" && currentLocation.calendar
+          ? calendarHref(
+              remoteTasks.workspace.currentEventId,
+              currentLocation.calendar,
+            )
+          : eventHref(
+              remoteTasks.workspace.currentEventId,
+              currentLocation.path,
+              currentLocation.taskId,
+            ),
         { replace: true, scroll: false },
       );
     }
@@ -425,6 +433,24 @@ export default function App() {
         onAuthoringOpenChange={remoteTasks.setTaskAuthoringOpen}
       />
     );
+  } else if (currentLocation.path === "/calendar") {
+    page = (
+      <CalendarPage
+        state={remoteTasks}
+        now={now}
+        location={currentLocation.calendar}
+        onLocationChange={(location) =>
+          navigate(
+            calendarHref(
+              remoteTasks.workspace.currentEventId || null,
+              location,
+            ),
+            { scroll: false },
+          )
+        }
+        onRetry={() => void remoteTasks.retry()}
+      />
+    );
   } else if (currentLocation.path === "/team") {
     page = (
       <TeamPage
@@ -562,6 +588,7 @@ export default function App() {
     remoteTasks.status === "ready" &&
     !remoteEvent &&
     currentLocation.path !== "/templates" &&
+    currentLocation.path !== "/calendar" &&
     currentLocation.eventMode !== "edit" &&
     currentLocation.eventMode !== "duplicate"
   ) {
@@ -698,13 +725,18 @@ export default function App() {
       eventsStatus={remoteTasks.status}
       onSwitchEvent={(eventId) =>
         navigate(
-          eventHref(
-            eventId,
-            currentLocation.eventMode === "workspace" &&
-              !isGlobalAppPath(currentLocation.path)
-              ? currentLocation.path
-              : "/",
-          ),
+          currentLocation.path === "/calendar"
+            ? calendarHref(eventId, {
+                view: currentLocation.calendar?.view ?? "month",
+                date: null,
+              })
+            : eventHref(
+                eventId,
+                currentLocation.eventMode === "workspace" &&
+                  !isGlobalAppPath(currentLocation.path)
+                  ? currentLocation.path
+                  : "/",
+              ),
         )
       }
       dataMode="remote-workspace"

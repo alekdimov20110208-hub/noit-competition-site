@@ -1,4 +1,8 @@
 import {
+  CALENDAR_EN_MESSAGES,
+  CALENDAR_BG_MESSAGES,
+} from "./calendarMessages.ts";
+import {
   PERSONAL_TEMPLATE_EN_MESSAGES,
   PERSONAL_TEMPLATE_BG_MESSAGES,
 } from "./personalTemplateMessages.ts";
@@ -372,6 +376,7 @@ const UI_EN_MESSAGES = {
 } as const;
 
 export const EN_MESSAGES = {
+  ...CALENDAR_EN_MESSAGES,
   ...CURATED_TEMPLATE_EN_MESSAGES,
   ...PERSONAL_TEMPLATE_EN_MESSAGES,
   ...TEMPLATE_APPLICATION_EN_MESSAGES,
@@ -724,6 +729,7 @@ const UI_BG_MESSAGES = {
 } satisfies Record<keyof typeof UI_EN_MESSAGES, string>;
 
 export const BG_MESSAGES = {
+  ...CALENDAR_BG_MESSAGES,
   ...CURATED_TEMPLATE_BG_MESSAGES,
   ...PERSONAL_TEMPLATE_BG_MESSAGES,
   ...TEMPLATE_APPLICATION_BG_MESSAGES,

@@ -1,6 +1,7 @@
 import {
   APP_ROUTES,
   createTaskHref,
+  calendarHref,
   parseAppLocation,
   eventHref,
   eventEditHref,
@@ -25,6 +26,8 @@ export function safeReturnTo(value: string | null): string {
     if (readInvitationToken(url.pathname) && !url.search) return url.pathname;
     const location = parseAppLocation(path, url.search);
     if (path === "/events/new") return path;
+    if (location.path === "/calendar" && location.calendar)
+      return calendarHref(location.eventId, location.calendar);
     if (location.eventId) {
       if (location.changeId)
         return changeHref(location.eventId, location.changeId);

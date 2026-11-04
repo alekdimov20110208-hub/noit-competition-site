@@ -1,4 +1,5 @@
 import {
+  CalendarDays,
   ClipboardCheck,
   LayoutDashboard,
   RefreshCcw,
@@ -7,10 +8,15 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { MessageKey } from "./i18n/index.ts";
+import {
+  parseCalendarLocation,
+  type CalendarLocation,
+} from "./pages/calendar/views.ts";
 
 export type AppPath =
   | "/"
   | "/tasks"
+  | "/calendar"
   | "/team"
   | "/changes"
   | "/templates"
@@ -35,6 +41,7 @@ export type AppLocation = (
   eventId: string | null;
   eventMode: "workspace" | "create" | "edit" | "duplicate";
   changeId?: string | null;
+  calendar?: CalendarLocation;
 };
 
 export interface AppRoute {
@@ -74,6 +81,12 @@ export const APP_ROUTES: AppRoute[] = [
     labelKey: "nav.templates",
     mobileLabelKey: "nav.templates",
     icon: RefreshCcw,
+  },
+  {
+    path: "/calendar",
+    labelKey: "nav.calendar",
+    mobileLabelKey: "nav.calendar",
+    icon: CalendarDays,
   },
 ];
 
@@ -137,7 +150,7 @@ export function parseAppLocation(
   if (normalized === "/events/new")
     return { path: "/", taskId: null, eventId: null, eventMode: "create" };
   const scoped =
-    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/(dashboard|tasks|team|changes|templates|edit|history|duplicate)$/i.exec(
+    /^\/events\/([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})\/(dashboard|tasks|team|changes|templates|calendar|edit|history|duplicate)$/i.exec(
       normalized,
     );
   const eventId = scoped?.[1]?.toLowerCase() ?? null;
@@ -155,7 +168,16 @@ export function parseAppLocation(
     return { path, taskId: getTaskId(search), eventId, eventMode };
   }
 
-  return { path, taskId: null, eventId, eventMode };
+  const calendar = path === "/calendar" ? parseCalendarLocation(search) : null;
+  return {
+    path,
+    taskId: null,
+    eventId,
+    eventMode,
+    ...(calendar && (calendar.view !== "month" || calendar.date)
+      ? { calendar }
+      : {}),
+  };
 }
 
 export function eventHref(
@@ -172,6 +194,17 @@ export function eventHref(
   return path === "/tasks" && taskId?.trim()
     ? `${base}?task=${encodeURIComponent(taskId)}`
     : base;
+}
+
+export function calendarHref(
+  eventId: string | null,
+  location: CalendarLocation,
+): string {
+  const base = eventId ? eventHref(eventId, "/calendar") : "/calendar";
+  const params = new URLSearchParams();
+  if (location.view !== "month") params.set("view", location.view);
+  if (location.date) params.set("date", location.date);
+  return params.size ? `${base}?${params}` : base;
 }
 
 export function eventEditHref(eventId: string): string {

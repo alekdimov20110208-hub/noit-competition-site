@@ -3167,7 +3167,7 @@ h3 {
     bottom: 0;
     left: 0;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     min-height: calc(66px + env(safe-area-inset-bottom, 0px));
     padding: 6px max(6px, env(safe-area-inset-left, 0px))
       calc(6px + env(safe-area-inset-bottom, 0px))

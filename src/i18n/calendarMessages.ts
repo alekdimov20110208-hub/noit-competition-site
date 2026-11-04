@@ -1,0 +1,58 @@
+export const CALENDAR_EN_MESSAGES = {
+  "nav.calendar": "Calendar",
+  "calendar.description": "Event dates and task deadlines. Read-only calendar.",
+  "calendar.views": "Calendar view",
+  "calendar.view.month": "Month",
+  "calendar.view.week": "Week",
+  "calendar.view.list": "List",
+  "calendar.agenda": "Agenda",
+  "calendar.previousWeek": "Previous week",
+  "calendar.nextWeek": "Next week",
+  "calendar.today": "Today",
+  "calendar.emptyDay": "No tasks due.",
+  "calendar.emptyList": "No tasks for this event.",
+  "calendar.noDeadline": "No deadline",
+  "calendar.previous": "Previous month",
+  "calendar.next": "Next month",
+  "calendar.current": "Current month",
+  "calendar.timezone":
+    "Event timezone: {timezone}. Dates stay on their stored day; times are local to this Event.",
+  "calendar.dateOnly": "No time set",
+  "calendar.eventRange": "{event} · Event dates {range}",
+  "calendar.eventDay": "{date}, event day",
+  "calendar.empty": "No Task deadlines this month.",
+  "calendar.count": "Tasks this month: {count}",
+  "calendar.scroll":
+    "On small screens, scroll the calendar horizontally. Use Tab to focus it, then the arrow keys to scroll. Tab also reaches every Task.",
+  "calendar.refresh": "Refresh calendar",
+} as const;
+
+export const CALENDAR_BG_MESSAGES = {
+  "nav.calendar": "Календар",
+  "calendar.description":
+    "Дати на събитието и срокове на задачите. Календар само за преглед.",
+  "calendar.views": "Изглед на календара",
+  "calendar.view.month": "Месец",
+  "calendar.view.week": "Седмица",
+  "calendar.view.list": "Списък",
+  "calendar.agenda": "Дневен ред",
+  "calendar.previousWeek": "Предишна седмица",
+  "calendar.nextWeek": "Следваща седмица",
+  "calendar.today": "Днес",
+  "calendar.emptyDay": "Няма задачи със срок.",
+  "calendar.emptyList": "Няма задачи за това събитие.",
+  "calendar.noDeadline": "Без срок",
+  "calendar.previous": "Предишен месец",
+  "calendar.next": "Следващ месец",
+  "calendar.current": "Текущ месец",
+  "calendar.timezone":
+    "Часова зона на събитието: {timezone}. Датите остават на записания ден; часовете са местни за събитието.",
+  "calendar.dateOnly": "Без зададен час",
+  "calendar.eventRange": "{event} · Дати на събитието {range}",
+  "calendar.eventDay": "{date}, ден на събитието",
+  "calendar.empty": "Няма задачи със срок през този месец.",
+  "calendar.count": "Задачи през месеца: {count}",
+  "calendar.scroll":
+    "На малък екран превъртете календара хоризонтално. С Tab го фокусирайте, после превъртайте със стрелките. Tab достига и всяка задача.",
+  "calendar.refresh": "Обнови календара",
+} satisfies Record<keyof typeof CALENDAR_EN_MESSAGES, string>;

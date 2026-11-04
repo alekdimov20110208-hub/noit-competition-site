@@ -20,7 +20,7 @@ import {
   APP_ROUTES,
 } from "./routes.ts";
 
-test("Event history deep links retain scope, login return and Event switching without a sixth navigation item", () => {
+test("Event history deep links retain scope and stay outside workspace navigation", () => {
   const id = randomUUID(),
     other = randomUUID();
   const href = eventHref(id, "/history");
@@ -35,11 +35,11 @@ test("Event history deep links retain scope, login return and Event switching wi
     eventHref(other, parseAppLocation(href, "").path),
     `/events/${other}/history`,
   );
-  assert.equal(APP_ROUTES.length, 5);
+  assert.ok(APP_ROUTES.every((route) => route.path !== "/history"));
   assert.equal(safeReturnTo("/history"), "/");
 });
 
-test("Event management is global, ignores detail context and leaves the five workspace routes intact", () => {
+test("Event management is global and leaves workspace navigation intact", () => {
   for (const pathname of ["/events", "/events/", "/events///"]) {
     assert.deepEqual(parseAppLocation(pathname, "?task=old&change=old"), {
       path: "/events",
@@ -55,7 +55,7 @@ test("Event management is global, ignores detail context and leaves the five wor
   assert.equal(eventHref(randomUUID(), "/events"), "/events");
   assert.deepEqual(
     APP_ROUTES.map((route) => route.path),
-    ["/", "/tasks", "/team", "/changes", "/templates"],
+    ["/", "/tasks", "/team", "/changes", "/templates", "/calendar"],
   );
 });
 
@@ -80,7 +80,7 @@ test("strict global management login return accepts only the canonical route", (
     assert.equal(safeReturnTo(href), "/");
 });
 
-test("all five Event-scoped pages preserve route and login scope", () => {
+test("all Event-scoped pages preserve route and login scope", () => {
   const id = randomUUID();
   for (const route of APP_ROUTES) {
     const href = eventHref(id, route.path);

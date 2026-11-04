@@ -328,7 +328,9 @@ export function TaskDrawer({
                           </p>
                         </div>
                       </div>
-                      {(!remoteControls || remoteControls.acceptance) && (
+                      {(remoteControls
+                        ? remoteControls.acceptance
+                        : onToggleAcknowledgement) && (
                         <button
                           type="button"
                           className="button button--secondary"
@@ -374,7 +376,9 @@ export function TaskDrawer({
                   </div>
 
                   <div className="task-progress-panel">
-                    {!remoteControls || remoteControls.status ? (
+                    {(
+                      remoteControls ? remoteControls.status : onStatusChange
+                    ) ? (
                       <BudoSelect<TaskStatus>
                         id={`drawer-status-${task.id}`}
                         className="field-stack task-status-select"
