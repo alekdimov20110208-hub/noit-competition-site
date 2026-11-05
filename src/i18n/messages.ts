@@ -46,6 +46,7 @@ import {
 import { DEMO_BG_MESSAGES, DEMO_EN_MESSAGES } from "./demoMessages.ts";
 import { TEAM_BG_MESSAGES, TEAM_EN_MESSAGES } from "./teamMessages.ts";
 import { AUTH_BG_MESSAGES, AUTH_EN_MESSAGES } from "./authMessages.ts";
+import { LANDING_BG_MESSAGES, LANDING_EN_MESSAGES } from "./landingMessages.ts";
 import { SIGNUP_BG_MESSAGES, SIGNUP_EN_MESSAGES } from "./signupMessages.ts";
 import {
   TASK_READ_BG_MESSAGES,
@@ -55,7 +56,7 @@ import {
 const UI_EN_MESSAGES = {
   "meta.title": "BudoGraph organizer workspace",
   "meta.description":
-    "BudoGraph organizer workspace for martial-arts seminars and events.",
+    "Plan martial arts seminars and tournaments, coordinate your team, and manage changes in BudoGraph.",
   "common.invalidDate": "Invalid date",
   "common.unassigned": "Unassigned",
   "common.cancel": "Cancel",
@@ -405,6 +406,7 @@ export const EN_MESSAGES = {
   ...WORKSPACE_EN_MESSAGES,
   ...AUTH_EN_MESSAGES,
   ...SIGNUP_EN_MESSAGES,
+  ...LANDING_EN_MESSAGES,
   ...SAFETY_EN_MESSAGES,
   ...PROFILE_EN_MESSAGES,
   ...TEAM_EN_MESSAGES,
@@ -420,7 +422,7 @@ export type MessageValues = Readonly<
 const UI_BG_MESSAGES = {
   "meta.title": "Организаторско пространство BudoGraph",
   "meta.description":
-    "Организаторско пространство BudoGraph за семинари и събития по бойни изкуства.",
+    "Планирайте семинари и турнири по бойни изкуства, координирайте екипа и управлявайте промените в BudoGraph.",
   "common.invalidDate": "Невалидна дата",
   "common.unassigned": "Без отговорник",
   "common.cancel": "Отказ",
@@ -772,6 +774,7 @@ export const BG_MESSAGES = {
   ...WORKSPACE_BG_MESSAGES,
   ...AUTH_BG_MESSAGES,
   ...SIGNUP_BG_MESSAGES,
+  ...LANDING_BG_MESSAGES,
   ...SAFETY_BG_MESSAGES,
   ...PROFILE_BG_MESSAGES,
   ...TEAM_BG_MESSAGES,

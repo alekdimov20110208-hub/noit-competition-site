@@ -1,5 +1,22 @@
 # AI Assistance Log
 
+## 2026-11-05 — Landing L1.1
+
+Codex refined the existing uncommitted L1 with the owner-requested martial arts
+identity and one coherent seminar example. Browser measurements reproduced mobile
+header wrapping and narrow Kanban columns. Scoped grid and container-query fixes
+were checked in Chromium at four widths, both languages and both themes.
+See [L1.1 verification](BUDOGRAPH_LANDING_L1.md) and the local evidence under
+tmp/landing-l1-1/. Owner HUMAN review is pending.
+
+## 2026-11-05 — Landing L1
+
+Codex implemented the bilingual public page, shared theme controls, labelled
+product examples and the guest-root branch of the existing auth boundary.
+The local Fastify preview and Chromium verification use controlled HTTP
+fixtures. See [Landing L1](BUDOGRAPH_LANDING_L1.md) for reproduction and
+limits. Owner code review and human acceptance are pending.
+
 ## 2026-11-05 — Changes & Plan B C1-A
 
 Codex added next-action guidance and grouped canonical Task impact to the existing

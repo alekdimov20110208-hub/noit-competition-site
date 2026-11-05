@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { LandingPage } from "../pages/LandingPage.tsx";
 import { LoginPage } from "../pages/LoginPage.tsx";
 import { AuthShell } from "./AuthShell.tsx";
 import { useI18n } from "../i18n/index.ts";
@@ -22,6 +23,7 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
   const [location, setLocation] = useState(() => window.location.href);
   const hadSession = useRef(false);
   const url = new URL(location);
+  const atRoot = url.pathname === "/";
   const atLogin = isLoginPath(url.pathname);
   const atSignup = url.pathname === "/signup";
   const [signupEnabled, setSignupEnabled] = useState<boolean | null>(null);
@@ -79,6 +81,7 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
       if (atLogin || atSignup) replaceAuthLocation(returnTo);
     } else if (
       state.status === "unauthenticated" &&
+      (!atRoot || hadSession.current) &&
       !atLogin &&
       !atSignup &&
       !atInvitation &&
@@ -94,6 +97,7 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
     }
   }, [
     state.status,
+    atRoot,
     atLogin,
     atSignup,
     atInvitation,
@@ -101,6 +105,10 @@ export function AuthBoundary({ children }: { children: ReactNode }) {
     location,
     safety,
   ]);
+
+  // Only the exact public root can render before the session is confirmed.
+  if (atRoot && state.status !== "authenticated" && !hadSession.current)
+    return <LandingPage signupEnabled={signupEnabled} />;
 
   if (
     state.status === "loading" ||
