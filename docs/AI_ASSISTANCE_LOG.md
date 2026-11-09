@@ -2531,3 +2531,47 @@ the production parser veto and local-only DB witness; a separately approved
 staging-only strategy is documented, not implemented. Focused independent
 review is next. See BUDOGRAPH_D5_B1_F1_REMEDIATION.md and the unique task evidence
 directory recorded there. No human acceptance is claimed.
+
+## 2026-11-09 — Mobile account menu, local bug fix
+
+Codex investigated only mobile Profile/Logout on release
+`7617b2942d166d78d316c0bf32e789914e2993a9`, in the authorized isolated
+`codex/mobile-account-menu-fix` worktree. The original mobile blur handler closed
+the native details menu for a null relatedTarget before activation. The local
+regression fixture reproduced that closure on the original code; its occurrence
+on the owner's physical phone remains a likely diagnosis, not a device-verified
+fact. Account links, sign-out logic, CSS and backend authentication are unchanged.
+
+AccountControl now closes on an actual outside pointerdown or outside focusin;
+it keeps native summary toggling and existing Escape/focus-return behavior.
+No timing delay or pointer-triggered sign-out was added. Existing pending guards
+and logout failure/retry behavior are preserved.
+
+Added `scripts/verify-mobile-account-menu-ui.mjs`: real AppShell/AccountControl/
+AppLink rendering with an explicitly synthetic auth callback, an isolated browser
+context and blocked backend/external requests. PASS on Chromium 148.0.7778.96:
+null-relatedTarget blur before Profile/Logout tap, /account navigation, one pending
+sign-out callback, failure/retry and /login navigation, internal/outside taps,
+native summary toggling, Enter/Space/Tab/Escape, 320px/390px touch targets/hit tests,
+and desktop Profile/Logout. This does not prove physical mobile behavior.
+Physical Safari and Firefox: NOT VERIFIED; no installed Firefox/WebKit run.
+
+Four existing logout tests passed using Node's test-name filter; focused
+TypeScript (no emit/cache) and AccountControl ESLint checks passed. Existing
+dependencies were read from the primary worktree and bundled runtime without
+installation or writes there. The initial direct Node test invocation could not
+resolve dependencies from the new worktree; a task-local resolver reused the
+installed packages, and the focused tests then passed. Two fixture-only setup
+issues (an outside target under the dropdown and an already-open test menu) were
+corrected before the final passing run.
+
+To rerun the browser fixture, use `node scripts/verify-mobile-account-menu-ui.mjs`.
+Optional `BUDOGRAPH_DEPENDENCY_ROOT` selects an existing project dependency root;
+`BUDOGRAPH_PLAYWRIGHT_MODULE` selects an installed Playwright module file;
+`BUDOGRAPH_BROWSER_EXECUTABLE` selects an installed Chromium executable. No
+installation, real auth client, account, credential, token, cookie or database
+is needed. The required master prompt and 2025–2026 regulations were read;
+year-specific competition rules require verification for later participation.
+
+Owner and technical review are pending. No commit, push, merge, deployment,
+dependency installation, database operation or hosted change was performed.

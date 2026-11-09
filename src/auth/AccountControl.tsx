@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LogOut, UserRound } from "lucide-react";
 import { AppLink } from "../components/AppLink.tsx";
 import { avatarInitials } from "./profile.ts";
@@ -21,6 +21,28 @@ export function AccountControl({
   const [error, setError] = useState<AuthError | null>(null);
   const pending = useRef(false);
   const menu = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    if (!mobile || state.status !== "authenticated") return;
+    function closeOutside(event: Event) {
+      const details = menu.current;
+      if (
+        details?.open &&
+        event.target instanceof Node &&
+        !details.contains(event.target)
+      )
+        details.open = false;
+    }
+    // A touch can blur the summary with no relatedTarget before click fires.
+    // Close from the actual outside interaction, not that ambiguous blur.
+    document.addEventListener("pointerdown", closeOutside, true);
+    document.addEventListener("focusin", closeOutside);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside, true);
+      document.removeEventListener("focusin", closeOutside);
+    };
+  }, [mobile, state.status]);
+
   if (state.status !== "authenticated") return null;
 
   async function logout() {
@@ -87,10 +109,6 @@ export function AccountControl({
           menu.current.querySelector("summary")?.focus();
           event.stopPropagation();
         }
-      }}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget))
-          event.currentTarget.open = false;
       }}
     >
       <summary aria-label={t("auth.account")}>
