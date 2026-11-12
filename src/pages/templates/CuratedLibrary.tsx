@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { BookOpen, CalendarDays } from "lucide-react";
+import { useEffect, useRef, useState, type FocusEvent } from "react";
+import { BookOpen, CalendarDays, Search } from "lucide-react";
 import {
   curatedCategories,
   curatedDifficulties,
@@ -26,6 +26,15 @@ type Props = {
   onUnauthorized: () => void;
   onNavigate: (href: string) => void;
 };
+function keepPointerFocusStable(event: FocusEvent<HTMLElement>) {
+  // The page reveals keyboard focus by scrolling. Pointer focus must not move
+  // a button between pointer-down and click, especially above mobile navigation.
+  if (
+    event.target instanceof HTMLButtonElement &&
+    !event.target.matches(":focus-visible")
+  )
+    event.stopPropagation();
+}
 function CuratedDetail({
   template,
   ...props
@@ -273,7 +282,7 @@ function CuratedDetail({
 }
 
 export function CuratedLibrary(props: Props) {
-  const { t, language } = useI18n();
+  const { t, language, formatNumber } = useI18n();
   const [templates, setTemplates] = useState<CuratedTemplate[] | null>(null);
   const [error, setError] = useState(false),
     [retry, setRetry] = useState(0);
@@ -281,6 +290,7 @@ export function CuratedLibrary(props: Props) {
     [category, setCategory] = useState(""),
     [difficulty, setDifficulty] = useState("");
   const [opened, setOpened] = useState<string | null>(null);
+  const [lastPreviewed, setLastPreviewed] = useState<string | null>(null);
   const unauthorized = useRef(props.onUnauthorized);
   unauthorized.current = props.onUnauthorized;
   const opener = useRef<string | null>(null);
@@ -289,6 +299,7 @@ export function CuratedLibrary(props: Props) {
     setTemplates(null);
     setError(false);
     setOpened(null);
+    setLastPreviewed(null);
     void fetchCuratedCatalog(
       AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
     )
@@ -323,7 +334,7 @@ export function CuratedLibrary(props: Props) {
   const template = templates.find((entry) => entry.id === opened);
   if (template)
     return (
-      <div className="curated-library">
+      <div className="curated-library" onFocus={keepPointerFocusStable}>
         <button
           type="button"
           className="button button--quiet"
@@ -351,29 +362,44 @@ export function CuratedLibrary(props: Props) {
     difficulty,
     language,
   );
+  const hasFilters = Boolean(search || category || difficulty);
+  const clearFilters = () => {
+    setSearch("");
+    setCategory("");
+    setDifficulty("");
+    document.getElementById("curated-library-search")?.focus();
+  };
   return (
     <section
       className="curated-library"
       aria-labelledby="curated-library-title"
+      onFocus={keepPointerFocusStable}
     >
       <div>
         <h2 id="curated-library-title">{t("templates.t4.library")}</h2>
-        <p>{t("templates.t4.description")}</p>
+        <p id="curated-library-scope">{t("templates.t5.scope")}</p>
       </div>
       <div className="curated-library__filters">
         <label>
           {t("templates.t4.search")}
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            maxLength={200}
-          />
+          <span className="curated-library__search">
+            <Search size={18} aria-hidden="true" />
+            <input
+              id="curated-library-search"
+              type="search"
+              value={search}
+              placeholder={t("templates.t5.searchPlaceholder")}
+              aria-controls="curated-library-results"
+              onChange={(event) => setSearch(event.target.value)}
+              maxLength={200}
+            />
+          </span>
         </label>
         <label>
           {t("templates.t4.category")}
           <select
             aria-label={t("templates.t4.category")}
+            aria-controls="curated-library-results"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
           >
@@ -389,6 +415,7 @@ export function CuratedLibrary(props: Props) {
           {t("templates.t4.difficulty")}
           <select
             aria-label={t("templates.t4.difficulty")}
+            aria-controls="curated-library-results"
             value={difficulty}
             onChange={(event) => setDifficulty(event.target.value)}
           >
@@ -401,61 +428,84 @@ export function CuratedLibrary(props: Props) {
           </select>
         </label>
       </div>
-      <p role="status" aria-live="polite">
-        {t("templates.t4.results", {
-          count: filtered.length,
-          total: templates.length,
-        })}
-      </p>
-      {!templates.length ? (
-        <p>{t("templates.t4.empty")}</p>
-      ) : !filtered.length ? (
-        <div>
-          <p>{t("templates.t4.noResults")}</p>
-          <button
-            type="button"
-            className="button button--secondary"
-            onClick={() => {
-              setSearch("");
-              setCategory("");
-              setDifficulty("");
-            }}
+      <div className="curated-library__results-bar">
+        <p role="status" aria-live="polite" aria-atomic="true">
+          {t("templates.t4.results", {
+            count: formatNumber(filtered.length),
+            total: formatNumber(templates.length),
+          })}
+        </p>
+        <button
+          type="button"
+          className="button button--quiet"
+          disabled={!hasFilters}
+          onClick={clearFilters}
+        >
+          {t("templates.t4.clear")}
+        </button>
+      </div>
+      <div id="curated-library-results">
+        {!templates.length ? (
+          <p>{t("templates.t4.empty")}</p>
+        ) : !filtered.length ? (
+          <div className="curated-library__empty">
+            <p>{t("templates.t4.noResults")}</p>
+          </div>
+        ) : (
+          <ul
+            className="curated-library__list"
+            role="list"
+            aria-label={t("templates.t4.library")}
+            aria-describedby="curated-library-scope"
           >
-            {t("templates.t4.clear")}
-          </button>
-        </div>
-      ) : (
-        <div className="curated-library__grid">
-          {filtered.map((entry) => (
-            <article key={entry.id} className="curated-library__card">
-              <div className="curated-library__badges">
-                <span>{t(`templates.t4.${entry.category}`)}</span>
-                <span>{t(`templates.t4.${entry.difficulty}`)}</span>
-              </div>
-              <h3>{entry.name[language]}</h3>
-              <p>{entry.description[language]}</p>
-              <p className="curated-library__count">
-                {t("templates.t4.count", {
-                  count: entry.itemCount,
-                  version: entry.version,
-                })}
-              </p>
-              <button
-                type="button"
-                className="button button--secondary"
-                aria-label={`${t("templates.t4.open")}: ${entry.name[language]}`}
-                id={`${entry.id}-open`}
-                onClick={() => {
-                  opener.current = `${entry.id}-open`;
-                  setOpened(entry.id);
-                }}
+            {filtered.map((entry) => (
+              <li
+                key={entry.id}
+                className="curated-library__row"
+                data-selected={lastPreviewed === entry.id}
               >
-                {t("templates.t4.open")}
-              </button>
-            </article>
-          ))}
-        </div>
-      )}
+                <div className="curated-library__name">
+                  <h3>{entry.name[language]}</h3>
+                  <p className="curated-library__meta">
+                    <span>{t(`templates.t4.${entry.difficulty}`)}</span>
+                    <span>v{formatNumber(entry.version)}</span>
+                    {lastPreviewed === entry.id && (
+                      <span className="curated-library__selected">
+                        {t("templates.t5.lastPreviewed")}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <dl className="curated-library__facts">
+                  <div>
+                    <dt>{t("templates.t4.category")}</dt>
+                    <dd>{t(`templates.t4.${entry.category}`)}</dd>
+                  </div>
+                  <div>
+                    <dt>{t("templates.t5.taskCount")}</dt>
+                    <dd className="curated-library__count">
+                      {formatNumber(entry.itemCount)}
+                    </dd>
+                  </div>
+                </dl>
+                <button
+                  type="button"
+                  className="button button--secondary"
+                  aria-label={`${t("templates.t4.open")}: ${entry.name[language]}`}
+                  id={`${entry.id}-open`}
+                  onClick={() => {
+                    opener.current = `${entry.id}-open`;
+                    setLastPreviewed(entry.id);
+                    setOpened(entry.id);
+                  }}
+                >
+                  {t("templates.t4.open")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }

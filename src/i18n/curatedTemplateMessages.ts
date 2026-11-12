@@ -1,4 +1,9 @@
 export const CURATED_TEMPLATE_EN_MESSAGES = {
+  "templates.t5.scope":
+    "Task counts show the plan's scope, not an estimate of time or effort. Open a plan to review its Tasks before applying it.",
+  "templates.t5.searchPlaceholder": "Name, audience or Task keywords",
+  "templates.t5.taskCount": "Tasks",
+  "templates.t5.lastPreviewed": "Last previewed",
   "templates.t4.eyebrow": "Plans for your next event",
   "templates.t4.library": "Curated Library",
   "templates.t4.description":
@@ -39,6 +44,11 @@ export const CURATED_TEMPLATE_EN_MESSAGES = {
   "templates.t4.history": "Open Event History",
 } as const;
 export const CURATED_TEMPLATE_BG_MESSAGES = {
+  "templates.t5.scope":
+    "Броят задачи показва обхвата на плана, без да оценява време или усилия. Отворете план, за да прегледате задачите преди прилагане.",
+  "templates.t5.searchPlaceholder": "Име, аудитория или думи от задача",
+  "templates.t5.taskCount": "Задачи",
+  "templates.t5.lastPreviewed": "Последно прегледан",
   "templates.t4.eyebrow": "Планове за следващото ви събитие",
   "templates.t4.library": "Библиотека с готови шаблони",
   "templates.t4.description":
