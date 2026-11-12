@@ -250,8 +250,8 @@ try {
         report.cases.push({ width, language, theme, mode, status: "PASS" });
         continue;
       }
-      await page.locator(".curated-library__card").first().waitFor();
-      assert.equal(await page.locator(".curated-library__card").count(), 24);
+      await page.locator(".curated-library__row").first().waitFor();
+      assert.equal(await page.locator(".curated-library__row").count(), 24);
       // Inspect all new detail lists in both languages at the narrowest width.
       if (mode === "normal" && width === 320 && theme === "dark") {
         for (let index = 12; index < CURATED_TEMPLATES.length; index++) {
@@ -284,7 +284,7 @@ try {
       );
       const search = page.getByRole("searchbox");
       await search.fill(language === "bg" ? "кантар" : "weigh-in");
-      assert.equal(await page.locator(".curated-library__card").count(), 1);
+      assert.equal(await page.locator(".curated-library__row").count(), 1);
       await search.fill("nonexistent-2026");
       await page
         .getByText(i18n.t("templates.t4.noResults"), { exact: true })
@@ -296,7 +296,7 @@ try {
       await page
         .getByLabel(i18n.t("templates.t4.difficulty"), { exact: true })
         .selectOption("beginner");
-      assert.equal(await page.locator(".curated-library__card").count(), 1);
+      assert.equal(await page.locator(".curated-library__row").count(), 1);
       await page
         .getByLabel(i18n.t("templates.t4.category"), { exact: true })
         .selectOption("");

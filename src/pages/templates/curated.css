@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 18px;
   min-width: 0;
+  container-type: inline-size;
 }
 
 .templates-library-tabs {
@@ -42,71 +43,143 @@
   background: var(--surface);
   font: inherit;
 }
+.curated-library__search {
+  position: relative;
+}
+.curated-library__search svg {
+  position: absolute;
+  inset-inline-start: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-soft);
+  pointer-events: none;
+}
+.curated-library__search input {
+  padding-inline-start: 38px;
+}
 .curated-library__filters input:focus-visible,
 .curated-library__filters select:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
-.curated-library__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-.curated-library__card {
+.curated-library__results-bar {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-  padding: 22px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 13px;
+}
+.curated-library__results-bar .button:disabled {
+  color: var(--ink-soft);
+}
+.curated-library__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface);
 }
-.curated-library__card h3 {
-  font-size: 18px;
-  line-height: 1.4;
-  margin: 0;
+.curated-library__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-inline-start: 3px solid transparent;
 }
-.curated-library__card p {
-  font-size: 13px;
+.curated-library__row + .curated-library__row {
+  border-top: 1px solid var(--line);
 }
-.curated-library__card .button {
-  align-self: flex-start;
-  margin-top: auto;
+.curated-library__row:first-child {
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
 }
-.curated-library__badges {
+.curated-library__row:last-child {
+  border-end-start-radius: inherit;
+  border-end-end-radius: inherit;
+}
+.curated-library__row[data-selected="true"] {
+  border-inline-start-color: var(--accent);
+  background: var(--accent-soft);
+}
+.curated-library__row:focus-within {
+  background: var(--surface-soft);
+}
+.curated-library__name,
+.curated-library__facts > div {
+  min-width: 0;
+}
+.curated-library__row h3 {
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 0 0 4px;
+}
+.curated-library__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 12px;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+.curated-library__selected {
   color: var(--accent);
-  font-size: 11px;
   font-weight: 650;
+}
+.curated-library__facts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(56px, 0.4fr);
+  gap: 12px;
+  margin: 0;
+}
+.curated-library__facts dt {
+  color: var(--ink-soft);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.curated-library__facts dd {
+  margin: 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }
 .curated-library__count {
   font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
-@media (max-width: 1100px) {
-  .curated-library__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.curated-library .button {
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.curated-library__empty {
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+}
+@container (max-width: 720px) {
   .curated-library__filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .curated-library__filters label:first-child {
     grid-column: 1 / -1;
   }
+  .curated-library__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .curated-library__name {
+    grid-column: 1 / -1;
+  }
 }
-@media (max-width: 600px) {
-  .curated-library__grid,
-  .curated-library__filters {
+@container (max-width: 420px) {
+  .curated-library__filters,
+  .curated-library__row {
     grid-template-columns: minmax(0, 1fr);
   }
-  .curated-library__card {
-    padding: 18px;
+  .curated-library__row {
+    gap: 12px;
+    padding: 14px;
   }
-  .curated-library .button {
-    min-height: 44px;
-    white-space: normal;
-    text-align: start;
+  .curated-library__row .button {
+    width: 100%;
   }
 }
