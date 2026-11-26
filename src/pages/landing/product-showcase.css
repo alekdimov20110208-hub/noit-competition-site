@@ -19,10 +19,6 @@
 }
 
 .landing .landing-product-modules li {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  align-items: start;
-  gap: 13px;
   padding-block: 18px;
   border-bottom: 1px solid var(--line);
 }
@@ -41,14 +37,67 @@
   color: var(--accent);
 }
 
-.landing .landing-product-modules h3 {
+.landing .landing-product-module {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: start;
+  gap: 13px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.landing .landing-product-module::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -8px -10px;
+  border-radius: 6px;
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.landing .landing-product-module[aria-pressed="true"]::before {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  box-shadow: -3px 0 0 var(--accent);
+}
+
+@media (hover: hover) {
+  .landing .landing-product-module:hover:not([aria-pressed="true"])::before {
+    background: color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+}
+
+.landing .landing-product-module:active::before {
+  background: color-mix(in srgb, var(--accent) 19%, transparent);
+}
+
+.landing .landing-product-module:focus-visible,
+.landing .landing-product-image-error button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 6px;
+}
+
+.landing .landing-product-module-title {
+  display: block;
   font-size: 1.08rem;
   font-weight: 720;
   line-height: 1.35;
   letter-spacing: -0.02em;
 }
 
-.landing .landing-product-modules p {
+.landing .landing-product-module-body {
+  display: block;
   margin-top: 5px;
   color: var(--ink-soft);
   font-size: 0.92rem;
@@ -57,9 +106,11 @@
 
 .landing .landing-product-figure {
   min-width: 0;
+  scroll-margin-block: 16px;
 }
 
-.landing .landing-product-image-link {
+.landing .landing-product-image-frame {
+  position: relative;
   display: block;
   overflow: hidden;
   border: 1px solid var(--line-strong);
@@ -68,11 +119,89 @@
   box-shadow: var(--shadow-md);
 }
 
+.landing .landing-product-image-frame::before {
+  content: "";
+  display: block;
+  aspect-ratio: 32 / 21;
+}
+
+.landing .landing-product-image-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.landing .landing-product-image-previous {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .landing .landing-product-image-link img {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 32 / 21;
+}
+
+.landing .landing-product-image-link img.is-loading {
+  opacity: 0;
+}
+.landing .landing-product-image-link img.is-ready {
+  animation: landing-showcase-reveal 180ms ease-out;
+}
+@keyframes landing-showcase-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.landing .landing-product-image-status {
+  position: absolute;
+  inset: auto 10px 10px;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.landing .landing-product-image-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.landing .landing-product-image-error button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing .landing-product-image-link img.is-ready {
+    animation: none;
+  }
+  .landing .landing-product-module::before {
+    transition: none;
+  }
 }
 
 .landing .landing-product-figure figcaption {
@@ -103,6 +232,11 @@
   outline-offset: 5px;
 }
 
+.landing .landing-product-image-frame:focus-within {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 5px;
+}
+
 @media (max-width: 1099px) {
   .landing .landing-product-showcase {
     grid-template-columns: minmax(0, 1fr);
@@ -125,7 +259,7 @@
     margin-top: 28px;
   }
 
-  .landing .landing-product-image-link {
+  .landing .landing-product-image-frame {
     border-radius: 8px;
   }
 
@@ -139,7 +273,7 @@
     display: block;
   }
 
-  .landing .landing-product-modules p {
+  .landing .landing-product-module-body {
     font-size: 0.95rem;
   }
 }

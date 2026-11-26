@@ -70,6 +70,9 @@ export const LANDING_EN_MESSAGES = {
     "BudoGraph task register showing preparation tasks, assignees, deadlines and status. Synthetic demonstration data.",
   "landing.screenshotCaption": "Actual application · demonstration data",
   "landing.screenshotFull": "View full size",
+  "landing.screenshotLoading": "Loading screenshot…",
+  "landing.screenshotError": "This screenshot could not be loaded.",
+  "landing.screenshotRetry": "Try again",
   "landing.screenshotOpen":
     "Open the full-size application screenshot in a new tab",
   "landing.featureBody":
@@ -208,6 +211,9 @@ export const LANDING_BG_MESSAGES = {
     "Регистър на задачите в BudoGraph със задачи по подготовката, отговорници, срокове и статуси. Синтетични демонстрационни данни.",
   "landing.screenshotCaption": "Реално приложение · демонстрационни данни",
   "landing.screenshotFull": "В пълен размер",
+  "landing.screenshotLoading": "Зареждане на екрана…",
+  "landing.screenshotError": "Екранът не можа да се зареди.",
+  "landing.screenshotRetry": "Опитайте отново",
   "landing.screenshotOpen":
     "Отворете снимката на приложението в пълен размер в нов раздел",
   "landing.featureBody":

@@ -231,3 +231,7 @@ transitive distribution audit and actual-year NOIT license check remain required
 ## T4.1 original editorial catalog — 2026-10-17
 
 The 12 new curated BG/EN plans, 108 Task texts and associated UI/source are original project content authored with Codex assistance, under the existing GPL-3.0-only project license. No external checklist text, image, font, asset or new dependency was imported. Existing React/Lucide and development-tool notices remain applicable. The owner has completed T4.1 editorial Human Acceptance 8/8. Actual-year NOIT requirements and legal/license certification remain separate checks; this entry is not legal certification.
+
+## Landing Stage 1.1 application captures — 2026-11-26
+
+The 24 original screenshots and 72 optimized WebP variants are project-owned renders of the approved BudoGraph application, with synthetic seminar records and the existing original curated template catalog. They are distributed under the project's GPL-3.0-only license. React, Lucide and existing UI resource notices above continue to apply. No Phase 14 redesign, external stock image, font, video or new application dependency is added. Screenshot routes, fixed viewport/clock, synthetic-data disclosure and SHA-256 provenance are recorded in the local Stage 1.1 review package. Browser capture and WebP conversion reuse preinstalled Playwright (Apache-2.0) and Sharp (Apache-2.0) as development tools outside the application dependency graph. Actual-year NOIT compliance and final distribution license review remain separate checks.
