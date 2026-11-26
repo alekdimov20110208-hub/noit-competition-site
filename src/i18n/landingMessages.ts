@@ -66,26 +66,30 @@ export const LANDING_EN_MESSAGES = {
   "landing.why3Body":
     "Link a change to the affected tasks and record the decision, response and backup plan.",
   "landing.featureTitle": "One seminar. Six connected views.",
+  "landing.screenshotAlt":
+    "BudoGraph task register showing preparation tasks, assignees, deadlines and status. Synthetic demonstration data.",
+  "landing.screenshotCaption": "Actual application · demonstration data",
+  "landing.screenshotFull": "View full size",
+  "landing.screenshotOpen":
+    "Open the full-size application screenshot in a new tab",
   "landing.featureBody":
-    "Follow the same example from confirming the training hall to coordinating a later opening time. All previews use illustrative data.",
+    "Tasks, deadlines, people and changes in one workspace for event preparation.",
   "landing.tasksTitle": "Tasks",
   "landing.tasksBody":
-    "Keep venue confirmation, the instructor's arrival and tatami setup together, each with an owner and deadline.",
+    "Give every preparation task a clear owner and deadline.",
   "landing.kanbanTitle": "Kanban board",
-  "landing.kanbanBody":
-    "Follow those same preparation tasks by status and see what is complete, in progress or still to do.",
+  "landing.kanbanBody": "See what is ready, in progress or still to do.",
   "landing.calendarTitle": "Calendar",
-  "landing.calendarBody":
-    "Review preparation deadlines alongside seminar dates. Open a task to check its details.",
+  "landing.calendarBody": "Keep task deadlines and event dates in view.",
   "landing.teamTitle": "Team",
   "landing.teamBody":
-    "See who coordinates the hall, equipment and instructor. Each person's actions depend on their role in the event.",
+    "Make responsibilities and event roles clear to the team.",
   "landing.templatesTitle": "Event templates",
   "landing.templatesBody":
-    "Start with a seminar plan or instructor logistics. Review suggested tasks and dates before applying them.",
+    "Review a ready-made plan and adapt its tasks and dates.",
   "landing.changesTitle": "Changes & Plan B",
   "landing.changesBody":
-    "If the hall opens later, see which preparation tasks are affected. The Organizer records the decision, response and optional Plan B.",
+    "Connect affected tasks to a decision, response and backup plan.",
   "landing.howTitle": "A plan for the work before the first training session.",
   "landing.step1Title": "Create an event",
   "landing.step1Body":
@@ -200,26 +204,31 @@ export const LANDING_BG_MESSAGES = {
   "landing.why3Body":
     "Свържете промяната със засегнатите задачи и запишете решение, реакция и резервен план.",
   "landing.featureTitle": "Един семинар. Шест свързани изгледа.",
+  "landing.screenshotAlt":
+    "Регистър на задачите в BudoGraph със задачи по подготовката, отговорници, срокове и статуси. Синтетични демонстрационни данни.",
+  "landing.screenshotCaption": "Реално приложение · демонстрационни данни",
+  "landing.screenshotFull": "В пълен размер",
+  "landing.screenshotOpen":
+    "Отворете снимката на приложението в пълен размер в нов раздел",
   "landing.featureBody":
-    "Проследете един пример от потвърждаването на тренировъчната зала до реакцията при по-късно отваряне. Всички изгледи показват примерни данни.",
+    "Задачи, срокове, екип и промени — в едно работно пространство за подготовката на събитието.",
   "landing.tasksTitle": "Задачи",
   "landing.tasksBody":
-    "Съберете потвърждаването на залата, пристигането на инструктора и подреждането на татамито, всяко със срок и отговорник.",
+    "Дайте на всяка задача по подготовката ясен отговорник и срок.",
   "landing.kanbanTitle": "Канбан табло",
   "landing.kanbanBody":
-    "Проследете същите задачи по подготовката според статуса им и вижте какво е завършено, в ход или предстои.",
+    "Вижте какво е готово, в процес на работа или предстои.",
   "landing.calendarTitle": "Календар",
   "landing.calendarBody":
-    "Съпоставете сроковете за подготовка с датите на семинара. Отворете задача за преглед на подробностите.",
+    "Следете сроковете на задачите заедно с датите на събитието.",
   "landing.teamTitle": "Екип",
-  "landing.teamBody":
-    "Вижте кой координира залата, екипировката и инструктора. Действията на всеки зависят от ролята му в събитието.",
+  "landing.teamBody": "Изяснете отговорностите и ролите на хората в екипа.",
   "landing.templatesTitle": "Шаблони за събития",
   "landing.templatesBody":
-    "Започнете с план за семинар или логистика за инструктор. Прегледайте предложените задачи и дати, преди да ги приложите.",
+    "Прегледайте готов план и адаптирайте задачите и датите.",
   "landing.changesTitle": "Промени и План Б",
   "landing.changesBody":
-    "При по-късно отваряне на залата вижте засегнатите задачи. Организаторът записва решението, реакцията и при нужда План Б.",
+    "Свържете засегнатите задачи с решение, реакция и резервен план.",
   "landing.howTitle": "План за работата преди първата тренировка.",
   "landing.step1Title": "Създайте събитие",
   "landing.step1Body":

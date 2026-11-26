@@ -1,33 +1,11 @@
 import { useRef, useState } from "react";
-import {
-  ArrowDown,
-  ArrowRight,
-  CalendarDays,
-  ChevronDown,
-  ClipboardList,
-  LayoutGrid,
-  Menu,
-  RefreshCw,
-  ShieldAlert,
-  Users,
-} from "lucide-react";
+import { ArrowDown, ArrowRight, ChevronDown, Menu } from "lucide-react";
 import { BrandWordmark } from "../components/BrandWordmark.tsx";
 import { PreferencesControls } from "../components/PreferencesControls.tsx";
 import { useI18n } from "../i18n/index.ts";
-import {
-  FeatureExample,
-  WorkspaceExample,
-} from "./landing/ProductExamples.tsx";
+import { WorkspaceExample } from "./landing/ProductExamples.tsx";
+import { ProductShowcase } from "./landing/ProductShowcase.tsx";
 import "./landing/landing.css";
-
-const MODULES = [
-  { id: "tasks", icon: ClipboardList },
-  { id: "kanban", icon: LayoutGrid },
-  { id: "calendar", icon: CalendarDays },
-  { id: "team", icon: Users },
-  { id: "templates", icon: RefreshCw },
-  { id: "changes", icon: ShieldAlert },
-] as const;
 
 const SECTIONS = [
   { id: "features", label: "landing.features" },
@@ -188,21 +166,7 @@ export function LandingPage({
               <h2 id="landing-features-title">{t("landing.featureTitle")}</h2>
               <p>{t("landing.featureBody")}</p>
             </div>
-            <div className="landing-feature-grid">
-              {MODULES.map(({ id, icon: Icon }) => (
-                <article key={id} className="landing-feature">
-                  <div className="landing-feature-label">
-                    <Icon size={20} aria-hidden="true" />
-                    <h3>{t(`landing.${id}Title`)}</h3>
-                  </div>
-                  <p>{t(`landing.${id}Body`)}</p>
-                  <figure className="landing-feature-example">
-                    <figcaption>{t("landing.example")}</figcaption>
-                    <FeatureExample module={id} />
-                  </figure>
-                </article>
-              ))}
-            </div>
+            <ProductShowcase />
           </div>
         </section>
 
